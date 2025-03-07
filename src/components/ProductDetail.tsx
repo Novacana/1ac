@@ -110,6 +110,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               <AddToCartButton
                 addedToCart={addedToCart}
                 onAddToCart={handleAddToCart}
+                productId={id}
+                productName={name}
+                productPrice={price}
+                productImage={images && images.length > 0 ? images[0] : ""}
               />
             </div>
           </div>
