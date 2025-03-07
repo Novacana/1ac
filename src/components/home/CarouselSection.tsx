@@ -9,19 +9,21 @@ interface CarouselSectionProps {
 }
 
 const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCategory }) => {
-  // Fix product image paths
+  // Fix product image paths and ensure images array exists
   const productsWithFixedPaths = products.map(product => {
-    if (product.images) {
-      const fixedImages = product.images.map(img => {
-        // If the path starts with "public/", remove it as it's already in the public folder
-        if (img.startsWith("public/")) {
-          return img.replace("public/", "/");
-        }
-        return img;
-      });
-      return { ...product, images: fixedImages };
-    }
-    return product;
+    // Create an images array if it doesn't exist (using the single image)
+    const imagesArray = product.images || (product.image ? [product.image] : []);
+    
+    // Fix image paths
+    const fixedImages = imagesArray.map(img => {
+      // If the path starts with "public/", remove it as it's already in the public folder
+      if (img.startsWith("public/")) {
+        return img.replace("public/", "/");
+      }
+      return img;
+    });
+    
+    return { ...product, images: fixedImages };
   });
 
   return (
