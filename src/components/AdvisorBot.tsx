@@ -1,28 +1,71 @@
+
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff } from "lucide-react";
+import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff, ChevronUp, Search, ShoppingCart, Book, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { products, getProductsByCategory } from "@/data/products";
 import { ProductDetailProps } from "@/components/ProductDetail";
 import { useConversation } from "@11labs/react";
+import { Input } from "@/components/ui/input";
 
 // Vordefinierter API-Schlüssel für ElevenLabs
 const ELEVENLABS_API_KEY = "e9d69bd26aaea5fc0e626febff0e5c6f";
 
+// LLM Context für bessere Empfehlungen
+const productKnowledgeBase = products.map(p => ({
+  id: p.id,
+  name: p.name,
+  category: p.category,
+  strain: p.strain,
+  effects: p.effects,
+  benefits: p.benefits,
+  thcContent: p.thc,
+  cbdContent: p.cbd,
+  terpenoids: p.terpenoids,
+  flavors: p.flavors
+}));
+
+const systemPrompt = `
+Du bist ein Berater für medizinisches Cannabis. Dein Zweck ist es, Menschen zu helfen, 
+die idealen Cannabis-Produkte für ihre individuellen Bedürfnisse zu finden.
+
+Du hast folgende Funktionen:
+1. Du kannst Produkte empfehlen, die zu den Symptomen, Wünschen oder Beschwerden des Nutzers passen.
+2. Du kannst Fragen zu Cannabis, seinen Wirkungen und medizinischen Anwendungen beantworten.
+3. Du kannst dem Nutzer helfen, sich durch die Website zu navigieren.
+
+Verwende die folgenden Tools, um dem Nutzer zu helfen:
+- navigateToPage: Navigiere zu einer bestimmten Seite der Website.
+- searchProducts: Suche nach Produkten basierend auf Stichworten oder Eigenschaften.
+- addToCart: Füge ein Produkt zum Warenkorb hinzu.
+- showProductDetails: Zeige Details zu einem bestimmten Produkt.
+
+Deine Antworten sollten knapp, freundlich und informativ sein. Vermeide lange Einleitungen.
+Verwende die Informationen, die dir zur Verfügung stehen, um immer die am besten geeignetsten Produktempfehlungen zu geben.
+
+Aktuelle Produktbasis: 
+${JSON.stringify(productKnowledgeBase).substring(0, 1000)}...
+`;
+
 const ProductAdvisor = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [userInput, setUserInput] = useState("");
   const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
   const [isPlaying, setIsPlaying] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState<ProductDetailProps[]>([]);
   const [showProducts, setShowProducts] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([
+    {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
+  ]);
   
   // Wir speichern den API-Schlüssel direkt und überspringen den Eingabebildschirm
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
@@ -30,6 +73,7 @@ const ProductAdvisor = () => {
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
   // ElevenLabs Voice Settings
   const conversation = useConversation({
@@ -47,7 +91,7 @@ const ProductAdvisor = () => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [botResponse, recommendedProducts]);
+  }, [conversationHistory, recommendedProducts]);
 
   useEffect(() => {
     // Cleanup function for speech services
@@ -136,9 +180,6 @@ const ProductAdvisor = () => {
       setIsPlaying(false);
     }
   };
-
-  // Die Funktion zum Speichern des API-Schlüssels wird nicht mehr benötigt
-  // und wurde entfernt
 
   const toggleVoice = () => {
     setIsVoiceEnabled(!isVoiceEnabled);
@@ -229,6 +270,205 @@ const ProductAdvisor = () => {
     }
   };
 
+  const handleSendMessage = () => {
+    if (userInput.trim()) {
+      processUserQuery(userInput);
+      setUserInput("");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  // Website navigation tools
+  const webTools = {
+    navigateToPage: (page: string) => {
+      let route = '';
+      
+      if (page.toLowerCase().includes('home') || page === '/') {
+        route = '/';
+      } else if (page.toLowerCase().includes('product') && !page.includes('/')) {
+        route = '/products';
+      } else if (page.toLowerCase().includes('cart') || page.toLowerCase().includes('warenkorb')) {
+        route = '/cart';
+      } else if (page.toLowerCase().includes('checkout') || page.toLowerCase().includes('kasse')) {
+        route = '/checkout';
+      } else {
+        route = page;
+      }
+      
+      // Close advisor before navigation
+      setTimeout(() => {
+        setIsOpen(false);
+        navigate(route);
+      }, 1000);
+      
+      return `Ich navigiere zu ${route}`;
+    },
+    
+    searchProducts: (query: string) => {
+      const lowerQuery = query.toLowerCase();
+      let matchedProducts = products.filter(p => 
+        p.name.toLowerCase().includes(lowerQuery) || 
+        (p.strain && p.strain.toLowerCase().includes(lowerQuery)) ||
+        (p.category && p.category.toLowerCase().includes(lowerQuery)) ||
+        (p.effects && p.effects.some(e => e.toLowerCase().includes(lowerQuery))) ||
+        (p.benefits && p.benefits.some(b => b.toLowerCase().includes(lowerQuery))) ||
+        (p.terpenoids && p.terpenoids.some(t => t.name.toLowerCase().includes(lowerQuery)))
+      );
+      
+      if (matchedProducts.length > 3) {
+        matchedProducts = matchedProducts.slice(0, 3);
+      }
+      
+      setRecommendedProducts(matchedProducts);
+      setShowProducts(matchedProducts.length > 0);
+      
+      return `Ich habe ${matchedProducts.length} Produkte gefunden, die zu "${query}" passen.`;
+    },
+    
+    showProductDetails: (productId: string | number) => {
+      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      const product = products.find(p => p.id === id);
+      
+      if (product) {
+        setTimeout(() => {
+          setIsOpen(false);
+          navigate(`/product/${id}`);
+        }, 1000);
+        return `Ich zeige dir Details zu ${product.name}`;
+      }
+      
+      return "Ich konnte dieses Produkt nicht finden.";
+    },
+    
+    addToCart: (productId: string | number, quantity: number = 1) => {
+      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      const product = products.find(p => p.id === id);
+      
+      if (product) {
+        // Normally we would call a cart context function here
+        toast({
+          title: "Produkt zum Warenkorb hinzugefügt",
+          description: `${quantity}x ${product.name} wurde zum Warenkorb hinzugefügt.`,
+        });
+        
+        return `Ich habe ${quantity}x ${product.name} zum Warenkorb hinzugefügt.`;
+      }
+      
+      return "Ich konnte dieses Produkt nicht finden.";
+    }
+  };
+
+  // Parse user message and detect tool usage intent
+  const detectToolIntent = (message: string): {tool: keyof typeof webTools, params: any} | null => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Navigation intent
+    if (
+      lowerMessage.includes('geh zu') || 
+      lowerMessage.includes('zeig mir die') || 
+      lowerMessage.includes('navigiere zu') || 
+      lowerMessage.includes('öffne') ||
+      lowerMessage.includes('zur seite')
+    ) {
+      if (lowerMessage.includes('startseite') || lowerMessage.includes('homepage')) {
+        return { tool: 'navigateToPage', params: '/' };
+      }
+      if (lowerMessage.includes('produkt') && !lowerMessage.includes('produkte')) {
+        // Extract product ID if available
+        const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
+        if (productIdMatch && productIdMatch[1]) {
+          return { tool: 'showProductDetails', params: parseInt(productIdMatch[1]) };
+        }
+      }
+      if (lowerMessage.includes('produkte') || lowerMessage.includes('produktseite')) {
+        return { tool: 'navigateToPage', params: '/products' };
+      }
+      if (lowerMessage.includes('warenkorb') || lowerMessage.includes('cart')) {
+        return { tool: 'navigateToPage', params: '/cart' };
+      }
+      if (lowerMessage.includes('kasse') || lowerMessage.includes('checkout')) {
+        return { tool: 'navigateToPage', params: '/checkout' };
+      }
+    }
+    
+    // Search intent
+    if (
+      lowerMessage.includes('such') || 
+      lowerMessage.includes('find') || 
+      lowerMessage.includes('zeig mir produkte für')
+    ) {
+      let searchQuery = "";
+      if (lowerMessage.includes('für')) {
+        const parts = lowerMessage.split('für');
+        if (parts.length > 1) {
+          searchQuery = parts[1].trim();
+        }
+      } else if (lowerMessage.includes('zu')) {
+        const parts = lowerMessage.split('zu');
+        if (parts.length > 1) {
+          searchQuery = parts[1].trim();
+        }
+      } else if (lowerMessage.includes('nach')) {
+        const parts = lowerMessage.split('nach');
+        if (parts.length > 1) {
+          searchQuery = parts[1].trim();
+        }
+      } else {
+        // Extract potential keywords
+        const keywords = ['schmerz', 'schlaf', 'angst', 'appetit', 'fokus', 'energie', 'entspannung', 'indica', 'sativa', 'hybrid'];
+        for (const keyword of keywords) {
+          if (lowerMessage.includes(keyword)) {
+            searchQuery = keyword;
+            break;
+          }
+        }
+      }
+      
+      if (searchQuery) {
+        return { tool: 'searchProducts', params: searchQuery };
+      }
+    }
+    
+    // Add to cart intent
+    if (
+      lowerMessage.includes('zum warenkorb hinzufügen') || 
+      lowerMessage.includes('in den warenkorb') || 
+      lowerMessage.includes('kaufen') ||
+      lowerMessage.includes('bestellen')
+    ) {
+      // Extract product ID and quantity if available
+      const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
+      const quantityMatch = lowerMessage.match(/(\d+)\s*stück/i);
+      
+      if (productIdMatch && productIdMatch[1]) {
+        const productId = parseInt(productIdMatch[1]);
+        const quantity = quantityMatch && quantityMatch[1] ? parseInt(quantityMatch[1]) : 1;
+        return { tool: 'addToCart', params: { productId, quantity } };
+      }
+    }
+    
+    // Show product details intent
+    if (
+      lowerMessage.includes('details zu produkt') || 
+      lowerMessage.includes('mehr über produkt') || 
+      lowerMessage.includes('information zu produkt')
+    ) {
+      // Extract product ID if available
+      const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
+      if (productIdMatch && productIdMatch[1]) {
+        return { tool: 'showProductDetails', params: parseInt(productIdMatch[1]) };
+      }
+    }
+    
+    return null;
+  };
+
   const processUserQuery = async (userQuery: string) => {
     if (userQuery.trim() === "" || isLoading) return;
     
@@ -242,81 +482,110 @@ const ProductAdvisor = () => {
         setIsPlaying(false);
       }
 
-      // Simulate a delay for processing
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Add user message to conversation history
+      setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
-      let response = "";
-      let matchedProducts: ProductDetailProps[] = [];
-      const query = userQuery.toLowerCase();
+      // Check if the user query implies using a tool
+      const toolIntent = detectToolIntent(userQuery);
       
-      if (query.includes("schmerz") || query.includes("pain")) {
-        response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
-        matchedProducts = [...products.filter(p => 
-          p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
-          p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
-        )].slice(0, 3);
-      } else if (query.includes("schlaf") || query.includes("sleep")) {
-        response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
-        matchedProducts = [...products.filter(p => 
-          p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
-          p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
-        )].slice(0, 3);
-      } else if (query.includes("angst") || query.includes("anxiety")) {
-        response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
-        matchedProducts = [...products.filter(p => 
-          p.effects?.some(e => e.toLowerCase().includes("angst")) ||
-          p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
-          p.strain?.toLowerCase().includes("indica")
-        )].slice(0, 3);
-      } else if (query.includes("appetit") || query.includes("hunger")) {
-        response = "Diese Produkte können den Appetit anregen:";
-        matchedProducts = [...products.filter(p => 
-          p.strain?.toLowerCase().includes("indica") || 
-          parseFloat(p.thc?.replace("%", "") || "0") > 15
-        )].slice(0, 3);
-      } else if (query.includes("thc")) {
-        response = "Hier sind unsere THC-haltigen Produkte:";
-        matchedProducts = [...products.filter(p => 
-          parseFloat(p.thc?.replace("%", "") || "0") > 15
-        )].slice(0, 3);
-      } else if (query.includes("cbd")) {
-        response = "Hier sind unsere CBD-haltigen Produkte:";
-        matchedProducts = [...products.filter(p => 
-          parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
-        )].slice(0, 3);
-      } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
-        response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
-        matchedProducts = [...products.filter(p => 
-          p.strain?.toLowerCase().includes("sativa") ||
-          p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
-        )].slice(0, 3);
-      } else if (query.includes("indica")) {
-        response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
-        matchedProducts = [...products.filter(p => 
-          p.strain?.toLowerCase().includes("indica")
-        )].slice(0, 3);
-      } else if (query.includes("sativa")) {
-        response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
-        matchedProducts = [...products.filter(p => 
-          p.strain?.toLowerCase().includes("sativa")
-        )].slice(0, 3);
-      } else if (query.includes("hybrid")) {
-        response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
-        matchedProducts = [...products.filter(p => 
-          p.strain?.toLowerCase().includes("hybrid")
-        )].slice(0, 3);
-      } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
-        response = "Hier sind einige unserer beliebtesten Produkte:";
-        matchedProducts = [...products].slice(0, 3);
+      if (toolIntent) {
+        // Use the detected tool
+        const { tool, params } = toolIntent;
+        const toolResponse = webTools[tool](params);
+        
+        // Add tool response to conversation
+        const botResponseText = `${toolResponse}`;
+        setBotResponse(botResponseText);
+        setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
+        
+        // Generate speech for the response if voice is enabled
+        if (isVoiceEnabled) {
+          speakResponse(botResponseText);
+        }
       } else {
-        response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
-        const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 3);
-        matchedProducts = randomProducts;
-      }
+        // Process with LLM algorithm (simplified for demo)
+        // In production, this would connect to an actual LLM API
+        let response = "";
+        let matchedProducts: ProductDetailProps[] = [];
+        const query = userQuery.toLowerCase();
+        
+        if (query.includes("schmerz") || query.includes("pain")) {
+          response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
+          matchedProducts = [...products.filter(p => 
+            p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
+            p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
+          )].slice(0, 3);
+        } else if (query.includes("schlaf") || query.includes("sleep")) {
+          response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
+          matchedProducts = [...products.filter(p => 
+            p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
+            p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
+          )].slice(0, 3);
+        } else if (query.includes("angst") || query.includes("anxiety")) {
+          response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
+          matchedProducts = [...products.filter(p => 
+            p.effects?.some(e => e.toLowerCase().includes("angst")) ||
+            p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
+            p.strain?.toLowerCase().includes("indica")
+          )].slice(0, 3);
+        } else if (query.includes("appetit") || query.includes("hunger")) {
+          response = "Diese Produkte können den Appetit anregen:";
+          matchedProducts = [...products.filter(p => 
+            p.strain?.toLowerCase().includes("indica") || 
+            parseFloat(p.thc?.replace("%", "") || "0") > 15
+          )].slice(0, 3);
+        } else if (query.includes("thc")) {
+          response = "Hier sind unsere THC-haltigen Produkte:";
+          matchedProducts = [...products.filter(p => 
+            parseFloat(p.thc?.replace("%", "") || "0") > 15
+          )].slice(0, 3);
+        } else if (query.includes("cbd")) {
+          response = "Hier sind unsere CBD-haltigen Produkte:";
+          matchedProducts = [...products.filter(p => 
+            parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
+          )].slice(0, 3);
+        } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
+          response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
+          matchedProducts = [...products.filter(p => 
+            p.strain?.toLowerCase().includes("sativa") ||
+            p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
+          )].slice(0, 3);
+        } else if (query.includes("indica")) {
+          response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
+          matchedProducts = [...products.filter(p => 
+            p.strain?.toLowerCase().includes("indica")
+          )].slice(0, 3);
+        } else if (query.includes("sativa")) {
+          response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
+          matchedProducts = [...products.filter(p => 
+            p.strain?.toLowerCase().includes("sativa")
+          )].slice(0, 3);
+        } else if (query.includes("hybrid")) {
+          response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
+          matchedProducts = [...products.filter(p => 
+            p.strain?.toLowerCase().includes("hybrid")
+          )].slice(0, 3);
+        } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
+          response = "Hier sind einige unserer beliebtesten Produkte:";
+          matchedProducts = [...products].slice(0, 3);
+        } else {
+          response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
+          const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 3);
+          matchedProducts = randomProducts;
+        }
 
-      setBotResponse(response);
-      setRecommendedProducts(matchedProducts);
-      setShowProducts(matchedProducts.length > 0);
+        setBotResponse(response);
+        setRecommendedProducts(matchedProducts);
+        setShowProducts(matchedProducts.length > 0);
+        
+        // Add bot response to conversation history
+        setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
+        
+        // Generate speech for the response if voice is enabled
+        if (isVoiceEnabled) {
+          speakResponse(response);
+        }
+      }
       
       // Clear transcript after processing
       setTimeout(() => {
@@ -325,10 +594,59 @@ const ProductAdvisor = () => {
       
     } catch (error) {
       console.error("Error processing message:", error);
-      setBotResponse("Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.");
+      const errorMessage = "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.";
+      setBotResponse(errorMessage);
+      setConversationHistory(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const renderMessage = (message: {role: 'user' | 'assistant', content: string}, index: number) => {
+    if (message.role === 'user') {
+      return (
+        <div key={index} className="animate-fade-in ml-auto">
+          <div className="bg-primary text-primary-foreground self-end rounded-lg p-3 rounded-br-none">
+            <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+              <User className="h-3 w-3" /> Du
+            </div>
+            {message.content}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div key={index} className="animate-fade-in">
+          <div className="bg-secondary text-secondary-foreground self-start rounded-lg p-3 rounded-tl-none">
+            <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+              <Bot className="h-3 w-3" /> Berater
+              {isPlaying && index === conversationHistory.length - 1 && (
+                <span className="inline-flex gap-1">
+                  <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                  <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                  <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                </span>
+              )}
+            </div>
+            {message.content}
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const renderToolButton = (icon: React.ReactNode, label: string, onClick: () => void) => {
+    return (
+      <Button 
+        variant="outline"
+        size="sm"
+        onClick={onClick}
+        className="bg-secondary/20 border-secondary/40 hover:bg-secondary/30 gap-1.5"
+      >
+        {icon}
+        <span className="text-xs">{label}</span>
+      </Button>
+    );
   };
 
   return (
@@ -354,7 +672,7 @@ const ProductAdvisor = () => {
           <div className="p-3 bg-primary text-primary-foreground flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
-              <span className="font-medium">1A Cannabis-Berater</span>
+              <span className="font-medium">1A Cannabis-Berater (KI)</span>
             </div>
             <div className="flex items-center gap-1">
               <Button 
@@ -387,30 +705,28 @@ const ProductAdvisor = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
             <div className="flex flex-col items-center justify-center text-center mb-4">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
                 <Bot className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-medium">Cannabis-Berater</h3>
+              <h3 className="font-medium">Cannabis-Berater (KI)</h3>
               <p className="text-sm text-muted-foreground">Sprich mit mir über Cannabis-Produkte</p>
             </div>
 
-            {/* Bot response section */}
-            <div className="animate-fade-in">
-              <div className="bg-secondary text-secondary-foreground self-start rounded-lg p-3 rounded-tl-none">
-                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                  <Bot className="h-3 w-3" /> Berater
-                  {isPlaying && (
-                    <span className="inline-flex gap-1">
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
-                    </span>
-                  )}
-                </div>
-                {botResponse}
-              </div>
+            {/* Quick Action Tools */}
+            <div className="flex flex-wrap gap-2 justify-center mb-2">
+              {renderToolButton(<Search className="h-3.5 w-3.5" />, "Produktsuche", () => processUserQuery("Zeig mir Produkte für Schmerzen"))}
+              {renderToolButton(<ShoppingCart className="h-3.5 w-3.5" />, "Warenkorb", () => webTools.navigateToPage('/cart'))}
+              {renderToolButton(<Book className="h-3.5 w-3.5" />, "Produkte", () => webTools.navigateToPage('/products'))}
+              {renderToolButton(<Info className="h-3.5 w-3.5" />, "Was ist CBD?", () => processUserQuery("Was ist CBD?"))}
+            </div>
+
+            {/* Conversation history */}
+            <div className="space-y-4">
+              {conversationHistory.map((message, index) => (
+                renderMessage(message, index)
+              ))}
             </div>
 
             {/* User input display */}
@@ -437,7 +753,7 @@ const ProductAdvisor = () => {
                   >
                     <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
                       <img 
-                        src={product.images?.[0] || "public/placeholder.svg"} 
+                        src={product.images?.[0] || "/placeholder.svg"} 
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
@@ -471,12 +787,31 @@ const ProductAdvisor = () => {
 
           <div className="p-3 border-t bg-card">
             <div className="flex flex-col gap-2">
+              {/* Text input */}
+              <div className="flex gap-2">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Schreibe eine Nachricht..."
+                  className="flex-1"
+                />
+                <Button
+                  disabled={!userInput.trim() || isLoading}
+                  onClick={handleSendMessage}
+                  size="icon"
+                  className="shrink-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              
               <div className="flex justify-center mb-1">
                 <Button
                   variant={isListening ? "destructive" : "default"}
-                  size="lg"
+                  size="sm"
                   onClick={toggleListening}
-                  className="w-full max-w-[280px] h-12 rounded-full gap-2"
+                  className="w-full h-10 rounded-full gap-2"
                 >
                   {isListening ? (
                     <>
