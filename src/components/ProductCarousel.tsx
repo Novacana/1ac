@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment, Float, PresentationControls } from "@react-three/drei";
@@ -96,9 +95,7 @@ interface ProductCarouselProps {
 }
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCategory }) => {
-  const filteredProducts = selectedCategory === "All" 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+  const filteredProducts = products.filter(product => product.category === selectedCategory);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -147,7 +144,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
   };
 
-  // If no products match the filter
+  // If no products match the filter, show the first category's products
   if (filteredProducts.length === 0) {
     return (
       <div className="w-full h-[400px] flex items-center justify-center">

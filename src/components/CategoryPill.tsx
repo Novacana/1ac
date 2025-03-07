@@ -23,8 +23,8 @@ const CategoryPill: React.FC<CategoryPillProps> = ({
       size="sm"
       onClick={onClick}
       className={cn(
-        "rounded-full transition-all duration-200",
-        "hover:shadow-md",
+        "rounded-full transition-all duration-200 whitespace-nowrap",
+        "hover:shadow-md min-w-fit",
         active && "font-medium",
         className
       )}

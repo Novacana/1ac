@@ -9,7 +9,6 @@ import { Product } from "@/types/product";
 
 // Sample data - in a real app this would come from an API
 const categories = [
-  "All",
   "Flowers",
   "Oils",
   "Edibles",
@@ -152,7 +151,7 @@ const products: Product[] = [
 ];
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("Flowers");
 
   const filteredProducts = selectedCategory === "All" 
     ? products 
@@ -160,23 +159,29 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* 3D Product Carousel section with category pills positioned on top */}
+      {/* Category Pills in a single line below header */}
+      <section className="py-0 border-b border-border/20">
+        <div className="container">
+          <div className="overflow-x-auto scrollbar-none py-2">
+            <div className="flex items-center gap-2 min-w-max">
+              {categories.map((category, index) => (
+                <CategoryPill
+                  key={category}
+                  label={category}
+                  active={selectedCategory === category}
+                  onClick={() => setSelectedCategory(category)}
+                  className="animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* 3D Product Carousel section */}
       <section className="py-4 relative">
         <div className="container px-4 mx-auto">
-          {/* Category Pills - now positioned on top of the carousel */}
-          <div className="flex items-center justify-center flex-wrap gap-2 mb-6 z-10 relative">
-            {categories.map((category, index) => (
-              <CategoryPill
-                key={category}
-                label={category}
-                active={selectedCategory === category}
-                onClick={() => setSelectedCategory(category)}
-                className="animate-scale-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              />
-            ))}
-          </div>
-          
           {/* 3D Product Carousel */}
           <ProductCarousel products={products} selectedCategory={selectedCategory} />
         </div>
