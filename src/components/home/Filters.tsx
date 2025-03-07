@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { 
@@ -10,7 +10,10 @@ import {
   ArrowDownZA,
   ArrowDown,
   Flame,
-  TrendingUp
+  TrendingUp,
+  Filter,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,6 +22,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export type FilterOptions = {
   thcRange: [number, number];
@@ -39,6 +47,8 @@ const Filters: React.FC<FiltersProps> = ({
   onReset,
   maxPrice
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleThcChange = (values: number[]) => {
     onFilterChange({
       ...filters,
@@ -77,50 +87,24 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   return (
-    <div className="py-2 px-2 bg-gray-50 rounded-lg mb-3">
-      <div className="flex flex-wrap items-center gap-2">
-        {/* THC & Price Filter */}
-        <div className="flex-1 min-w-[200px]">
-          <div className="grid grid-cols-2 gap-2">
-            {/* THC Range */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1">
-                  <Leaf className="w-3 h-3 text-primary" />
-                  <span className="text-xs font-medium">THC {filters.thcRange[0]}-{filters.thcRange[1]}%</span>
-                </div>
-              </div>
-              <Slider
-                defaultValue={[0, 30]}
-                value={[filters.thcRange[0], filters.thcRange[1]]}
-                max={30}
-                step={1}
-                onValueChange={handleThcChange}
-                className="my-1"
-              />
-            </div>
-            
-            {/* Price Range */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1">
-                  <DollarSign className="w-3 h-3 text-primary" />
-                  <span className="text-xs font-medium">€{filters.priceRange[0]}-{filters.priceRange[1]}</span>
-                </div>
-              </div>
-              <Slider
-                defaultValue={[0, maxPrice]}
-                value={[filters.priceRange[0], filters.priceRange[1]]}
-                max={maxPrice}
-                step={1}
-                onValueChange={handlePriceChange}
-                className="my-1"
-              />
-            </div>
-          </div>
-        </div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full py-1 px-2 bg-gray-50 rounded-lg mb-3"
+    >
+      <div className="flex items-center justify-between">
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-1 h-7 text-xs px-2"
+          >
+            <Filter className="h-3.5 w-3.5 mr-1" />
+            Filter
+            {isOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
+          </Button>
+        </CollapsibleTrigger>
 
-        {/* Sort By Dropdown */}
         <div className="flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -177,7 +161,52 @@ const Filters: React.FC<FiltersProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+
+      <CollapsibleContent className="mt-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* THC & Price Filter */}
+          <div className="flex-1 min-w-[200px]">
+            <div className="grid grid-cols-2 gap-2">
+              {/* THC Range */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1">
+                    <Leaf className="w-3 h-3 text-primary" />
+                    <span className="text-xs font-medium">THC {filters.thcRange[0]}-{filters.thcRange[1]}%</span>
+                  </div>
+                </div>
+                <Slider
+                  defaultValue={[0, 30]}
+                  value={[filters.thcRange[0], filters.thcRange[1]]}
+                  max={30}
+                  step={1}
+                  onValueChange={handleThcChange}
+                  className="my-1"
+                />
+              </div>
+              
+              {/* Price Range */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1">
+                    <DollarSign className="w-3 h-3 text-primary" />
+                    <span className="text-xs font-medium">€{filters.priceRange[0]}-{filters.priceRange[1]}</span>
+                  </div>
+                </div>
+                <Slider
+                  defaultValue={[0, maxPrice]}
+                  value={[filters.priceRange[0], filters.priceRange[1]]}
+                  max={maxPrice}
+                  step={1}
+                  onValueChange={handlePriceChange}
+                  className="my-1"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
