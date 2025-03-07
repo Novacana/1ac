@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, Environment, Float, Text, PresentationControls } from "@react-three/drei";
+import { useGLTF, Environment, Float, PresentationControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Product } from "@/types/product";
 
@@ -17,7 +17,6 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
   const [hovered, setHovered] = useState(false);
   
   // Position the product at the center when active, otherwise to the side
-  // Use proper THREE.Vector3 format or fixed-length tuples for position
   const position: [number, number, number] = isActive 
     ? [0, 0, 0] 
     : [isActive ? 0 : index > 0 ? 5 : -5, 0, 0];
@@ -87,24 +86,6 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
           envMapIntensity={1.5}
         />
       </mesh>
-      <Text
-        position={[0, -1.5, 0]}
-        fontSize={0.3}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {product.name}
-      </Text>
-      <Text
-        position={[0, -1.9, 0]}
-        fontSize={0.2}
-        color="#bae3bc"
-        anchorX="center"
-        anchorY="middle"
-      >
-        €{product.price.toFixed(2)}
-      </Text>
     </Float>
   );
 };
@@ -185,8 +166,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchEnd={handleTouchEnd}
       >
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
-          <color attach="background" args={['#010409']} />
-          <fog attach="fog" args={['#010409', 10, 20]} />
+          <color attach="background" args={['#0000']} />
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
           <PresentationControls
@@ -235,18 +215,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
-      </div>
-
-      {/* Product info below carousel */}
-      <div className="mt-4 text-center">
-        <h3 className="text-xl font-semibold">{filteredProducts[activeIndex].name}</h3>
-        <p className="text-primary font-medium">€{filteredProducts[activeIndex].price.toFixed(2)}</p>
-        {filteredProducts[activeIndex].thc && (
-          <p className="text-sm">THC: {filteredProducts[activeIndex].thc}</p>
-        )}
-        {filteredProducts[activeIndex].cbd && (
-          <p className="text-sm">CBD: {filteredProducts[activeIndex].cbd}</p>
-        )}
       </div>
 
       {/* Dots indicator */}
