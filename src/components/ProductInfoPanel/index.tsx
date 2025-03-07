@@ -36,8 +36,8 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Terpene and Flavor Profiles */}
-      <div className="grid grid-cols-1 gap-3 mt-3">
+      {/* Combined Flavor and Terpene Profiles in a compact layout */}
+      <div className="grid grid-cols-2 gap-2 mt-3">
         {product.flavors && product.flavors.length > 0 && (
           <FlavorProfile flavors={product.flavors} />
         )}

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { getFlavorColor } from "./utils";
 import { 
@@ -13,7 +14,6 @@ import {
   IceCream,
   TreePine
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface FlavorProfileProps {
   flavors?: string[];
@@ -24,42 +24,42 @@ const getFlavorIcon = (flavor: string) => {
   switch (flavor) {
     case "Süß":
     case "Sweet":
-      return <Candy className="h-3 w-3" />;
+      return <Candy className="h-4 w-4" />;
     case "Beere":
     case "Berry":
-      return <Cherry className="h-3 w-3" />;
+      return <Cherry className="h-4 w-4" />;
     case "Zitrus":
     case "Citrus":
-      return <Citrus className="h-3 w-3" />;
+      return <Citrus className="h-4 w-4" />;
     case "Trauben":
     case "Grape":
-      return <Grape className="h-3 w-3" />;
+      return <Grape className="h-4 w-4" />;
     case "Erdig":
     case "Earthy":
-      return <Wheat className="h-3 w-3" />;
+      return <Wheat className="h-4 w-4" />;
     case "Kiefer":
     case "Pine":
-      return <TreePine className="h-3 w-3" />;
+      return <TreePine className="h-4 w-4" />;
     case "Würzig":
     case "Spicy":
-      return <Coffee className="h-3 w-3" />;
+      return <Coffee className="h-4 w-4" />;
     case "Dessert":
-      return <IceCream className="h-3 w-3" />;
+      return <IceCream className="h-4 w-4" />;
     case "Fruchtig":
     case "Fruity":
-      return <Apple className="h-3 w-3" />;
+      return <Apple className="h-4 w-4" />;
     case "Kräuter":
     case "Herbal":
-      return <Leaf className="h-3 w-3" />;
+      return <Leaf className="h-4 w-4" />;
     case "Haze":
     case "Holzig":
     case "Woody":
-      return <Wheat className="h-3 w-3" />;
+      return <Wheat className="h-4 w-4" />;
     case "Haschartig":
     case "Hashy":
-      return <Cookie className="h-3 w-3" />;
+      return <Cookie className="h-4 w-4" />;
     default:
-      return <Leaf className="h-3 w-3" />; // Default icon
+      return <Leaf className="h-4 w-4" />; // Default icon
   }
 };
 
@@ -67,18 +67,18 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
   if (!flavors || flavors.length === 0) return null;
   
   return (
-    <div className="mb-3">
-      <h4 className="text-xs font-medium mb-1">Geschmacksprofil</h4>
-      <div className="flex flex-wrap gap-1.5">
+    <div>
+      <h4 className="text-xs font-medium mb-1.5">Geschmack</h4>
+      <div className="flex flex-wrap gap-2">
         {flavors.map((flavor, index) => {
           const icon = getFlavorIcon(flavor);
           return (
-            <div key={index} className="flex items-center text-xs bg-background/50 rounded px-1.5 py-0.5 border border-border/30">
-              <span 
-                className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"
-                style={{ backgroundColor: getFlavorColor(flavor) }}
-              />
-              <span className="mr-1">{flavor}</span>
+            <div 
+              key={index} 
+              className="flex items-center justify-center rounded-full w-10 h-10"
+              style={{ backgroundColor: getFlavorColor(flavor) }}
+              title={flavor}
+            >
               {icon}
             </div>
           );
