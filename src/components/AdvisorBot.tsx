@@ -1,16 +1,18 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, User, Loader2, ExternalLink } from "lucide-react";
+import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   products?: Product[];
+  messageId?: string;
 }
 
 interface Product {
@@ -61,19 +63,31 @@ const products = [
 ];
 
 const ProductAdvisor = () => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen? Du kannst mich zu Produkten, Wirkungsweisen oder Anwendungsgebieten befragen.",
+      messageId: "welcome-message"
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string | null>(
+    localStorage.getItem("elevenlabsApiKey")
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
+    if (audioRef.current && audioRef.current.played) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
   };
 
   useEffect(() => {
@@ -82,6 +96,135 @@ const ProductAdvisor = () => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  useEffect(() => {
+    // Create audio element
+    const audio = new Audio();
+    audioRef.current = audio;
+    
+    // Set up event listeners
+    audio.addEventListener('ended', () => setIsPlaying(false));
+    audio.addEventListener('error', () => {
+      setIsPlaying(false);
+      toast({
+        title: "Fehler bei der Audiowiedergabe",
+        description: "Die Audiodatei konnte nicht abgespielt werden.",
+        variant: "destructive",
+      });
+    });
+    
+    return () => {
+      audio.pause();
+      audio.removeEventListener('ended', () => setIsPlaying(false));
+      audio.removeEventListener('error', () => setIsPlaying(false));
+    };
+  }, [toast]);
+
+  const promptForApiKey = () => {
+    const key = window.prompt(
+      "Bitte gib deinen ElevenLabs API-Schlüssel ein, um die Sprachausgabe zu aktivieren:",
+      elevenlabsApiKey || ""
+    );
+    
+    if (key) {
+      localStorage.setItem("elevenlabsApiKey", key);
+      setElevenlabsApiKey(key);
+      toast({
+        title: "API-Schlüssel gespeichert",
+        description: "Dein ElevenLabs API-Schlüssel wurde gespeichert.",
+      });
+      return key;
+    }
+    return null;
+  };
+
+  const speakMessage = async (message: string, messageId: string) => {
+    if (!isVoiceEnabled) return;
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    let apiKey = elevenlabsApiKey;
+    if (!apiKey) {
+      apiKey = promptForApiKey();
+      if (!apiKey) return;
+    }
+
+    try {
+      setIsPlaying(true);
+      
+      // Use ElevenLabs API to convert text to speech
+      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/Xb7hH8MSUJpSbSDYk0k2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: message,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          toast({
+            title: "Ungültiger API-Schlüssel",
+            description: "Bitte überprüfe deinen ElevenLabs API-Schlüssel.",
+            variant: "destructive",
+          });
+          localStorage.removeItem("elevenlabsApiKey");
+          setElevenlabsApiKey(null);
+        } else {
+          toast({
+            title: "Fehler bei der Sprachgenerierung",
+            description: errorData.message || "Ein unbekannter Fehler ist aufgetreten.",
+            variant: "destructive",
+          });
+        }
+        setIsPlaying(false);
+        return;
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+      }
+    } catch (error) {
+      console.error("Error generating speech:", error);
+      toast({
+        title: "Fehler bei der Sprachgenerierung",
+        description: "Ein Fehler ist bei der Verbindung mit ElevenLabs aufgetreten.",
+        variant: "destructive",
+      });
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleVoice = () => {
+    if (!isVoiceEnabled && !elevenlabsApiKey) {
+      const key = promptForApiKey();
+      if (key) {
+        setIsVoiceEnabled(true);
+      }
+    } else {
+      setIsVoiceEnabled(!isVoiceEnabled);
+      if (isPlaying) {
+        audioRef.current?.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
 
   const handleSend = async () => {
     if (input.trim() === "" || isLoading) return;
@@ -128,14 +271,22 @@ const ProductAdvisor = () => {
         recommendedProducts = randomProducts;
       }
 
-      setMessages((prev) => [
-        ...prev, 
-        { 
-          role: "assistant", 
-          content: botResponse,
-          products: recommendedProducts
-        }
-      ]);
+      const messageId = `message-${Date.now()}`;
+      const assistantMessage = {
+        role: "assistant" as const,
+        content: botResponse,
+        products: recommendedProducts,
+        messageId
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      // Auto-speak the latest message if voice is enabled
+      if (isVoiceEnabled) {
+        setTimeout(() => {
+          speakMessage(botResponse, messageId);
+        }, 300);
+      }
     } catch (error) {
       console.error("Error processing message:", error);
       setMessages((prev) => [
@@ -179,9 +330,25 @@ const ProductAdvisor = () => {
               <Bot className="h-5 w-5" />
               <span className="font-medium">Cannabis-Berater</span>
             </div>
-            <Button variant="ghost" size="icon" onClick={toggleAdvisor} className="h-8 w-8 text-primary-foreground">
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleVoice} 
+                className="h-8 w-8 text-primary-foreground"
+                title={isVoiceEnabled ? "Stimme ausschalten" : "Stimme einschalten"}
+              >
+                {isVoiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleAdvisor} 
+                className="h-8 w-8 text-primary-foreground"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -203,6 +370,21 @@ const ProductAdvisor = () => {
                     {message.role === "assistant" ? (
                       <>
                         <Bot className="h-3 w-3" /> Berater
+                        {isVoiceEnabled && message.messageId && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 p-0 ml-1"
+                            onClick={() => speakMessage(message.content, message.messageId || "")}
+                            title={isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? "Pausieren" : "Vorlesen"}
+                          >
+                            {isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? (
+                              <span className="inline-block h-3 w-3 bg-current rounded-full animate-pulse"></span>
+                            ) : (
+                              <Volume2 className="h-3 w-3" />
+                            )}
+                          </Button>
+                        )}
                       </>
                     ) : (
                       <>
