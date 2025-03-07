@@ -21,46 +21,58 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   return (
     <div>
       <h4 className="text-xs font-medium mb-1">Terpen-Profil</h4>
-      <div className="h-[100px]">
+      <div className="h-[120px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={terpeneData}
               cx="50%"
               cy="50%"
-              innerRadius={20}
-              outerRadius={35}
-              paddingAngle={2}
+              innerRadius={25}
+              outerRadius={45}
+              paddingAngle={3}
               dataKey="value"
               animationDuration={1500}
               animationBegin={300}
+              stroke="none"
+              strokeWidth={1}
             >
               {terpeneData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={entry.color} 
+                  style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}
+                />
               ))}
             </Pie>
             <Tooltip 
               formatter={(value) => [`${value}%`, 'Konzentration']}
               contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.8)', 
-                borderRadius: '4px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                borderRadius: '8px',
                 fontSize: '10px',
-                padding: '4px 8px'
+                padding: '6px 10px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                border: 'none'
               }}
+              wrapperStyle={{ outline: 'none' }}
             />
           </PieChart>
         </ResponsiveContainer>
       </div>
       
       {/* Legend */}
-      <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
         {terpeneData.map((terpene, index) => (
-          <div key={index} className="flex items-center text-[10px]">
+          <div key={index} className="flex items-center text-[10px] animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
             <div 
-              className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
-              style={{ backgroundColor: terpene.color }}
+              className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+              style={{ 
+                backgroundColor: terpene.color,
+                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+              }}
             />
-            <span>{terpene.name}</span>
+            <span className="font-medium whitespace-nowrap">{terpene.name}</span>
           </div>
         ))}
       </div>

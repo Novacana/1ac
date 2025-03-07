@@ -1,25 +1,51 @@
-
 // Helper function to get colors for different terpenes
 export const getTerpeneColor = (terpene: string): string => {
   const colors: Record<string, string> = {
-    'Myrcen': '#3a9a40',
-    'Limonen': '#ffbb00',
-    'Limonene': '#ffbb00',
-    'Caryophyllen': '#ff5733',
-    'Caryophyllene': '#ff5733',
-    'Pinen': '#00a86b',
-    'Pinene': '#00a86b',
-    'Linalool': '#8a2be2',
-    'Terpinolen': '#4682b4',
-    'Terpinolene': '#4682b4',
-    'Ocimen': '#ff4500',
-    'Ocimene': '#ff4500',
-    'Humulen': '#a0522d',
-    'Humulene': '#a0522d',
-    'Bisabolol': '#d8bfd8'
+    'Myrcen': '#4ade80', // Vibrant green
+    'Limonen': '#facc15', // Bright yellow
+    'Limonene': '#facc15', // Bright yellow
+    'Caryophyllen': '#f97316', // Vivid orange
+    'Caryophyllene': '#f97316', // Vivid orange
+    'Pinen': '#10b981', // Emerald green
+    'Pinene': '#10b981', // Emerald green
+    'Linalool': '#a855f7', // Rich purple
+    'Terpinolen': '#3b82f6', // Royal blue
+    'Terpinolene': '#3b82f6', // Royal blue
+    'Ocimen': '#f43f5e', // Rose red
+    'Ocimene': '#f43f5e', // Rose red
+    'Humulen': '#b45309', // Deep amber
+    'Humulene': '#b45309', // Deep amber
+    'Bisabolol': '#d8b4fe', // Soft lavender
+    'Nerolidol': '#c084fc', // Light purple
+    'Terpineol': '#4ade80', // Vibrant green
+    'Eucalyptol': '#67e8f9', // Light cyan
+    'Fenchol': '#a3e635', // Lime green
+    'Borneol': '#94a3b8', // Slate gray
+    'Campher': '#fbbf24', // Amber
+    'Camphor': '#fbbf24', // Amber
+    'Geraniol': '#fb7185', // Pink
+    'Valencen': '#fb923c', // Light orange
+    'Valencene': '#fb923c', // Light orange
   };
   
-  return colors[terpene] || '#' + Math.floor(Math.random()*16777215).toString(16);
+  // If the terpene isn't in our map, generate a consistent color based on the name
+  if (!colors[terpene]) {
+    // Generate a deterministic hash from the terpene name
+    let hash = 0;
+    for (let i = 0; i < terpene.length; i++) {
+      hash = terpene.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Convert the hash to a hex color
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+  }
+  
+  return colors[terpene];
 };
 
 // Function to parse percentage values from strings
