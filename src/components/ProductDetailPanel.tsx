@@ -24,9 +24,8 @@ const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "rounded-lg p-3 transition-all duration-500 max-w-[180px]",
+        "rounded-lg p-3 transition-all duration-500 w-full mt-4",
         "border border-primary/10",
-        "ml-auto mr-4 mb-12", // Adjusted positioning
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
