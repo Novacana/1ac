@@ -46,7 +46,7 @@ const Header = () => {
           to="/"
           className="text-foreground font-display font-bold text-2xl transition-all duration-300 hover:opacity-80"
         >
-          Dr.Ansay
+          1A Cannabis
         </Link>
 
         {/* Desktop Navigation */}

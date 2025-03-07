@@ -310,7 +310,7 @@ const ProductAdvisor = () => {
 
       <div
         className={cn(
-          "fixed bottom-20 right-4 w-80 md:w-96 z-40 transition-all duration-300 transform",
+          "fixed bottom-20 right-4 w-80 md:w-96 z-[100] transition-all duration-300 transform",
           isOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
         )}
       >
@@ -318,7 +318,7 @@ const ProductAdvisor = () => {
           <div className="p-3 bg-primary text-primary-foreground flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
-              <span className="font-medium">Cannabis-Berater</span>
+              <span className="font-medium">1A Cannabis-Berater</span>
             </div>
             <div className="flex items-center gap-1">
               <Button 

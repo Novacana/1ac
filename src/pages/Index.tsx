@@ -83,7 +83,7 @@ const Index = () => {
       <section className="py-12 md:py-16">
         <div className="container px-4 mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-down">
-            Medical Cannabis Shop
+            1A Cannabis Shop
           </h1>
           <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
             High-quality medical cannabis products prescribed by licensed physicians, 
@@ -137,7 +137,7 @@ const Index = () => {
       <section className="py-16 bg-primary/5">
         <div className="container px-4 mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8 animate-slide-up">
-            Why Choose Dr.Ansay for Medical Cannabis?
+            Why Choose 1A Cannabis for Medical Cannabis?
           </h2>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
