@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ interface Product {
   category: string;
 }
 
-// Sample product data (in a real app this would come from your database)
 const products = [
   {
     id: "1",
@@ -91,18 +89,15 @@ const ProductAdvisor = () => {
   };
 
   useEffect(() => {
-    // Scroll to bottom whenever messages change
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   useEffect(() => {
-    // Create audio element
     const audio = new Audio();
     audioRef.current = audio;
     
-    // Set up event listeners
     audio.addEventListener('ended', () => setIsPlaying(false));
     audio.addEventListener('error', () => {
       setIsPlaying(false);
@@ -155,7 +150,6 @@ const ProductAdvisor = () => {
     try {
       setIsPlaying(true);
       
-      // Use ElevenLabs API to convert text to speech
       const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/Xb7hH8MSUJpSbSDYk0k2', {
         method: 'POST',
         headers: {
@@ -235,38 +229,35 @@ const ProductAdvisor = () => {
     setIsLoading(true);
 
     try {
-      // Simulate AI response (in a real app, this would be an API call)
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Demo responses based on user input keywords
       let botResponse = "";
       let recommendedProducts: Product[] = [];
       const userQuery = input.toLowerCase();
       
       if (userQuery.includes("schmerz") || userQuery.includes("pain")) {
         botResponse = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
-        recommendedProducts = [products[0], products[1]]; // Cannabis Flower and CBD Oil
+        recommendedProducts = [products[0], products[1]];
       } else if (userQuery.includes("schlaf") || userQuery.includes("sleep")) {
         botResponse = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
-        recommendedProducts = [products[0], products[2]]; // Cannabis Flower and THC Vape
+        recommendedProducts = [products[0], products[2]];
       } else if (userQuery.includes("angst") || userQuery.includes("anxiety")) {
         botResponse = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
-        recommendedProducts = [products[1], products[3]]; // CBD Oil and Body Cream
+        recommendedProducts = [products[1], products[3]];
       } else if (userQuery.includes("appetit") || userQuery.includes("hunger")) {
         botResponse = "Diese Produkte können den Appetit anregen:";
-        recommendedProducts = [products[0], products[4]]; // Cannabis Flower and Gummies
+        recommendedProducts = [products[0], products[4]];
       } else if (userQuery.includes("thc")) {
         botResponse = "Hier sind unsere THC-haltigen Produkte:";
-        recommendedProducts = [products[0], products[2], products[4]]; // Cannabis Flower, THC Vape, and Gummies
+        recommendedProducts = [products[0], products[2], products[4]];
       } else if (userQuery.includes("cbd")) {
         botResponse = "Hier sind unsere CBD-haltigen Produkte:";
-        recommendedProducts = [products[1], products[3]]; // CBD Oil and Body Cream
+        recommendedProducts = [products[1], products[3]];
       } else if (userQuery.includes("produkt") || userQuery.includes("empfehl") || userQuery.includes("zeig")) {
         botResponse = "Hier sind einige unserer beliebtesten Produkte:";
-        recommendedProducts = [...products]; // All products
+        recommendedProducts = [...products];
       } else {
         botResponse = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
-        // Pick random 2 products
         const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 2);
         recommendedProducts = randomProducts;
       }
@@ -281,7 +272,6 @@ const ProductAdvisor = () => {
 
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Auto-speak the latest message if voice is enabled
       if (isVoiceEnabled) {
         setTimeout(() => {
           speakMessage(botResponse, messageId);
@@ -332,13 +322,23 @@ const ProductAdvisor = () => {
             </div>
             <div className="flex items-center gap-1">
               <Button 
-                variant="ghost" 
-                size="icon" 
+                variant="outline" 
+                size="sm" 
                 onClick={toggleVoice} 
-                className="h-8 w-8 text-primary-foreground"
+                className="flex items-center gap-1 h-8 bg-primary/20 hover:bg-primary/30 border-primary/40 text-primary-foreground"
                 title={isVoiceEnabled ? "Stimme ausschalten" : "Stimme einschalten"}
               >
-                {isVoiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                {isVoiceEnabled ? (
+                  <>
+                    <Volume2 className="h-4 w-4" />
+                    <span className="text-xs">Stimme an</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="h-4 w-4" />
+                    <span className="text-xs">Stimme aus</span>
+                  </>
+                )}
               </Button>
               <Button 
                 variant="ghost" 
@@ -372,16 +372,22 @@ const ProductAdvisor = () => {
                         <Bot className="h-3 w-3" /> Berater
                         {isVoiceEnabled && message.messageId && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-5 w-5 p-0 ml-1"
+                            variant="outline"
+                            size="sm"
+                            className="h-5 py-0 px-1.5 ml-1 text-xs flex items-center gap-1"
                             onClick={() => speakMessage(message.content, message.messageId || "")}
                             title={isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? "Pausieren" : "Vorlesen"}
                           >
                             {isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? (
-                              <span className="inline-block h-3 w-3 bg-current rounded-full animate-pulse"></span>
+                              <>
+                                <span className="inline-block h-2 w-2 bg-current rounded-full animate-pulse"></span>
+                                <span className="text-xs">Pause</span>
+                              </>
                             ) : (
-                              <Volume2 className="h-3 w-3" />
+                              <>
+                                <Volume2 className="h-3 w-3" />
+                                <span className="text-xs">Vorlesen</span>
+                              </>
                             )}
                           </Button>
                         )}
@@ -395,7 +401,6 @@ const ProductAdvisor = () => {
                   {message.content}
                 </div>
 
-                {/* Product recommendations */}
                 {message.products && message.products.length > 0 && (
                   <div className="mt-2 grid gap-2 max-w-[90%]">
                     {message.products.map((product) => (
@@ -435,6 +440,26 @@ const ProductAdvisor = () => {
           </div>
 
           <div className="p-3 border-t bg-card">
+            <div className="flex items-center justify-center mb-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleVoice}
+                className="flex items-center gap-2 w-full max-w-[240px] justify-center"
+              >
+                {isVoiceEnabled ? (
+                  <>
+                    <Volume2 className="h-4 w-4" />
+                    <span>Sprachausgabe: Aktiv</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="h-4 w-4" />
+                    <span>Sprachausgabe: Inaktiv</span>
+                  </>
+                )}
+              </Button>
+            </div>
             <div className="flex gap-2">
               <Textarea
                 value={input}
