@@ -1,4 +1,4 @@
-<lov-code>
+
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff, ChevronUp, Search, ShoppingCart, Book, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -811,4 +811,51 @@ const ProductAdvisor = () => {
                   variant={isListening ? "destructive" : "default"}
                   size="sm"
                   onClick={toggleListening}
-                  className
+                  className="w-full h-10 rounded-full gap-2"
+                >
+                  {isListening ? (
+                    <>
+                      <div className="relative">
+                        <Mic className="h-5 w-5" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                      </div>
+                      <span>Zuhören... (Klick zum Stoppen)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-5 w-5" />
+                      <span>Drücke zum Sprechen</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              <div className="flex items-center justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleVoice}
+                  className="flex items-center gap-2 justify-center"
+                >
+                  {isVoiceEnabled ? (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      <span>Stimme: An</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-4 w-4" />
+                      <span>Stimme: Aus</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </>
+  );
+};
+
+export default ProductAdvisor;
