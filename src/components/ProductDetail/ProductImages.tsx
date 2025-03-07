@@ -11,6 +11,15 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
+  // Function to fix image paths
+  const getFixedImagePath = (path: string) => {
+    // If the path starts with "public/", remove it as it's already in the public folder
+    if (path.startsWith("public/")) {
+      return path.replace("public/", "/");
+    }
+    return path;
+  };
+
   return (
     <div className="space-y-4">
       <div className="aspect-square relative overflow-hidden rounded-xl border border-border/40 bg-card">
@@ -24,7 +33,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
         </div>
         {images && images.length > 0 ? (
           <img
-            src={images[selectedImage]}
+            src={getFixedImagePath(images[selectedImage])}
             alt={name}
             className={cn(
               "w-full h-full object-cover transition-opacity duration-500",
@@ -33,7 +42,8 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
             onLoad={() => setIsImageLoaded(true)}
             onError={(e) => {
               console.error("Fehler beim Laden des Bildes:", e);
-              setIsImageLoaded(false);
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+              setIsImageLoaded(true);
             }}
           />
         ) : (
@@ -57,7 +67,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
               )}
             >
               <img
-                src={img}
+                src={getFixedImagePath(img)}
                 alt={`${name} Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
