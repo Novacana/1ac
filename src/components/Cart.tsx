@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart, ArrowRight } from "lucide-react";
@@ -33,14 +34,14 @@ const Cart: React.FC = () => {
     <div className="animate-fade-in">
       <div className="container px-4 mx-auto py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2 text-foreground">
             <ShoppingCart className="h-6 w-6" />
             Shopping Cart
           </h1>
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => navigate("/")}
-            className="text-sm"
+            className="text-sm bg-background text-foreground hover:bg-primary/10"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Continue Shopping
@@ -59,26 +60,31 @@ const Cart: React.FC = () => {
                 />
               ))
             ) : (
-              <div className="text-center py-16 border border-dashed rounded-lg animate-fade-in">
+              <div className="text-center py-16 border border-dashed rounded-lg animate-fade-in bg-card shadow-sm">
                 <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-medium mb-2">Your cart is empty</h3>
                 <p className="text-muted-foreground mb-6">
                   Looks like you haven't added any products to your cart yet.
                 </p>
-                <Button onClick={() => navigate("/")}>Browse Products</Button>
+                <Button 
+                  onClick={() => navigate("/")}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Browse Products
+                </Button>
               </div>
             )}
           </div>
 
           {cartItems.length > 0 && (
             <div className="lg:col-span-1">
-              <div className="border border-border rounded-lg p-6 bg-card sticky top-24 animate-slide-up">
-                <h2 className="text-lg font-medium mb-4">Order Summary</h2>
+              <div className="border border-border rounded-lg p-6 bg-card shadow-sm sticky top-24 animate-slide-up">
+                <h2 className="text-lg font-medium mb-4 text-foreground">Order Summary</h2>
                 
                 <div className="space-y-3 border-b border-border pb-4 mb-4">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>€{subtotal.toFixed(2)}</span>
+                    <span className="font-medium">€{subtotal.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
@@ -86,24 +92,24 @@ const Cart: React.FC = () => {
                     {shippingCost === 0 ? (
                       <span className="text-primary font-medium">Free</span>
                     ) : (
-                      <span>€{shippingCost.toFixed(2)}</span>
+                      <span className="font-medium">€{shippingCost.toFixed(2)}</span>
                     )}
                   </div>
                   
                   {subtotal < 100 && (
-                    <div className="text-xs text-muted-foreground bg-secondary rounded-md p-2 mt-2">
+                    <div className="text-xs text-muted-foreground bg-secondary/70 rounded-md p-2 mt-2">
                       Add €{(100 - subtotal).toFixed(2)} more to qualify for free shipping
                     </div>
                   )}
                 </div>
                 
-                <div className="flex justify-between font-medium text-lg mb-6">
+                <div className="flex justify-between font-medium text-lg mb-6 text-foreground">
                   <span>Total</span>
                   <span>€{total.toFixed(2)}</span>
                 </div>
                 
                 <Button
-                  className="w-full transition-all duration-300"
+                  className="w-full transition-all duration-300 bg-primary hover:bg-primary/90 text-white"
                   onClick={handleCheckout}
                   disabled={isLoading}
                 >

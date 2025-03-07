@@ -57,7 +57,9 @@ export const useCarouselControls = () => {
     setImageLoading(true);
     
     setTimeout(() => {
-      setActiveIndex(prev => (prev === products.length - 1 ? 0 : prev + 1));
+      // Fix: directly set the new index value instead of using a function
+      const newIndex = activeIndex === products.length - 1 ? 0 : activeIndex + 1;
+      setActiveIndex(newIndex);
     }, 50);
     
     pauseAutoPlay();
@@ -75,7 +77,9 @@ export const useCarouselControls = () => {
     setImageLoading(true);
     
     setTimeout(() => {
-      setActiveIndex(prev => (prev === 0 ? products.length - 1 : prev - 1));
+      // Fix: directly set the new index value instead of using a function
+      const newIndex = activeIndex === 0 ? products.length - 1 : activeIndex - 1;
+      setActiveIndex(newIndex);
     }, 50);
     
     pauseAutoPlay();

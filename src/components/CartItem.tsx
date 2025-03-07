@@ -50,7 +50,7 @@ const CartItem: React.FC<CartItemProps> = ({
   return (
     <div
       className={cn(
-        "flex items-start gap-4 p-4 rounded-lg border border-border/40 transition-all duration-300 animate-slide-up",
+        "flex items-start gap-4 p-4 rounded-lg border border-border/40 transition-all duration-300 animate-slide-up bg-card shadow-sm",
         isRemoving && "opacity-0 translate-x-8"
       )}
     >
@@ -84,12 +84,12 @@ const CartItem: React.FC<CartItemProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
           <div>
-            <h3 className="text-base font-medium line-clamp-1">{name}</h3>
-            <p className="text-sm text-foreground/60 mt-0.5">€{price.toFixed(2)}</p>
+            <h3 className="text-base font-medium line-clamp-1 text-foreground">{name}</h3>
+            <p className="text-sm text-foreground/70 mt-0.5">€{price.toFixed(2)}</p>
           </div>
 
           <div className="flex items-center">
-            <div className="flex items-center border border-input rounded-md">
+            <div className="flex items-center border border-input rounded-md bg-background">
               <Button
                 variant="ghost"
                 size="icon"
@@ -119,7 +119,7 @@ const CartItem: React.FC<CartItemProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleRemove}
-              className="text-destructive h-8 w-8 ml-2"
+              className="text-destructive h-8 w-8 ml-2 hover:bg-destructive/10"
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Entfernen</span>
@@ -128,8 +128,8 @@ const CartItem: React.FC<CartItemProps> = ({
         </div>
 
         <div className="mt-2 sm:mt-1 flex justify-between items-center">
-          <p className="text-sm">
-            Zwischensumme: <span className="font-semibold">€{(price * quantity).toFixed(2)}</span>
+          <p className="text-sm text-foreground/80">
+            Zwischensumme: <span className="font-semibold text-foreground">€{(price * quantity).toFixed(2)}</span>
           </p>
         </div>
       </div>

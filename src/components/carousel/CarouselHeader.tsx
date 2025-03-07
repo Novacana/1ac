@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { useCarousel } from "./CarouselContext";
 import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 const CarouselHeader: React.FC = () => {
   const { products, activeIndex, getImagePath } = useCarousel();
@@ -21,15 +22,16 @@ const CarouselHeader: React.FC = () => {
     };
     
     addToCart(productToAdd);
+    toast.success(`${activeProduct.name} wurde zum Warenkorb hinzugefügt`);
   };
   
   return (
-    <div className="flex justify-between items-center">
-      <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
+    <div className="flex justify-between items-center bg-background/60 backdrop-blur-sm p-2 rounded-lg shadow-sm border border-border/20">
+      <h2 className="text-xl font-semibold text-primary mt-2 truncate pr-2">{activeProduct.name}</h2>
       <Button 
-        variant="outline" 
+        variant="default" 
         size="sm" 
-        className="flex items-center gap-1 bg-primary/10 border-primary/20 hover:bg-primary/20"
+        className="flex items-center gap-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
         onClick={handleAddToCart}
       >
         <ShoppingCart size={14} />
