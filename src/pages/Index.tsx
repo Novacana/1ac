@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import { Product } from "@/types/product";
 import CategoryFilter from "@/components/home/CategoryFilter";
@@ -20,20 +20,13 @@ const categories = [
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Flowers");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const productLoaderRendered = useRef(false);
-  
-  // Handle category selection
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-    productLoaderRendered.current = false;
-  };
   
   return (
     <Layout>
       <CategoryFilter 
         categories={categories}
         selectedCategory={selectedCategory}
-        onSelectCategory={handleCategorySelect}
+        onSelectCategory={setSelectedCategory}
       />
       
       <ProductDataLoader

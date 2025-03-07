@@ -25,6 +25,11 @@ const categoryMapping: Record<string, string> = {
 
 // Helper function to get products by category
 export const getProductsByCategory = (category: string): ProductDetailProps[] => {
+  // If the category is "All", return all products
+  if (category === "All") {
+    return products;
+  }
+  
   // Get the corresponding German category if an English one was provided
   const germanCategory = categoryMapping[category] || category;
   

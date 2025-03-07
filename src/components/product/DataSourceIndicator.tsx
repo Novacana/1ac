@@ -1,33 +1,11 @@
 
-import React, { useEffect, useRef } from "react";
-import { toast } from "sonner";
+import React from "react";
 
 interface DataSourceIndicatorProps {
   dataSource: "woocommerce" | "local" | "combined" | "loading";
-  productCount?: number;
 }
 
-const DataSourceIndicator: React.FC<DataSourceIndicatorProps> = ({ 
-  dataSource, 
-  productCount = 0 
-}) => {
-  const previousSource = useRef<string>(dataSource);
-  const toastShown = useRef<boolean>(false);
-  
-  useEffect(() => {
-    // Only show toast when source changes and not on initial load
-    if (dataSource !== previousSource.current && dataSource !== "loading" && !toastShown.current) {
-      if (dataSource === "woocommerce" && productCount > 0) {
-        toast.success(`Loaded ${productCount} products from WooCommerce`, {
-          id: "woocommerce-load-success", // Using an ID prevents duplicate toasts
-          duration: 3000,
-        });
-        toastShown.current = true;
-      }
-      previousSource.current = dataSource;
-    }
-  }, [dataSource, productCount]);
-  
+const DataSourceIndicator: React.FC<DataSourceIndicatorProps> = ({ dataSource }) => {
   if (dataSource === "loading") return null;
   
   let sourceText = "Lokale Daten";

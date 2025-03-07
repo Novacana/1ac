@@ -2,7 +2,7 @@
 import React from "react";
 import { Product } from "@/types/product";
 import ProductCard from "./ProductCard";
-import { getImagePath } from "@/utils/product-display-utils";
+import { getImagePath } from "@/utils/product-image-utils";
 
 interface ProductListProps {
   products: Product[];

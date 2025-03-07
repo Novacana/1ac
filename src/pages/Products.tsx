@@ -8,7 +8,7 @@ import { Product } from "@/types/product";
 import ProductList from "@/components/product/ProductList";
 import LoadingState from "@/components/product/LoadingState";
 import DataSourceIndicator from "@/components/product/DataSourceIndicator";
-import { parseThcPercentage } from "@/utils/product-display-utils";
+import { parseThcPercentage } from "@/utils/product-value-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 
 const Products = () => {
@@ -17,6 +17,7 @@ const Products = () => {
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
   const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -33,9 +34,16 @@ const Products = () => {
   // Handle products loaded from ProductDataLoader
   const handleProductsLoaded = (products: Product[], source: "woocommerce" | "combined" | "local") => {
     console.log(`Products loaded: ${products.length} from source: ${source}`);
+    
+    if (products.length === 0 && source === "local") {
+      // If no products were loaded, show a toast notification
+      toast.info("Keine Produkte gefunden. Bitte versuchen Sie es später erneut.");
+    }
+    
     setAllProducts(products);
     setFilteredProducts(products);
     setDataSource(source);
+    setInitialLoadComplete(true);
     
     // Pre-load images to check for errors
     products.forEach(product => {
@@ -115,13 +123,10 @@ const Products = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">Unsere Produkte</h1>
-          <DataSourceIndicator 
-            dataSource={dataSource} 
-            productCount={allProducts.length}
-          />
+          <DataSourceIndicator dataSource={dataSource} />
         </div>
         
-        {dataSource === "loading" ? (
+        {!initialLoadComplete ? (
           <LoadingState />
         ) : (
           <>
