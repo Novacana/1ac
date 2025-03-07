@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart, ArrowRight } from "lucide-react";
@@ -6,31 +5,13 @@ import { Button } from "@/components/ui/button";
 import CartItem, { CartItemProps } from "./CartItem";
 import { cn } from "@/lib/utils";
 
-// This would typically come from a global state or context
-// For this demo, we're using local state
-const initialCartItems: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">[] = [
-  {
-    id: "1",
-    name: "Medical Cannabis Flower",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
-    quantity: 1,
-  },
-  {
-    id: "2",
-    name: "CBD Oil Tincture",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1556928045-16f7f50be0f3?q=80&w=2787&auto=format&fit=crop",
-    quantity: 2,
-  },
-];
+const initialCartItems: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">[] = [];
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Calculate cart totals
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -50,15 +31,12 @@ const Cart: React.FC = () => {
 
   const handleCheckout = () => {
     setIsLoading(true);
-    // Simulate checkout process
     setTimeout(() => {
       navigate("/checkout");
     }, 800);
   };
 
-  // Update cart badge count
   useEffect(() => {
-    // This would update a global state or context in a real app
     console.log("Cart items updated:", cartItems.length);
   }, [cartItems]);
 
