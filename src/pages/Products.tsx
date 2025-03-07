@@ -17,7 +17,6 @@ const Products = () => {
   const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
-  const [categories, setCategories] = useState<string[]>([]);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -52,10 +51,6 @@ const Products = () => {
     setDataSource(source);
     setInitialLoadComplete(true);
     
-    // Extract unique categories
-    const uniqueCategories = [...new Set(products.map(p => p.category))].filter(Boolean) as string[];
-    setCategories(uniqueCategories);
-    
     // Update price range based on new products
     if (products.length > 0) {
       const newMaxPrice = Math.ceil(Math.max(...products.map(p => p.price || 0)));
@@ -66,21 +61,11 @@ const Products = () => {
     }
   };
 
-  // Handle category change
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-  };
-
   // Apply filters
   useEffect(() => {
     if (allProducts.length === 0) return;
     
     let result = allProducts.filter(product => {
-      // Filter by category
-      if (selectedCategory !== "All" && product.category !== selectedCategory) {
-        return false;
-      }
-      
       // Filter by price
       if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
         return false;
@@ -114,7 +99,7 @@ const Products = () => {
     }
     
     setFilteredProducts(result);
-  }, [allProducts, filters, selectedCategory]);
+  }, [allProducts, filters]);
   
   // Reset filters to defaults
   const handleResetFilters = () => {
@@ -123,7 +108,6 @@ const Products = () => {
       priceRange: [0, maxPrice],
       sortBy: 'popularity'
     });
-    setSelectedCategory("All");
   };
 
   return (
@@ -138,9 +122,6 @@ const Products = () => {
               onFilterChange={setFilters}
               onReset={handleResetFilters}
               maxPrice={maxPrice}
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
             />
             
             {filteredProducts.length === 0 ? (

@@ -26,20 +26,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export type FilterOptions = {
   thcRange: [number, number];
   priceRange: [number, number];
   sortBy: 'price-asc' | 'price-desc' | 'thc-desc' | 'popularity';
-  category?: string;
 };
 
 interface FiltersProps {
@@ -47,19 +38,13 @@ interface FiltersProps {
   onFilterChange: (filters: FilterOptions) => void;
   onReset: () => void;
   maxPrice: number;
-  categories?: string[];
-  selectedCategory?: string;
-  onCategoryChange?: (category: string) => void;
 }
 
 const Filters: React.FC<FiltersProps> = ({ 
   filters, 
   onFilterChange, 
   onReset,
-  maxPrice,
-  categories = [],
-  selectedCategory = "All",
-  onCategoryChange
+  maxPrice
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -87,12 +72,6 @@ const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  const handleCategoryChange = (category: string) => {
-    if (onCategoryChange) {
-      onCategoryChange(category);
-    }
-  };
-
   // Get sort by icon
   const getSortIcon = () => {
     switch (filters.sortBy) {
@@ -116,43 +95,17 @@ const Filters: React.FC<FiltersProps> = ({
       className="w-full py-1 px-2 bg-gray-50 rounded-lg mb-3"
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center gap-1 h-7 text-xs px-2"
-            >
-              <Filter className="h-3.5 w-3.5 mr-1" />
-              Filter
-              {isOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
-            </Button>
-          </CollapsibleTrigger>
-          
-          {/* Category Selector */}
-          {categories.length > 0 && (
-            <div className="flex-1 min-w-[120px]">
-              <Select
-                value={selectedCategory}
-                onValueChange={handleCategoryChange}
-              >
-                <SelectTrigger className="h-7 text-xs px-2 bg-white">
-                  <SelectValue placeholder="Kategorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[200px]">
-                    <SelectItem value="All" className="text-xs cursor-pointer">Alle Kategorien</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category} className="text-xs cursor-pointer">
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-1 h-7 text-xs px-2"
+          >
+            <Filter className="h-3.5 w-3.5 mr-1" />
+            Filter
+            {isOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
+          </Button>
+        </CollapsibleTrigger>
 
         <div className="flex items-center gap-1">
           <DropdownMenu>
