@@ -3,7 +3,6 @@ import Layout from "@/components/Layout";
 import { Product } from "@/types/product";
 import CategoryFilter from "@/components/home/CategoryFilter";
 import CarouselSection from "@/components/home/CarouselSection";
-import ProductGrid from "@/components/home/ProductGrid";
 import FeaturesSection from "@/components/home/FeaturesSection";
 
 // Sample data - in a real app this would come from an API
@@ -161,11 +160,6 @@ const Index = () => {
       />
       
       <CarouselSection 
-        products={products}
-        selectedCategory={selectedCategory}
-      />
-
-      <ProductGrid 
         products={products}
         selectedCategory={selectedCategory}
       />
