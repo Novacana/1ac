@@ -49,7 +49,7 @@ const Header = () => {
           <img 
             src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
             alt="1A Cannabis Logo" 
-            className="h-12 w-auto" 
+            className="h-16 w-auto" 
           />
         </Link>
 

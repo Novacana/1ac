@@ -86,7 +86,7 @@ const Index = () => {
             <img 
               src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
               alt="1A Cannabis Logo" 
-              className="h-20 w-auto" 
+              className="h-32 w-auto" 
             />
           </div>
           <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
