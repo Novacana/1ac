@@ -6,6 +6,7 @@ import { ProductDetailProps } from "@/components/ProductDetail";
 import ProductModel from "@/components/ProductModel";
 import EmptyProductState from "@/components/EmptyProductState";
 import CarouselNavigation from "@/components/CarouselNavigation";
+import { Canvas } from "@react-three/fiber";
 
 interface ProductCarouselProps {
   products: (Product | ProductDetailProps)[];
@@ -97,12 +98,15 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                   transition={{ duration: 0.5 }}
                   className="h-full w-full"
                 >
-                  {/* Updated product prop passing to match ProductModel component interface */}
-                  <ProductModel 
-                    product={featuredProducts[currentIndex]}
-                    isActive={true}
-                    index={currentIndex}
-                  />
+                  <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                    <ambientLight intensity={0.5} />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                    <ProductModel 
+                      product={featuredProducts[currentIndex]}
+                      isActive={true}
+                      index={currentIndex}
+                    />
+                  </Canvas>
                 </motion.div>
               ) : (
                 <EmptyProductState 
@@ -138,7 +142,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
       
       
       <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-10">
-        {/* Updated props to match CarouselNavigation component interface */}
         <CarouselNavigation
           activeIndex={currentIndex}
           totalItems={featuredProducts.length}
