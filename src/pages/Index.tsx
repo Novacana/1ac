@@ -80,6 +80,24 @@ const Index = () => {
 
   return (
     <Layout>
+      {/* Categories section - now directly below header */}
+      <section className="py-4 border-b border-border/50">
+        <div className="container px-4 mx-auto">
+          <div className="flex items-center justify-center flex-wrap gap-2">
+            {categories.map((category, index) => (
+              <CategoryPill
+                key={category}
+                label={category}
+                active={selectedCategory === category}
+                onClick={() => setSelectedCategory(category)}
+                className="animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 md:py-16">
         <div className="container px-4 mx-auto text-center">
           <div className="flex justify-center mb-4 animate-slide-down">
@@ -94,19 +112,6 @@ const Index = () => {
             delivered discreetly to your door.
           </p>
           
-          <div className="flex items-center justify-center flex-wrap gap-2 mb-12">
-            {categories.map((category, index) => (
-              <CategoryPill
-                key={category}
-                label={category}
-                active={selectedCategory === category}
-                onClick={() => setSelectedCategory(category)}
-                className="animate-scale-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              />
-            ))}
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product, index) => (
               <div
