@@ -24,12 +24,10 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "rounded-lg p-3 transition-all duration-500 w-full mb-4",
+        "rounded-lg p-2 transition-all duration-500 w-full",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       )}
     >
-      <h3 className="text-sm font-medium mb-2 text-primary truncate">{product.name}</h3>
-      
       {/* Cannabinoid Profile */}
       <CannabinoidProfile thc={product.thc} cbd={product.cbd} />
       

@@ -56,15 +56,15 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
   }, [images]);
 
   return (
-    <div className="space-y-4">
-      <div className="aspect-square relative overflow-hidden rounded-xl border border-border/40 bg-card">
+    <div className="space-y-3">
+      <div className="aspect-square relative overflow-hidden rounded-lg border border-border/40 bg-card">
         <div
           className={cn(
             "absolute inset-0 bg-card/20 backdrop-blur-sm flex items-center justify-center z-10 transition-opacity duration-300",
             isImageLoaded ? "opacity-0" : "opacity-100"
           )}
         >
-          <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+          <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
         </div>
         {fixedImages && fixedImages.length > 0 ? (
           <img
@@ -93,13 +93,13 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
       </div>
 
       {fixedImages && fixedImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
+        <div className="flex gap-2 overflow-x-auto pb-1 snap-x">
           {fixedImages.map((img, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
               className={cn(
-                "shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all duration-200 snap-start",
+                "shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 snap-start",
                 selectedImage === index
                   ? "border-primary"
                   : "border-transparent hover:border-primary/30"

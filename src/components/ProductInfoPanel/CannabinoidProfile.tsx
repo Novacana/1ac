@@ -27,8 +27,8 @@ const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd }) => 
   if (!thc && !cbd) return null;
 
   return (
-    <div className="mb-3">
-      <h4 className="text-xs font-medium mb-1">Cannabinoid-Profil</h4>
+    <div className="mb-2">
+      <h4 className="text-xs font-medium mb-1 text-gray-600 dark:text-gray-300">Cannabinoid-Profil</h4>
       <div className="space-y-2">
         {thc && (
           <div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -194,64 +193,74 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   return (
     <div className="w-full relative">
       <div className="container max-w-md mx-auto px-4">
-        {/* Top info panel - Cannabinoid info & tags */}
-        {activeProduct && <ProductInfoPanel product={activeProduct} />}
-        
-        {/* Swipeable product image section */}
-        <div 
-          ref={containerRef}
-          className="w-full h-[300px] relative overflow-hidden rounded-lg border border-border"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* Loading spinner */}
-          {imageLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm z-10">
-              <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
-            </div>
-          )}
+        <div className="flex flex-col gap-2">
+          {/* Product name and main info */}
+          <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
           
-          {/* Main swipeable product image */}
-          <div 
-            className="w-full h-full flex items-center justify-center transition-transform duration-300 relative bg-card/5 backdrop-blur-sm"
-            style={{ transform: isSwiping ? `translateX(${swipeDistance}px)` : 'translateX(0)' }}
-          >
-            <img 
-              src={imagePath} 
-              alt={activeProduct.name} 
-              className={cn(
-                "max-h-full max-w-full object-contain p-4 transition-opacity duration-300",
-                imageLoading ? "opacity-0" : "opacity-100"
-              )}
-              onLoad={() => {
-                console.log("Image loaded successfully:", imagePath);
-                setImageLoading(false);
-              }}
-              onError={(e) => {
-                console.error("Failed to load product image:", e);
-                (e.target as HTMLImageElement).src = "/placeholder.svg";
-                setImageLoading(false);
-              }}
-            />
+          {/* Two-column layout for info panels and image */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {/* Left column: Cannabinoid info & tags */}
+            <div className="md:col-span-2">
+              {activeProduct && <ProductInfoPanel product={activeProduct} />}
+            </div>
             
-            {/* Swipe hint on first render - fades out after 2 seconds */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden opacity-50 animate-fade-out">
-              <div className="flex items-center gap-2 bg-background/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                <ChevronLeft size={16} className="animate-pulse" />
-                <span className="text-sm font-medium">Swipe</span>
-                <ChevronRight size={16} className="animate-pulse" />
+            {/* Right column: Product image */}
+            <div className="md:col-span-3">
+              <div 
+                ref={containerRef}
+                className="w-full h-[220px] relative overflow-hidden rounded-lg border border-border"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {/* Loading spinner */}
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm z-10">
+                    <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+                  </div>
+                )}
+                
+                {/* Main swipeable product image */}
+                <div 
+                  className="w-full h-full flex items-center justify-center transition-transform duration-300 relative bg-card/5 backdrop-blur-sm"
+                  style={{ transform: isSwiping ? `translateX(${swipeDistance}px)` : 'translateX(0)' }}
+                >
+                  <img 
+                    src={imagePath} 
+                    alt={activeProduct.name} 
+                    className={cn(
+                      "max-h-full max-w-full object-contain p-4 transition-opacity duration-300",
+                      imageLoading ? "opacity-0" : "opacity-100"
+                    )}
+                    onLoad={() => {
+                      console.log("Image loaded successfully:", imagePath);
+                      setImageLoading(false);
+                    }}
+                    onError={(e) => {
+                      console.error("Failed to load product image:", e);
+                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      setImageLoading(false);
+                    }}
+                  />
+                  
+                  {/* Swipe hint on first render - fades out after 2 seconds */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden opacity-50 animate-fade-out">
+                    <div className="flex items-center gap-2 bg-background/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      <ChevronLeft size={16} className="animate-pulse" />
+                      <span className="text-sm font-medium">Swipe</span>
+                      <ChevronRight size={16} className="animate-pulse" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          
+          {/* Bottom detail panel - Terpenes & flavors */}
+          <div className="mt-2">
+            {activeProduct && <ProductDetailPanel product={activeProduct} />}
+          </div>
         </div>
-        
-        {/* Bottom detail panel - Terpenes & flavors */}
-        {activeProduct && <ProductDetailPanel product={activeProduct} />}
       </div>
 
       <CarouselNavigation
