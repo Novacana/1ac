@@ -5,31 +5,32 @@ interface FlavorProfileProps {
   flavors?: string[];
 }
 
+// Function to get appropriate background color for flavor tags
 const getFlavorColor = (flavor: string): string => {
   const colorMap: Record<string, string> = {
-    'Earthy': '#FDE1D3',
-    'Pine': '#F2FCE2',
-    'Sweet': '#FEF7CD',
-    'Citrus': '#FEC6A1',
-    'Tropical': '#FEC6A1',
-    'Herbal': '#F2FCE2',
-    'Nutty': '#FDE1D3',
-    'Menthol': '#D3E4FD',
-    'Eucalyptus': '#D3E4FD',
-    'Clean': '#D3E4FD',
-    'Mango': '#FEC6A1',
-    'Strawberry': '#FFDEE2',
-    'Watermelon': '#FFDEE2',
-    'Blueberry': '#D3E4FD',
-    'Natural': '#F2FCE2',
+    'Earthy': '#FDE1D3', // Soft Peach
+    'Pine': '#F2FCE2',   // Soft Green
+    'Sweet': '#FEF7CD',  // Soft Yellow
+    'Citrus': '#FEC6A1', // Soft Orange
+    'Tropical': '#FEC6A1', // Soft Orange
+    'Herbal': '#F2FCE2', // Soft Green
+    'Nutty': '#FDE1D3',  // Soft Peach
+    'Menthol': '#D3E4FD', // Soft Blue
+    'Eucalyptus': '#D3E4FD', // Soft Blue
+    'Clean': '#D3E4FD',  // Soft Blue
+    'Mango': '#FEC6A1',  // Soft Orange
+    'Strawberry': '#FFDEE2', // Soft Pink
+    'Watermelon': '#FFDEE2', // Soft Pink
+    'Blueberry': '#D3E4FD', // Soft Blue
+    'Natural': '#F2FCE2', // Soft Green
   };
   
-  return colorMap[flavor] || '#F2FCE2';
+  return colorMap[flavor] || '#F2FCE2'; // Default to soft green if no match
 };
 
 export const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
   if (!flavors || flavors.length === 0) return null;
-
+  
   return (
     <div className="mb-3">
       <h4 className="text-xs font-medium mb-1">Taste Profile</h4>

@@ -11,6 +11,7 @@ interface TerpeneProfileProps {
   terpenes?: Terpene[];
 }
 
+// Helper function to get colors for different terpenes
 const getTerpeneColor = (terpene: string): string => {
   const colors: Record<string, string> = {
     'Myrcene': '#3a9a40',
@@ -27,20 +28,22 @@ const getTerpeneColor = (terpene: string): string => {
   return colors[terpene] || '#' + Math.floor(Math.random()*16777215).toString(16);
 };
 
+// Parse percentage from string
+const parsePercentage = (value: string | undefined) => {
+  if (!value) return 0;
+  const match = value.match(/(\d+(\.\d+)?)/);
+  return match ? parseFloat(match[0]) : 0;
+};
+
 export const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ terpenes }) => {
-  if (!terpenes || terpenes.length === 0) return null;
-
-  const parsePercentage = (value: string | undefined) => {
-    if (!value) return 0;
-    const match = value.match(/(\d+(\.\d+)?)/);
-    return match ? parseFloat(match[0]) : 0;
-  };
-
-  const terpeneData = terpenes.map(terpene => ({
+  // Create terpene data for the pie chart
+  const terpeneData = terpenes?.map((terpene) => ({
     name: terpene.name,
     value: parsePercentage(terpene.percentage),
     color: getTerpeneColor(terpene.name)
-  }));
+  })) || [];
+
+  if (terpeneData.length === 0) return null;
 
   return (
     <div>
@@ -76,6 +79,7 @@ export const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ terpenes }) => {
         </ResponsiveContainer>
       </div>
       
+      {/* Legend */}
       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
         {terpeneData.map((terpene, index) => (
           <div key={index} className="flex items-center text-[10px]">

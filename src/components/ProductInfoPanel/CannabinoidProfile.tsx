@@ -1,25 +1,27 @@
 
 import React, { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
-import { Product } from "@/types/product";
 
 interface CannabinoidProfileProps {
-  product: Product;
+  thc?: string;
+  cbd?: string;
 }
 
-export const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ product }) => {
+export const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd }) => {
   const [thcProgress, setThcProgress] = useState(0);
   const [cbdProgress, setCbdProgress] = useState(0);
 
+  // Parse THC and CBD values
   const parsePercentage = (value: string | undefined) => {
     if (!value) return 0;
     const match = value.match(/(\d+(\.\d+)?)/);
     return match ? parseFloat(match[0]) : 0;
   };
 
-  const thcValue = parsePercentage(product.thc);
-  const cbdValue = parsePercentage(product.cbd);
+  const thcValue = parsePercentage(thc);
+  const cbdValue = parsePercentage(cbd);
 
+  // Animate progress bars when component mounts
   useEffect(() => {
     const timer = setTimeout(() => {
       setThcProgress(thcValue);
@@ -32,23 +34,31 @@ export const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ product 
     <div className="mb-3">
       <h4 className="text-xs font-medium mb-1">Cannabinoid Profile</h4>
       <div className="space-y-2">
-        {product.thc && (
+        {thc && (
           <div>
             <div className="flex justify-between text-xs mb-0.5">
               <span>THC</span>
-              <span className="font-medium">{product.thc}</span>
+              <span className="font-medium">{thc}</span>
             </div>
-            <Progress value={thcProgress * 4} max={100} className="h-1.5 bg-primary/10" />
+            <Progress 
+              value={thcProgress * 4} 
+              max={100} 
+              className="h-1.5 bg-primary/10"
+            />
           </div>
         )}
         
-        {product.cbd && (
+        {cbd && (
           <div>
             <div className="flex justify-between text-xs mb-0.5">
               <span>CBD</span>
-              <span className="font-medium">{product.cbd}</span>
+              <span className="font-medium">{cbd}</span>
             </div>
-            <Progress value={cbdProgress * 6.6} max={100} className="h-1.5 bg-primary/10" />
+            <Progress 
+              value={cbdProgress * 6.6} 
+              max={100} 
+              className="h-1.5 bg-primary/10"
+            />
           </div>
         )}
       </div>
