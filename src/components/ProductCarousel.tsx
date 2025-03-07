@@ -98,7 +98,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchEnd={handleTouchEnd}
       >
         {/* Top left info panel - Main cannabinoid info */}
-        <div className="absolute top-4 left-4 z-10 pointer-events-none">
+        <div className="absolute top-0 left-0 z-10 pointer-events-none">
           {activeProduct && <ProductInfoPanel product={activeProduct} />}
         </div>
         
@@ -114,7 +114,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
             config={{ mass: 2, tension: 400 }}
             snap={{ mass: 4, tension: 400 }}
           >
-            <group>
+            <group position={[0, 0, 0]}>
               {filteredProducts.map((product, index) => (
                 <ProductModel 
                   key={product.id} 
@@ -129,7 +129,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         </Canvas>
         
         {/* Bottom right detail panel - Terpenes & taste */}
-        <div className="absolute bottom-4 right-4 z-10 pointer-events-none">
+        <div className="absolute bottom-0 right-0 z-10 pointer-events-none">
           {activeProduct && <ProductDetailPanel product={activeProduct} />}
         </div>
       </div>
