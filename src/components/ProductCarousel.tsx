@@ -32,10 +32,14 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const [swipeDistance, setSwipeDistance] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
   const autoPlayTimerRef = useRef<number | null>(null);
+  const currentImageRef = useRef<string | null>(null);
+  const previousImageRef = useRef<string | null>(null);
 
   // Auto-play functionality
   useEffect(() => {
@@ -50,10 +54,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
       // Set new timer to change slides every 5 seconds
       autoPlayTimerRef.current = window.setInterval(() => {
         if (isAutoPlaying) {
-          setActiveIndex(prevIndex => 
-            prevIndex === filteredProducts.length - 1 ? 0 : prevIndex + 1
-          );
-          setImageLoading(true);
+          goToNext();
         }
       }, 5000);
     };
@@ -165,25 +166,67 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
 
   // Navigation functions
   const goToNext = () => {
-    if (filteredProducts.length <= 1) return;
-    setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+    if (filteredProducts.length <= 1 || isTransitioning) return;
+    
+    // Store the current image path for transition
+    const currentProduct = filteredProducts[activeIndex];
+    previousImageRef.current = getImagePath(currentProduct);
+    
+    // Set transition state
+    setDirection('next');
+    setIsTransitioning(true);
     setImageLoading(true);
+    
+    // After a short delay, update the active index
+    setTimeout(() => {
+      setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+    }, 50);
+    
     pauseAutoPlay();
     console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
   };
 
   const goToPrevious = () => {
-    if (filteredProducts.length <= 1) return;
-    setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+    if (filteredProducts.length <= 1 || isTransitioning) return;
+    
+    // Store the current image path for transition
+    const currentProduct = filteredProducts[activeIndex];
+    previousImageRef.current = getImagePath(currentProduct);
+    
+    // Set transition state
+    setDirection('prev');
+    setIsTransitioning(true);
     setImageLoading(true);
+    
+    // After a short delay, update the active index
+    setTimeout(() => {
+      setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+    }, 50);
+    
     pauseAutoPlay();
     console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
   };
 
   const goToIndex = (index: number) => {
-    if (index === activeIndex) return;
-    setActiveIndex(index);
+    if (index === activeIndex || isTransitioning) return;
+    
+    // Store the current image path for transition
+    const currentProduct = filteredProducts[activeIndex];
+    previousImageRef.current = getImagePath(currentProduct);
+    
+    // Determine direction for animation
+    const direction = index > activeIndex ? 'next' : 'prev';
+    setDirection(direction as 'next' | 'prev');
+    
+    // Set transition state
+    setIsTransitioning(true);
     setImageLoading(true);
+    
+    // After a short delay, update the active index
+    setTimeout(() => {
+      setActiveIndex(index);
+    }, 50);
+    
     pauseAutoPlay();
     console.log("Going to specific index:", index);
   };
@@ -193,7 +236,22 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     console.log("Products or category changed, resetting active index");
     setActiveIndex(0);
     setImageLoading(true);
+    setIsTransitioning(false);
+    previousImageRef.current = null;
   }, [selectedCategory, filteredProducts.length]);
+
+  // Reset transition state after image loads
+  useEffect(() => {
+    if (!imageLoading && isTransitioning) {
+      // Reset transition state after animation completes
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+        previousImageRef.current = null;
+      }, 500); // Match this to the CSS transition duration
+      
+      return () => clearTimeout(timer);
+    }
+  }, [imageLoading, isTransitioning]);
 
   // If no products, show empty state
   if (filteredProducts.length === 0) {
@@ -274,10 +332,35 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
                   </div>
                 )}
                 
+                {/* Previous image for transition effect */}
+                {isTransitioning && previousImageRef.current && (
+                  <div className={cn(
+                    "absolute inset-0 flex items-center justify-center bg-card/5 z-0 transition-transform duration-300",
+                    direction === 'next' ? '-translate-x-full' : 'translate-x-full'
+                  )}>
+                    <img 
+                      src={previousImageRef.current} 
+                      alt="Previous product" 
+                      className="max-h-full max-w-full object-contain p-4"
+                    />
+                  </div>
+                )}
+                
                 {/* Main swipeable product image */}
                 <div 
-                  className="w-full h-full flex items-center justify-center transition-transform duration-300 relative bg-card/5 backdrop-blur-sm"
-                  style={{ transform: isSwiping ? `translateX(${swipeDistance}px)` : 'translateX(0)' }}
+                  className={cn(
+                    "w-full h-full flex items-center justify-center transition-all duration-300 relative bg-card/5 backdrop-blur-sm",
+                    isSwiping 
+                      ? `transform translate-x-[${swipeDistance}px]` 
+                      : isTransitioning 
+                        ? cn("transform", direction === 'next' ? 'translate-x-full' : '-translate-x-full', 'animate-slide-in')
+                        : 'translate-x-0'
+                  )}
+                  style={{ 
+                    transform: isSwiping 
+                      ? `translateX(${swipeDistance}px)` 
+                      : undefined 
+                  }}
                 >
                   <img 
                     src={imagePath} 
