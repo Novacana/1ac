@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
-  isWooCommerceConfigured, 
-  getCategoryMapping,
-  getBestCategoryMatch
+  isWooCommerceConfigured
 } from "@/utils/woocommerce";
 import { toast } from "sonner";
 
@@ -20,13 +18,14 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [loadedCategory, setLoadedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only load products once to prevent infinite loading
-    if (hasLoaded) return;
+    // Only load products if category changes or hasn't been loaded yet
+    if (loadedCategory === selectedCategory) return;
     
     const loadProducts = async () => {
+      console.log(`Loading products for category: ${selectedCategory}`);
       setIsLoading(true);
       setError(null);
       
@@ -74,7 +73,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         
         // Try to fetch products from WooCommerce if configured
         if (isWooCommerceConfigured()) {
-          console.log("Fetching products from WooCommerce integration");
+          console.log("WooCommerce is configured, fetching products...");
           
           try {
             const wooProducts = await fetchWooCommerceProducts();
@@ -103,56 +102,22 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         if (allProducts.length === 0) {
           console.log("No products found from any source");
           dataSource = "local";  // Default to local even if empty
-        } else if (allProducts.length > 0 && wooCommerceProductCount === 0) {
+        } else if (wooCommerceProductCount === 0) {
           console.log("Only local products found");
           dataSource = "local";
-        } else if (allProducts.length > 0 && wooCommerceProductCount === allProducts.length) {
+        } else if (wooCommerceProductCount > 0 && wooCommerceProductCount === allProducts.length) {
           console.log("Only WooCommerce products found");
           dataSource = "woocommerce";
-        } else if (allProducts.length > 0 && wooCommerceProductCount > 0 && wooCommerceProductCount < allProducts.length) {
+        } else if (wooCommerceProductCount > 0 && wooCommerceProductCount < allProducts.length) {
           console.log("Both local and WooCommerce products found - combined source");
           dataSource = "combined";
         }
         
-        // Filter combined products by selected category
-        let filteredProducts = allProducts;
+        console.log(`Final unique product count: ${allProducts.length} (Data source: ${dataSource})`);
         
-        if (selectedCategory !== "All") {
-          filteredProducts = allProducts.filter(product => {
-            const productCategory = product.category;
-            const normalizedCategory = selectedCategory;
-            
-            // Match exact category name
-            if (productCategory === normalizedCategory) {
-              return true;
-            }
-            
-            // Check if the product category maps to the selected category
-            if (getCategoryMapping(productCategory) === normalizedCategory) {
-              return true;
-            }
-            
-            // Try to match by keywords if exact match fails
-            if (getBestCategoryMatch(productCategory) === normalizedCategory) {
-              return true;
-            }
-            
-            return false;
-          });
-        }
-        
-        console.log(`Combined and filtered to ${filteredProducts.length} products for category ${selectedCategory}`);
-        
-        // Remove potential duplicates (by ID)
-        const uniqueProducts = Array.from(
-          new Map(filteredProducts.map(item => [item.id, item])).values()
-        );
-        
-        console.log(`Final unique product count: ${uniqueProducts.length} (Data source: ${dataSource})`);
-        
-        // Pass the filtered products and data source to parent component
-        onProductsLoaded(uniqueProducts, dataSource);
-        setHasLoaded(true); // Mark as loaded to prevent re-loading
+        // Pass products and data source to parent component
+        onProductsLoaded(allProducts, dataSource);
+        setLoadedCategory(selectedCategory); // Mark this category as loaded
       } catch (err) {
         console.error("Error loading products:", err);
         setError(err instanceof Error ? err.message : "Failed to load products");
@@ -165,16 +130,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
     };
     
     loadProducts();
-  }, [selectedCategory, onProductsLoaded, hasLoaded]);
-
-  // Reset loaded state when category changes
-  useEffect(() => {
-    setHasLoaded(false);
-  }, [selectedCategory]);
-
-  if (error) {
-    console.error("Product loading error:", error);
-  }
+  }, [selectedCategory, onProductsLoaded, loadedCategory]);
 
   return null; // This is a logic-only component, no UI rendering
 };

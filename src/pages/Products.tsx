@@ -39,6 +39,11 @@ const Products = () => {
     setDataSource(source);
     setIsDataLoading(false);
     
+    // Check for empty products
+    if (products.length === 0) {
+      toast.warning("Keine Produkte gefunden");
+    }
+    
     // Pre-load images to check for errors
     products.forEach(product => {
       if (product.image) {
@@ -74,7 +79,7 @@ const Products = () => {
       }
       
       // Filter by THC (skip for accessories which don't have THC)
-      if (product.category !== "Accessories" && product.category !== "Zubehör") {
+      if (product.category !== "Accessories" && product.category !== "Zubehör" && product.category !== "Merchandise") {
         const thcValue = parseThcPercentage(product.thc);
         if (thcValue < filters.thcRange[0] || thcValue > filters.thcRange[1]) {
           return false;
@@ -121,7 +126,10 @@ const Products = () => {
         </div>
         
         {isDataLoading ? (
-          <LoadingState />
+          <div>
+            <LoadingState />
+            <p className="text-center text-muted-foreground mt-4">Produkte werden geladen...</p>
+          </div>
         ) : (
           <>
             <Filters 
