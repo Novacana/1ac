@@ -163,7 +163,7 @@ const Index = () => {
       <section className="py-0 border-b border-border/20">
         <div className="container">
           <div className="overflow-x-auto scrollbar-none py-2">
-            <div className="flex items-center gap-2 min-w-max">
+            <div className="flex items-center gap-2 justify-center md:justify-start min-w-max px-2">
               {categories.map((category, index) => (
                 <CategoryPill
                   key={category}

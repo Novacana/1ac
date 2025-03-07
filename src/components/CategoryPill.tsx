@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Flower2, Droplet, Cookie, Spray, Cigarette, ShoppingBag } from "lucide-react";
 
 export interface CategoryPillProps {
   label: string;
@@ -10,6 +11,25 @@ export interface CategoryPillProps {
   style?: React.CSSProperties;
 }
 
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case "Flowers":
+      return <Flower2 className="h-4 w-4" />;
+    case "Oils":
+      return <Droplet className="h-4 w-4" />;
+    case "Edibles":
+      return <Cookie className="h-4 w-4" />;
+    case "Topicals":
+      return <Spray className="h-4 w-4" />;
+    case "Vapes":
+      return <Cigarette className="h-4 w-4" />;
+    case "Accessories":
+      return <ShoppingBag className="h-4 w-4" />;
+    default:
+      return null;
+  }
+};
+
 const CategoryPill: React.FC<CategoryPillProps> = ({
   label,
   active = false,
@@ -17,6 +37,8 @@ const CategoryPill: React.FC<CategoryPillProps> = ({
   className,
   style
 }) => {
+  const icon = getCategoryIcon(label);
+
   return (
     <Button
       variant={active ? "default" : "outline"}
@@ -30,7 +52,8 @@ const CategoryPill: React.FC<CategoryPillProps> = ({
       )}
       style={style}
     >
-      {label}
+      {icon}
+      <span className="md:inline hidden">{label}</span>
     </Button>
   );
 };
