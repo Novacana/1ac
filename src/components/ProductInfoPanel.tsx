@@ -86,15 +86,16 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "absolute top-4 left-4 z-10 backdrop-blur-sm rounded-lg p-4",
-        "w-64 max-w-[calc(100%-2rem)] transition-all duration-500",
-        "lg:w-72",
+        "rounded-lg p-4 transition-all duration-500",
+        "md:absolute md:top-4 md:left-4 md:z-10 md:w-72 md:max-w-[calc(100%-2rem)]",
+        "bg-white/80 dark:bg-black/60 backdrop-blur-md border border-primary/10",
+        "w-full mx-auto max-w-sm", // Mobile styling
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       )}
     >
       <h3 className="text-sm font-medium mb-2 text-primary truncate">{product.name}</h3>
       
-      {/* Cannabinoid Profile - Now at the top */}
+      {/* Cannabinoid Profile */}
       <div className="mb-3">
         <h4 className="text-xs font-medium mb-1">Cannabinoid-Profil</h4>
         <div className="space-y-2">
@@ -128,7 +129,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
         </div>
       </div>
       
-      {/* Taste/Flavor Profile - New section in the middle */}
+      {/* Taste/Flavor Profile */}
       {product.flavors && product.flavors.length > 0 && (
         <div className="mb-3">
           <h4 className="text-xs font-medium mb-1">Geschmacksprofil</h4>
@@ -161,7 +162,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
         </span>
       </div>
       
-      {/* Terpene Profile - Now at the bottom */}
+      {/* Terpene Profile */}
       {terpeneData.length > 0 && (
         <div>
           <h4 className="text-xs font-medium mb-1">Terpen-Profil</h4>
@@ -238,4 +239,3 @@ const getTerpeneColor = (terpene: string): string => {
 };
 
 export default ProductInfoPanel;
-

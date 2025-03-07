@@ -89,14 +89,9 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
 
   return (
     <div className="w-full relative">
-      {/* Move the product info panel outside the touch area on mobile */}
-      <div className="hidden md:block">
-        {activeProduct && <ProductInfoPanel product={activeProduct} />}
-      </div>
-      
       <div 
         ref={canvasRef} 
-        className="w-full h-[400px] md:h-[500px] touch-none"
+        className="w-full h-[400px] md:h-[500px] touch-none relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -126,11 +121,16 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
           </PresentationControls>
           <Environment preset="city" />
         </Canvas>
-      </div>
-
-      {/* Show the product info panel below the carousel on mobile */}
-      <div className="md:hidden mt-4 px-4">
-        {activeProduct && <ProductInfoPanel product={activeProduct} />}
+        
+        {/* Info panel overlay in mobile view - positioned absolutely over the canvas */}
+        <div className="absolute bottom-4 left-0 right-0 px-4 z-10 md:hidden pointer-events-none">
+          {activeProduct && <ProductInfoPanel product={activeProduct} />}
+        </div>
+        
+        {/* Desktop view of ProductInfoPanel */}
+        <div className="hidden md:block">
+          {activeProduct && <ProductInfoPanel product={activeProduct} />}
+        </div>
       </div>
 
       <CarouselNavigation
