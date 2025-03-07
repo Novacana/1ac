@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ProductDetail, { ProductDetailProps } from "@/components/ProductDetail";
+import ProductLoading from "@/components/ProductLoading";
+import ProductNotFound from "@/components/ProductNotFound";
 
-// Sample product data - would typically come from an API
+// Sample product data array
 const products: ProductDetailProps[] = [
   {
     id: "1",
@@ -199,29 +201,11 @@ const Product = () => {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-24 flex items-center justify-center">
-          <div className="h-12 w-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-        </div>
-      </Layout>
-    );
+    return <ProductLoading />;
   }
 
   if (!product) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-24 text-center">
-          <h1 className="text-2xl font-bold mb-4">Produkt nicht gefunden</h1>
-          <p className="text-foreground/70 mb-8">
-            Das gesuchte Produkt existiert nicht oder wurde entfernt.
-          </p>
-          <a href="/" className="text-primary hover:underline">
-            Unsere Produkte durchsuchen
-          </a>
-        </div>
-      </Layout>
-    );
+    return <ProductNotFound />;
   }
 
   return (
