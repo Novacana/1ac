@@ -1,9 +1,10 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, Grid } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import MobileViewToggle from "./MobileViewToggle";
 
 const MobileNavDots = () => {
   const location = useLocation();
@@ -12,19 +13,8 @@ const MobileNavDots = () => {
   
   return (
     <div className="fixed z-50 top-3 w-full px-4 flex justify-between md:hidden animate-fade-in">
-      {/* Products dot */}
-      <Link 
-        to="/products" 
-        className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
-          location.pathname.includes('/product') || location.pathname === '/products'
-            ? "bg-primary text-white"
-            : "bg-background/70 text-foreground shadow-sm"
-        )}
-        aria-label="Alle Produkte anzeigen"
-      >
-        <Grid size={20} />
-      </Link>
+      {/* View toggle dot */}
+      <MobileViewToggle />
       
       {/* Cart dot */}
       <Link 
