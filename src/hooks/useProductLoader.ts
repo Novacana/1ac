@@ -46,7 +46,7 @@ export const useProductLoader = ({
       setError(null);
       
       try {
-        const { allProducts, dataSource } = await loadProductsFromAllSources(selectedCategory);
+        const { allProducts, dataSource } = await loadProductsFromAllSources(selectedCategory, loadedRef.current);
         
         console.log(`Combined and filtered to ${allProducts.length} products for category ${selectedCategory}`);
         
@@ -81,7 +81,10 @@ export const useProductLoader = ({
 /**
  * Load products from all available sources (local and WooCommerce)
  */
-const loadProductsFromAllSources = async (selectedCategory: string): Promise<{
+const loadProductsFromAllSources = async (
+  selectedCategory: string, 
+  alreadyLoaded: boolean
+): Promise<{
   allProducts: Product[];
   dataSource: DataSource;
 }> => {
@@ -146,7 +149,7 @@ const loadProductsFromAllSources = async (selectedCategory: string): Promise<{
         }
         
         // Show toast notification on successful load
-        if (!loadedRef.current) {
+        if (!alreadyLoaded) {
           toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
         }
       } else {
@@ -154,7 +157,7 @@ const loadProductsFromAllSources = async (selectedCategory: string): Promise<{
       }
     } catch (wooError) {
       console.error("Error fetching WooCommerce products:", wooError);
-      if (!loadedRef.current) {
+      if (!alreadyLoaded) {
         toast.error("Failed to load WooCommerce products");
       }
     }
