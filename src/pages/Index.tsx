@@ -7,18 +7,18 @@ import CarouselSection from "@/components/home/CarouselSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 
-// Sample data - in a real app this would come from an API
+// Updated category names to match those in CategoryPill component
 const categories = [
-  "Blüten",
-  "Öle",
-  "Esswaren", 
-  "Topische Mittel",
-  "Vaporisatoren",
-  "Zubehör",
+  "Flowers",
+  "Oils",
+  "Edibles", 
+  "Topicals",
+  "Vapes",
+  "Accessories",
 ];
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Blüten");
+  const [selectedCategory, setSelectedCategory] = useState("Flowers");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
   return (

@@ -13,17 +13,24 @@ export const products: ProductDetailProps[] = [
   ...oilsProducts
 ];
 
+// Define mapping between English and German category names
+const categoryMapping: Record<string, string> = {
+  "Flowers": "Blüten",
+  "Oils": "Öle",
+  "Edibles": "Esswaren",
+  "Topicals": "Topische Mittel",
+  "Vapes": "Vaporisatoren",
+  "Accessories": "Zubehör"
+};
+
 // Helper function to get products by category
 export const getProductsByCategory = (category: string): ProductDetailProps[] => {
+  // Get the corresponding German category if an English one was provided
+  const germanCategory = categoryMapping[category] || category;
+  
   return products.filter(product => 
     product.category === category || 
-    // Handle German/English category mapping
-    (product.category === "Blüten" && category === "Flowers") ||
-    (product.category === "Öle" && category === "Oils") ||
-    (product.category === "Esswaren" && category === "Edibles") ||
-    (product.category === "Topische Mittel" && category === "Topicals") ||
-    (product.category === "Vaporisatoren" && category === "Vapes") ||
-    (product.category === "Zubehör" && category === "Accessories")
+    product.category === germanCategory
   );
 };
 
