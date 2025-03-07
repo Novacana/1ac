@@ -7,22 +7,39 @@ import ProductInfoPanel from "./ProductInfoPanel";
 import ProductModel from "./ProductModel";
 import CarouselNavigation from "./CarouselNavigation";
 import EmptyProductState from "./EmptyProductState";
+import { products as productsData } from "@/data/products";
 
 interface ProductCarouselProps {
-  products: Product[];
+  products?: Product[];
   selectedCategory: string;
 }
 
-const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCategory }) => {
+const ProductCarousel: React.FC<ProductCarouselProps> = ({ 
+  products = productsData, 
+  selectedCategory 
+}) => {
   console.log("ProductCarousel - selectedCategory:", selectedCategory);
   console.log("ProductCarousel - products:", products);
   
-  // Wandle die Kategorie "Flowers" zu "Blüten" um, wenn wir die deutsche Version verwenden
-  const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
+  // Normalize English and German category names
+  const categoryMap: Record<string, string> = {
+    "Flowers": "Blüten",
+    "Oils": "Öle",
+    "Edibles": "Esswaren",
+    "Topicals": "Topicals",
+    "Vapes": "Vapes",
+    "Accessories": "Zubehör"
+  };
   
-  const filteredProducts = products.filter(product => 
-    product.category === normalizedCategory || product.category === selectedCategory
-  );
+  const normalizedCategory = categoryMap[selectedCategory] || selectedCategory;
+  
+  const filteredProducts = products.filter(product => {
+    const productCategory = product.category;
+    return productCategory === normalizedCategory || 
+           productCategory === selectedCategory || 
+           categoryMap[productCategory] === selectedCategory;
+  });
+  
   console.log("ProductCarousel - filteredProducts:", filteredProducts);
   
   const [activeIndex, setActiveIndex] = useState(0);
@@ -102,7 +119,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchEnd={handleTouchEnd}
       >
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
-          <color attach="background" args={['#00000000']} />
+          <color attach="background" args={['#ffffff00']} />
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
           <PresentationControls
