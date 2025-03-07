@@ -15,12 +15,28 @@ interface ProductModelProps {
 const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProducts }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const textureLoader = new THREE.TextureLoader();
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
   
   // Calculate position on the circle
   const angle = (index / totalProducts) * Math.PI * 2;
   const radius = 4;
   const x = Math.sin(angle) * radius;
   const z = Math.cos(angle) * radius;
+  
+  // Load texture if it's a flower
+  React.useEffect(() => {
+    if (product.category === "Flowers") {
+      textureLoader.load(product.image, (loadedTexture) => {
+        loadedTexture.wrapS = THREE.RepeatWrapping;
+        loadedTexture.wrapT = THREE.RepeatWrapping;
+        loadedTexture.repeat.set(1, 1);
+        setTexture(loadedTexture);
+        setLoaded(true);
+      });
+    }
+  }, [product.image, product.category]);
   
   // Rotate the product
   useFrame((state) => {
@@ -32,7 +48,7 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProduc
   const getGeometryForCategory = (category: string) => {
     switch(category) {
       case "Flowers":
-        return new THREE.IcosahedronGeometry(1, 1);
+        return new THREE.IcosahedronGeometry(1, 2); // More detailed for flowers
       case "Oils":
         return new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32);
       case "Vapes":
@@ -46,6 +62,25 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProduc
       default:
         return new THREE.SphereGeometry(1, 32, 32);
     }
+  };
+
+  const getMaterialForCategory = (category: string) => {
+    if (category === "Flowers" && texture) {
+      return new THREE.MeshStandardMaterial({ 
+        map: texture,
+        roughness: 0.5,
+        metalness: 0.2
+      });
+    }
+    
+    // Default color materials for other categories
+    const color = getColorForCategory(category);
+    return new THREE.MeshStandardMaterial({ 
+      color: color,
+      roughness: 0.3,
+      metalness: 0.7,
+      envMapIntensity: 1.5
+    });
   };
 
   const getColorForCategory = (category: string) => {
@@ -77,12 +112,20 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProduc
           onPointerOut={() => setHovered(false)}
           scale={hovered ? 1.1 : 1}
         >
-          <meshStandardMaterial 
-            color={getColorForCategory(product.category)}
-            roughness={0.3}
-            metalness={0.7}
-            envMapIntensity={1.5}
-          />
+          {product.category === "Flowers" && texture ? (
+            <meshStandardMaterial 
+              map={texture}
+              roughness={0.5}
+              metalness={0.2}
+            />
+          ) : (
+            <meshStandardMaterial 
+              color={getColorForCategory(product.category)}
+              roughness={0.3}
+              metalness={0.7}
+              envMapIntensity={1.5}
+            />
+          )}
         </mesh>
         <Text
           position={[0, -1.5, 0]}

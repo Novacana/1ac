@@ -21,9 +21,9 @@ const categories = [
 const products: Product[] = [
   {
     id: "1",
-    name: "Medical Cannabis Flower",
+    name: "Purple Haze",
     price: 49.99,
-    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
+    image: "https://flowzz.com/wp-content/uploads/2023/05/purple-haze-1.jpg",
     thc: "20%",
     cbd: "0.5%",
     category: "Flowers",
@@ -48,12 +48,12 @@ const products: Product[] = [
   },
   {
     id: "4",
-    name: "Hemp-Infused Body Cream",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1607621048318-c2d5bdc0ee39?q=80&w=2940&auto=format&fit=crop",
-    thc: "0%",
-    cbd: "5%",
-    category: "Topicals",
+    name: "Blue Dream",
+    price: 45.99,
+    image: "https://flowzz.com/wp-content/uploads/2023/08/blue-dream-flowers.jpg",
+    thc: "18%",
+    cbd: "1%",
+    category: "Flowers",
   },
   {
     id: "5",
@@ -66,10 +66,12 @@ const products: Product[] = [
   },
   {
     id: "6",
-    name: "Premium Grinder",
-    price: 19.99,
-    image: "https://images.unsplash.com/photo-1603851887849-5eca2b0f8fae?q=80&w=2940&auto=format&fit=crop",
-    category: "Accessories",
+    name: "OG Kush",
+    price: 52.99,
+    image: "https://flowzz.com/wp-content/uploads/2023/07/og-kush-strain.jpg",
+    thc: "22%",
+    cbd: "0.3%",
+    category: "Flowers",
   },
 ];
 
