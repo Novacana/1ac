@@ -34,7 +34,7 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md md:block hidden",
         isScrolled
           ? "py-3 bg-background/70 shadow-sm"
           : "py-5 bg-transparent",
@@ -58,7 +58,7 @@ const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="flex items-center space-x-8">
           {navItems.map((item) => (
             <Link
               key={item.name}
@@ -88,7 +88,7 @@ const Header = () => {
             </Button>
           </Link>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button (now hidden as we've hidden the entire header on mobile) */}
           <Button
             variant="ghost"
             size="icon"
@@ -101,7 +101,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation (now hidden as we've hidden the entire header on mobile) */}
       <div
         className={cn(
           "fixed inset-x-0 top-[var(--header-height)] h-screen bg-background/95 backdrop-blur-md md:hidden transition-transform duration-300 ease-in-out transform",

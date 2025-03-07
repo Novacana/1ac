@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
+import MobileNavDots from "./MobileNavDots";
 import ProductAdvisor from "./AdvisorBot";
 import { cn } from "@/lib/utils";
 
@@ -26,9 +27,10 @@ const Layout: React.FC<LayoutProps> = ({
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {!noHeader && <Header />}
+      <MobileNavDots />
       <main
         className={cn(
-          "flex-1 pt-24 pb-16 animate-fade-in",
+          "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in",
           className
         )}
       >
