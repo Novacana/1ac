@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "@/data/products";
@@ -18,7 +17,8 @@ import { Button } from "./ui/button";
 import { Product } from "@/types/product";
 
 // Export the interface so it can be imported by other files
-export interface ProductDetailProps extends Product {
+export interface ProductDetailProps extends Omit<Product, 'image'> {
+  image?: string;
   benefits?: string[];
   use?: string;
   effects?: string[];
@@ -33,7 +33,7 @@ export interface ProductDetailProps extends Product {
   strain?: string;
 }
 
-const ProductDetail = () => {
+const ProductDetail = (props: ProductDetailProps) => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductDetailProps | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +43,13 @@ const ProductDetail = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // If product was passed as props, use it instead of fetching
+    if (Object.keys(props).length > 0) {
+      setProduct(props);
+      setLoading(false);
+      return;
+    }
+
     const loadProduct = async () => {
       setLoading(true);
       try {
@@ -51,7 +58,7 @@ const ProductDetail = () => {
         
         if (foundProduct) {
           console.log("Found product:", foundProduct);
-          setProduct(foundProduct as ProductDetailProps);
+          setProduct(foundProduct);
         } else {
           console.log("Product not found with ID:", id);
           toast.error("Produkt nicht gefunden");
@@ -76,7 +83,7 @@ const ProductDetail = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [id]);
+  }, [id, props]);
 
   const handleQuantityChange = (amount: number) => {
     setQuantity((prev) => Math.max(1, Math.min(10, prev + amount)));
