@@ -41,8 +41,25 @@ const CartItem: React.FC<CartItemProps> = ({
     }
   };
 
+  // Fix image path
+  const fixImagePath = (path: string) => {
+    if (!path) return "/placeholder.svg";
+    
+    if (path.startsWith("public/")) {
+      return path.replace("public/", "/");
+    }
+    
+    if (!path.startsWith("http") && !path.startsWith("/")) {
+      return "/" + path;
+    }
+    
+    return path;
+  };
+
+  const fixedImagePath = fixImagePath(image);
+
   const handleImageError = () => {
-    console.error("CartItem image error:", image);
+    console.error("CartItem image error:", image, "Fixed path:", fixedImagePath);
     setImageError(true);
     setIsImageLoaded(true);
   };
@@ -69,13 +86,16 @@ const CartItem: React.FC<CartItemProps> = ({
           </div>
         ) : (
           <img
-            src={image}
+            src={fixedImagePath}
             alt={name}
             className={cn(
               "h-full w-full object-cover transition-opacity duration-500",
               isImageLoaded ? "opacity-100" : "opacity-0"
             )}
-            onLoad={() => setIsImageLoaded(true)}
+            onLoad={() => {
+              console.log("CartItem image loaded:", fixedImagePath);
+              setIsImageLoaded(true);
+            }}
             onError={handleImageError}
           />
         )}

@@ -15,6 +15,8 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
 
   // Function to fix image paths
   const getFixedImagePath = (path: string) => {
+    if (!path) return "/placeholder.svg";
+    
     // If the path starts with "public/", remove it as it's already in the public folder
     if (path.startsWith("public/")) {
       return path.replace("public/", "/");
@@ -35,18 +37,16 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
       setFixedImages(processed);
       console.log("Fixed product images in ProductImages:", processed);
       
-      // Preload the images to check for errors
-      processed.forEach((imgPath, index) => {
-        const img = new Image();
-        img.onload = () => {
-          console.log(`Preloaded image ${index} successfully:`, imgPath);
-        };
-        img.onerror = () => {
-          console.error(`Failed to preload image ${index}:`, imgPath);
-          toast.error(`Ein Produktbild konnte nicht geladen werden`);
-        };
-        img.src = imgPath;
-      });
+      // Preload the first image
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Preloaded main image successfully:`, processed[0]);
+      };
+      img.onerror = () => {
+        console.error(`Failed to preload main image:`, processed[0]);
+        toast.error(`Ein Produktbild konnte nicht geladen werden`);
+      };
+      img.src = processed[0];
     } else {
       setFixedImages(["/placeholder.svg"]);
     }

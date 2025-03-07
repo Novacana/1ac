@@ -44,6 +44,23 @@ const CarouselImageDisplay: React.FC = () => {
     }
   }, [imageLoading, isTransitioning, setIsTransitioning]);
 
+  // Preload image when activeProduct changes
+  useEffect(() => {
+    if (activeProduct) {
+      setImageLoading(true);
+      const img = new Image();
+      img.onload = () => {
+        console.log("Preloaded carousel image successfully:", imagePath);
+        setImageLoading(false);
+      };
+      img.onerror = () => {
+        console.error("Failed to preload carousel image:", imagePath);
+        setImageLoading(false);
+      };
+      img.src = imagePath;
+    }
+  }, [activeProduct, imagePath, setImageLoading]);
+
   const handleProductClick = () => {
     if (!hasMoved && products.length > 0) {
       const productId = products[activeIndex].id;

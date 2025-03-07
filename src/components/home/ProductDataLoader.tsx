@@ -28,13 +28,31 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
             return img.startsWith("/") ? img : `/${img}`;
           });
           
+          // Fix single image property
+          let fixedImage = product.image || "";
+          if (fixedImage.startsWith("public/")) {
+            fixedImage = fixedImage.replace("public/", "/");
+          } else if (fixedImage && !fixedImage.startsWith("/") && !fixedImage.startsWith("http")) {
+            fixedImage = `/${fixedImage}`;
+          }
+          
           // Convert to Product type to ensure compatibility
           return {
             ...product,
-            image: fixedImages[0] || "/placeholder.svg", // Add required image property
+            image: fixedImage || fixedImages[0] || "/placeholder.svg",
             images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
           } as Product;
         });
+        
+        // Debug output
+        console.log("Processed products with fixed images:", 
+          processedDataProducts.map(p => ({
+            id: p.id,
+            name: p.name,
+            image: p.image,
+            images: p.images
+          }))
+        );
         
         onProductsLoaded(processedDataProducts);
       }

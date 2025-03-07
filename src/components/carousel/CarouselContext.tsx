@@ -42,7 +42,12 @@ export const CarouselProvider: React.FC<{
     product.category === normalizedCategory || product.category === selectedCategory
   );
 
-  console.log("CarouselContext - filteredProducts:", filteredProducts);
+  console.log("CarouselContext - filteredProducts:", filteredProducts.map(p => ({
+    id: p.id,
+    name: p.name,
+    image: p.image,
+    images: p.images
+  })));
 
   const pauseAutoPlay = () => {
     setIsAutoPlaying(false);
@@ -53,8 +58,13 @@ export const CarouselProvider: React.FC<{
   };
 
   const getImagePath = (product: Product) => {
+    if (!product) return "/placeholder.svg";
+    
+    // First try images array
     if (product.images && product.images.length > 0) {
       let path = product.images[0];
+      
+      if (!path) return "/placeholder.svg";
       
       if (path.startsWith("public/")) {
         return path.replace("public/", "/");
@@ -65,7 +75,10 @@ export const CarouselProvider: React.FC<{
       }
       
       return path;
-    } else if (product.image) {
+    } 
+    
+    // Then try image property
+    if (product.image) {
       let path = product.image;
       
       if (path.startsWith("public/")) {
@@ -79,6 +92,7 @@ export const CarouselProvider: React.FC<{
       return path;
     }
     
+    // Fallback
     return "/placeholder.svg";
   };
 
