@@ -26,11 +26,11 @@ const getCategoryIcon = (category: string) => {
     case "Flowers":
       return <Flower2 className="h-4 w-4" />;
     case "Oils":
-      return <Droplet className="h-4 w-4" />;
+      return <Pipette className="h-4 w-4" />; // Swapped: now using Pipette (toothpaste tube) for Oils
     case "Edibles":
       return <Cookie className="h-4 w-4" />;
     case "Topicals":
-      return <Pipette className="h-4 w-4" />; // Changed to Pipette for toothpaste tube representation
+      return <Droplet className="h-4 w-4" />; // Swapped: now using Droplet for Topicals
     case "Vapes":
       return <Cigarette className="h-4 w-4" />;
     case "Accessories":
