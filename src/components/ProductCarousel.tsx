@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, PresentationControls } from "@react-three/drei";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
+import ProductDetailPanel from "./ProductDetailPanel";
 import ProductModel from "./ProductModel";
 import CarouselNavigation from "./CarouselNavigation";
 import EmptyProductState from "./EmptyProductState";
@@ -96,8 +97,12 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Top left info panel - Main cannabinoid info */}
+        <div className="absolute top-4 left-4 z-10 pointer-events-none">
+          {activeProduct && <ProductInfoPanel product={activeProduct} />}
+        </div>
+        
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
-          {/* Fix the background color to use a valid hex format */}
           <color attach="background" args={['#00000000']} />
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
@@ -123,14 +128,9 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
           <Environment preset="city" />
         </Canvas>
         
-        {/* Info panel overlay in mobile view - positioned absolutely over the canvas */}
-        <div className="absolute bottom-4 left-0 right-0 px-4 z-10 md:hidden pointer-events-none">
-          {activeProduct && <ProductInfoPanel product={activeProduct} />}
-        </div>
-        
-        {/* Desktop view of ProductInfoPanel */}
-        <div className="hidden md:block">
-          {activeProduct && <ProductInfoPanel product={activeProduct} />}
+        {/* Bottom right detail panel - Terpenes & taste */}
+        <div className="absolute bottom-4 right-4 z-10 pointer-events-none">
+          {activeProduct && <ProductDetailPanel product={activeProduct} />}
         </div>
       </div>
 

@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
-import CannabinoidProfile from "./CannabinoidProfile";
-import ProductTags from "./ProductTags";
+import FlavorProfile from "./ProductInfoPanel/FlavorProfile";
+import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
 
-interface ProductInfoPanelProps {
+interface ProductDetailPanelProps {
   product: Product | null;
 }
 
-const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
+const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   // Animate when component mounts
@@ -26,18 +26,17 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       className={cn(
         "rounded-lg p-3 transition-all duration-500 max-w-[180px]",
         "bg-white/80 dark:bg-black/60 backdrop-blur-md border border-primary/10",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+        "ml-auto", // Align to the right
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
-      <h3 className="text-sm font-medium mb-2 text-primary truncate">{product.name}</h3>
+      {/* Taste/Flavor Profile */}
+      <FlavorProfile flavors={product.flavors} />
       
-      {/* Cannabinoid Profile */}
-      <CannabinoidProfile thc={product.thc} cbd={product.cbd} />
-      
-      {/* Quick info tags */}
-      <ProductTags strain={product.strain} category={product.category} />
+      {/* Terpene Profile */}
+      <TerpeneProfile product={product} />
     </div>
   );
 };
 
-export default ProductInfoPanel;
+export default ProductDetailPanel;

@@ -75,10 +75,9 @@ const Products = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Unsere Produkte</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {products.map((product) => {
             const imagePath = getImagePath(product);
-            console.log(`Product ${product.id}: ${product.name} - Image path: ${imagePath}`);
             
             return (
               <Link key={product.id} to={`/product/${product.id}`}>
@@ -87,7 +86,7 @@ const Products = () => {
                     <div className="aspect-square relative overflow-hidden rounded-t-lg">
                       <div className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
                            style={{opacity: imagesLoaded[product.id] ? 0 : 1}}>
-                        <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+                        <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
                       </div>
                       <img 
                         src={imagePath}
@@ -105,10 +104,10 @@ const Products = () => {
                         }}
                       />
                     </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
-                      <p className="font-medium">{product.price.toFixed(2)} €</p>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-sm mb-0.5 line-clamp-1">{product.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
+                      <p className="font-medium text-sm">{product.price.toFixed(2)} €</p>
                     </div>
                   </CardContent>
                 </Card>
