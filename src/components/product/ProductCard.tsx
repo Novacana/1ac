@@ -8,7 +8,7 @@ interface ProductCardProps {
   product: Product;
   imagePath: string;
   imagesLoaded: {[key: string]: boolean};
-  setImagesLoaded: (value: {[key: string]: boolean}) => void;
+  setImagesLoaded: React.Dispatch<React.SetStateAction<{[key: string]: boolean}>>;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({

@@ -7,7 +7,7 @@ import { getImagePath } from "@/utils/product-image-utils";
 interface ProductListProps {
   products: Product[];
   imagesLoaded: {[key: string]: boolean};
-  setImagesLoaded: (value: {[key: string]: boolean}) => void;
+  setImagesLoaded: React.Dispatch<React.SetStateAction<{[key: string]: boolean}>>;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ 
