@@ -7,7 +7,6 @@ import Filters, { FilterOptions } from "@/components/home/Filters";
 import { Product } from "@/types/product";
 import ProductList from "@/components/product/ProductList";
 import LoadingState from "@/components/product/LoadingState";
-import DataSourceIndicator from "@/components/product/DataSourceIndicator";
 import { parseThcPercentage } from "@/utils/product-value-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 
@@ -121,9 +120,8 @@ const Products = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-4">
+        <div className="mb-4">
           <h1 className="text-3xl font-bold">Unsere Produkte</h1>
-          <DataSourceIndicator dataSource={dataSource} />
         </div>
         
         {!initialLoadComplete ? (
