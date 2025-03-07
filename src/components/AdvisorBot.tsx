@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { ApiKeyDialog } from "./ApiKeyDialog";
 
 interface Message {
   role: "user" | "assistant";
@@ -75,20 +74,21 @@ const ProductAdvisor = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string | null>(
-    localStorage.getItem("elevenlabsApiKey")
-  );
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
     if (audioRef.current && audioRef.current.played) {
       audioRef.current.pause();
+      setIsPlaying(false);
+    }
+    if (speechSynthesisRef.current) {
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
     }
     if (isListening) {
@@ -123,84 +123,44 @@ const ProductAdvisor = () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (speechSynthesisRef.current) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, [toast]);
 
-  const promptForApiKey = () => {
-    setShowApiKeyDialog(true);
-  };
-
-  const handleApiKeySave = (key: string) => {
-    setElevenlabsApiKey(key);
-    setIsVoiceEnabled(true);
-  };
-
-  const speakMessage = async (message: string, messageId: string) => {
+  const speakMessage = async (message: string) => {
     if (!isVoiceEnabled) return;
     if (isPlaying) {
-      audioRef.current?.pause();
+      if (speechSynthesisRef.current) {
+        window.speechSynthesis.cancel();
+      }
       setIsPlaying(false);
       return;
-    }
-
-    let apiKey = elevenlabsApiKey;
-    if (!apiKey) {
-      apiKey = promptForApiKey();
-      if (!apiKey) return;
     }
 
     try {
       setIsPlaying(true);
       
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/Xb7hH8MSUJpSbSDYk0k2', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': apiKey
-        },
-        body: JSON.stringify({
-          text: message,
-          model_id: "eleven_multilingual_v2",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75
-          }
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        if (response.status === 401) {
-          toast({
-            title: "Ungültiger API-Schlüssel",
-            description: "Bitte überprüfe deinen ElevenLabs API-Schlüssel.",
-            variant: "destructive",
-          });
-          localStorage.removeItem("elevenlabsApiKey");
-          setElevenlabsApiKey(null);
-        } else {
-          toast({
-            title: "Fehler bei der Sprachgenerierung",
-            description: errorData.message || "Ein unbekannter Fehler ist aufgetreten.",
-            variant: "destructive",
-          });
-        }
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = 'de-DE';
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => {
         setIsPlaying(false);
-        return;
-      }
-
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
+        toast({
+          title: "Fehler bei der Sprachausgabe",
+          description: "Die Sprachausgabe konnte nicht gestartet werden.",
+          variant: "destructive",
+        });
+      };
       
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.play();
-      }
+      speechSynthesisRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
     } catch (error) {
       console.error("Error generating speech:", error);
       toast({
-        title: "Fehler bei der Sprachgenerierung",
-        description: "Ein Fehler ist bei der Verbindung mit ElevenLabs aufgetreten.",
+        title: "Fehler bei der Sprachausgabe",
+        description: "Ein Fehler ist bei der Sprachausgabe aufgetreten.",
         variant: "destructive",
       });
       setIsPlaying(false);
@@ -208,17 +168,12 @@ const ProductAdvisor = () => {
   };
 
   const toggleVoice = () => {
-    if (!isVoiceEnabled && !elevenlabsApiKey) {
-      const key = promptForApiKey();
-      if (key) {
-        setIsVoiceEnabled(true);
+    setIsVoiceEnabled(!isVoiceEnabled);
+    if (isPlaying) {
+      if (speechSynthesisRef.current) {
+        window.speechSynthesis.cancel();
       }
-    } else {
-      setIsVoiceEnabled(!isVoiceEnabled);
-      if (isPlaying) {
-        audioRef.current?.pause();
-        setIsPlaying(false);
-      }
+      setIsPlaying(false);
     }
   };
 
@@ -359,7 +314,7 @@ const ProductAdvisor = () => {
 
       if (isVoiceEnabled) {
         setTimeout(() => {
-          speakMessage(botResponse, messageId);
+          speakMessage(botResponse);
         }, 300);
       }
     } catch (error) {
@@ -392,12 +347,6 @@ const ProductAdvisor = () => {
       >
         {isOpen ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
       </Button>
-
-      <ApiKeyDialog 
-        open={showApiKeyDialog}
-        onClose={() => setShowApiKeyDialog(false)}
-        onSave={handleApiKeySave}
-      />
 
       <div
         className={cn(
