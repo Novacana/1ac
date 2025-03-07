@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { ApiKeyDialog } from "./ApiKeyDialog";
 
 interface Message {
   role: "user" | "assistant";
@@ -80,6 +80,7 @@ const ProductAdvisor = () => {
   );
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -126,21 +127,12 @@ const ProductAdvisor = () => {
   }, [toast]);
 
   const promptForApiKey = () => {
-    const key = window.prompt(
-      "Bitte gib deinen ElevenLabs API-Schlüssel ein, um die Sprachausgabe zu aktivieren:",
-      elevenlabsApiKey || ""
-    );
-    
-    if (key) {
-      localStorage.setItem("elevenlabsApiKey", key);
-      setElevenlabsApiKey(key);
-      toast({
-        title: "API-Schlüssel gespeichert",
-        description: "Dein ElevenLabs API-Schlüssel wurde gespeichert.",
-      });
-      return key;
-    }
-    return null;
+    setShowApiKeyDialog(true);
+  };
+
+  const handleApiKeySave = (key: string) => {
+    setElevenlabsApiKey(key);
+    setIsVoiceEnabled(true);
   };
 
   const speakMessage = async (message: string, messageId: string) => {
@@ -400,6 +392,12 @@ const ProductAdvisor = () => {
       >
         {isOpen ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
       </Button>
+
+      <ApiKeyDialog 
+        open={showApiKeyDialog}
+        onClose={() => setShowApiKeyDialog(false)}
+        onSave={handleApiKeySave}
+      />
 
       <div
         className={cn(
