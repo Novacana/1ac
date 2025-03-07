@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ProductCarousel from "@/components/ProductCarousel";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
+import { FilterX } from "lucide-react";
 
 interface CarouselSectionProps {
   products: Product[];
@@ -53,6 +54,23 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
     console.log("Fixed product images in CarouselSection:", productsWithFixedPaths.map(p => ({id: p.id, name: p.name, images: p.images})));
     setCheckedProducts(productsWithFixedPaths);
   }, [products]);
+
+  // Handle empty state
+  if (checkedProducts.length === 0) {
+    return (
+      <section className="py-4 relative">
+        <div className="container px-4 mx-auto">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <FilterX className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">Keine Produkte gefunden</h3>
+            <p className="text-muted-foreground text-sm max-w-md">
+              Es wurden keine Produkte gefunden, die Ihren Filterkriterien entsprechen. Bitte passen Sie Ihre Filter an oder wählen Sie eine andere Kategorie.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-4 relative">

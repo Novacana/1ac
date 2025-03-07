@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Product } from "@/types/product";
 import CategoryFilter from "@/components/home/CategoryFilter";
 import CarouselSection from "@/components/home/CarouselSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
+import Filters, { FilterOptions } from "@/components/home/Filters";
 
 // Sample data - in a real app this would come from an API
 const categories = [
@@ -148,8 +149,99 @@ const products: Product[] = [
   },
 ];
 
+// Helper function to parse THC percentage to number
+const parseThcPercentage = (thcStr?: string): number => {
+  if (!thcStr) return 0;
+  
+  // Handle ranges like "10-15%"
+  if (thcStr.includes("-")) {
+    const parts = thcStr.split("-");
+    const avg = parts.map(p => parseFloat(p)).reduce((a, b) => a + b, 0) / parts.length;
+    return avg;
+  }
+  
+  // Handle "< 0.2%" format
+  if (thcStr.includes("<")) {
+    return 0.1; // Just a small value for "less than" cases
+  }
+  
+  // Handle "X% per piece" format
+  if (thcStr.includes("per piece")) {
+    return parseFloat(thcStr) || 0;
+  }
+  
+  // Regular percentage
+  return parseFloat(thcStr) || 0;
+};
+
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Flowers");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  
+  // Get max price from all products for slider range
+  const maxPrice = Math.ceil(Math.max(...products.map(p => p.price)));
+  
+  // Initialize filters
+  const [filters, setFilters] = useState<FilterOptions>({
+    thcRange: [0, 30],
+    priceRange: [0, maxPrice],
+    sortBy: 'popularity'
+  });
+
+  // Apply filters and category selection
+  useEffect(() => {
+    let result = products.filter(product => {
+      // Filter by category
+      if (product.category !== selectedCategory && 
+          !(product.category === "Blüten" && selectedCategory === "Flowers") &&
+          !(product.category === "Öle" && selectedCategory === "Oils") &&
+          !(product.category === "Zubehör" && selectedCategory === "Accessories")) {
+        return false;
+      }
+      
+      // Filter by price
+      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+        return false;
+      }
+      
+      // Filter by THC (skip for accessories which don't have THC)
+      if (product.category !== "Accessories" && product.category !== "Zubehör") {
+        const thcValue = parseThcPercentage(product.thc);
+        if (thcValue < filters.thcRange[0] || thcValue > filters.thcRange[1]) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    // Apply sorting
+    switch (filters.sortBy) {
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'thc-desc':
+        result.sort((a, b) => parseThcPercentage(b.thc) - parseThcPercentage(a.thc));
+        break;
+      case 'popularity':
+        // We don't have real popularity data, so we'll just use the original order
+        break;
+    }
+    
+    setFilteredProducts(result);
+  }, [selectedCategory, filters]);
+  
+  // Reset filters to defaults
+  const handleResetFilters = () => {
+    setFilters({
+      thcRange: [0, 30],
+      priceRange: [0, maxPrice],
+      sortBy: 'popularity'
+    });
+  };
 
   return (
     <Layout>
@@ -159,8 +251,15 @@ const Index = () => {
         onSelectCategory={setSelectedCategory}
       />
       
+      <Filters 
+        filters={filters}
+        onFilterChange={setFilters}
+        onReset={handleResetFilters}
+        maxPrice={maxPrice}
+      />
+      
       <CarouselSection 
-        products={products}
+        products={filteredProducts}
         selectedCategory={selectedCategory}
       />
       
