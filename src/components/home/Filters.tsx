@@ -3,18 +3,19 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { 
-  ChevronDown,
-  ChevronsUpDown,
   FilterX,
   DollarSign,
   Leaf,
+  ArrowDownAZ,
+  ArrowDownZA,
+  ArrowDown19,
+  Fire,
   TrendingUp
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -59,128 +60,120 @@ const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  // Format percentage for display
-  const formatThc = (value: number) => `${value}%`;
-  
-  // Format price for display
-  const formatPrice = (value: number) => `€${value}`;
-
-  // Get sort by display text
-  const getSortByText = () => {
+  // Get sort by icon
+  const getSortIcon = () => {
     switch (filters.sortBy) {
       case 'price-asc':
-        return 'Preis: Aufsteigend';
+        return <ArrowDownZA className="h-3.5 w-3.5" />;
       case 'price-desc':
-        return 'Preis: Absteigend';
+        return <ArrowDownAZ className="h-3.5 w-3.5" />;
       case 'thc-desc':
-        return 'THC: Höchster zuerst';
+        return <Fire className="h-3.5 w-3.5" />;
       case 'popularity':
-        return 'Beliebtheit';
+        return <TrendingUp className="h-3.5 w-3.5" />;
       default:
-        return 'Sortieren nach';
+        return <TrendingUp className="h-3.5 w-3.5" />;
     }
   };
 
   return (
-    <div className="py-3 px-2">
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        {/* THC Filter */}
-        <div className="flex-1 min-w-[250px]">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1">
-              <Leaf className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium">THC</span>
+    <div className="py-2 px-2 bg-gray-50 rounded-lg mb-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {/* THC & Price Filter */}
+        <div className="flex-1 min-w-[200px]">
+          <div className="grid grid-cols-2 gap-2">
+            {/* THC Range */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1">
+                  <Leaf className="w-3 h-3 text-primary" />
+                  <span className="text-xs font-medium">THC {filters.thcRange[0]}-{filters.thcRange[1]}%</span>
+                </div>
+              </div>
+              <Slider
+                defaultValue={[0, 30]}
+                value={[filters.thcRange[0], filters.thcRange[1]]}
+                max={30}
+                step={1}
+                onValueChange={handleThcChange}
+                className="my-1"
+              />
             </div>
-            <span className="text-xs">
-              {formatThc(filters.thcRange[0])} - {formatThc(filters.thcRange[1])}
-            </span>
-          </div>
-          <Slider
-            defaultValue={[0, 30]}
-            value={[filters.thcRange[0], filters.thcRange[1]]}
-            max={30}
-            step={1}
-            onValueChange={handleThcChange}
-            className="my-1"
-          />
-        </div>
-
-        {/* Price Filter */}
-        <div className="flex-1 min-w-[250px]">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-1">
-              <DollarSign className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium">Preis</span>
+            
+            {/* Price Range */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1">
+                  <DollarSign className="w-3 h-3 text-primary" />
+                  <span className="text-xs font-medium">€{filters.priceRange[0]}-{filters.priceRange[1]}</span>
+                </div>
+              </div>
+              <Slider
+                defaultValue={[0, maxPrice]}
+                value={[filters.priceRange[0], filters.priceRange[1]]}
+                max={maxPrice}
+                step={1}
+                onValueChange={handlePriceChange}
+                className="my-1"
+              />
             </div>
-            <span className="text-xs">
-              {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
-            </span>
           </div>
-          <Slider
-            defaultValue={[0, maxPrice]}
-            value={[filters.priceRange[0], filters.priceRange[1]]}
-            max={maxPrice}
-            step={1}
-            onValueChange={handlePriceChange}
-            className="my-1"
-          />
         </div>
 
         {/* Sort By Dropdown */}
-        <div className="flex-0">
+        <div className="flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center gap-1 h-8 text-xs"
+                className="flex items-center gap-1 h-7 text-xs px-2"
               >
-                <TrendingUp className="h-3.5 w-3.5" />
-                <span>{getSortByText()}</span>
-                <ChevronDown className="h-3.5 w-3.5 ml-1" />
+                {getSortIcon()}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="text-xs">Sortieren nach</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="text-xs cursor-pointer"
                 onClick={() => handleSortChange('popularity')}
               >
+                <TrendingUp className="h-3.5 w-3.5 mr-2" />
                 Beliebtheit
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-xs cursor-pointer"
                 onClick={() => handleSortChange('price-asc')}
               >
+                <ArrowDownZA className="h-3.5 w-3.5 mr-2" />
                 Preis: Aufsteigend
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-xs cursor-pointer"
                 onClick={() => handleSortChange('price-desc')}
               >
+                <ArrowDownAZ className="h-3.5 w-3.5 mr-2" />
                 Preis: Absteigend
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-xs cursor-pointer"
                 onClick={() => handleSortChange('thc-desc')}
               >
+                <Fire className="h-3.5 w-3.5 mr-2" />
                 THC: Höchster zuerst
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
 
-        {/* Reset Button */}
-        <div className="flex-0">
+          {/* Reset Button */}
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onReset}
-            className="h-8 text-xs"
+            className="h-7 text-xs px-2"
+            title="Filter zurücksetzen"
           >
-            <FilterX className="h-3.5 w-3.5 mr-1" />
-            Zurücksetzen
+            <FilterX className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

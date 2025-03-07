@@ -18,9 +18,14 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
     color: getTerpeneColor(terpene.name)
   }));
 
+  const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
+
   return (
     <div>
-      <h4 className="text-xs font-medium mb-1">Terpen-Profil</h4>
+      <div className="flex justify-between items-center mb-1">
+        <h4 className="text-xs font-medium">Terpen-Profil</h4>
+        <span className="text-xs font-medium">{totalPercentage}%</span>
+      </div>
       <div className="h-[120px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -72,7 +77,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
               }}
             />
-            <span className="font-medium whitespace-nowrap">{terpene.name}</span>
+            <span className="font-medium whitespace-nowrap">{terpene.name} ({terpene.value}%)</span>
           </div>
         ))}
       </div>
