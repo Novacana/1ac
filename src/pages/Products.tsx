@@ -92,7 +92,7 @@ const Products = () => {
     // Apply sorting
     switch (filters.sortBy) {
       case 'price-asc':
-        result.sort((a, b) => (a.price || 0) - (b.price || 0));
+        result.sort((a, b) => (a.price || 0) - (a.price || 0));
         break;
       case 'price-desc':
         result.sort((a, b) => (b.price || 0) - (a.price || 0));
@@ -120,10 +120,6 @@ const Products = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-4">
-          <h1 className="text-3xl font-bold">Unsere Produkte</h1>
-        </div>
-        
         {!initialLoadComplete ? (
           <LoadingState />
         ) : (
