@@ -16,7 +16,7 @@ const Products = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
-  const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "loading">("loading");
+  const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   
   // Get max price from all products for slider range
   const maxPrice = Math.ceil(Math.max(...products.map(p => typeof p.price === 'number' ? p.price : 0)));
@@ -30,17 +30,19 @@ const Products = () => {
 
   useEffect(() => {
     const loadProducts = async () => {
+      // Array to hold products from all sources
+      let combinedProducts: Product[] = [];
+      let source: "woocommerce" | "local" | "combined" = "local";
+      
       // First try to load from WooCommerce if configured
       if (isWooCommerceConfigured()) {
         try {
           const wooProducts = await fetchWooCommerceProducts();
           if (wooProducts && wooProducts.length > 0) {
             console.log(`Loaded ${wooProducts.length} products from WooCommerce`);
-            setAllProducts(wooProducts);
-            setFilteredProducts(wooProducts);
-            setDataSource("woocommerce");
+            combinedProducts = [...wooProducts];
+            source = "woocommerce";
             toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
-            return;
           }
         } catch (error) {
           console.error("Error loading WooCommerce products:", error);
@@ -48,15 +50,31 @@ const Products = () => {
         }
       }
       
-      // Fall back to local data if WooCommerce fails or isn't configured
+      // Always add local products
       const convertedProducts = convertLocalProducts(products);
       
-      setAllProducts(convertedProducts);
-      setFilteredProducts(convertedProducts);
-      setDataSource("local");
+      // Add local products to the combined list
+      if (combinedProducts.length > 0) {
+        console.log(`Adding ${convertedProducts.length} local products to ${combinedProducts.length} WooCommerce products`);
+        combinedProducts = [...combinedProducts, ...convertedProducts];
+        source = "combined";
+      } else {
+        combinedProducts = convertedProducts;
+        source = "local";
+      }
+      
+      // Remove potential duplicates by ID
+      const uniqueProducts = Array.from(
+        new Map(combinedProducts.map(item => [item.id, item])).values()
+      );
+      
+      console.log(`Final product count: ${uniqueProducts.length}`);
+      setAllProducts(uniqueProducts);
+      setFilteredProducts(uniqueProducts);
+      setDataSource(source);
       
       // Pre-load images to check for errors
-      convertedProducts.forEach(product => {
+      uniqueProducts.forEach(product => {
         const img = new Image();
         img.onload = () => {
           setImagesLoaded(prev => ({...prev, [product.id]: true}));
