@@ -27,35 +27,30 @@ const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd }) => 
   if (!thc && !cbd) return null;
 
   return (
-    <div className="mb-2">
-      <h4 className="text-xs font-medium mb-1 text-gray-600 dark:text-gray-300">Cannabinoid-Profil</h4>
-      <div className="space-y-2">
+    <div className="mb-1">
+      <div className="flex justify-between items-center">
+        <h4 className="text-xs font-medium text-gray-600 dark:text-gray-300">Cannabinoid</h4>
+        <div className="flex gap-2 text-xs">
+          {thc && <span className="font-medium">THC: {thc}</span>}
+          {thc && cbd && <span>|</span>}
+          {cbd && <span className="font-medium">CBD: {cbd}</span>}
+        </div>
+      </div>
+      <div className="space-y-1 mt-1">
         {thc && (
-          <div>
-            <div className="flex justify-between text-xs mb-0.5">
-              <span>THC</span>
-              <span className="font-medium">{thc}</span>
-            </div>
-            <Progress 
-              value={thcProgress * 4} 
-              max={100} 
-              className="h-1.5 bg-primary/10"
-            />
-          </div>
+          <Progress 
+            value={thcProgress * 4} 
+            max={100} 
+            className="h-1 bg-primary/10"
+          />
         )}
         
         {cbd && (
-          <div>
-            <div className="flex justify-between text-xs mb-0.5">
-              <span>CBD</span>
-              <span className="font-medium">{cbd}</span>
-            </div>
-            <Progress 
-              value={cbdProgress * 6.6} 
-              max={100} 
-              className="h-1.5 bg-primary/10"
-            />
-          </div>
+          <Progress 
+            value={cbdProgress * 6.6} 
+            max={100} 
+            className="h-1 bg-primary/10 mt-1"
+          />
         )}
       </div>
     </div>

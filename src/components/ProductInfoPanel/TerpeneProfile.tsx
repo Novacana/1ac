@@ -23,19 +23,19 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
-        <h4 className="text-xs font-medium">Terpen-Profil</h4>
+        <h4 className="text-xs font-medium">Terpene</h4>
         <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
-      <div className="h-[120px] relative">
+      <div className="h-[100px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={terpeneData}
               cx="50%"
               cy="50%"
-              innerRadius={25}
-              outerRadius={45}
-              paddingAngle={3}
+              innerRadius={20}
+              outerRadius={38}
+              paddingAngle={2}
               dataKey="value"
               animationDuration={1500}
               animationBegin={300}
@@ -66,18 +66,18 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         </ResponsiveContainer>
       </div>
       
-      {/* Legend */}
-      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+      {/* Compact legend */}
+      <div className="flex flex-wrap gap-x-2 gap-y-1 mt-1">
         {terpeneData.map((terpene, index) => (
-          <div key={index} className="flex items-center text-[10px] animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+          <div key={index} className="flex items-center text-[9px] animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
             <div 
-              className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+              className="w-1.5 h-1.5 rounded-full mr-0.5 flex-shrink-0"
               style={{ 
                 backgroundColor: terpene.color,
                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
               }}
             />
-            <span className="font-medium whitespace-nowrap">{terpene.name} ({terpene.value}%)</span>
+            <span className="font-medium whitespace-nowrap">{terpene.name}</span>
           </div>
         ))}
       </div>

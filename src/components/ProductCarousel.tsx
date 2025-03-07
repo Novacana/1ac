@@ -6,8 +6,10 @@ import ProductDetailPanel from "./ProductDetailPanel";
 import CarouselNavigation from "./CarouselNavigation";
 import EmptyProductState from "./EmptyProductState";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingCart, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 interface ProductCarouselProps {
   products: Product[];
@@ -281,12 +283,27 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
       navigate(`/product/${productId}`);
     }
   };
+  
+  const handleAddToCart = () => {
+    toast.success(`${activeProduct.name} wurde zum Warenkorb hinzugefügt`);
+  };
 
   return (
     <div className="w-full relative">
       <div className="container max-w-md mx-auto px-4">
         <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1 bg-primary/10 border-primary/20 hover:bg-primary/20"
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart size={14} />
+              <span className="text-xs font-medium hidden sm:inline">Hinzufügen</span>
+            </Button>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
             <div className="md:col-span-2">
@@ -359,14 +376,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
                       setImageLoading(false);
                     }}
                   />
-                  
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden opacity-50 animate-fade-out">
-                    <div className="flex items-center gap-2 bg-background/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                      <ChevronLeft size={16} className="animate-pulse" />
-                      <span className="text-sm font-medium">Swipe</span>
-                      <ChevronRight size={16} className="animate-pulse" />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
