@@ -1,6 +1,12 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Terpene {
   name: string;
@@ -28,6 +34,23 @@ const getTerpeneColor = (terpene: string): string => {
   return colors[terpene] || '#' + Math.floor(Math.random()*16777215).toString(16);
 };
 
+// Get terpene effects information
+const getTerpeneEffects = (terpene: string): { effect: string; color: string } => {
+  const effects: Record<string, { effect: string; color: string }> = {
+    'Myrcene': { effect: 'Relaxing, Sedative', color: '#F2FCE2' },
+    'Limonene': { effect: 'Uplifting, Mood Enhancing', color: '#FEF7CD' },
+    'Caryophyllene': { effect: 'Anti-inflammatory, Pain Relief', color: '#FEC6A1' },
+    'Pinene': { effect: 'Mental Clarity, Alertness', color: '#D3E4FD' },
+    'Linalool': { effect: 'Calming, Anxiety Reducing', color: '#E5DEFF' },
+    'Terpinolene': { effect: 'Uplifting, Energetic', color: '#FFDEE2' },
+    'Ocimene': { effect: 'Decongestant, Antiviral', color: '#FDE1D3' },
+    'Humulene': { effect: 'Appetite Suppressant', color: '#F1F0FB' },
+    'Bisabolol': { effect: 'Anti-irritant, Soothing', color: '#D946EF' }
+  };
+  
+  return effects[terpene] || { effect: 'Various effects', color: '#F1F0FB' };
+};
+
 // Parse percentage from string
 const parsePercentage = (value: string | undefined) => {
   if (!value) return 0;
@@ -40,7 +63,9 @@ export const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ terpenes }) => {
   const terpeneData = terpenes?.map((terpene) => ({
     name: terpene.name,
     value: parsePercentage(terpene.percentage),
-    color: getTerpeneColor(terpene.name)
+    color: getTerpeneColor(terpene.name),
+    effect: getTerpeneEffects(terpene.name).effect,
+    effectColor: getTerpeneEffects(terpene.name).color
   })) || [];
 
   if (terpeneData.length === 0) return null;
@@ -79,17 +104,30 @@ export const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ terpenes }) => {
         </ResponsiveContainer>
       </div>
       
-      {/* Legend */}
+      {/* Legend with tooltips */}
       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
-        {terpeneData.map((terpene, index) => (
-          <div key={index} className="flex items-center text-[10px]">
-            <div 
-              className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
-              style={{ backgroundColor: terpene.color }}
-            />
-            <span>{terpene.name}</span>
-          </div>
-        ))}
+        <TooltipProvider>
+          {terpeneData.map((terpene, index) => (
+            <UITooltip key={index}>
+              <TooltipTrigger asChild>
+                <div className="flex items-center text-[10px] cursor-pointer">
+                  <div 
+                    className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
+                    style={{ backgroundColor: terpene.color }}
+                  />
+                  <span>{terpene.name}</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent
+                style={{ backgroundColor: terpene.effectColor }}
+                className="text-xs p-2 max-w-[150px] text-foreground border border-border/20"
+              >
+                <p className="font-medium">{terpene.name}</p>
+                <p className="text-[10px]">{terpene.effect}</p>
+              </TooltipContent>
+            </UITooltip>
+          ))}
+        </TooltipProvider>
       </div>
     </div>
   );

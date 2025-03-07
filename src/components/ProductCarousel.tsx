@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Environment, PresentationControls } from "@react-three/drei";
 import { Product } from "@/types/product";
-import ProductInfoPanel from "./ProductInfoPanel"; // This will now use the index.tsx from the ProductInfoPanel directory
+import ProductInfoPanel from "./ProductInfoPanel"; 
 import ProductModel from "./ProductModel";
 import CarouselNavigation from "./CarouselNavigation";
 import EmptyProductState from "./EmptyProductState";
