@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, AlertCircle, ShoppingBag } from "lucide-react";
 import { configureWooCommerce, loadWooCommerceConfig, isWooCommerceConfigured } from "@/utils/woocommerce";
-import { WooCommerceConfig } from "@/types/woocommerce";
+import type { WooCommerceConfig as WooCommerceConfigType } from "@/types/woocommerce";
 import { toast } from "sonner";
 
 const WooCommerceConfig: React.FC = () => {
-  const [config, setConfig] = useState<WooCommerceConfig>({
+  const [config, setConfig] = useState<WooCommerceConfigType>({
     url: '',
     consumerKey: '',
     consumerSecret: '',
@@ -30,7 +30,7 @@ const WooCommerceConfig: React.FC = () => {
     }
   }, []);
 
-  const handleChange = (field: keyof WooCommerceConfig, value: string) => {
+  const handleChange = (field: keyof WooCommerceConfigType, value: string) => {
     setConfig(prev => ({
       ...prev,
       [field]: value
