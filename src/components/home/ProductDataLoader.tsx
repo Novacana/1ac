@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
@@ -20,9 +20,25 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isLoadingRef = useRef(false);
+  const lastCategoryRef = useRef<string>(selectedCategory);
 
   useEffect(() => {
+    // Only load products if category changes or first load
+    if (lastCategoryRef.current === selectedCategory && !isLoading) {
+      return;
+    }
+
+    // Prevent concurrent requests
+    if (isLoadingRef.current) {
+      return;
+    }
+
+    lastCategoryRef.current = selectedCategory;
+    
     const loadProducts = async () => {
+      // Set loading ref to prevent concurrent requests
+      isLoadingRef.current = true;
       setIsLoading(true);
       setError(null);
       
@@ -46,15 +62,15 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
               allProducts = [...wooProducts];
               wooCommerceProductCount = wooProducts.length;
               dataSource = "woocommerce";
-              
-              // Display toast to indicate WooCommerce integration is active
-              toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
             } else {
               console.log("No products found in WooCommerce");
             }
           } catch (wooError) {
             console.error("Error fetching WooCommerce products:", wooError);
-            toast.error("Failed to load WooCommerce products");
+            toast.error("Failed to load WooCommerce products", {
+              id: "woocommerce-load-error",
+              duration: 3000,
+            });
           }
         } else {
           console.log("WooCommerce is not configured");
@@ -146,11 +162,13 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         onProductsLoaded([], "local");
       } finally {
         setIsLoading(false);
+        // Reset loading ref to allow future requests
+        isLoadingRef.current = false;
       }
     };
     
     loadProducts();
-  }, [selectedCategory, onProductsLoaded]);
+  }, [selectedCategory, onProductsLoaded, isLoading]);
 
   if (error) {
     console.error("Product loading error:", error);
