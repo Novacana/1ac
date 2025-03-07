@@ -6,18 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, CreditCard, Lock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Lock, CheckCircle2, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import PrescriptionForm from "@/components/checkout/PrescriptionForm";
+import PrescriptionQuestionnaire from "@/components/checkout/PrescriptionQuestionnaire";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasPrescription, setHasPrescription] = useState<boolean | null>(null);
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (step === 1) {
+      // Ensure prescription choice is made before proceeding
+      if (hasPrescription === null) {
+        alert("Bitte geben Sie an, ob Sie ein Rezept haben oder eines benötigen");
+        return;
+      }
+      
       setStep(2);
       window.scrollTo(0, 0);
       return;
@@ -55,7 +65,7 @@ const Checkout = () => {
                 }`}>
                   2
                 </div>
-                <div className="ml-2 font-medium">Payment</div>
+                <div className="ml-2 font-medium">Zahlung</div>
               </div>
               
               <div className="bg-muted h-0.5 flex-1 mx-4" />
@@ -66,75 +76,136 @@ const Checkout = () => {
                 }`}>
                   3
                 </div>
-                <div className="ml-2 font-medium">Confirmation</div>
+                <div className="ml-2 font-medium">Bestätigung</div>
               </div>
             </div>
           </div>
 
           {step === 1 && (
             <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+              {/* Prescription Card */}
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/5">
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
+                    Rezept Information
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" required />
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-4">
+                    <p className="text-foreground/80">
+                      Für den Kauf von Cannabis-Produkten benötigen Sie ein gültiges Rezept.
+                    </p>
+                    
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="hasPrescription" 
+                          checked={hasPrescription === true}
+                          onCheckedChange={() => {
+                            setHasPrescription(true);
+                            setShowQuestionnaire(false);
+                          }}
+                        />
+                        <label
+                          htmlFor="hasPrescription"
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          Ich habe bereits ein gültiges Rezept
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="needsPrescription" 
+                          checked={hasPrescription === false}
+                          onCheckedChange={() => {
+                            setHasPrescription(false);
+                            setShowQuestionnaire(true);
+                          }}
+                        />
+                        <label
+                          htmlFor="needsPrescription"
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          Ich benötige ein Rezept
+                        </label>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" required />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" required />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" required />
+
+                    {hasPrescription === true && (
+                      <PrescriptionForm />
+                    )}
+
+                    {showQuestionnaire && (
+                      <PrescriptionQuestionnaire />
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Shipping Address</CardTitle>
+                  <CardTitle>Kontaktinformation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">Vorname</Label>
+                      <Input id="firstName" placeholder="Max" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Nachname</Label>
+                      <Input id="lastName" placeholder="Mustermann" required />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-Mail</Label>
+                    <Input id="email" type="email" placeholder="max@beispiel.de" required />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefonnummer</Label>
+                    <Input id="phone" type="tel" placeholder="+49 123 456789" required />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Lieferadresse</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input id="address" placeholder="123 Main St" required />
+                    <Label htmlFor="address">Straße und Hausnummer</Label>
+                    <Input id="address" placeholder="Musterstraße 123" required />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="apt">Apartment, Suite, etc. (optional)</Label>
-                    <Input id="apt" placeholder="Apt 4B" />
+                    <Label htmlFor="apt">Adresszusatz (optional)</Label>
+                    <Input id="apt" placeholder="Wohnung 4B" />
                   </div>
                   
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="New York" required />
+                      <Label htmlFor="city">Stadt</Label>
+                      <Input id="city" placeholder="Berlin" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="state">State / Province</Label>
-                      <Input id="state" placeholder="NY" required />
+                      <Label htmlFor="state">Bundesland</Label>
+                      <Input id="state" placeholder="Berlin" required />
                     </div>
                   </div>
                   
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="zip">Postal Code</Label>
-                      <Input id="zip" placeholder="10001" required />
+                      <Label htmlFor="zip">Postleitzahl</Label>
+                      <Input id="zip" placeholder="10115" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="country">Country</Label>
-                      <Input id="country" placeholder="United States" required />
+                      <Label htmlFor="country">Land</Label>
+                      <Input id="country" placeholder="Deutschland" required />
                     </div>
                   </div>
                 </CardContent>
@@ -145,7 +216,7 @@ const Checkout = () => {
                       htmlFor="sameAsBilling"
                       className="text-sm text-muted-foreground cursor-pointer"
                     >
-                      Billing address same as shipping
+                      Rechnungsadresse ist identisch mit Lieferadresse
                     </label>
                   </div>
                 </CardFooter>
@@ -158,11 +229,11 @@ const Checkout = () => {
                   onClick={() => navigate("/cart")}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Cart
+                  Zurück zum Warenkorb
                 </Button>
                 
                 <Button type="submit">
-                  Continue to Payment
+                  Weiter zur Zahlung
                 </Button>
               </div>
             </form>
