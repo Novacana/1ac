@@ -28,13 +28,9 @@ export const useProductLoader = ({
   const previousCategoryRef = useRef(selectedCategory);
 
   useEffect(() => {
-    // Only load products if:
-    // 1. We haven't loaded them yet
-    // 2. OR the category has changed
-    if (loadedRef.current && previousCategoryRef.current === selectedCategory) {
-      return;
-    }
-
+    // Force reload when category changes
+    const shouldReload = previousCategoryRef.current !== selectedCategory;
+    
     const loadProducts = async () => {
       setIsLoading(true);
       setError(null);

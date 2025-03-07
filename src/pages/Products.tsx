@@ -35,7 +35,7 @@ const Products = () => {
   const handleProductsLoaded = (products: Product[], source: "woocommerce" | "combined" | "local") => {
     console.log(`Products loaded: ${products.length} from source: ${source}`);
     
-    if (products.length === 0 && source === "local") {
+    if (products.length === 0) {
       // If no products were loaded, show a toast notification
       toast.info("Keine Produkte gefunden. Bitte versuchen Sie es später erneut.");
     }

@@ -27,7 +27,7 @@ const DataSourceIndicator: React.FC<DataSourceIndicatorProps> = ({ dataSource })
   }
   
   return (
-    <div className={`text-xs px-2 py-1 rounded ${bgClass}`}>
+    <div className={`text-xs px-3 py-1.5 rounded-full font-medium ${bgClass}`}>
       Quelle: {sourceText}
     </div>
   );
