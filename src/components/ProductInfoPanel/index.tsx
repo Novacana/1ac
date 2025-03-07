@@ -1,11 +1,11 @@
 
-import React, { useEffect, useState } from "react";
-import { Product } from "@/types/product";
-import { CannabinoidProfile } from "./CannabinoidProfile";
-import { FlavorProfile } from "./FlavorProfile";
-import { ProductTags } from "./ProductTags";
-import { TerpeneProfile } from "./TerpeneProfile";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { Product } from "@/types/product";
+import CannabinoidProfile from "./CannabinoidProfile";
+import FlavorProfile from "./FlavorProfile";
+import TerpeneProfile from "./TerpeneProfile";
+import ProductTags from "./ProductTags";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -14,9 +14,10 @@ interface ProductInfoPanelProps {
 const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Animate component when it mounts
+  // Animate when component mounts
   useEffect(() => {
     setIsVisible(true);
+    return () => setIsVisible(false);
   }, []);
 
   // Early return if no product
@@ -25,9 +26,10 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "absolute top-4 left-4 z-10 backdrop-blur-sm rounded-lg p-4",
-        "w-64 max-w-[calc(100%-2rem)] transition-all duration-500",
-        "lg:w-72",
+        "rounded-lg p-4 transition-all duration-500",
+        "md:absolute md:top-4 md:left-4 md:z-10 md:w-72 md:max-w-[calc(100%-2rem)]",
+        "bg-white/80 dark:bg-black/60 backdrop-blur-md border border-primary/10",
+        "w-full mx-auto max-w-sm", // Mobile styling
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       )}
     >
@@ -43,7 +45,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       <ProductTags strain={product.strain} category={product.category} />
       
       {/* Terpene Profile */}
-      <TerpeneProfile terpenes={product.terpenes} />
+      <TerpeneProfile product={product} />
     </div>
   );
 };

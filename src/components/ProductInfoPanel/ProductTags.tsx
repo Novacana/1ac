@@ -6,7 +6,7 @@ interface ProductTagsProps {
   category: string;
 }
 
-export const ProductTags: React.FC<ProductTagsProps> = ({ strain, category }) => {
+const ProductTags: React.FC<ProductTagsProps> = ({ strain, category }) => {
   return (
     <div className="flex flex-wrap gap-1 mb-3">
       {strain && (
@@ -20,3 +20,5 @@ export const ProductTags: React.FC<ProductTagsProps> = ({ strain, category }) =>
     </div>
   );
 };
+
+export default ProductTags;
