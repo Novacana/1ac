@@ -6,7 +6,7 @@ import {
   Cookie, 
   Cigarette, 
   ShoppingBag,
-  FlaskConical
+  Pipette
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ const getCategoryIcon = (category: string) => {
     case "Edibles":
       return <Cookie className="h-3 w-3" />;
     case "Topicals":
-      return <FlaskConical className="h-3 w-3" />; // Changed to FlaskConical for cream/lotion
+      return <Pipette className="h-3 w-3" />; // Changed to Pipette for toothpaste tube representation
     case "Vapes":
       return <Cigarette className="h-3 w-3" />;
     case "Accessories":
