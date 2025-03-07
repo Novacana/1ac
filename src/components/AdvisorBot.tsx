@@ -6,53 +6,8 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-  category: string;
-}
-
-// Sample products data
-const products = [
-  {
-    id: "1",
-    name: "Medical Cannabis Flower",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
-    category: "Flowers",
-  },
-  {
-    id: "2",
-    name: "CBD Oil Tincture",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1556928045-16f7f50be0f3?q=80&w=2787&auto=format&fit=crop",
-    category: "Oils",
-  },
-  {
-    id: "3",
-    name: "THC Vape Cartridge",
-    price: 34.99,
-    image: "https://images.unsplash.com/photo-1625657799852-21d67cc39319?q=80&w=2787&auto=format&fit=crop",
-    category: "Vapes",
-  },
-  {
-    id: "4",
-    name: "Hemp-Infused Body Cream",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1607621048318-c2d5bdc0ee39?q=80&w=2940&auto=format&fit=crop",
-    category: "Topicals",
-  },
-  {
-    id: "5",
-    name: "Cannabis-Infused Gummies",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1625517236224-4ab37a6425cb?q=80&w=2848&auto=format&fit=crop",
-    category: "Edibles",
-  }
-];
+import { products, getProductsByCategory } from "@/data/products";
+import { ProductDetailProps } from "@/components/ProductDetail";
 
 const ProductAdvisor = () => {
   const { toast } = useToast();
@@ -63,7 +18,7 @@ const ProductAdvisor = () => {
   const [transcript, setTranscript] = useState("");
   const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<ProductDetailProps[]>([]);
   const [showProducts, setShowProducts] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -253,33 +208,71 @@ const ProductAdvisor = () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       let response = "";
-      let matchedProducts: Product[] = [];
+      let matchedProducts: ProductDetailProps[] = [];
       const query = userQuery.toLowerCase();
       
       if (query.includes("schmerz") || query.includes("pain")) {
         response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
-        matchedProducts = [products[0], products[1]];
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
+        )].slice(0, 3);
       } else if (query.includes("schlaf") || query.includes("sleep")) {
         response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
-        matchedProducts = [products[0], products[2]];
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
+        )].slice(0, 3);
       } else if (query.includes("angst") || query.includes("anxiety")) {
         response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
-        matchedProducts = [products[1], products[3]];
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("angst")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
+          p.strain?.toLowerCase().includes("indica")
+        )].slice(0, 3);
       } else if (query.includes("appetit") || query.includes("hunger")) {
         response = "Diese Produkte können den Appetit anregen:";
-        matchedProducts = [products[0], products[4]];
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("indica") || 
+          parseFloat(p.thc?.replace("%", "") || "0") > 15
+        )].slice(0, 3);
       } else if (query.includes("thc")) {
         response = "Hier sind unsere THC-haltigen Produkte:";
-        matchedProducts = [products[0], products[2], products[4]];
+        matchedProducts = [...products.filter(p => 
+          parseFloat(p.thc?.replace("%", "") || "0") > 15
+        )].slice(0, 3);
       } else if (query.includes("cbd")) {
         response = "Hier sind unsere CBD-haltigen Produkte:";
-        matchedProducts = [products[1], products[3]];
+        matchedProducts = [...products.filter(p => 
+          parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
+        )].slice(0, 3);
+      } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
+        response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("sativa") ||
+          p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
+        )].slice(0, 3);
+      } else if (query.includes("indica")) {
+        response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("indica")
+        )].slice(0, 3);
+      } else if (query.includes("sativa")) {
+        response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("sativa")
+        )].slice(0, 3);
+      } else if (query.includes("hybrid")) {
+        response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("hybrid")
+        )].slice(0, 3);
       } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
         response = "Hier sind einige unserer beliebtesten Produkte:";
-        matchedProducts = [...products];
+        matchedProducts = [...products].slice(0, 3);
       } else {
         response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
-        const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 2);
+        const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 3);
         matchedProducts = randomProducts;
       }
 
@@ -406,7 +399,7 @@ const ProductAdvisor = () => {
                   >
                     <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
                       <img 
-                        src={product.image} 
+                        src={product.images?.[0] || "public/placeholder.svg"} 
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
@@ -414,7 +407,11 @@ const ProductAdvisor = () => {
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
                       <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{product.category}</span>
+                        <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{
+                          product.category === "Blüten" ? "Blüten" : 
+                          product.category === "Öle" ? "Öle" : 
+                          product.category
+                        }</span>
                         <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
                       </div>
                     </div>

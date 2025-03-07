@@ -3,12 +3,14 @@ import { ProductDetailProps } from "@/components/ProductDetail";
 import { blütenProducts } from "./blüten";
 import { hybridsProducts } from "./hybrids";
 import { indicaProducts } from "./indica";
+import { oilsProducts } from "./oils";
 
 // Combine all products from different categories
 export const products: ProductDetailProps[] = [
   ...blütenProducts,
   ...hybridsProducts,
-  ...indicaProducts
+  ...indicaProducts,
+  ...oilsProducts
 ];
 
 // Helper function to get products by category
