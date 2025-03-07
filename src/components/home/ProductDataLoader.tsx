@@ -36,21 +36,28 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         if (isWooCommerceConfigured()) {
           console.log("Fetching products from WooCommerce integration");
           
-          const wooProducts = await fetchWooCommerceProducts();
-          
-          if (wooProducts && wooProducts.length > 0) {
-            console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+          try {
+            const wooProducts = await fetchWooCommerceProducts();
             
-            // Add WooCommerce products to combined list
-            allProducts = [...wooProducts];
-            wooCommerceProductCount = wooProducts.length;
-            dataSource = "woocommerce";
-            
-            // Display toast to indicate WooCommerce integration is active
-            toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
-          } else {
-            console.log("No products found in WooCommerce");
+            if (wooProducts && wooProducts.length > 0) {
+              console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+              
+              // Add WooCommerce products to combined list
+              allProducts = [...wooProducts];
+              wooCommerceProductCount = wooProducts.length;
+              dataSource = "woocommerce";
+              
+              // Display toast to indicate WooCommerce integration is active
+              toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+            } else {
+              console.log("No products found in WooCommerce");
+            }
+          } catch (wooError) {
+            console.error("Error fetching WooCommerce products:", wooError);
+            toast.error("Failed to load WooCommerce products");
           }
+        } else {
+          console.log("WooCommerce is not configured");
         }
         
         // Always load local products to combine or as fallback
@@ -94,27 +101,31 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         }
         
         // Filter combined products by selected category
-        const filteredProducts = allProducts.filter(product => {
-          const productCategory = product.category;
-          const normalizedCategory = selectedCategory;
-          
-          // Match exact category name
-          if (productCategory === normalizedCategory) {
-            return true;
-          }
-          
-          // Check if the product category maps to the selected category
-          if (getCategoryMapping(productCategory) === normalizedCategory) {
-            return true;
-          }
-          
-          // Try to match by keywords if exact match fails
-          if (getBestCategoryMatch(productCategory) === normalizedCategory) {
-            return true;
-          }
-          
-          return false;
-        });
+        let filteredProducts = allProducts;
+        
+        if (selectedCategory !== "All") {
+          filteredProducts = allProducts.filter(product => {
+            const productCategory = product.category;
+            const normalizedCategory = selectedCategory;
+            
+            // Match exact category name
+            if (productCategory === normalizedCategory) {
+              return true;
+            }
+            
+            // Check if the product category maps to the selected category
+            if (getCategoryMapping(productCategory) === normalizedCategory) {
+              return true;
+            }
+            
+            // Try to match by keywords if exact match fails
+            if (getBestCategoryMatch(productCategory) === normalizedCategory) {
+              return true;
+            }
+            
+            return false;
+          });
+        }
         
         console.log(`Combined and filtered to ${filteredProducts.length} products for category ${selectedCategory}`);
         
@@ -122,6 +133,8 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         const uniqueProducts = Array.from(
           new Map(filteredProducts.map(item => [item.id, item])).values()
         );
+        
+        console.log(`Final unique product count: ${uniqueProducts.length} (Data source: ${dataSource})`);
         
         // Pass the filtered products and data source to parent component
         onProductsLoaded(uniqueProducts, dataSource);

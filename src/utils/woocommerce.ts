@@ -1,4 +1,3 @@
-
 import { WooCommerceProduct, WooCommerceConfig } from "@/types/woocommerce";
 import { Product } from "@/types/product";
 
@@ -43,6 +42,11 @@ export const loadWooCommerceConfig = (): WooCommerceConfig | null => {
  * Check if WooCommerce is configured
  */
 export const isWooCommerceConfigured = (): boolean => {
+  // Load config from localStorage if not already loaded
+  if (!wooConfig.url) {
+    loadWooCommerceConfig();
+  }
+  
   return !!(wooConfig.url && wooConfig.consumerKey && wooConfig.consumerSecret);
 };
 
@@ -68,20 +72,29 @@ export const fetchWooCommerceProducts = async (category?: string): Promise<Produ
     }
 
     console.log('Fetching WooCommerce products from:', url.toString().replace(/consumer_secret=([^&]+)/, 'consumer_secret=****'));
-    const response = await fetch(url.toString());
+    
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`WooCommerce API error (${response.status}):`, errorText);
+      throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
     }
     
     const wooProducts: WooCommerceProduct[] = await response.json();
-    console.log(`Fetched ${wooProducts.length} WooCommerce products`);
+    console.log(`Fetched ${wooProducts.length} WooCommerce products successfully`);
     
     // Convert WooCommerce products to our Product format
     return wooProducts.map(convertWooCommerceProduct);
   } catch (error) {
     console.error('Error fetching WooCommerce products:', error);
-    return [];
+    throw error; // Re-throw to handle in the component
   }
 };
 
