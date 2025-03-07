@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment, Float, Text, PresentationControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -7,20 +7,17 @@ import { Product } from "@/types/product";
 
 interface ProductModelProps {
   product: Product;
+  isActive: boolean;
   index: number;
-  totalProducts: number;
 }
 
 // Individual product model
-const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProducts }) => {
+const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   
-  // Calculate position on the circle
-  const angle = (index / totalProducts) * Math.PI * 2;
-  const radius = 4;
-  const x = Math.sin(angle) * radius;
-  const z = Math.cos(angle) * radius;
+  // Position the product at the center when active, otherwise to the side
+  const position = isActive ? [0, 0, 0] : [isActive ? 0 : index > 0 ? 5 : -5, 0, 0];
   
   // Rotate the product
   useFrame((state) => {
@@ -67,43 +64,45 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, index, totalProduc
     }
   };
 
+  // Scale up active product
+  const scale = isActive ? (hovered ? 1.15 : 1.05) : 0.8;
+
   return (
-    <group position={[x, 0, z]} rotation={[0, -angle, 0]}>
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-        <mesh 
-          ref={meshRef}
-          geometry={getGeometryForCategory(product.category)}
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
-          scale={hovered ? 1.1 : 1}
-        >
-          <meshStandardMaterial 
-            color={getColorForCategory(product.category)}
-            roughness={0.3}
-            metalness={0.7}
-            envMapIntensity={1.5}
-          />
-        </mesh>
-        <Text
-          position={[0, -1.5, 0]}
-          fontSize={0.3}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {product.name}
-        </Text>
-        <Text
-          position={[0, -1.9, 0]}
-          fontSize={0.2}
-          color="#bae3bc"
-          anchorX="center"
-          anchorY="middle"
-        >
-          €{product.price.toFixed(2)}
-        </Text>
-      </Float>
-    </group>
+    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+      <mesh 
+        ref={meshRef}
+        geometry={getGeometryForCategory(product.category)}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        scale={scale}
+        position={position}
+      >
+        <meshStandardMaterial 
+          color={getColorForCategory(product.category)}
+          roughness={0.3}
+          metalness={0.7}
+          envMapIntensity={1.5}
+        />
+      </mesh>
+      <Text
+        position={[0, -1.5, 0]}
+        fontSize={0.3}
+        color="white"
+        anchorX="center"
+        anchorY="middle"
+      >
+        {product.name}
+      </Text>
+      <Text
+        position={[0, -1.9, 0]}
+        fontSize={0.2}
+        color="#bae3bc"
+        anchorX="center"
+        anchorY="middle"
+      >
+        €{product.price.toFixed(2)}
+      </Text>
+    </Float>
   );
 };
 
@@ -117,34 +116,149 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     ? products 
     : products.filter(product => product.category === selectedCategory);
   
+  const [activeIndex, setActiveIndex] = useState(0);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const startX = useRef<number | null>(null);
+
+  // Handle swipe gesture
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (startX.current === null) return;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (startX.current === null) return;
+    
+    const endX = e.changedTouches[0].clientX;
+    const diffX = endX - startX.current;
+    
+    // Determine swipe direction based on distance moved
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        // Swipe right (previous)
+        setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+      } else {
+        // Swipe left (next)
+        setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+      }
+    }
+    
+    startX.current = null;
+  };
+
+  // Reset active index when filtered products change
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [selectedCategory]);
+
+  // Handle manual navigation
+  const goNext = () => {
+    setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+  };
+
+  const goPrevious = () => {
+    setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+  };
+
+  // If no products match the filter
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="w-full h-[400px] flex items-center justify-center">
+        <p className="text-xl text-muted-foreground">No products found in this category</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-[600px] my-8">
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
-        <color attach="background" args={['#010409']} />
-        <fog attach="fog" args={['#010409', 10, 20]} />
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-        <PresentationControls
-          global
-          rotation={[0, 0, 0]}
-          polar={[-Math.PI / 4, Math.PI / 4]}
-          azimuth={[-Math.PI / 4, Math.PI / 4]}
-          config={{ mass: 2, tension: 400 }}
-          snap={{ mass: 4, tension: 400 }}
+    <div className="w-full relative">
+      <div 
+        ref={canvasRef} 
+        className="w-full h-[400px] md:h-[500px] touch-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
+          <color attach="background" args={['#010409']} />
+          <fog attach="fog" args={['#010409', 10, 20]} />
+          <ambientLight intensity={0.5} />
+          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+          <PresentationControls
+            global
+            rotation={[0, 0, 0]}
+            polar={[-Math.PI / 4, Math.PI / 4]}
+            azimuth={[-Math.PI / 4, Math.PI / 4]}
+            config={{ mass: 2, tension: 400 }}
+            snap={{ mass: 4, tension: 400 }}
+          >
+            <group>
+              {filteredProducts.map((product, index) => (
+                <ProductModel 
+                  key={product.id} 
+                  product={product} 
+                  isActive={index === activeIndex}
+                  index={index - activeIndex} 
+                />
+              ))}
+            </group>
+          </PresentationControls>
+          <Environment preset="city" />
+        </Canvas>
+      </div>
+
+      {/* Navigation buttons for desktop */}
+      <div className="hidden md:flex absolute inset-y-0 left-4 items-center">
+        <button 
+          onClick={goPrevious}
+          className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
+          aria-label="Previous product"
         >
-          <group rotation={[0, 0, 0]}>
-            {filteredProducts.map((product, index) => (
-              <ProductModel 
-                key={product.id} 
-                product={product} 
-                index={index} 
-                totalProducts={filteredProducts.length} 
-              />
-            ))}
-          </group>
-        </PresentationControls>
-        <Environment preset="city" />
-      </Canvas>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+      
+      <div className="hidden md:flex absolute inset-y-0 right-4 items-center">
+        <button 
+          onClick={goNext}
+          className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
+          aria-label="Next product"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Product info below carousel */}
+      <div className="mt-4 text-center">
+        <h3 className="text-xl font-semibold">{filteredProducts[activeIndex].name}</h3>
+        <p className="text-primary font-medium">€{filteredProducts[activeIndex].price.toFixed(2)}</p>
+        {filteredProducts[activeIndex].thc && (
+          <p className="text-sm">THC: {filteredProducts[activeIndex].thc}</p>
+        )}
+        {filteredProducts[activeIndex].cbd && (
+          <p className="text-sm">CBD: {filteredProducts[activeIndex].cbd}</p>
+        )}
+      </div>
+
+      {/* Dots indicator */}
+      <div className="flex justify-center mt-4">
+        {filteredProducts.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setActiveIndex(index)}
+            className={`h-2 w-2 mx-1 rounded-full transition-all ${
+              index === activeIndex ? "bg-primary w-4" : "bg-gray-400"
+            }`}
+            aria-label={`Go to product ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };

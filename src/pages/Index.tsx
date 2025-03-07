@@ -82,10 +82,11 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Categories section - now directly below header */}
-      <section className="py-4 border-b border-border/50">
+      {/* 3D Product Carousel section with category pills positioned on top */}
+      <section className="py-4 relative">
         <div className="container px-4 mx-auto">
-          <div className="flex items-center justify-center flex-wrap gap-2">
+          {/* Category Pills - now positioned on top of the carousel */}
+          <div className="flex items-center justify-center flex-wrap gap-2 mb-6 z-10 relative">
             {categories.map((category, index) => (
               <CategoryPill
                 key={category}
@@ -97,16 +98,16 @@ const Index = () => {
               />
             ))}
           </div>
+          
+          {/* 3D Product Carousel */}
+          <ProductCarousel products={products} selectedCategory={selectedCategory} />
         </div>
       </section>
 
+      {/* Traditional Products Grid (as backup/alternative) */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-background to-background/80">
         <div className="container px-4 mx-auto">
-          {/* 3D Product Carousel */}
-          <ProductCarousel products={products} selectedCategory={selectedCategory} />
-          
-          {/* Traditional Products Grid (as backup/alternative) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product, index) => (
               <div
                 key={product.id}
