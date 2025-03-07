@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
+import FlavorProfile from "./ProductInfoPanel/FlavorProfile";
+import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
 
 interface ProductDetailPanelProps {
   product: Product | null;
@@ -22,41 +24,19 @@ const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "rounded-lg p-4 transition-all duration-500 w-full border-t border-border/30 pt-6 mt-4",
+        "rounded-lg p-2 transition-all duration-500 w-full border-t border-border/30 pt-2",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Additional product details can go here */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {/* Taste/Flavor Profile */}
         <div>
-          <h3 className="text-lg font-medium mb-3">Produktdetails</h3>
-          {product.origin && (
-            <div className="mb-2">
-              <span className="font-medium text-sm">Herkunft: </span>
-              <span className="text-sm">{product.origin}</span>
-            </div>
-          )}
-          {product.weight && (
-            <div className="mb-2">
-              <span className="font-medium text-sm">Gewicht: </span>
-              <span className="text-sm">{product.weight}</span>
-            </div>
-          )}
-          {product.potency && (
-            <div className="mb-2">
-              <span className="font-medium text-sm">Potenz: </span>
-              <span className="text-sm">{product.potency}</span>
-            </div>
-          )}
+          <FlavorProfile flavors={product.flavors} />
         </div>
         
+        {/* Terpene Profile */}
         <div>
-          {product.use && (
-            <div className="mb-4">
-              <h4 className="text-sm font-medium mb-1">Anwendung</h4>
-              <p className="text-sm text-foreground/80">{product.use}</p>
-            </div>
-          )}
+          <TerpeneProfile product={product} />
         </div>
       </div>
     </div>

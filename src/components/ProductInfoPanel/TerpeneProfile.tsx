@@ -23,20 +23,20 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-1">
         <h4 className="text-xs font-medium">Terpene</h4>
         <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
       <div className="flex items-start">
-        <div className="h-[120px] relative w-1/2">
+        <div className="h-[100px] relative w-1/2">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={terpeneData}
                 cx="50%"
                 cy="50%"
-                innerRadius={22}
-                outerRadius={42}
+                innerRadius={20}
+                outerRadius={38}
                 paddingAngle={2}
                 dataKey="value"
                 animationDuration={1500}
@@ -69,18 +69,18 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         </div>
         
         {/* Terpene effects */}
-        <div className="ml-4 w-1/2">
-          <div className="text-[10px] text-foreground/70 h-[120px] overflow-y-auto pr-2">
+        <div className="ml-2 w-1/2">
+          <div className="text-[9px] text-foreground/70 h-[100px] overflow-y-auto">
             {terpeneData.map((terpene, index) => (
-              <div key={index} className="mb-2 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+              <div key={index} className="mb-1.5 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="flex items-center">
                   <div 
-                    className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"
+                    className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
                     style={{ backgroundColor: terpene.color }}
                   />
                   <span className="font-medium">{terpene.name}</span>
                 </div>
-                <div className="pl-3.5 leading-tight">{terpene.effect}</div>
+                <div className="pl-2.5 leading-tight">{terpene.effect}</div>
               </div>
             ))}
           </div>
@@ -88,11 +88,11 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
       </div>
       
       {/* Compact legend */}
-      <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-2">
+      <div className="flex flex-wrap gap-x-2 gap-y-1 mt-1">
         {terpeneData.map((terpene, index) => (
-          <div key={index} className="flex items-center text-[10px] animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+          <div key={index} className="flex items-center text-[9px] animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
             <div 
-              className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
+              className="w-1.5 h-1.5 rounded-full mr-0.5 flex-shrink-0"
               style={{ 
                 backgroundColor: terpene.color,
                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
