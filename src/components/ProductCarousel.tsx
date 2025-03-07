@@ -32,6 +32,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
   const [swipeDistance, setSwipeDistance] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -117,19 +118,23 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   // Navigation functions
   const goToNext = () => {
     setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+    setImageLoading(true);
   };
 
   const goToPrevious = () => {
     setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+    setImageLoading(true);
   };
 
   const goToIndex = (index: number) => {
     setActiveIndex(index);
+    setImageLoading(true);
   };
 
   // Reset active index when category changes
   useEffect(() => {
     setActiveIndex(0);
+    setImageLoading(true);
   }, [selectedCategory]);
 
   // If no products, show empty state
@@ -138,8 +143,44 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   }
 
   const activeProduct = filteredProducts[activeIndex];
-  // Get product images with fallback
-  const productImages = activeProduct.images || (activeProduct.image ? [activeProduct.image] : []);
+  
+  // Get the correctly formatted image path
+  const getImagePath = (product: Product) => {
+    if (product.images && product.images.length > 0) {
+      let path = product.images[0];
+      
+      // Fix path if it starts with "public/"
+      if (path.startsWith("public/")) {
+        return path.replace("public/", "/");
+      }
+      
+      // Add leading slash if needed
+      if (!path.startsWith("http") && !path.startsWith("/")) {
+        return "/" + path;
+      }
+      
+      return path;
+    } else if (product.image) {
+      let path = product.image;
+      
+      // Fix path if it starts with "public/"
+      if (path.startsWith("public/")) {
+        return path.replace("public/", "/");
+      }
+      
+      // Add leading slash if needed
+      if (!path.startsWith("http") && !path.startsWith("/")) {
+        return "/" + path;
+      }
+      
+      return path;
+    }
+    
+    return "/placeholder.svg";
+  };
+
+  const imagePath = getImagePath(activeProduct);
+  console.log("Current product image path:", imagePath);
 
   return (
     <div className="w-full relative">
@@ -150,7 +191,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         {/* Swipeable product image section */}
         <div 
           ref={containerRef}
-          className="w-full h-[300px] relative overflow-hidden rounded-lg"
+          className="w-full h-[300px] relative overflow-hidden rounded-lg border border-border"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -159,26 +200,35 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
         >
+          {/* Loading spinner */}
+          {imageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm z-10">
+              <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+            </div>
+          )}
+          
           {/* Main swipeable product image */}
           <div 
             className="w-full h-full flex items-center justify-center transition-transform duration-300 relative bg-card/5 backdrop-blur-sm"
             style={{ transform: isSwiping ? `translateX(${swipeDistance}px)` : 'translateX(0)' }}
           >
-            {productImages.length > 0 ? (
-              <img 
-                src={productImages[0]} 
-                alt={activeProduct.name} 
-                className="max-h-full max-w-full object-contain p-4"
-                onError={(e) => {
-                  console.error("Failed to load product image:", e);
-                  (e.target as HTMLImageElement).src = "/placeholder.svg";
-                }}
-              />
-            ) : (
-              <div className="flex items-center justify-center text-muted-foreground">
-                Kein Bild verfügbar
-              </div>
-            )}
+            <img 
+              src={imagePath} 
+              alt={activeProduct.name} 
+              className={cn(
+                "max-h-full max-w-full object-contain p-4 transition-opacity duration-300",
+                imageLoading ? "opacity-0" : "opacity-100"
+              )}
+              onLoad={() => {
+                console.log("Image loaded successfully:", imagePath);
+                setImageLoading(false);
+              }}
+              onError={(e) => {
+                console.error("Failed to load product image:", e);
+                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                setImageLoading(false);
+              }}
+            />
             
             {/* Swipe hint on first render - fades out after 2 seconds */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden opacity-50 animate-fade-out">

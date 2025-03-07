@@ -36,6 +36,8 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
       // Check if at least one image exists and is valid
       if (fixedImages.length === 0) {
         console.warn(`Product ${product.id} (${product.name}) has no images`);
+        // Add placeholder if no images
+        fixedImages.push("/placeholder.svg");
       } else {
         // Preload the first image to check for errors
         const img = new Image();
