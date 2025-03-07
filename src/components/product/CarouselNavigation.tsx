@@ -1,5 +1,6 @@
 
 import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CarouselNavigationProps {
   totalItems: number;
@@ -16,6 +17,10 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
   onNext,
   onPrevious
 }) => {
+  if (totalItems === 0) {
+    return null;
+  }
+  
   return (
     <>
       <div className="hidden md:flex absolute inset-y-0 left-4 items-center">
@@ -24,9 +29,7 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
           aria-label="Previous product"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ChevronLeft className="h-6 w-6" />
         </button>
       </div>
       
@@ -36,9 +39,7 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
           aria-label="Next product"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRight className="h-6 w-6" />
         </button>
       </div>
 
