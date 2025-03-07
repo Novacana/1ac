@@ -1,24 +1,29 @@
 
-import { WooCommerceProduct } from "@/types/woocommerce";
 import { Product } from "@/types/product";
 import { isWooCommerceConfigured, getWooCommerceConfig } from "./config";
-import { convertWooCommerceProduct } from "./product-converter";
 
 /**
  * Fetch products from WooCommerce API
- * For demonstration purposes, we'll return mock products
+ * For demonstration purposes, we're using mock products
  */
 export const fetchWooCommerceProducts = async (category?: string): Promise<Product[]> => {
+  // Check if WooCommerce is configured
   if (!isWooCommerceConfigured()) {
-    console.error('WooCommerce is not configured');
+    console.log('WooCommerce is not configured, returning empty product list');
     return [];
   }
 
-  console.log('Fetching mock WooCommerce products...');
-  // Return mock WooCommerce products
-  const mockProducts = getMockWooCommerceProducts();
-  console.log(`Generated ${mockProducts.length} mock WooCommerce products`);
-  return mockProducts;
+  try {
+    console.log('Fetching mock WooCommerce products...');
+    // Generate and return mock WooCommerce products
+    const mockProducts = getMockWooCommerceProducts();
+    console.log(`Generated ${mockProducts.length} mock WooCommerce products`);
+    return mockProducts;
+  } catch (error) {
+    // Handle any errors that might occur
+    console.error('Error generating mock WooCommerce products:', error);
+    return [];
+  }
 };
 
 // Helper function to generate mock WooCommerce products

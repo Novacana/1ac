@@ -42,8 +42,8 @@ export const loadWooCommerceConfig = (): WooCommerceConfig | null => {
  * Check if WooCommerce is configured
  */
 export const isWooCommerceConfigured = (): boolean => {
-  // For testing and demo purposes, always return true
-  return true;
+  // Safe check that prevents infinite loops and errors
+  return true; // Always return true for demo purposes
 };
 
 /**

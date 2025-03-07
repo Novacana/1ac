@@ -1,9 +1,6 @@
 
 import { Product } from "@/types/product";
-import { 
-  fetchWooCommerceProducts, 
-  isWooCommerceConfigured 
-} from "@/utils/woocommerce";
+import { fetchWooCommerceProducts, isWooCommerceConfigured } from "@/utils/woocommerce";
 import { convertLocalProducts } from "@/utils/product-image-utils";
 import { toast } from "sonner";
 
@@ -52,7 +49,7 @@ export const loadProductsFromAllSources = async (
     console.error("Error importing local products:", importError);
   }
   
-  // Try to load WooCommerce products
+  // Try to load WooCommerce products with safe error handling
   try {
     if (isWooCommerceConfigured()) {
       console.log("WooCommerce is configured, fetching products...");
@@ -90,7 +87,7 @@ export const loadProductsFromAllSources = async (
         }
       }
     } else {
-      console.log("WooCommerce is not configured");
+      console.log("WooCommerce is not configured, skipping");
     }
   } catch (error) {
     console.error("Error processing WooCommerce products:", error);

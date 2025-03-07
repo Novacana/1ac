@@ -26,14 +26,23 @@ export const useProductLoader = ({
   const [error, setError] = useState<string | null>(null);
   const loadedRef = useRef(false);
   const previousCategoryRef = useRef(selectedCategory);
+  const effectRunningRef = useRef(false);
 
   useEffect(() => {
+    // Prevent multiple simultaneous executions
+    if (effectRunningRef.current) {
+      console.log("Effect already running, skipping...");
+      return;
+    }
+    
     // Force reload when category changes
     const shouldReload = previousCategoryRef.current !== selectedCategory;
     
     const loadProducts = async () => {
+      // Set loading flag and mark effect as running
       setIsLoading(true);
       setError(null);
+      effectRunningRef.current = true;
       
       try {
         console.log(`Loading products for category: ${selectedCategory}`);
@@ -67,11 +76,15 @@ export const useProductLoader = ({
         // Fallback to empty products array on error
         onProductsLoaded([], "local");
       } finally {
+        // Clean up, regardless of success or failure
         setIsLoading(false);
+        effectRunningRef.current = false;
       }
     };
     
     loadProducts();
+    
+    // No cleanup function needed
   }, [selectedCategory, onProductsLoaded]);
 
   return { isLoading, error };
