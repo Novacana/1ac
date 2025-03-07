@@ -20,11 +20,19 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
       if (img.startsWith("public/")) {
         return img.replace("public/", "/");
       }
+      
+      // Handle other potential path issues
+      if (!img.startsWith("http") && !img.startsWith("/")) {
+        return "/" + img;
+      }
+      
       return img;
     });
     
     return { ...product, images: fixedImages };
   });
+
+  console.log("Fixed product images in CarouselSection:", productsWithFixedPaths.map(p => p.images));
 
   return (
     <section className="py-4 relative">

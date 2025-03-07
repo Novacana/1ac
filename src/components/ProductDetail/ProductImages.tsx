@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface ProductImagesProps {
@@ -10,6 +10,7 @@ interface ProductImagesProps {
 const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [fixedImages, setFixedImages] = useState<string[]>([]);
 
   // Function to fix image paths
   const getFixedImagePath = (path: string) => {
@@ -17,8 +18,25 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
     if (path.startsWith("public/")) {
       return path.replace("public/", "/");
     }
+
+    // Handle other potential path issues
+    if (!path.startsWith("http") && !path.startsWith("/")) {
+      return "/" + path;
+    }
+
     return path;
   };
+
+  useEffect(() => {
+    // Process and fix image paths when the images prop changes
+    if (images && images.length > 0) {
+      const processed = images.map(getFixedImagePath);
+      setFixedImages(processed);
+      console.log("Fixed product images in ProductImages:", processed);
+    } else {
+      setFixedImages(["/placeholder.svg"]);
+    }
+  }, [images]);
 
   return (
     <div className="space-y-4">
@@ -31,9 +49,9 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
         >
           <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
         </div>
-        {images && images.length > 0 ? (
+        {fixedImages && fixedImages.length > 0 ? (
           <img
-            src={getFixedImagePath(images[selectedImage])}
+            src={fixedImages[selectedImage]}
             alt={name}
             className={cn(
               "w-full h-full object-cover transition-opacity duration-500",
@@ -41,7 +59,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
             )}
             onLoad={() => setIsImageLoaded(true)}
             onError={(e) => {
-              console.error("Fehler beim Laden des Bildes:", e);
+              console.error("Fehler beim Laden des Bildes:", e, "Quelle:", fixedImages[selectedImage]);
               (e.target as HTMLImageElement).src = "/placeholder.svg";
               setIsImageLoaded(true);
             }}
@@ -53,9 +71,9 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
         )}
       </div>
 
-      {images && images.length > 1 && (
+      {fixedImages && fixedImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-          {images.map((img, index) => (
+          {fixedImages.map((img, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(index)}
@@ -67,11 +85,11 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
               )}
             >
               <img
-                src={getFixedImagePath(img)}
+                src={img}
                 alt={`${name} Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  console.error(`Fehler beim Laden des Thumbnails ${index}:`, e);
+                  console.error(`Fehler beim Laden des Thumbnails ${index}:`, e, "Quelle:", img);
                   (e.target as HTMLImageElement).src = "/placeholder.svg";
                 }}
               />
