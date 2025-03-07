@@ -8,7 +8,7 @@ import { Product } from "@/types/product";
 import ProductList from "@/components/product/ProductList";
 import LoadingState from "@/components/product/LoadingState";
 import DataSourceIndicator from "@/components/product/DataSourceIndicator";
-import { parseThcPercentage } from "@/utils/product-value-utils";
+import { parseThcPercentage } from "@/utils/product-display-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 
 const Products = () => {
@@ -17,7 +17,6 @@ const Products = () => {
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
   const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -34,16 +33,9 @@ const Products = () => {
   // Handle products loaded from ProductDataLoader
   const handleProductsLoaded = (products: Product[], source: "woocommerce" | "combined" | "local") => {
     console.log(`Products loaded: ${products.length} from source: ${source}`);
-    
-    if (products.length === 0) {
-      // If no products were loaded, show a toast notification
-      toast.info("Keine Produkte gefunden. Bitte versuchen Sie es später erneut.");
-    }
-    
     setAllProducts(products);
     setFilteredProducts(products);
     setDataSource(source);
-    setInitialLoadComplete(true);
     
     // Pre-load images to check for errors
     products.forEach(product => {
@@ -126,7 +118,7 @@ const Products = () => {
           <DataSourceIndicator dataSource={dataSource} />
         </div>
         
-        {!initialLoadComplete ? (
+        {dataSource === "loading" ? (
           <LoadingState />
         ) : (
           <>
