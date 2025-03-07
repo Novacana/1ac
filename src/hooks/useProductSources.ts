@@ -1,9 +1,9 @@
-
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
   isWooCommerceConfigured 
 } from "@/utils/woocommerce";
+import { convertLocalProducts } from "@/utils/product-image-utils";
 import { toast } from "sonner";
 
 export type DataSource = "woocommerce" | "combined" | "local";
@@ -31,23 +31,8 @@ export const loadProductsFromAllSources = async (
     if (dataProducts && dataProducts.length > 0) {
       console.log(`Loaded ${dataProducts.length} local products`);
       
-      // Process data directory products
-      const processedDataProducts = dataProducts.map(product => {
-        // Ensure images is an array and fix paths
-        const fixedImages = (product.images || []).map(img => {
-          if (img.startsWith("public/")) {
-            return img.replace("public/", "/");
-          }
-          return img.startsWith("/") ? img : `/${img}`;
-        });
-        
-        // Convert to Product type to ensure compatibility
-        return {
-          ...product,
-          image: fixedImages[0] || "/placeholder.svg", // Add required image property
-          images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
-        } as Product;
-      });
+      // Process data directory products using the utility function
+      const processedDataProducts = convertLocalProducts(dataProducts);
       
       // Add local products to the combined list
       allProducts = [...processedDataProducts];
