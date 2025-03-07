@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import CartItem, { CartItemProps } from "./CartItem";
+import CartItem from "./CartItem";
 import { cn } from "@/lib/utils";
-
-const initialCartItems: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">[] = [];
+import { useCart } from "@/contexts/CartContext";
 
 const Cart: React.FC = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { cartItems, updateQuantity, removeItem } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -18,16 +17,6 @@ const Cart: React.FC = () => {
   );
   const shippingCost = subtotal > 100 ? 0 : 4.99;
   const total = subtotal + shippingCost;
-
-  const updateQuantity = (id: string, quantity: number) => {
-    setCartItems((items) =>
-      items.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
 
   const handleCheckout = () => {
     setIsLoading(true);

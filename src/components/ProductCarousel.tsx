@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -10,6 +9,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductCarouselProps {
   products: Product[];
@@ -39,6 +39,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const [hasMoved, setHasMoved] = useState(false);
   
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
   const autoPlayTimerRef = useRef<number | null>(null);
@@ -285,7 +286,16 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   };
   
   const handleAddToCart = () => {
-    toast.success(`${activeProduct.name} wurde zum Warenkorb hinzugefügt`);
+    const activeProduct = filteredProducts[activeIndex];
+    const productToAdd = {
+      id: activeProduct.id,
+      name: activeProduct.name,
+      price: activeProduct.price || 9.99,
+      image: getImagePath(activeProduct),
+      quantity: 1
+    };
+    
+    addToCart(productToAdd);
   };
 
   return (

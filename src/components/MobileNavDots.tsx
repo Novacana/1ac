@@ -3,9 +3,12 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ShoppingCart, Grid } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 const MobileNavDots = () => {
   const location = useLocation();
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
   
   return (
     <div className="fixed z-50 top-3 w-full px-4 flex justify-between md:hidden animate-fade-in">
@@ -36,9 +39,11 @@ const MobileNavDots = () => {
       >
         <div className="relative">
           <ShoppingCart size={20} />
-          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
-            0
-          </span>
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
         </div>
       </Link>
     </div>

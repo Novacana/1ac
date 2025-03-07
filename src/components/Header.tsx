@@ -1,14 +1,16 @@
-
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,7 +21,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when navigating
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -57,7 +58,6 @@ const Header = () => {
           />
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="flex items-center space-x-8">
           {navItems.map((item) => (
             <Link
@@ -82,13 +82,14 @@ const Header = () => {
               aria-label="Warenkorb"
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
-                0
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </Link>
 
-          {/* Mobile menu button (now hidden as we've hidden the entire header on mobile) */}
           <Button
             variant="ghost"
             size="icon"
@@ -101,7 +102,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation (now hidden as we've hidden the entire header on mobile) */}
       <div
         className={cn(
           "fixed inset-x-0 top-[var(--header-height)] h-screen bg-background/95 backdrop-blur-md md:hidden transition-transform duration-300 ease-in-out transform",
