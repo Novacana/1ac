@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -25,19 +26,64 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   console.log("ProductCarousel - filteredProducts:", filteredProducts);
   
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const startX = useRef<number | null>(null);
-  const [isSwiping, setIsSwiping] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
   const [swipeDistance, setSwipeDistance] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isSwiping, setIsSwiping] = useState(false);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startX = useRef<number | null>(null);
+  const autoPlayTimerRef = useRef<number | null>(null);
+
+  // Auto-play functionality
+  useEffect(() => {
+    const startAutoPlay = () => {
+      if (filteredProducts.length <= 1) return;
+      
+      // Clear any existing timer
+      if (autoPlayTimerRef.current) {
+        window.clearInterval(autoPlayTimerRef.current);
+      }
+      
+      // Set new timer to change slides every 5 seconds
+      autoPlayTimerRef.current = window.setInterval(() => {
+        if (isAutoPlaying) {
+          setActiveIndex(prevIndex => 
+            prevIndex === filteredProducts.length - 1 ? 0 : prevIndex + 1
+          );
+          setImageLoading(true);
+        }
+      }, 5000);
+    };
+    
+    startAutoPlay();
+    
+    // Cleanup the timer when the component unmounts
+    return () => {
+      if (autoPlayTimerRef.current) {
+        window.clearInterval(autoPlayTimerRef.current);
+      }
+    };
+  }, [filteredProducts.length, isAutoPlaying]);
+  
+  // Pause auto-play when user interacts with carousel
+  const pauseAutoPlay = () => {
+    setIsAutoPlaying(false);
+    
+    // Resume auto-play after 10 seconds of inactivity
+    setTimeout(() => {
+      setIsAutoPlaying(true);
+    }, 10000);
+  };
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     setTouchStartX(e.touches[0].clientX);
     setIsSwiping(false);
+    pauseAutoPlay();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -79,6 +125,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     startX.current = e.clientX;
     setTouchStartX(e.clientX);
     setIsSwiping(true);
+    pauseAutoPlay();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -121,6 +168,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     if (filteredProducts.length <= 1) return;
     setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
     setImageLoading(true);
+    pauseAutoPlay();
     console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
   };
 
@@ -128,6 +176,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     if (filteredProducts.length <= 1) return;
     setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
     setImageLoading(true);
+    pauseAutoPlay();
     console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
   };
 
@@ -135,6 +184,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     if (index === activeIndex) return;
     setActiveIndex(index);
     setImageLoading(true);
+    pauseAutoPlay();
     console.log("Going to specific index:", index);
   };
 
@@ -212,6 +262,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
               >
                 {/* Loading spinner */}
                 {imageLoading && (
