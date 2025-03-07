@@ -5,7 +5,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ShoppingCart, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface ProductCardProps {
   id: string;
@@ -42,13 +41,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     setImageError(true);
     // Versuchen, ein alternatives Bild zu laden oder ein Platzhalterbild zu verwenden
     setIsLoaded(true);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to product page
-    e.stopPropagation(); // Stop event from bubbling up
-    toast.success(`${name} wurde zum Warenkorb hinzugefügt`);
-    console.log(`Added ${name} to cart`);
   };
 
   return (
@@ -98,17 +90,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           )}
         </div>
-        
-        {/* Add to cart button in the top right corner */}
-        <Button
-          variant="default"
-          size="icon"
-          className="absolute top-16 right-3 z-10 rounded-full shadow-md scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200"
-          onClick={handleAddToCart}
-          title="Zum Warenkorb hinzufügen"
-        >
-          <ShoppingCart className="h-4 w-4" />
-        </Button>
       </Link>
       
       <CardContent className="p-4">
@@ -123,7 +104,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
           variant="outline" 
           size="sm"
           className="w-full transition-all duration-300 group/btn"
-          onClick={handleAddToCart}
         >
           <ShoppingCart className="h-4 w-4 mr-2 transition-transform duration-300 group-hover/btn:scale-110" />
           Zum Warenkorb

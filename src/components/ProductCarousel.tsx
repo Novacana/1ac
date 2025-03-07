@@ -1,11 +1,11 @@
-
-import React, { useState, useEffect } from "react";
-import { ShoppingCart, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import CarouselNavigation from "@/components/CarouselNavigation";
+import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
+import ProductInfoPanel from "./ProductInfoPanel"; 
+import ProductDetailPanel from "./ProductDetailPanel";
+import CarouselNavigation from "./CarouselNavigation";
+import EmptyProductState from "./EmptyProductState";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductCarouselProps {
   products: Product[];
@@ -13,158 +13,259 @@ interface ProductCarouselProps {
 }
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCategory }) => {
+  console.log("ProductCarousel - selectedCategory:", selectedCategory);
+  console.log("ProductCarousel - products:", products);
+  
+  // Wandle die Kategorie "Flowers" zu "Blüten" um, wenn wir die deutsche Version verwenden
+  const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
+  
+  const filteredProducts = products.filter(product => 
+    product.category === normalizedCategory || product.category === selectedCategory
+  );
+  console.log("ProductCarousel - filteredProducts:", filteredProducts);
+  
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState<{ [key: string]: boolean }>({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startX = useRef<number | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [swipeDistance, setSwipeDistance] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
 
-  // Reset carousel state when products change
-  useEffect(() => {
-    setActiveIndex(0);
-    setImagesLoaded({});
-  }, [products]);
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+    setTouchStartX(e.touches[0].clientX);
+    setIsSwiping(false);
+  };
 
-  if (!products || products.length === 0) {
-    return null;
-  }
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (startX.current === null) return;
+    
+    const currentX = e.touches[0].clientX;
+    const distance = currentX - startX.current;
+    setSwipeDistance(distance);
+    
+    // If the user has moved more than 10px, consider it a swipe
+    if (Math.abs(distance) > 10) {
+      setIsSwiping(true);
+    }
+  };
 
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (startX.current === null) return;
+    
+    setTouchEndX(e.changedTouches[0].clientX);
+    const diffX = e.changedTouches[0].clientX - startX.current;
+    
+    // If swipe distance is significant enough, navigate
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        goToPrevious();
+      } else {
+        goToNext();
+      }
+    }
+    
+    // Reset swipe state
+    startX.current = null;
+    setIsSwiping(false);
+    setSwipeDistance(0);
+  };
+
+  // Mouse event handlers for desktop swipe simulation
+  const handleMouseDown = (e: React.MouseEvent) => {
+    startX.current = e.clientX;
+    setTouchStartX(e.clientX);
+    setIsSwiping(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isSwiping || startX.current === null) return;
+    
+    const distance = e.clientX - startX.current;
+    setSwipeDistance(distance);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isSwiping || startX.current === null) return;
+    
+    const diffX = e.clientX - startX.current;
+    
+    // If swipe distance is significant enough, navigate
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        goToPrevious();
+      } else {
+        goToNext();
+      }
+    }
+    
+    // Reset swipe state
+    startX.current = null;
+    setIsSwiping(false);
+    setSwipeDistance(0);
+  };
+
+  const handleMouseLeave = () => {
+    if (isSwiping) {
+      setIsSwiping(false);
+      setSwipeDistance(0);
+      startX.current = null;
+    }
+  };
+
+  // Navigation functions
   const goToNext = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setActiveIndex((prev) => (prev + 1) % products.length);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
+    if (filteredProducts.length <= 1) return;
+    setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+    setImageLoading(true);
+    console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
   };
 
   const goToPrevious = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setActiveIndex((prev) => (prev - 1 + products.length) % products.length);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
+    if (filteredProducts.length <= 1) return;
+    setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+    setImageLoading(true);
+    console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
   };
 
   const goToIndex = (index: number) => {
-    if (isTransitioning || index === activeIndex) return;
-    setIsTransitioning(true);
+    if (index === activeIndex) return;
     setActiveIndex(index);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
+    setImageLoading(true);
+    console.log("Going to specific index:", index);
   };
 
-  const activeProduct = products[activeIndex];
+  // Reset active index when category changes or products change
+  useEffect(() => {
+    console.log("Products or category changed, resetting active index");
+    setActiveIndex(0);
+    setImageLoading(true);
+  }, [selectedCategory, filteredProducts.length]);
 
-  // Ensure image path is correct
-  const getImagePath = (imageSrc: string) => {
-    // Fix path if starts with public/
-    if (imageSrc.startsWith("public/")) {
-      return imageSrc.replace("public/", "/");
-    }
-    // Add leading slash if needed
-    if (!imageSrc.startsWith("http") && !imageSrc.startsWith("/")) {
-      return "/" + imageSrc;
-    }
-    return imageSrc;
-  };
+  // If no products, show empty state
+  if (filteredProducts.length === 0) {
+    return <EmptyProductState />;
+  }
+
+  const activeProduct = filteredProducts[activeIndex];
   
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault(); // Prevent navigating to product page when clicking the cart button
-    e.stopPropagation(); // Stop event from bubbling up
-    toast.success(`${product.name} wurde zum Warenkorb hinzugefügt`);
-    console.log(`Added ${product.name} to cart`);
+  // Get the correctly formatted image path
+  const getImagePath = (product: Product) => {
+    if (product.images && product.images.length > 0) {
+      let path = product.images[0];
+      
+      // Fix path if it starts with "public/"
+      if (path.startsWith("public/")) {
+        return path.replace("public/", "/");
+      }
+      
+      // Add leading slash if needed
+      if (!path.startsWith("http") && !path.startsWith("/")) {
+        return "/" + path;
+      }
+      
+      return path;
+    } else if (product.image) {
+      let path = product.image;
+      
+      // Fix path if it starts with "public/"
+      if (path.startsWith("public/")) {
+        return path.replace("public/", "/");
+      }
+      
+      // Add leading slash if needed
+      if (!path.startsWith("http") && !path.startsWith("/")) {
+        return "/" + path;
+      }
+      
+      return path;
+    }
+    
+    return "/placeholder.svg";
   };
 
-  const imageLoaded = (productId: string) => {
-    setImagesLoaded((prev) => ({ ...prev, [productId]: true }));
-  };
+  const imagePath = getImagePath(activeProduct);
+  console.log("Current product image path:", imagePath);
 
   return (
-    <div className="relative pb-12">
-      {/* Featured Product Section */}
-      <div className="flex flex-col md:flex-row gap-6 md:gap-12 mb-6 transition-all duration-500 ease-out">
-        {/* Product Image */}
-        <div className="md:w-1/2 relative overflow-hidden rounded-xl bg-card aspect-square md:aspect-auto">
-          <Link to={`/product/${activeProduct.id}`} className="block w-full h-full">
-            <div
-              className="absolute inset-0 flex items-center justify-center bg-card/20 z-10 transition-opacity duration-300"
-              style={{ opacity: imagesLoaded[activeProduct.id] ? 0 : 1 }}
-            >
-              <div className="h-12 w-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+    <div className="w-full relative">
+      <div className="container max-w-md mx-auto px-4">
+        <div className="flex flex-col gap-2">
+          {/* Product name and main info */}
+          <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
+          
+          {/* Two-column layout for info panels and image */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {/* Left column: Cannabinoid info & tags */}
+            <div className="md:col-span-2">
+              {activeProduct && <ProductInfoPanel product={activeProduct} />}
             </div>
             
-            <img
-              src={activeProduct.images?.[0] ? getImagePath(activeProduct.images[0]) : "/placeholder.svg"}
-              alt={activeProduct.name}
-              className="w-full h-full object-contain transition-all duration-500 ease-out"
-              style={{ opacity: imagesLoaded[activeProduct.id] ? 1 : 0 }}
-              onLoad={() => imageLoaded(activeProduct.id)}
-              onError={(e) => {
-                console.error("Image load error:", e);
-                (e.target as HTMLImageElement).src = "/placeholder.svg";
-                imageLoaded(activeProduct.id);
-              }}
-            />
-            
-            {/* Add to cart button in the top right corner */}
-            <Button
-              size="icon"
-              className="absolute top-3 right-3 z-20 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
-              onClick={(e) => handleAddToCart(e, activeProduct)}
-              title="Zum Warenkorb hinzufügen"
-            >
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-
-        {/* Product Details */}
-        <div className="md:w-1/2 flex flex-col justify-center">
-          <div className="space-y-4">
-            <div>
-              <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                {activeProduct.category === "Blüten" ? "Cannabis Blüten" : 
-                 activeProduct.category === "Öle" ? "Cannabis Öle" : 
-                 activeProduct.category}
-              </span>
-              <h2 className="text-3xl font-bold mt-1">{activeProduct.name}</h2>
-            </div>
-
-            <p className="text-foreground/80 text-base leading-relaxed line-clamp-4">
-              {activeProduct.description}
-            </p>
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              {activeProduct.thc && (
-                <span className="px-3 py-1 bg-secondary/50 rounded-full text-sm font-medium">
-                  THC: {activeProduct.thc}
-                </span>
-              )}
-              {activeProduct.cbd && (
-                <span className="px-3 py-1 bg-secondary/50 rounded-full text-sm font-medium">
-                  CBD: {activeProduct.cbd}
-                </span>
-              )}
-              {activeProduct.strain && (
-                <span className="px-3 py-1 bg-secondary/50 rounded-full text-sm font-medium">
-                  {activeProduct.strain}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-end justify-between pt-2">
-              <span className="text-2xl font-bold">€{activeProduct.price.toFixed(2)}</span>
-              <Link 
-                to={`/product/${activeProduct.id}`}
-                className="inline-flex items-center text-primary hover:underline"
+            {/* Right column: Product image */}
+            <div className="md:col-span-3">
+              <div 
+                ref={containerRef}
+                className="w-full h-[220px] relative overflow-hidden rounded-lg border border-border"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
               >
-                Details ansehen
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
+                {/* Loading spinner */}
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm z-10">
+                    <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+                  </div>
+                )}
+                
+                {/* Main swipeable product image */}
+                <div 
+                  className="w-full h-full flex items-center justify-center transition-transform duration-300 relative bg-card/5 backdrop-blur-sm"
+                  style={{ transform: isSwiping ? `translateX(${swipeDistance}px)` : 'translateX(0)' }}
+                >
+                  <img 
+                    src={imagePath} 
+                    alt={activeProduct.name} 
+                    className={cn(
+                      "max-h-full max-w-full object-contain p-4 transition-opacity duration-300",
+                      imageLoading ? "opacity-0" : "opacity-100"
+                    )}
+                    onLoad={() => {
+                      console.log("Image loaded successfully:", imagePath);
+                      setImageLoading(false);
+                    }}
+                    onError={(e) => {
+                      console.error("Failed to load product image:", e);
+                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      setImageLoading(false);
+                    }}
+                  />
+                  
+                  {/* Swipe hint on first render - fades out after 2 seconds */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none md:hidden opacity-50 animate-fade-out">
+                    <div className="flex items-center gap-2 bg-background/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                      <ChevronLeft size={16} className="animate-pulse" />
+                      <span className="text-sm font-medium">Swipe</span>
+                      <ChevronRight size={16} className="animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+          
+          {/* Bottom detail panel - Terpenes & flavors */}
+          <div className="mt-2">
+            {activeProduct && <ProductDetailPanel product={activeProduct} />}
           </div>
         </div>
       </div>
 
-      {/* Carousel Navigation */}
       <CarouselNavigation
         activeIndex={activeIndex}
-        totalItems={products.length}
+        totalItems={filteredProducts.length}
         onPrevious={goToPrevious}
         onNext={goToNext}
         onDotClick={goToIndex}

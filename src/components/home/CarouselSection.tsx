@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from "react";
 import ProductCarousel from "@/components/ProductCarousel";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 import { FilterX } from "lucide-react";
+import { getProductsByCategory } from "@/data/products";
 
 interface CarouselSectionProps {
   products: Product[];
@@ -10,11 +12,76 @@ interface CarouselSectionProps {
 }
 
 const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCategory }) => {
+  const [checkedProducts, setCheckedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    setIsLoading(true);
+    
+    // Try to get products from our data directory first
+    const dataProducts = getProductsByCategory(selectedCategory);
+    
+    if (dataProducts && dataProducts.length > 0) {
+      console.log("Using products from data directory:", dataProducts.length);
+      
+      // Process data directory products
+      const processedDataProducts = dataProducts.map(product => {
+        // Ensure images is an array and fix paths
+        const fixedImages = (product.images || []).map(img => {
+          if (img.startsWith("public/")) {
+            return img.replace("public/", "/");
+          }
+          return img.startsWith("/") ? img : `/${img}`;
+        });
+        
+        // Convert to Product type to ensure compatibility
+        return {
+          ...product,
+          image: fixedImages[0] || "/placeholder.svg", // Add required image property
+          images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
+        } as Product;
+      });
+      
+      setCheckedProducts(processedDataProducts);
+      setIsLoading(false);
+      return;
+    }
+    
+    // Fall back to the provided products if no data directory products
+    // Fix product image paths and ensure images array exists
+    const productsWithFixedPaths = products.map(product => {
+      // Create an images array if it doesn't exist (using the single image)
+      const imagesArray = product.images || (product.image ? [product.image] : []);
+      
+      // Fix image paths
+      const fixedImages = imagesArray.map(img => {
+        // If the path starts with "public/", remove it as it's already in the public folder
+        if (img.startsWith("public/")) {
+          return img.replace("public/", "/");
+        }
+        
+        // Handle other potential path issues
+        if (!img.startsWith("http") && !img.startsWith("/")) {
+          return "/" + img;
+        }
+        
+        return img;
+      });
+      
+      // Check if at least one image exists and is valid
+      if (fixedImages.length === 0) {
+        console.warn(`Product ${product.id} (${product.name}) has no images`);
+        // Add placeholder if no images
+        fixedImages.push("/placeholder.svg");
+      }
+      
+      return { ...product, images: fixedImages };
+    });
+
+    console.log("Fixed product images in CarouselSection:", productsWithFixedPaths.map(p => ({id: p.id, name: p.name, images: p.images})));
+    setCheckedProducts(productsWithFixedPaths);
     setIsLoading(false);
-  }, [products]);
+  }, [products, selectedCategory]);
 
   // Handle loading state
   if (isLoading) {
@@ -30,7 +97,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
   }
 
   // Handle empty state
-  if (!products || products.length === 0) {
+  if (checkedProducts.length === 0) {
     return (
       <section className="py-2 relative">
         <div className="container px-4 mx-auto">
@@ -49,7 +116,7 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
   return (
     <section className="py-2 relative">
       <div className="container px-4 mx-auto">
-        <ProductCarousel products={products} selectedCategory={selectedCategory} />
+        <ProductCarousel products={checkedProducts} selectedCategory={selectedCategory} />
       </div>
     </section>
   );

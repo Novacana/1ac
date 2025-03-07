@@ -1,31 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { getAllProducts } from "@/data/products";
+import { products } from "@/data/products";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import EmptyProductState from "@/components/EmptyProductState";
-import { ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Product } from "@/types/product";
 
 const Products = () => {
-  const [products, setProducts] = useState<Product[]>([]);
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    // Load products from our data
-    const loadProducts = () => {
-      setIsLoading(true);
-      const allProducts = getAllProducts();
-      setProducts(allProducts);
-      setIsLoading(false);
-    };
-    
-    loadProducts();
-  }, []);
   
   useEffect(() => {
     // Pre-load images to check for errors
@@ -41,19 +24,7 @@ const Products = () => {
       };
       img.src = imagePath;
     });
-  }, [products]);
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center py-12">
-            <div className="h-12 w-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  }, []);
 
   if (!products || products.length === 0) {
     return <EmptyProductState message="Keine Produkte gefunden" />;
@@ -99,13 +70,6 @@ const Products = () => {
     return "/placeholder.svg";
   };
 
-  const handleAddToCart = (e: React.MouseEvent, product: any) => {
-    e.preventDefault(); // Prevent navigating to product page
-    e.stopPropagation(); // Stop event from bubbling up
-    toast.success(`${product.name} wurde zum Warenkorb hinzugefügt`);
-    console.log(`Added ${product.name} to cart`);
-  };
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -116,9 +80,9 @@ const Products = () => {
             const imagePath = getImagePath(product);
             
             return (
-              <Card key={product.id} className="h-full hover:shadow-lg transition-shadow group">
-                <CardContent className="p-0">
-                  <Link to={`/product/${product.id}`} className="block">
+              <Link key={product.id} to={`/product/${product.id}`}>
+                <Card className="h-full hover:shadow-lg transition-shadow">
+                  <CardContent className="p-0">
                     <div className="aspect-square relative overflow-hidden rounded-t-lg">
                       <div className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
                            style={{opacity: imagesLoaded[product.id] ? 0 : 1}}>
@@ -127,35 +91,27 @@ const Products = () => {
                       <img 
                         src={imagePath}
                         alt={product.name}
-                        className="w-full h-full object-cover z-0 transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover z-0"
                         onLoad={() => {
+                          console.log(`Image loaded successfully for ${product.name}`);
                           setImagesLoaded(prev => ({...prev, [product.id]: true}));
                         }}
                         onError={(e) => {
                           console.error(`Error loading image for ${product.name}:`, e.currentTarget.src);
+                          toast.error(`Bild für ${product.name} konnte nicht geladen werden`);
                           (e.target as HTMLImageElement).src = "/placeholder.svg";
                           setImagesLoaded(prev => ({...prev, [product.id]: true}));
                         }}
                       />
-                      
-                      {/* Add to cart button */}
-                      <Button
-                        size="icon"
-                        className="absolute top-2 right-2 z-20 rounded-full shadow-md hover:shadow-lg transition-all duration-200 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        title="Zum Warenkorb hinzufügen"
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
                     </div>
                     <div className="p-3">
                       <h3 className="font-semibold text-sm mb-0.5 line-clamp-1">{product.name}</h3>
                       <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
                       <p className="font-medium text-sm">{product.price.toFixed(2)} €</p>
                     </div>
-                  </Link>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
