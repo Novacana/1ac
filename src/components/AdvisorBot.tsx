@@ -1,18 +1,11 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  products?: Product[];
-  messageId?: string;
-}
 
 interface Product {
   id: string;
@@ -22,6 +15,7 @@ interface Product {
   category: string;
 }
 
+// Sample products data
 const products = [
   {
     id: "1",
@@ -63,63 +57,34 @@ const products = [
 const ProductAdvisor = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen? Du kannst mich zu Produkten, Wirkungsweisen oder Anwendungsgebieten befragen.",
-      messageId: "welcome-message"
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [showProducts, setShowProducts] = useState(false);
+  
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
-
-  const toggleAdvisor = () => {
-    setIsOpen(!isOpen);
-    if (audioRef.current && audioRef.current.played) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-    if (speechSynthesisRef.current) {
-      window.speechSynthesis.cancel();
-      setIsPlaying(false);
-    }
-    if (isListening) {
-      stopListening();
-    }
-  };
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [botResponse, recommendedProducts]);
 
   useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
-    
-    audio.addEventListener('ended', () => setIsPlaying(false));
-    audio.addEventListener('error', () => {
-      setIsPlaying(false);
-      toast({
-        title: "Fehler bei der Audiowiedergabe",
-        description: "Die Audiodatei konnte nicht abgespielt werden.",
-        variant: "destructive",
-      });
-    });
-    
+    if (isOpen && isVoiceEnabled && botResponse && !isPlaying) {
+      speakResponse(botResponse);
+    }
+  }, [botResponse, isOpen, isVoiceEnabled]);
+
+  useEffect(() => {
+    // Cleanup function for speech services
     return () => {
-      audio.pause();
-      audio.removeEventListener('ended', () => setIsPlaying(false));
-      audio.removeEventListener('error', () => setIsPlaying(false));
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
@@ -127,23 +92,40 @@ const ProductAdvisor = () => {
         window.speechSynthesis.cancel();
       }
     };
-  }, [toast]);
+  }, []);
 
-  const speakMessage = async (message: string) => {
-    if (!isVoiceEnabled) return;
-    if (isPlaying) {
+  const toggleAdvisor = () => {
+    setIsOpen(!isOpen);
+    if (isOpen) {
+      // Stop all audio if closing the advisor
       if (speechSynthesisRef.current) {
         window.speechSynthesis.cancel();
+        setIsPlaying(false);
       }
-      setIsPlaying(false);
-      return;
+      if (isListening) {
+        stopListening();
+      }
     }
+  };
 
+  const speakResponse = (text: string) => {
+    if (!isVoiceEnabled) return;
+    
     try {
+      if (isPlaying && speechSynthesisRef.current) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        return;
+      }
+
       setIsPlaying(true);
       
-      const utterance = new SpeechSynthesisUtterance(message);
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'de-DE';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => {
         setIsPlaying(false);
@@ -169,10 +151,8 @@ const ProductAdvisor = () => {
 
   const toggleVoice = () => {
     setIsVoiceEnabled(!isVoiceEnabled);
-    if (isPlaying) {
-      if (speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
-      }
+    if (isPlaying && speechSynthesisRef.current) {
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
     }
   };
@@ -204,6 +184,7 @@ const ProductAdvisor = () => {
     
     recognition.onstart = () => {
       setIsListening(true);
+      setTranscript("");
       toast({
         title: "Spracherkennung aktiv",
         description: "Du kannst jetzt sprechen.",
@@ -218,19 +199,12 @@ const ProductAdvisor = () => {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript;
+          processUserQuery(finalTranscript);
         } else {
           interimTranscript += transcript;
+          // Display interim results in real-time
+          setTranscript(interimTranscript);
         }
-      }
-      
-      if (finalTranscript !== '') {
-        setInput(finalTranscript);
-        if (!isLoading) {
-          handleSend(finalTranscript);
-          stopListening();
-        }
-      } else if (interimTranscript !== '') {
-        setInput(interimTranscript);
       }
     };
     
@@ -245,7 +219,10 @@ const ProductAdvisor = () => {
     };
     
     recognition.onend = () => {
-      setIsListening(false);
+      if (isListening) {
+        // Restart if it ends unexpectedly while still in listening mode
+        recognition.start();
+      }
     };
     
     recognitionRef.current = recognition;
@@ -259,79 +236,67 @@ const ProductAdvisor = () => {
     }
   };
 
-  const handleSend = async (manualInput?: string) => {
-    const userInput = manualInput || input;
-    if (userInput.trim() === "" || isLoading) return;
-
-    const userMessage = { role: "user" as const, content: userInput };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+  const processUserQuery = async (userQuery: string) => {
+    if (userQuery.trim() === "" || isLoading) return;
+    
     setIsLoading(true);
+    setTranscript(userQuery); // Display the final transcript
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // If bot is currently speaking, stop it
+      if (isPlaying && speechSynthesisRef.current) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+      }
+
+      // Simulate a delay for processing
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      let botResponse = "";
-      let recommendedProducts: Product[] = [];
-      const userQuery = userInput.toLowerCase();
+      let response = "";
+      let matchedProducts: Product[] = [];
+      const query = userQuery.toLowerCase();
       
-      if (userQuery.includes("schmerz") || userQuery.includes("pain")) {
-        botResponse = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
-        recommendedProducts = [products[0], products[1]];
-      } else if (userQuery.includes("schlaf") || userQuery.includes("sleep")) {
-        botResponse = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
-        recommendedProducts = [products[0], products[2]];
-      } else if (userQuery.includes("angst") || userQuery.includes("anxiety")) {
-        botResponse = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
-        recommendedProducts = [products[1], products[3]];
-      } else if (userQuery.includes("appetit") || userQuery.includes("hunger")) {
-        botResponse = "Diese Produkte können den Appetit anregen:";
-        recommendedProducts = [products[0], products[4]];
-      } else if (userQuery.includes("thc")) {
-        botResponse = "Hier sind unsere THC-haltigen Produkte:";
-        recommendedProducts = [products[0], products[2], products[4]];
-      } else if (userQuery.includes("cbd")) {
-        botResponse = "Hier sind unsere CBD-haltigen Produkte:";
-        recommendedProducts = [products[1], products[3]];
-      } else if (userQuery.includes("produkt") || userQuery.includes("empfehl") || userQuery.includes("zeig")) {
-        botResponse = "Hier sind einige unserer beliebtesten Produkte:";
-        recommendedProducts = [...products];
+      if (query.includes("schmerz") || query.includes("pain")) {
+        response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
+        matchedProducts = [products[0], products[1]];
+      } else if (query.includes("schlaf") || query.includes("sleep")) {
+        response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
+        matchedProducts = [products[0], products[2]];
+      } else if (query.includes("angst") || query.includes("anxiety")) {
+        response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
+        matchedProducts = [products[1], products[3]];
+      } else if (query.includes("appetit") || query.includes("hunger")) {
+        response = "Diese Produkte können den Appetit anregen:";
+        matchedProducts = [products[0], products[4]];
+      } else if (query.includes("thc")) {
+        response = "Hier sind unsere THC-haltigen Produkte:";
+        matchedProducts = [products[0], products[2], products[4]];
+      } else if (query.includes("cbd")) {
+        response = "Hier sind unsere CBD-haltigen Produkte:";
+        matchedProducts = [products[1], products[3]];
+      } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
+        response = "Hier sind einige unserer beliebtesten Produkte:";
+        matchedProducts = [...products];
       } else {
-        botResponse = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
+        response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
         const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 2);
-        recommendedProducts = randomProducts;
+        matchedProducts = randomProducts;
       }
 
-      const messageId = `message-${Date.now()}`;
-      const assistantMessage = {
-        role: "assistant" as const,
-        content: botResponse,
-        products: recommendedProducts,
-        messageId
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      if (isVoiceEnabled) {
-        setTimeout(() => {
-          speakMessage(botResponse);
-        }, 300);
-      }
+      setBotResponse(response);
+      setRecommendedProducts(matchedProducts);
+      setShowProducts(matchedProducts.length > 0);
+      
+      // Clear transcript after processing
+      setTimeout(() => {
+        setTranscript("");
+      }, 2000);
+      
     } catch (error) {
       console.error("Error processing message:", error);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal." },
-      ]);
+      setBotResponse("Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
     }
   };
 
@@ -392,96 +357,110 @@ const ProductAdvisor = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div 
-                  className={cn(
-                    "flex flex-col max-w-[85%] rounded-lg p-3", 
-                    message.role === "assistant" 
-                      ? "bg-secondary text-secondary-foreground self-start rounded-tl-none" 
-                      : "bg-primary text-primary-foreground self-end rounded-br-none"
-                  )}
-                >
-                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                    {message.role === "assistant" ? (
-                      <>
-                        <Bot className="h-3 w-3" /> Berater
-                        {isVoiceEnabled && message.messageId && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-5 py-0 px-1.5 ml-1 text-xs flex items-center gap-1"
-                            onClick={() => speakMessage(message.content, message.messageId || "")}
-                            title={isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? "Pausieren" : "Vorlesen"}
-                          >
-                            {isPlaying && audioRef.current?.src?.includes(message.messageId || "") ? (
-                              <>
-                                <span className="inline-block h-2 w-2 bg-current rounded-full animate-pulse"></span>
-                                <span className="text-xs">Pause</span>
-                              </>
-                            ) : (
-                              <>
-                                <Volume2 className="h-3 w-3" />
-                                <span className="text-xs">Vorlesen</span>
-                              </>
-                            )}
-                          </Button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <User className="h-3 w-3" /> Du
-                      </>
-                    )}
-                  </div>
-                  {message.content}
-                </div>
-
-                {message.products && message.products.length > 0 && (
-                  <div className="mt-2 grid gap-2 max-w-[90%]">
-                    {message.products.map((product) => (
-                      <Link 
-                        to={`/product/${product.id}`}
-                        key={product.id}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-200 animate-scale-in"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
-                          <img 
-                            src={product.image} 
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
-                          <div className="flex justify-between items-center mt-0.5">
-                            <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{product.category}</span>
-                            <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
-                          </div>
-                        </div>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
-                      </Link>
-                    ))}
-                  </div>
-                )}
+            <div className="flex flex-col items-center justify-center text-center mb-4">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+                <Bot className="h-8 w-8 text-primary" />
               </div>
-            ))}
+              <h3 className="font-medium">Cannabis-Berater</h3>
+              <p className="text-sm text-muted-foreground">Sprich mit mir über Cannabis-Produkte</p>
+            </div>
+
+            {/* Bot response section */}
+            <div className="animate-fade-in">
+              <div className="bg-secondary text-secondary-foreground self-start rounded-lg p-3 rounded-tl-none">
+                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                  <Bot className="h-3 w-3" /> Berater
+                  {isPlaying && (
+                    <span className="inline-flex gap-1">
+                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                    </span>
+                  )}
+                </div>
+                {botResponse}
+              </div>
+            </div>
+
+            {/* User input display */}
+            {transcript && (
+              <div className="animate-fade-in">
+                <div className="bg-primary text-primary-foreground self-end rounded-lg p-3 rounded-br-none ml-auto">
+                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                    <User className="h-3 w-3" /> Du
+                  </div>
+                  {transcript}
+                </div>
+              </div>
+            )}
+
+            {/* Products display */}
+            {showProducts && recommendedProducts.length > 0 && (
+              <div className="mt-2 grid gap-2 max-w-[90%]">
+                {recommendedProducts.map((product) => (
+                  <Link 
+                    to={`/product/${product.id}`}
+                    key={product.id}
+                    className="flex items-center gap-3 p-2 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-200 animate-scale-in"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+                      <div className="flex justify-between items-center mt-0.5">
+                        <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{product.category}</span>
+                        <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Loading indicator */}
             {isLoading && (
               <div className="flex max-w-[85%] rounded-lg p-3 bg-secondary text-secondary-foreground self-start rounded-tl-none animate-pulse">
                 <Loader2 className="h-5 w-5 animate-spin" />
               </div>
             )}
+
             <div ref={bottomRef} />
           </div>
 
           <div className="p-3 border-t bg-card">
-            <div className="flex items-center justify-center mb-2">
-              <div className="flex gap-2 w-full max-w-[240px] justify-center">
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-center mb-1">
+                <Button
+                  variant={isListening ? "destructive" : "default"}
+                  size="lg"
+                  onClick={toggleListening}
+                  className="w-full max-w-[280px] h-12 rounded-full gap-2"
+                >
+                  {isListening ? (
+                    <>
+                      <div className="relative">
+                        <Mic className="h-5 w-5" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                      </div>
+                      <span>Zuhören... (Klick zum Stoppen)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-5 w-5" />
+                      <span>Drücke zum Sprechen</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              <div className="flex items-center justify-center">
                 <Button
                   variant="outline"
                   size="sm"
@@ -500,52 +479,7 @@ const ProductAdvisor = () => {
                     </>
                   )}
                 </Button>
-                <Button
-                  variant={isListening ? "default" : "outline"}
-                  size="sm"
-                  onClick={toggleListening}
-                  className={cn(
-                    "flex items-center gap-2 justify-center",
-                    isListening && "bg-destructive hover:bg-destructive/90"
-                  )}
-                >
-                  {isListening ? (
-                    <>
-                      <MicOff className="h-4 w-4" />
-                      <span>Stopp</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-4 w-4" />
-                      <span>Sprechen</span>
-                    </>
-                  )}
-                </Button>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isListening ? "Sprich jetzt..." : "Frage zu Cannabis-Produkten..."}
-                className={cn(
-                  "min-h-[60px] resize-none",
-                  isListening && "border-primary animate-pulse"
-                )}
-                disabled={isLoading}
-              />
-              <Button 
-                onClick={() => handleSend()}
-                disabled={!input.trim() || isLoading}
-                className="shrink-0"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Send className="h-5 w-5" />
-                )}
-              </Button>
             </div>
           </div>
         </Card>
