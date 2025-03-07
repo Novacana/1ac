@@ -1,51 +1,73 @@
-// Helper function to get colors for different terpenes
+
+// Helper function to get colors for different terpenes (more subtle palette)
 export const getTerpeneColor = (terpene: string): string => {
   const colors: Record<string, string> = {
-    'Myrcen': '#4ade80', // Vibrant green
-    'Limonen': '#facc15', // Bright yellow
-    'Limonene': '#facc15', // Bright yellow
-    'Caryophyllen': '#f97316', // Vivid orange
-    'Caryophyllene': '#f97316', // Vivid orange
-    'Pinen': '#10b981', // Emerald green
-    'Pinene': '#10b981', // Emerald green
-    'Linalool': '#a855f7', // Rich purple
-    'Terpinolen': '#3b82f6', // Royal blue
-    'Terpinolene': '#3b82f6', // Royal blue
-    'Ocimen': '#f43f5e', // Rose red
-    'Ocimene': '#f43f5e', // Rose red
-    'Humulen': '#b45309', // Deep amber
-    'Humulene': '#b45309', // Deep amber
-    'Bisabolol': '#d8b4fe', // Soft lavender
-    'Nerolidol': '#c084fc', // Light purple
-    'Terpineol': '#4ade80', // Vibrant green
-    'Eucalyptol': '#67e8f9', // Light cyan
-    'Fenchol': '#a3e635', // Lime green
-    'Borneol': '#94a3b8', // Slate gray
-    'Campher': '#fbbf24', // Amber
-    'Camphor': '#fbbf24', // Amber
-    'Geraniol': '#fb7185', // Pink
-    'Valencen': '#fb923c', // Light orange
-    'Valencene': '#fb923c', // Light orange
+    'Myrcen': '#F2FCE2', // Soft Green
+    'Limonen': '#FEF7CD', // Soft Yellow
+    'Limonene': '#FEF7CD', // Soft Yellow
+    'Caryophyllen': '#FEC6A1', // Soft Orange
+    'Caryophyllene': '#FEC6A1', // Soft Orange
+    'Pinen': '#D3E4FD', // Soft Blue
+    'Pinene': '#D3E4FD', // Soft Blue
+    'Linalool': '#E5DEFF', // Soft Purple
+    'Terpinolen': '#D3E4FD', // Soft Blue
+    'Terpinolene': '#D3E4FD', // Soft Blue
+    'Ocimen': '#FFDEE2', // Soft Pink
+    'Ocimene': '#FFDEE2', // Soft Pink
+    'Humulen': '#FDE1D3', // Soft Peach
+    'Humulene': '#FDE1D3', // Soft Peach
+    'Bisabolol': '#E5DEFF', // Soft Lavender
+    'Nerolidol': '#E5DEFF', // Soft Purple
+    'Terpineol': '#F2FCE2', // Soft Green
+    'Eucalyptol': '#D3E4FD', // Soft Cyan
+    'Fenchol': '#F2FCE2', // Soft Green
+    'Borneol': '#F1F0FB', // Soft Gray
+    'Campher': '#FEF7CD', // Soft Amber
+    'Camphor': '#FEF7CD', // Soft Amber
+    'Geraniol': '#FFDEE2', // Soft Pink
+    'Valencen': '#FEC6A1', // Soft Orange
+    'Valencene': '#FEC6A1', // Soft Orange
   };
   
   // If the terpene isn't in our map, generate a consistent color based on the name
   if (!colors[terpene]) {
-    // Generate a deterministic hash from the terpene name
-    let hash = 0;
-    for (let i = 0; i < terpene.length; i++) {
-      hash = terpene.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    // Convert the hash to a hex color
-    let color = '#';
-    for (let i = 0; i < 3; i++) {
-      const value = (hash >> (i * 8)) & 0xFF;
-      color += ('00' + value.toString(16)).substr(-2);
-    }
-    return color;
+    return '#F1F0FB'; // Default to soft gray for unknown terpenes
   }
   
   return colors[terpene];
+};
+
+// Function to get terpene effects based on the terpene name
+export const getTerpeneEffect = (terpene: string): string => {
+  const effects: Record<string, string> = {
+    'Myrcen': 'Entspannend, schmerzlindernd, sedierend',
+    'Limonen': 'Stimmungsaufhellend, antibakteriell, antioxidativ',
+    'Limonene': 'Stimmungsaufhellend, antibakteriell, antioxidativ',
+    'Caryophyllen': 'Entzündungshemmend, angstlösend',
+    'Caryophyllene': 'Entzündungshemmend, angstlösend',
+    'Pinen': 'Konzentrationsfördernd, entzündungshemmend',
+    'Pinene': 'Konzentrationsfördernd, entzündungshemmend',
+    'Linalool': 'Entspannend, angstlösend, sedierend',
+    'Terpinolen': 'Beruhigend, antibakteriell',
+    'Terpinolene': 'Beruhigend, antibakteriell',
+    'Ocimen': 'Antiviral, entzündungshemmend',
+    'Ocimene': 'Antiviral, entzündungshemmend',
+    'Humulen': 'Appetithemmend, antibakteriell',
+    'Humulene': 'Appetithemmend, antibakteriell',
+    'Bisabolol': 'Hautberuhigend, entzündungshemmend',
+    'Nerolidol': 'Entspannend, antimikrobiell',
+    'Terpineol': 'Beruhigend, antimikrobiell',
+    'Eucalyptol': 'Atemwegsreinigend, konzentrationsfördernd',
+    'Fenchol': 'Antimikrobiell, antioxidativ',
+    'Borneol': 'Schmerzlindernd, antibakteriell',
+    'Campher': 'Analgetisch, antioxidativ',
+    'Camphor': 'Analgetisch, antioxidativ',
+    'Geraniol': 'Antimikrobiell, neuroprotektiv',
+    'Valencen': 'Aufheiternd, erfrischend',
+    'Valencene': 'Aufheiternd, erfrischend',
+  };
+  
+  return effects[terpene] || 'Unterstützt die Entourage-Wirkung';
 };
 
 // Function to parse percentage values from strings

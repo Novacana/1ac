@@ -1,7 +1,7 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { getTerpeneColor, parsePercentage } from "./utils";
+import { getTerpeneColor, parsePercentage, getTerpeneEffect } from "./utils";
 import { Product } from "@/types/product";
 
 interface TerpeneProfileProps {
@@ -15,7 +15,8 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   const terpeneData = product.terpenes.map((terpene) => ({
     name: terpene.name,
     value: parsePercentage(terpene.percentage),
-    color: getTerpeneColor(terpene.name)
+    color: getTerpeneColor(terpene.name),
+    effect: getTerpeneEffect(terpene.name)
   }));
 
   const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
@@ -26,44 +27,64 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         <h4 className="text-xs font-medium">Terpene</h4>
         <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
-      <div className="h-[100px] relative">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={terpeneData}
-              cx="50%"
-              cy="50%"
-              innerRadius={20}
-              outerRadius={38}
-              paddingAngle={2}
-              dataKey="value"
-              animationDuration={1500}
-              animationBegin={300}
-              stroke="none"
-              strokeWidth={1}
-            >
-              {terpeneData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={entry.color} 
-                  style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}
-                />
-              ))}
-            </Pie>
-            <Tooltip 
-              formatter={(value) => [`${value}%`, 'Konzentration']}
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-                borderRadius: '8px',
-                fontSize: '10px',
-                padding: '6px 10px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                border: 'none'
-              }}
-              wrapperStyle={{ outline: 'none' }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className="flex items-start">
+        <div className="h-[100px] relative w-1/2">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={terpeneData}
+                cx="50%"
+                cy="50%"
+                innerRadius={20}
+                outerRadius={38}
+                paddingAngle={2}
+                dataKey="value"
+                animationDuration={1500}
+                animationBegin={300}
+                stroke="none"
+                strokeWidth={1}
+              >
+                {terpeneData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color} 
+                    style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.05))' }}
+                  />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value) => [`${value}%`, 'Konzentration']}
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                  borderRadius: '8px',
+                  fontSize: '10px',
+                  padding: '6px 10px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  border: 'none'
+                }}
+                wrapperStyle={{ outline: 'none' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        
+        {/* Terpene effects */}
+        <div className="ml-2 w-1/2">
+          <div className="text-[9px] text-foreground/70 h-[100px] overflow-y-auto">
+            {terpeneData.map((terpene, index) => (
+              <div key={index} className="mb-1.5 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <div className="flex items-center">
+                  <div 
+                    className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
+                    style={{ backgroundColor: terpene.color }}
+                  />
+                  <span className="font-medium">{terpene.name}</span>
+                </div>
+                <div className="pl-2.5 leading-tight">{terpene.effect}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       
       {/* Compact legend */}
@@ -74,7 +95,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
               className="w-1.5 h-1.5 rounded-full mr-0.5 flex-shrink-0"
               style={{ 
                 backgroundColor: terpene.color,
-                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
               }}
             />
             <span className="font-medium whitespace-nowrap">{terpene.name}</span>
