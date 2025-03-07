@@ -70,7 +70,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "absolute top-4 left-4 z-10 bg-background/80 backdrop-blur-md rounded-lg p-4 shadow-lg border border-primary/20",
+        "absolute top-4 left-4 z-10 bg-background/60 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-primary/10",
         "w-64 max-w-[calc(100%-2rem)] transition-all duration-500",
         "lg:w-72",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
