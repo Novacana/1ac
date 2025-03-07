@@ -30,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
       <MobileNavDots />
       <main
         className={cn(
-          "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in",
+          "flex-1 md:pt-28 md:px-8 pt-16 pb-16 animate-fade-in max-w-7xl mx-auto w-full",
           className
         )}
       >
