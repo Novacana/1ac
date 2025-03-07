@@ -21,7 +21,7 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
   request,
   onUpdate
 }) => {
-  const [status, setStatus] = useState(request.status);
+  const [status, setStatus] = useState<'pending' | 'approved' | 'rejected' | 'needs_more_info'>(request.status);
   const [doctorNotes, setDoctorNotes] = useState(request.doctorNotes || '');
   const [prescription, setPrescription] = useState(request.prescription || {
     id: `presc-${Date.now()}`,
@@ -91,6 +91,12 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle status change with proper type casting
+  const handleStatusChange = (value: string) => {
+    // Cast the string value to the specific status type
+    setStatus(value as 'pending' | 'approved' | 'rejected' | 'needs_more_info');
   };
 
   return (
@@ -190,7 +196,7 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
               <Label htmlFor="status">Status aktualisieren</Label>
               <Select 
                 value={status} 
-                onValueChange={setStatus}
+                onValueChange={handleStatusChange}
               >
                 <SelectTrigger id="status">
                   <SelectValue placeholder="Status auswählen" />
