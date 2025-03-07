@@ -82,9 +82,13 @@ const Index = () => {
     <Layout>
       <section className="py-12 md:py-16">
         <div className="container px-4 mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slide-down">
-            1A Cannabis Shop
-          </h1>
+          <div className="flex justify-center mb-4 animate-slide-down">
+            <img 
+              src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
+              alt="1A Cannabis Logo" 
+              className="h-20 w-auto" 
+            />
+          </div>
           <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
             High-quality medical cannabis products prescribed by licensed physicians, 
             delivered discreetly to your door.
