@@ -17,7 +17,10 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
   const [hovered, setHovered] = useState(false);
   
   // Position the product at the center when active, otherwise to the side
-  const position = isActive ? [0, 0, 0] : [isActive ? 0 : index > 0 ? 5 : -5, 0, 0];
+  // Use proper THREE.Vector3 format or fixed-length tuples for position
+  const position: [number, number, number] = isActive 
+    ? [0, 0, 0] 
+    : [isActive ? 0 : index > 0 ? 5 : -5, 0, 0];
   
   // Rotate the product
   useFrame((state) => {
