@@ -52,44 +52,48 @@ export const loadProductsFromAllSources = async (
     console.error("Error importing local products:", importError);
   }
   
-  // Check if WooCommerce is configured
-  if (isWooCommerceConfigured()) {
-    console.log("WooCommerce is configured, fetching products...");
-    
-    try {
-      const wooProducts = await fetchWooCommerceProducts(selectedCategory);
+  // Try to load WooCommerce products
+  try {
+    if (isWooCommerceConfigured()) {
+      console.log("WooCommerce is configured, fetching products...");
       
-      if (wooProducts && wooProducts.length > 0) {
-        console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+      try {
+        const wooProducts = await fetchWooCommerceProducts(selectedCategory);
         
-        // Add WooCommerce products to combined list
-        allProducts = [...allProducts, ...wooProducts];
-        wooCommerceProductCount = wooProducts.length;
-        
-        // Update data source indicator
-        if (localProductCount > 0 && wooCommerceProductCount > 0) {
-          dataSource = "combined";
-          console.log(`Using combined data source with ${localProductCount} local and ${wooCommerceProductCount} WooCommerce products`);
-        } else if (allProducts.length === wooCommerceProductCount) {
-          dataSource = "woocommerce";
-          console.log(`Using WooCommerce data source with ${wooCommerceProductCount} products`);
+        if (wooProducts && wooProducts.length > 0) {
+          console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+          
+          // Add WooCommerce products to combined list
+          allProducts = [...allProducts, ...wooProducts];
+          wooCommerceProductCount = wooProducts.length;
+          
+          // Update data source indicator
+          if (localProductCount > 0 && wooCommerceProductCount > 0) {
+            dataSource = "combined";
+            console.log(`Using combined data source with ${localProductCount} local and ${wooCommerceProductCount} WooCommerce products`);
+          } else if (wooCommerceProductCount > 0) {
+            dataSource = "woocommerce";
+            console.log(`Using WooCommerce data source with ${wooCommerceProductCount} products`);
+          }
+          
+          // Show toast notification on successful load
+          if (!alreadyLoaded) {
+            toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+          }
+        } else {
+          console.log("No products found in WooCommerce");
         }
-        
-        // Show toast notification on successful load
+      } catch (wooError) {
+        console.error("Error fetching WooCommerce products:", wooError);
         if (!alreadyLoaded) {
-          toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+          toast.error("Failed to load WooCommerce products");
         }
-      } else {
-        console.log("No products found in WooCommerce");
       }
-    } catch (wooError) {
-      console.error("Error fetching WooCommerce products:", wooError);
-      if (!alreadyLoaded) {
-        toast.error("Failed to load WooCommerce products");
-      }
+    } else {
+      console.log("WooCommerce is not configured");
     }
-  } else {
-    console.log("WooCommerce is not configured");
+  } catch (error) {
+    console.error("Error processing WooCommerce products:", error);
   }
   
   console.log(`Total products loaded: ${allProducts.length} (${dataSource})`);

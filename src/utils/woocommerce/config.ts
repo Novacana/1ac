@@ -42,12 +42,8 @@ export const loadWooCommerceConfig = (): WooCommerceConfig | null => {
  * Check if WooCommerce is configured
  */
 export const isWooCommerceConfigured = (): boolean => {
-  // For testing purposes, this will return true so we can show mock WooCommerce products
+  // For testing and demo purposes, always return true
   return true;
-  
-  // In production, we would use this code to check actual configuration:
-  // const config = getWooCommerceConfig();
-  // return Boolean(config.url && config.consumerKey && config.consumerSecret);
 };
 
 /**
