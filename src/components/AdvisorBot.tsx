@@ -1,4 +1,4 @@
-
+<lov-code>
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff, ChevronUp, Search, ShoppingCart, Book, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ const productKnowledgeBase = products.map(p => ({
   benefits: p.benefits,
   thcContent: p.thc,
   cbdContent: p.cbd,
-  terpenoids: p.terpenoids,
+  terpenes: p.terpenes,
   flavors: p.flavors
 }));
 
@@ -318,7 +318,7 @@ const ProductAdvisor = () => {
         (p.category && p.category.toLowerCase().includes(lowerQuery)) ||
         (p.effects && p.effects.some(e => e.toLowerCase().includes(lowerQuery))) ||
         (p.benefits && p.benefits.some(b => b.toLowerCase().includes(lowerQuery))) ||
-        (p.terpenoids && p.terpenoids.some(t => t.name.toLowerCase().includes(lowerQuery)))
+        (p.terpenes && p.terpenes.some(t => t.name.toLowerCase().includes(lowerQuery)))
       );
       
       if (matchedProducts.length > 3) {
@@ -332,7 +332,7 @@ const ProductAdvisor = () => {
     },
     
     showProductDetails: (productId: string | number) => {
-      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      const id = typeof productId === 'number' ? productId : productId;
       const product = products.find(p => p.id === id);
       
       if (product) {
@@ -347,7 +347,7 @@ const ProductAdvisor = () => {
     },
     
     addToCart: (productId: string | number, quantity: number = 1) => {
-      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      const id = typeof productId === 'number' ? productId : productId;
       const product = products.find(p => p.id === id);
       
       if (product) {
@@ -383,7 +383,7 @@ const ProductAdvisor = () => {
         // Extract product ID if available
         const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
         if (productIdMatch && productIdMatch[1]) {
-          return { tool: 'showProductDetails', params: parseInt(productIdMatch[1]) };
+          return { tool: 'showProductDetails', params: productIdMatch[1] };
         }
       }
       if (lowerMessage.includes('produkte') || lowerMessage.includes('produktseite')) {
@@ -447,7 +447,7 @@ const ProductAdvisor = () => {
       const quantityMatch = lowerMessage.match(/(\d+)\s*stück/i);
       
       if (productIdMatch && productIdMatch[1]) {
-        const productId = parseInt(productIdMatch[1]);
+        const productId = productIdMatch[1];
         const quantity = quantityMatch && quantityMatch[1] ? parseInt(quantityMatch[1]) : 1;
         return { tool: 'addToCart', params: { productId, quantity } };
       }
@@ -462,7 +462,7 @@ const ProductAdvisor = () => {
       // Extract product ID if available
       const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
       if (productIdMatch && productIdMatch[1]) {
-        return { tool: 'showProductDetails', params: parseInt(productIdMatch[1]) };
+        return { tool: 'showProductDetails', params: productIdMatch[1] };
       }
     }
     
@@ -811,51 +811,4 @@ const ProductAdvisor = () => {
                   variant={isListening ? "destructive" : "default"}
                   size="sm"
                   onClick={toggleListening}
-                  className="w-full h-10 rounded-full gap-2"
-                >
-                  {isListening ? (
-                    <>
-                      <div className="relative">
-                        <Mic className="h-5 w-5" />
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
-                      </div>
-                      <span>Zuhören... (Klick zum Stoppen)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-5 w-5" />
-                      <span>Drücke zum Sprechen</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              <div className="flex items-center justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleVoice}
-                  className="flex items-center gap-2 justify-center"
-                >
-                  {isVoiceEnabled ? (
-                    <>
-                      <Volume2 className="h-4 w-4" />
-                      <span>Stimme: An</span>
-                    </>
-                  ) : (
-                    <>
-                      <VolumeX className="h-4 w-4" />
-                      <span>Stimme: Aus</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </>
-  );
-};
-
-export default ProductAdvisor;
+                  className
