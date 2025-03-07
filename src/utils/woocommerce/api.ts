@@ -1,3 +1,4 @@
+
 import { WooCommerceProduct } from "@/types/woocommerce";
 import { Product } from "@/types/product";
 import { isWooCommerceConfigured, getWooCommerceConfig } from "./config";
@@ -13,13 +14,14 @@ export const fetchWooCommerceProducts = async (category?: string): Promise<Produ
     return [];
   }
 
-  // For testing purposes - return mock WooCommerce products
-  // In production, this would fetch from the actual WooCommerce API
+  console.log('Fetching mock WooCommerce products...');
+  // Return mock WooCommerce products
   return getMockWooCommerceProducts();
 };
 
 // Helper function to generate mock WooCommerce products
 function getMockWooCommerceProducts(): Product[] {
+  console.log('Generating mock WooCommerce products');
   return [
     {
       id: 'woo-1',

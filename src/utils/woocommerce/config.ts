@@ -1,3 +1,4 @@
+
 import { WooCommerceConfig } from "@/types/woocommerce";
 
 // Default WooCommerce API configuration
@@ -39,12 +40,14 @@ export const loadWooCommerceConfig = (): WooCommerceConfig | null => {
 
 /**
  * Check if WooCommerce is configured
- * For testing purposes, we'll hard-code this to return true
  */
 export const isWooCommerceConfigured = (): boolean => {
-  // For testing purposes to force showing combined product sources
-  // In production, this should check for actual configuration
+  // For testing purposes, this will return true so we can show mock WooCommerce products
   return true;
+  
+  // In production, we would use this code to check actual configuration:
+  // const config = getWooCommerceConfig();
+  // return Boolean(config.url && config.consumerKey && config.consumerSecret);
 };
 
 /**

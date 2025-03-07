@@ -36,12 +36,15 @@ export const useProductLoader = ({
       setError(null);
       
       try {
+        console.log(`Loading products for category: ${selectedCategory}`);
         const { allProducts, dataSource } = await loadProductsFromAllSources(selectedCategory, loadedRef.current);
         
-        console.log(`Combined and filtered to ${allProducts.length} products for category ${selectedCategory}`);
+        console.log(`Combined ${allProducts.length} products for category ${selectedCategory}`);
         
-        // Filter products by selected category
-        let filteredProducts = filterProductsByCategory(allProducts, selectedCategory);
+        // Filter products by selected category if not "All"
+        let filteredProducts = selectedCategory.toLowerCase() === "all" 
+          ? allProducts 
+          : filterProductsByCategory(allProducts, selectedCategory);
         
         // Remove potential duplicates (by ID)
         const uniqueProducts = removeDuplicateProducts(filteredProducts);

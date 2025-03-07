@@ -25,6 +25,8 @@ export const loadProductsFromAllSources = async (
   let wooCommerceProductCount = 0;
   let localProductCount = 0;
   
+  console.log(`Loading products from all sources for category "${selectedCategory}"`);
+  
   // Always load local products first
   try {
     // Import directly to ensure we get the latest data
@@ -50,12 +52,12 @@ export const loadProductsFromAllSources = async (
     console.error("Error importing local products:", importError);
   }
   
-  // Always try to fetch products from WooCommerce, regardless of whether local products were found
+  // Check if WooCommerce is configured
   if (isWooCommerceConfigured()) {
-    console.log("Fetching products from WooCommerce integration");
+    console.log("WooCommerce is configured, fetching products...");
     
     try {
-      const wooProducts = await fetchWooCommerceProducts();
+      const wooProducts = await fetchWooCommerceProducts(selectedCategory);
       
       if (wooProducts && wooProducts.length > 0) {
         console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
@@ -67,8 +69,10 @@ export const loadProductsFromAllSources = async (
         // Update data source indicator
         if (localProductCount > 0 && wooCommerceProductCount > 0) {
           dataSource = "combined";
+          console.log(`Using combined data source with ${localProductCount} local and ${wooCommerceProductCount} WooCommerce products`);
         } else if (allProducts.length === wooCommerceProductCount) {
           dataSource = "woocommerce";
+          console.log(`Using WooCommerce data source with ${wooCommerceProductCount} products`);
         }
         
         // Show toast notification on successful load
@@ -88,5 +92,6 @@ export const loadProductsFromAllSources = async (
     console.log("WooCommerce is not configured");
   }
   
+  console.log(`Total products loaded: ${allProducts.length} (${dataSource})`);
   return { allProducts, dataSource };
 };
