@@ -3,7 +3,6 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import CategoryPill from "@/components/CategoryPill";
-import ProductCarousel3D from "@/components/ProductCarousel3D";
 import { cn } from "@/lib/utils";
 
 // Sample data - in a real app this would come from an API
@@ -72,55 +71,6 @@ const products = [
   },
 ];
 
-// Enhanced cannabis flower products with better images for the 3D carousel
-const featuredFlowers = [
-  {
-    id: "f1",
-    name: "Purple Haze",
-    price: 52.99,
-    image: "https://images.unsplash.com/photo-1589140915708-20ff586fe767?q=80&w=2274&auto=format&fit=crop",
-    thc: "22%",
-    cbd: "0.3%",
-    category: "Flowers",
-  },
-  {
-    id: "f2",
-    name: "Sunset Sherbet",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1600304994768-f0ef3449d7c3?q=80&w=3270&auto=format&fit=crop",
-    thc: "19%",
-    cbd: "0.5%",
-    category: "Flowers",
-  },
-  {
-    id: "f3",
-    name: "Northern Lights",
-    price: 54.99,
-    image: "https://images.unsplash.com/photo-1509929157621-38de7f8454e0?q=80&w=2670&auto=format&fit=crop",
-    thc: "21%",
-    cbd: "0.2%",
-    category: "Flowers",
-  },
-  {
-    id: "f4",
-    name: "OG Kush",
-    price: 55.99,
-    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
-    thc: "24%",
-    cbd: "0.1%",
-    category: "Flowers",
-  },
-  {
-    id: "f5",
-    name: "Blue Dream",
-    price: 48.99,
-    image: "https://images.unsplash.com/photo-1605001048088-f358f7ab01be?q=80&w=3269&auto=format&fit=crop",
-    thc: "18%",
-    cbd: "0.8%",
-    category: "Flowers",
-  },
-];
-
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -148,22 +98,19 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 3D Carousel Section */}
-      <section className="py-12 bg-gradient-to-b from-background to-primary/5">
-        <div className="container px-4 mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8 animate-slide-up">
-            Featured Cannabis Flowers
-          </h2>
-          <ProductCarousel3D products={featuredFlowers} className="mb-12" />
-        </div>
-      </section>
-
-      {/* Product Grid Section */}
-      <section className="py-12">
+      <section className="py-12 md:py-16">
         <div className="container px-4 mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-8 animate-slide-up">
-            All Products
-          </h2>
+          <div className="flex justify-center mb-4 animate-slide-down">
+            <img 
+              src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
+              alt="1A Cannabis Logo" 
+              className="h-32 w-auto" 
+            />
+          </div>
+          <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
+            High-quality medical cannabis products prescribed by licensed physicians, 
+            delivered discreetly to your door.
+          </p>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product, index) => (
