@@ -11,7 +11,8 @@ import {
   Coffee, 
   Wheat,
   Candy,
-  IceCream
+  IceCream,
+  TreePine
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ const getFlavorIcon = (flavor: string) => {
       return <Wheat className="h-3 w-3" />;
     case "Kiefer":
     case "Pine":
-      return <Leaf className="h-3 w-3" />;
+      return <TreePine className="h-3 w-3" />;
     case "Würzig":
     case "Spicy":
       return <Coffee className="h-3 w-3" />;
