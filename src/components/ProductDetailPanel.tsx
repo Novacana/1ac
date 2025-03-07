@@ -25,7 +25,7 @@ const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
     <div 
       className={cn(
         "rounded-lg p-3 transition-all duration-500 max-w-[180px]",
-        "bg-white/80 dark:bg-black/60 backdrop-blur-md border border-primary/10",
+        "backdrop-blur-[2px] border border-primary/10",
         "ml-auto", // Align to the right
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
