@@ -17,7 +17,6 @@ const Products = () => {
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
   const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [isDataLoading, setIsDataLoading] = useState(true);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -37,12 +36,6 @@ const Products = () => {
     setAllProducts(products);
     setFilteredProducts(products);
     setDataSource(source);
-    setIsDataLoading(false);
-    
-    // Check for empty products
-    if (products.length === 0) {
-      toast.warning("Keine Produkte gefunden");
-    }
     
     // Pre-load images to check for errors
     products.forEach(product => {
@@ -79,7 +72,7 @@ const Products = () => {
       }
       
       // Filter by THC (skip for accessories which don't have THC)
-      if (product.category !== "Accessories" && product.category !== "Zubehör" && product.category !== "Merchandise") {
+      if (product.category !== "Accessories" && product.category !== "Zubehör") {
         const thcValue = parseThcPercentage(product.thc);
         if (thcValue < filters.thcRange[0] || thcValue > filters.thcRange[1]) {
           return false;
@@ -125,11 +118,8 @@ const Products = () => {
           <DataSourceIndicator dataSource={dataSource} />
         </div>
         
-        {isDataLoading ? (
-          <div>
-            <LoadingState />
-            <p className="text-center text-muted-foreground mt-4">Produkte werden geladen...</p>
-          </div>
+        {dataSource === "loading" ? (
+          <LoadingState />
         ) : (
           <>
             <Filters 
