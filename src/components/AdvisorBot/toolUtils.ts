@@ -49,13 +49,14 @@ export const createWebTools = (navigate: ReturnType<typeof useNavigate>, toast: 
     },
     
     showProductDetails: (productId: string | number) => {
-      // Fix: Convert string productId to number before comparison
-      const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
-      const product = products.find(p => p.id === id);
+      // Convert productId to a string for comparison since product IDs in data are strings
+      const stringId = productId.toString();
+      // Find product by string ID comparison
+      const product = products.find(p => p.id === stringId);
       
       if (product) {
         setTimeout(() => {
-          navigate(`/product/${id}`);
+          navigate(`/product/${stringId}`);
         }, 1000);
         return `Ich zeige dir Details zu ${product.name}`;
       }
@@ -64,9 +65,10 @@ export const createWebTools = (navigate: ReturnType<typeof useNavigate>, toast: 
     },
     
     addToCart: (productId: string | number, quantity: number = 1) => {
-      // Fix: Convert string productId to number before comparison
-      const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
-      const product = products.find(p => p.id === id);
+      // Convert productId to a string for comparison since product IDs in data are strings
+      const stringId = productId.toString();
+      // Find product by string ID comparison
+      const product = products.find(p => p.id === stringId);
       
       if (product) {
         // Normally we would call a cart context function here
