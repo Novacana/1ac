@@ -1,15 +1,64 @@
 
-import { useState, useRef } from "react";
-import { Bot, X, Send, User, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Bot, X, Send, User, Loader2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  products?: Product[];
 }
+
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  category: string;
+}
+
+// Sample product data (in a real app this would come from your database)
+const products = [
+  {
+    id: "1",
+    name: "Medical Cannabis Flower",
+    price: 49.99,
+    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
+    category: "Flowers",
+  },
+  {
+    id: "2",
+    name: "CBD Oil Tincture",
+    price: 39.99,
+    image: "https://images.unsplash.com/photo-1556928045-16f7f50be0f3?q=80&w=2787&auto=format&fit=crop",
+    category: "Oils",
+  },
+  {
+    id: "3",
+    name: "THC Vape Cartridge",
+    price: 34.99,
+    image: "https://images.unsplash.com/photo-1625657799852-21d67cc39319?q=80&w=2787&auto=format&fit=crop",
+    category: "Vapes",
+  },
+  {
+    id: "4",
+    name: "Hemp-Infused Body Cream",
+    price: 29.99,
+    image: "https://images.unsplash.com/photo-1607621048318-c2d5bdc0ee39?q=80&w=2940&auto=format&fit=crop",
+    category: "Topicals",
+  },
+  {
+    id: "5",
+    name: "Cannabis-Infused Gummies",
+    price: 24.99,
+    image: "https://images.unsplash.com/photo-1625517236224-4ab37a6425cb?q=80&w=2848&auto=format&fit=crop",
+    category: "Edibles",
+  }
+];
 
 const ProductAdvisor = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +76,13 @@ const ProductAdvisor = () => {
     setIsOpen(!isOpen);
   };
 
+  useEffect(() => {
+    // Scroll to bottom whenever messages change
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   const handleSend = async () => {
     if (input.trim() === "" || isLoading) return;
 
@@ -35,42 +91,51 @@ const ProductAdvisor = () => {
     setInput("");
     setIsLoading(true);
 
-    // Scroll to bottom
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-
     try {
       // Simulate AI response (in a real app, this would be an API call)
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Demo responses based on user input keywords
       let botResponse = "";
+      let recommendedProducts: Product[] = [];
       const userQuery = input.toLowerCase();
       
       if (userQuery.includes("schmerz") || userQuery.includes("pain")) {
-        botResponse = "Für Schmerzpatienten empfehle ich insbesondere unsere CBD Öl Tinktur, die entzündungshemmend wirkt, oder die Medical Cannabis Flower mit 20% THC für stärkere Schmerzen. Bei chronischen Schmerzen sind regelmäßige, niedrige Dosen oft wirksamer als gelegentliche hohe Dosen.";
+        botResponse = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
+        recommendedProducts = [products[0], products[1]]; // Cannabis Flower and CBD Oil
       } else if (userQuery.includes("schlaf") || userQuery.includes("sleep")) {
-        botResponse = "Bei Schlafstörungen sind Produkte mit einem höheren THC-Gehalt wie unsere Medical Cannabis Flower oder THC Vape Cartridge besonders hilfreich. Nimm sie etwa eine Stunde vor dem Schlafengehen ein. CBD kann ebenfalls helfen, indem es Angstzustände reduziert, die Schlafprobleme verursachen könnten.";
+        botResponse = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
+        recommendedProducts = [products[0], products[2]]; // Cannabis Flower and THC Vape
       } else if (userQuery.includes("angst") || userQuery.includes("anxiety")) {
-        botResponse = "Gegen Angstzustände wirkt CBD besonders gut. Unsere CBD Oil Tincture mit 10% CBD und minimalem THC-Gehalt ist hier optimal. Beginne mit einer niedrigen Dosis und steigere sie langsam, bis du die gewünschte Wirkung erzielst.";
+        botResponse = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
+        recommendedProducts = [products[1], products[3]]; // CBD Oil and Body Cream
       } else if (userQuery.includes("appetit") || userQuery.includes("hunger")) {
-        botResponse = "THC-haltige Produkte wie unsere Medical Cannabis Flower oder Cannabis-Infused Gummies können den Appetit anregen. Dies ist besonders hilfreich für Patienten mit krankheitsbedingtem Appetitsverlust.";
-      } else if (userQuery.includes("dosierung") || userQuery.includes("dose")) {
-        botResponse = "Die optimale Dosierung ist individuell verschieden. Beginne immer mit einer niedrigen Dosis (Start low, go slow). Bei Ölen wie unserer CBD Tincture starte mit 1-2 Tropfen, bei Edibles wie den Gummies mit einer halben Portion. Steigere die Dosis langsam, bis du die gewünschte Wirkung erzielst.";
-      } else if (userQuery.includes("unterschied") || userQuery.includes("difference") || userQuery.includes("thc") || userQuery.includes("cbd")) {
-        botResponse = "THC und CBD sind die bekanntesten Cannabinoide. THC hat psychoaktive Wirkungen und hilft bei Schmerzen, Übelkeit und Appetitlosigkeit. CBD ist nicht psychoaktiv, wirkt aber entzündungshemmend, angstlösend und krampflösend. Produkte mit hohem CBD-Gehalt wie unsere CBD Oil Tincture verursachen kein High, während THC-reiche Produkte wie unsere Medical Cannabis Flower psychoaktive Effekte haben.";
-      } else if (userQuery.includes("vape") || userQuery.includes("rauchen") || userQuery.includes("smoke")) {
-        botResponse = "Vaping, wie mit unserer THC Vape Cartridge, bietet eine schnelle Wirkung innerhalb von Minuten, da die Wirkstoffe direkt über die Lunge aufgenommen werden. Die Wirkung hält etwa 2-3 Stunden an. Im Vergleich dazu setzen Edibles wie unsere Cannabis-Infused Gummies langsamer ein (30-90 Minuten), wirken aber länger (4-6 Stunden).";
-      } else if (userQuery.includes("nebenwirkung") || userQuery.includes("side effect")) {
-        botResponse = "Mögliche Nebenwirkungen, besonders bei THC-haltigen Produkten, können Mundtrockenheit, rote Augen, erhöhter Herzschlag, Schwindel oder Paranoia umfassen. Beginne mit einer niedrigen Dosis und steigere langsam. Bei CBD sind Nebenwirkungen selten und mild, können aber Müdigkeit, Durchfall oder Appetitveränderungen einschließen.";
-      } else if (userQuery.includes("legal") || userQuery.includes("erlaubt") || userQuery.includes("rezept")) {
-        botResponse = "Alle unsere Produkte sind für medizinische Zwecke legal, wenn sie von einem Arzt verschrieben wurden. Dr. Ansay stellt sicher, dass alle rechtlichen Anforderungen erfüllt sind. Bei Fragen zur Verschreibung kannst du direkt einen unserer Ärzte konsultieren.";
+        botResponse = "Diese Produkte können den Appetit anregen:";
+        recommendedProducts = [products[0], products[4]]; // Cannabis Flower and Gummies
+      } else if (userQuery.includes("thc")) {
+        botResponse = "Hier sind unsere THC-haltigen Produkte:";
+        recommendedProducts = [products[0], products[2], products[4]]; // Cannabis Flower, THC Vape, and Gummies
+      } else if (userQuery.includes("cbd")) {
+        botResponse = "Hier sind unsere CBD-haltigen Produkte:";
+        recommendedProducts = [products[1], products[3]]; // CBD Oil and Body Cream
+      } else if (userQuery.includes("produkt") || userQuery.includes("empfehl") || userQuery.includes("zeig")) {
+        botResponse = "Hier sind einige unserer beliebtesten Produkte:";
+        recommendedProducts = [...products]; // All products
       } else {
-        botResponse = "Danke für deine Frage! Basierend auf deinen Bedürfnissen empfehle ich dir einen Blick auf unsere Medical Cannabis Flower mit 20% THC für starke therapeutische Wirkung oder die CBD Oil Tincture mit 10% CBD für eine nicht-psychoaktive Alternative. Möchtest du mehr Details zu einem bestimmten Produkt oder Anwendungsgebiet erfahren?";
+        botResponse = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
+        // Pick random 2 products
+        const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 2);
+        recommendedProducts = randomProducts;
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: botResponse }]);
+      setMessages((prev) => [
+        ...prev, 
+        { 
+          role: "assistant", 
+          content: botResponse,
+          products: recommendedProducts
+        }
+      ]);
     } catch (error) {
       console.error("Error processing message:", error);
       setMessages((prev) => [
@@ -79,9 +144,6 @@ const ProductAdvisor = () => {
       ]);
     } finally {
       setIsLoading(false);
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
     }
   };
 
@@ -111,7 +173,7 @@ const ProductAdvisor = () => {
           isOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0 pointer-events-none"
         )}
       >
-        <Card className="border shadow-lg overflow-hidden flex flex-col h-[500px]">
+        <Card className="border shadow-lg overflow-hidden flex flex-col h-[600px]">
           <div className="p-3 bg-primary text-primary-foreground flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
@@ -126,26 +188,60 @@ const ProductAdvisor = () => {
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={cn(
-                  "flex flex-col max-w-[85%] rounded-lg p-3 animate-slide-up", 
-                  message.role === "assistant" 
-                    ? "bg-secondary text-secondary-foreground self-start rounded-tl-none" 
-                    : "bg-primary text-primary-foreground self-end rounded-br-none"
-                )}
+                className="animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                  {message.role === "assistant" ? (
-                    <>
-                      <Bot className="h-3 w-3" /> Berater
-                    </>
-                  ) : (
-                    <>
-                      <User className="h-3 w-3" /> Du
-                    </>
+                <div 
+                  className={cn(
+                    "flex flex-col max-w-[85%] rounded-lg p-3", 
+                    message.role === "assistant" 
+                      ? "bg-secondary text-secondary-foreground self-start rounded-tl-none" 
+                      : "bg-primary text-primary-foreground self-end rounded-br-none"
                   )}
+                >
+                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                    {message.role === "assistant" ? (
+                      <>
+                        <Bot className="h-3 w-3" /> Berater
+                      </>
+                    ) : (
+                      <>
+                        <User className="h-3 w-3" /> Du
+                      </>
+                    )}
+                  </div>
+                  {message.content}
                 </div>
-                {message.content}
+
+                {/* Product recommendations */}
+                {message.products && message.products.length > 0 && (
+                  <div className="mt-2 grid gap-2 max-w-[90%]">
+                    {message.products.map((product) => (
+                      <Link 
+                        to={`/product/${product.id}`}
+                        key={product.id}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-200 animate-scale-in"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+                          <div className="flex justify-between items-center mt-0.5">
+                            <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{product.category}</span>
+                            <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (

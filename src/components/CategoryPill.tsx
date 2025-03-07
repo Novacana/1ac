@@ -1,12 +1,13 @@
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import React from "react";
 
-interface CategoryPillProps {
+export interface CategoryPillProps {
   label: string;
   active?: boolean;
   onClick?: () => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const CategoryPill: React.FC<CategoryPillProps> = ({
@@ -14,21 +15,23 @@ const CategoryPill: React.FC<CategoryPillProps> = ({
   active = false,
   onClick,
   className,
+  style
 }) => {
   return (
-    <button
+    <Button
+      variant={active ? "default" : "outline"}
+      size="sm"
       onClick={onClick}
       className={cn(
-        "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 animate-slide-up",
-        "hover:shadow-sm border border-transparent",
-        active
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        "rounded-full transition-all duration-200",
+        "hover:shadow-md",
+        active && "font-medium",
         className
       )}
+      style={style}
     >
       {label}
-    </button>
+    </Button>
   );
 };
 
