@@ -1,11 +1,14 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ShoppingCart, ArrowLeft, Minus, Plus, Check } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import BackToProducts from "./product/BackToProducts";
+import ProductImages from "./product/ProductImages";
+import ProductHeader from "./product/ProductHeader";
+import ProductDescription from "./product/ProductDescription";
+import ProductBenefits from "./product/ProductBenefits";
+import ProductEffects from "./product/ProductEffects";
+import ProductUsage from "./product/ProductUsage";
+import ProductQuantity from "./product/ProductQuantity";
 
 export interface ProductDetailProps {
   id: string;
@@ -41,9 +44,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   use,
   effects,
 }) => {
-  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const { t } = useLanguage();
 
@@ -64,176 +65,40 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   return (
     <div className="animate-fade-in">
       <div className="container px-4 mx-auto pt-6 pb-8">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:text-primary mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          {t("back_to_products")}
-        </Link>
+        <BackToProducts />
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-square relative overflow-hidden rounded-xl border border-border/40 bg-card">
-              <div
-                className={cn(
-                  "absolute inset-0 bg-card/20 backdrop-blur-sm flex items-center justify-center z-0 transition-opacity duration-300",
-                  isImageLoaded ? "opacity-0" : "opacity-100"
-                )}
-              >
-                <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
-              </div>
-              <img
-                src={images[selectedImage]}
-                alt={name}
-                className={cn(
-                  "w-full h-full object-cover transition-opacity duration-500",
-                  isImageLoaded ? "opacity-100" : "opacity-0"
-                )}
-                onLoad={() => setIsImageLoaded(true)}
-              />
-            </div>
-
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-                {images.map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={cn(
-                      "shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all duration-200 snap-start",
-                      selectedImage === index
-                        ? "border-primary"
-                        : "border-transparent hover:border-primary/30"
-                    )}
-                  >
-                    <img
-                      src={img}
-                      alt={`${name} thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductImages images={images} name={name} />
 
           {/* Product Info */}
           <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-secondary text-xs px-3 py-1 rounded-full text-secondary-foreground">
-                  {category}
-                </span>
-                {(thc || cbd) && (
-                  <span className="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full">
-                    {thc && `THC: ${thc}`}
-                    {thc && cbd && " | "}
-                    {cbd && `CBD: ${cbd}`}
-                  </span>
-                )}
-              </div>
-              <h1 className="text-3xl font-bold">{name}</h1>
-              <p className="text-2xl font-bold mt-2">€{price.toFixed(2)}</p>
-            </div>
+            <ProductHeader 
+              name={name} 
+              price={price} 
+              category={category} 
+              thc={thc} 
+              cbd={cbd} 
+            />
 
-            <p className="text-foreground/80 leading-relaxed">{description}</p>
+            <ProductDescription description={description} />
 
             {/* Benefits */}
-            {benefits?.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">{t("benefits")}</h3>
-                <ul className="space-y-1">
-                  {benefits.map((benefit, index) => (
-                    <li
-                      key={index}
-                      className="flex items-start gap-2 text-sm animate-slide-up"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <ProductBenefits benefits={benefits} />
 
             {/* Effects */}
-            {effects?.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">{t("effects")}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {effects.map((effect, index) => (
-                    <span
-                      key={index}
-                      className="bg-secondary text-secondary-foreground text-xs px-3 py-1 rounded-full animate-scale-in"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      {effect}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            <ProductEffects effects={effects} />
 
             {/* How to use */}
-            {use && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">{t("how_to_use")}</h3>
-                <p className="text-sm text-foreground/80">{use}</p>
-              </div>
-            )}
+            <ProductUsage use={use} />
 
             {/* Quantity and Add to Cart */}
-            <div className="pt-4 space-y-6">
-              <div className="flex items-center">
-                <span className="mr-4">{t("quantity")}</span>
-                <div className="flex items-center border border-input rounded-md">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                    className="h-9 w-9 rounded-none"
-                  >
-                    <Minus className="h-3 w-3" />
-                    <span className="sr-only">{t("decrease_quantity")}</span>
-                  </Button>
-
-                  <span className="w-12 text-center">{quantity}</span>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= 10}
-                    className="h-9 w-9 rounded-none"
-                  >
-                    <Plus className="h-3 w-3" />
-                    <span className="sr-only">{t("increase_quantity")}</span>
-                  </Button>
-                </div>
-              </div>
-
-              <Button
-                className="w-full transition-all duration-300"
-                onClick={handleAddToCart}
-                disabled={addedToCart}
-              >
-                {addedToCart ? (
-                  <>
-                    <Check className="h-5 w-5 mr-2" />
-                    {t("added_to_cart")}
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    {t("add_to_cart")}
-                  </>
-                )}
-              </Button>
-            </div>
+            <ProductQuantity 
+              quantity={quantity}
+              onQuantityChange={handleQuantityChange}
+              onAddToCart={handleAddToCart}
+              addedToCart={addedToCart}
+            />
           </div>
         </div>
       </div>
