@@ -1,37 +1,45 @@
 
-// Helper function to get colors for different terpenes (more subtle palette)
+// Helper function to get colors for different terpenes (individual colors for each)
 export const getTerpeneColor = (terpene: string): string => {
   const colors: Record<string, string> = {
-    'Myrcen': '#F2FCE2', // Soft Green
-    'Limonen': '#FEF7CD', // Soft Yellow
-    'Limonene': '#FEF7CD', // Soft Yellow
-    'Caryophyllen': '#FEC6A1', // Soft Orange
-    'Caryophyllene': '#FEC6A1', // Soft Orange
-    'Pinen': '#D3E4FD', // Soft Blue
-    'Pinene': '#D3E4FD', // Soft Blue
-    'Linalool': '#E5DEFF', // Soft Purple
-    'Terpinolen': '#D3E4FD', // Soft Blue
-    'Terpinolene': '#D3E4FD', // Soft Blue
-    'Ocimen': '#FFDEE2', // Soft Pink
-    'Ocimene': '#FFDEE2', // Soft Pink
-    'Humulen': '#FDE1D3', // Soft Peach
-    'Humulene': '#FDE1D3', // Soft Peach
-    'Bisabolol': '#E5DEFF', // Soft Lavender
-    'Nerolidol': '#E5DEFF', // Soft Purple
-    'Terpineol': '#F2FCE2', // Soft Green
-    'Eucalyptol': '#D3E4FD', // Soft Cyan
-    'Fenchol': '#F2FCE2', // Soft Green
-    'Borneol': '#F1F0FB', // Soft Gray
-    'Campher': '#FEF7CD', // Soft Amber
-    'Camphor': '#FEF7CD', // Soft Amber
-    'Geraniol': '#FFDEE2', // Soft Pink
-    'Valencen': '#FEC6A1', // Soft Orange
-    'Valencene': '#FEC6A1', // Soft Orange
+    'Myrcen': '#E8F5E9',     // Light green
+    'Limonen': '#FFF8E1',    // Light yellow
+    'Limonene': '#FFF8E1',   // Light yellow (English name)
+    'Caryophyllen': '#FFE0B2', // Light orange
+    'Caryophyllene': '#FFE0B2', // Light orange (English name)
+    'Pinen': '#E3F2FD',      // Light blue
+    'Pinene': '#E3F2FD',     // Light blue (English name)
+    'Linalool': '#F3E5F5',   // Light purple
+    'Terpinolen': '#E1F5FE', // Light cyan
+    'Terpinolene': '#E1F5FE', // Light cyan (English name)
+    'Ocimen': '#FCE4EC',     // Light pink
+    'Ocimene': '#FCE4EC',    // Light pink (English name)
+    'Humulen': '#FBE9E7',    // Light peach
+    'Humulene': '#FBE9E7',   // Light peach (English name)
+    'Bisabolol': '#EDE7F6',  // Light lavender
+    'Nerolidol': '#E8EAF6',  // Light indigo
+    'Terpineol': '#F1F8E9',  // Fresh light green
+    'Eucalyptol': '#E0F7FA', // Light teal
+    'Fenchol': '#F9FBE7',    // Light lime
+    'Borneol': '#FAFAFA',    // Light gray
+    'Campher': '#FFF3E0',    // Light amber
+    'Camphor': '#FFF3E0',    // Light amber (English name)
+    'Geraniol': '#FFEBEE',   // Light red
+    'Valencen': '#FFF3E0',   // Light deep orange
+    'Valencene': '#FFF3E0',  // Light deep orange (English name)
   };
   
   // If the terpene isn't in our map, generate a consistent color based on the name
   if (!colors[terpene]) {
-    return '#F1F0FB'; // Default to soft gray for unknown terpenes
+    // Simple hash function to generate consistent colors for unknown terpenes
+    let hash = 0;
+    for (let i = 0; i < terpene.length; i++) {
+      hash = terpene.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Generate a light pastel color
+    const h = hash % 360;
+    return `hsl(${h}, 70%, 92%)`; // High lightness for subtle colors
   }
   
   return colors[terpene];
