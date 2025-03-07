@@ -22,26 +22,24 @@ const Index = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
   return (
-    <Layout noContainer>
-      <div className="w-full">
-        <CategoryFilter 
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-        
-        <ProductDataLoader
-          selectedCategory={selectedCategory}
-          onProductsLoaded={setFilteredProducts}
-        />
-        
-        <CarouselSection 
-          products={filteredProducts}
-          selectedCategory={selectedCategory}
-        />
-        
-        <FeaturesSection fullWidth />
-      </div>
+    <Layout>
+      <CategoryFilter 
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
+      
+      <ProductDataLoader
+        selectedCategory={selectedCategory}
+        onProductsLoaded={setFilteredProducts}
+      />
+      
+      <CarouselSection 
+        products={filteredProducts}
+        selectedCategory={selectedCategory}
+      />
+      
+      <FeaturesSection />
     </Layout>
   );
 };

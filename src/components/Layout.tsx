@@ -10,14 +10,12 @@ interface LayoutProps {
   children: React.ReactNode;
   noHeader?: boolean;
   className?: string;
-  noContainer?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({
   children,
   noHeader = false,
   className,
-  noContainer = false,
 }) => {
   const location = useLocation();
   
@@ -36,13 +34,7 @@ const Layout: React.FC<LayoutProps> = ({
           className
         )}
       >
-        {noContainer ? (
-          children
-        ) : (
-          <div className="container mx-auto px-4">
-            {children}
-          </div>
-        )}
+        {children}
       </main>
       <ProductAdvisor />
     </div>

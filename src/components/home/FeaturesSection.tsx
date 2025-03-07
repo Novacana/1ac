@@ -2,22 +2,15 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface FeaturesSectionProps {
-  fullWidth?: boolean;
-}
-
-const FeaturesSection: React.FC<FeaturesSectionProps> = ({ fullWidth = false }) => {
+const FeaturesSection: React.FC = () => {
   return (
-    <section className="py-16 bg-primary/5 w-full">
-      <div className={cn(
-        fullWidth ? "px-4 md:px-8 w-full" : "container px-4 mx-auto",
-        "text-center"
-      )}>
+    <section className="py-16 bg-primary/5">
+      <div className="container px-4 mx-auto text-center">
         <h2 className="text-3xl font-bold mb-8 animate-slide-up">
           Warum 1A Cannabis für medizinisches Cannabis wählen?
         </h2>
         
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-full">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
             {
               title: "Lizenzierte Ärzte",

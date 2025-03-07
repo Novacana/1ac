@@ -14,10 +14,10 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelectCategory 
 }) => {
   return (
-    <section className="py-2 border-b border-border/20 w-full">
-      <div className="container mx-auto">
+    <section className="py-0 border-b border-border/20">
+      <div className="container">
         <div className="overflow-x-auto scrollbar-none py-2">
-          <div className="flex items-center gap-4 justify-start min-w-max px-4">
+          <div className="flex items-center gap-3 justify-center min-w-max px-2">
             {categories.map((category, index) => (
               <CategoryPill
                 key={category}
