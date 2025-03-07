@@ -37,7 +37,10 @@ export const useProductLoader = ({
       
       try {
         console.log(`Loading products for category: ${selectedCategory}`);
-        const { allProducts, dataSource } = await loadProductsFromAllSources(selectedCategory, loadedRef.current);
+        const { allProducts, dataSource } = await loadProductsFromAllSources(
+          selectedCategory, 
+          loadedRef.current
+        );
         
         console.log(`Combined ${allProducts.length} products for category ${selectedCategory}`);
         
