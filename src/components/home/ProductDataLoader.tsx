@@ -4,8 +4,10 @@ import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
   isWooCommerceConfigured, 
-  getCategoryMapping 
+  getCategoryMapping,
+  getBestCategoryMatch
 } from "@/utils/woocommerce";
+import { toast } from "sonner";
 
 interface ProductDataLoaderProps {
   selectedCategory: string;
@@ -18,6 +20,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<"woocommerce" | "local" | null>(null);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -34,17 +37,32 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
           
           if (wooProducts && wooProducts.length > 0) {
             console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+            setDataSource("woocommerce");
+            
+            // Display toast to indicate WooCommerce integration is active
+            toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
             
             // Filter products by selected category
             const filteredProducts = wooProducts.filter(product => {
               const productCategory = product.category;
               const normalizedCategory = selectedCategory;
               
-              // Check if the product category matches the selected category or its mapping
-              return (
-                productCategory === normalizedCategory ||
-                getCategoryMapping(productCategory) === normalizedCategory
-              );
+              // Match exact category name
+              if (productCategory === normalizedCategory) {
+                return true;
+              }
+              
+              // Check if the product category maps to the selected category
+              if (getCategoryMapping(productCategory) === normalizedCategory) {
+                return true;
+              }
+              
+              // Try to match by keywords if exact match fails
+              if (getBestCategoryMatch(productCategory) === normalizedCategory) {
+                return true;
+              }
+              
+              return false;
             });
             
             console.log(`Filtered to ${filteredProducts.length} products for category ${selectedCategory}`);
@@ -58,6 +76,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         
         // Fallback to local data if WooCommerce is not configured or returns no products
         import('@/data/products').then(({ getProductsByCategory }) => {
+          setDataSource("local");
           const dataProducts = getProductsByCategory(selectedCategory);
           
           if (dataProducts && dataProducts.length > 0) {
@@ -101,6 +120,17 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
     
     loadProducts();
   }, [selectedCategory, onProductsLoaded]);
+
+  // Add small debug indicator component to show data source
+  useEffect(() => {
+    if (dataSource) {
+      const debugElement = document.getElementById('product-data-source');
+      if (debugElement) {
+        debugElement.textContent = `Data source: ${dataSource}`;
+        debugElement.style.display = 'block';
+      }
+    }
+  }, [dataSource]);
 
   if (error) {
     console.error("Product loading error:", error);

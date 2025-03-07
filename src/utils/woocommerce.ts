@@ -67,6 +67,7 @@ export const fetchWooCommerceProducts = async (category?: string): Promise<Produ
       url.searchParams.append('category', category);
     }
 
+    console.log('Fetching WooCommerce products from:', url.toString().replace(/consumer_secret=([^&]+)/, 'consumer_secret=****'));
     const response = await fetch(url.toString());
     
     if (!response.ok) {
@@ -74,6 +75,7 @@ export const fetchWooCommerceProducts = async (category?: string): Promise<Produ
     }
     
     const wooProducts: WooCommerceProduct[] = await response.json();
+    console.log(`Fetched ${wooProducts.length} WooCommerce products`);
     
     // Convert WooCommerce products to our Product format
     return wooProducts.map(convertWooCommerceProduct);
@@ -94,10 +96,34 @@ export const convertWooCommerceProduct = (wooProduct: WooCommerceProduct): Produ
   const effectsMeta = wooProduct.meta_data.find(meta => meta.key === 'effects');
   const flavorsMeta = wooProduct.meta_data.find(meta => meta.key === 'flavors');
   
-  // Get the first category name
-  const category = wooProduct.categories && wooProduct.categories.length > 0 
-    ? wooProduct.categories[0].name 
-    : 'Uncategorized';
+  // Get category name using the enhanced mapping system
+  let bestCategory = 'Uncategorized';
+  
+  if (wooProduct.categories && wooProduct.categories.length > 0) {
+    // First try to match exactly, then try to find the best match
+    for (const cat of wooProduct.categories) {
+      const mappedCategory = getCategoryMapping(cat.name);
+      if (mappedCategory !== cat.name) {
+        // Found a direct mapping
+        bestCategory = mappedCategory;
+        break;
+      }
+      
+      // Look for keyword matches if no direct mapping
+      const keywords = getBestCategoryMatch(cat.name);
+      if (keywords) {
+        bestCategory = keywords;
+        break;
+      }
+    }
+    
+    // If no match found, use the first category
+    if (bestCategory === 'Uncategorized' && wooProduct.categories[0].name) {
+      bestCategory = wooProduct.categories[0].name;
+    }
+  }
+
+  console.log(`Mapped WooCommerce product [${wooProduct.name}] category to: ${bestCategory}`);
 
   // Parse effects and flavors arrays
   let effects: string[] = [];
@@ -129,7 +155,7 @@ export const convertWooCommerceProduct = (wooProduct: WooCommerceProduct): Produ
     images: wooProduct.images.map(img => img.src),
     thc: thcMeta?.value as string || undefined,
     cbd: cbdMeta?.value as string || undefined,
-    category: category,
+    category: bestCategory,
     strain: strainMeta?.value as string || undefined,
     effects: effects,
     flavors: flavors,
@@ -162,29 +188,126 @@ const hasAttribute = (product: WooCommerceProduct, attributeName: string, value:
  */
 export const getCategoryMapping = (wooCategory: string): string => {
   const mappings: {[key: string]: string} = {
+    // Flowers category mappings
     'flower': 'Flowers',
     'flowers': 'Flowers',
     'cannabis': 'Flowers',
     'cannabis-flower': 'Flowers',
     'blüten': 'Flowers',
     'blueten': 'Flowers',
+    'blumen': 'Flowers',
+    'hemp flower': 'Flowers',
+    'hemp flowers': 'Flowers',
+    'hanfblüten': 'Flowers',
+    'hanfblueten': 'Flowers',
+    'cbd flower': 'Flowers',
+    'cbd blüten': 'Flowers',
+    'cannabis blüten': 'Flowers',
+    
+    // Oils category mappings
     'oils': 'Oils',
     'oil': 'Oils',
     'öle': 'Oils',
     'oele': 'Oils',
+    'cbd oil': 'Oils',
+    'cbd öl': 'Oils',
+    'cbd-öl': 'Oils',
+    'hanföl': 'Oils',
+    'cannabis oil': 'Oils',
+    'cannabis-oil': 'Oils',
+    'tincture': 'Oils',
+    'tinkturen': 'Oils',
+    'drops': 'Oils',
+    'tropfen': 'Oils',
+    
+    // Accessories category mappings
     'accessories': 'Accessories',
     'zubehör': 'Accessories',
     'zubehoer': 'Accessories',
+    'equipment': 'Accessories',
+    'geräte': 'Accessories',
+    'devices': 'Accessories',
+    'tools': 'Accessories',
+    'smoking accessories': 'Accessories',
+    'vaping accessories': 'Accessories',
+    
+    // Edibles category mappings
     'edibles': 'Edibles',
     'edible': 'Edibles',
     'essbar': 'Edibles',
+    'essbare': 'Edibles',
+    'lebensmittel': 'Edibles',
+    'food': 'Edibles',
+    'snacks': 'Edibles',
+    'gummies': 'Edibles',
+    'gummis': 'Edibles',
+    'candies': 'Edibles',
+    'süßigkeiten': 'Edibles',
+    'chocolate': 'Edibles',
+    'schokolade': 'Edibles',
+    'drinks': 'Edibles',
+    'getränke': 'Edibles',
+    
+    // Topicals category mappings
     'topicals': 'Topicals',
     'topical': 'Topicals',
+    'cream': 'Topicals',
+    'creme': 'Topicals',
+    'salve': 'Topicals',
+    'salbe': 'Topicals',
+    'lotion': 'Topicals',
+    'lotionen': 'Topicals',
+    'balm': 'Topicals',
+    'balsam': 'Topicals',
+    'massage': 'Topicals',
+    'skin': 'Topicals',
+    'haut': 'Topicals',
+    
+    // Vapes category mappings
     'vapes': 'Vapes',
-    'vape': 'Vapes'
+    'vape': 'Vapes',
+    'vaporizer': 'Vapes',
+    'vaporizers': 'Vapes',
+    'vaporisator': 'Vapes',
+    'vaporisatoren': 'Vapes',
+    'cartridges': 'Vapes',
+    'cart': 'Vapes',
+    'carts': 'Vapes',
+    'kartuschen': 'Vapes',
+    'e-liquid': 'Vapes',
+    'eliquid': 'Vapes',
+    'liquid': 'Vapes'
   };
   
   // Try to find a mapping, or return the original if no mapping exists
   const lowerCaseCategory = wooCategory.toLowerCase();
   return mappings[lowerCaseCategory] || wooCategory;
+};
+
+/**
+ * Try to find the best category match based on keywords in the category name
+ */
+export const getBestCategoryMatch = (categoryName: string): string | null => {
+  const lowerCaseName = categoryName.toLowerCase();
+  
+  // Define keywords for each category
+  const categoryKeywords: {[key: string]: string[]} = {
+    'Flowers': ['flower', 'blüte', 'bluete', 'blumen', 'cannabis', 'hemp', 'hanf', 'cbd flower', 'buds', 'knospen'],
+    'Oils': ['oil', 'öl', 'oel', 'tincture', 'tinktur', 'extract', 'extrakt', 'drops', 'tropfen'],
+    'Edibles': ['edible', 'food', 'essen', 'gummy', 'gummies', 'chocolate', 'candy', 'drink', 'getränk'],
+    'Topicals': ['topical', 'cream', 'creme', 'balm', 'salve', 'salbe', 'lotion', 'skin', 'haut'],
+    'Vapes': ['vape', 'vapor', 'vaporizer', 'cartridge', 'cart', 'liquid', 'e-liquid'],
+    'Accessories': ['accessory', 'zubehör', 'device', 'tool', 'equipment', 'grinder', 'pipe', 'bong']
+  };
+  
+  // Check each category's keywords
+  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+    for (const keyword of keywords) {
+      if (lowerCaseName.includes(keyword)) {
+        return category;
+      }
+    }
+  }
+  
+  return null;
 };

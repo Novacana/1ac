@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import Filters, { FilterOptions } from "@/components/home/Filters";
 import { Product } from "@/types/product";
 import { ProductDetailProps } from "@/components/ProductDetail";
+import { isWooCommerceConfigured, fetchWooCommerceProducts } from "@/utils/woocommerce";
 
 // Helper function to get correct image path - MOVED UP before being used
 const getImagePath = (product: any) => {
@@ -53,6 +54,7 @@ const Products = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
+  const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "loading">("loading");
   
   // Get max price from all products for slider range
   const maxPrice = Math.ceil(Math.max(...products.map(p => typeof p.price === 'number' ? p.price : 0)));
@@ -65,39 +67,63 @@ const Products = () => {
   });
 
   useEffect(() => {
-    // Convert ProductDetailProps to Product type
-    const convertedProducts = products.map(product => {
-      // Ensure images is an array and fix paths
-      const fixedImages = (product.images || []).map(img => {
-        if (img.startsWith("public/")) {
-          return img.replace("public/", "/");
+    const loadProducts = async () => {
+      // First try to load from WooCommerce if configured
+      if (isWooCommerceConfigured()) {
+        try {
+          const wooProducts = await fetchWooCommerceProducts();
+          if (wooProducts && wooProducts.length > 0) {
+            console.log(`Loaded ${wooProducts.length} products from WooCommerce`);
+            setAllProducts(wooProducts);
+            setFilteredProducts(wooProducts);
+            setDataSource("woocommerce");
+            toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+            return;
+          }
+        } catch (error) {
+          console.error("Error loading WooCommerce products:", error);
+          toast.error("Failed to load WooCommerce products, using local data instead");
         }
-        return img.startsWith("/") ? img : `/${img}`;
+      }
+      
+      // Fall back to local data if WooCommerce fails or isn't configured
+      // Convert ProductDetailProps to Product type
+      const convertedProducts = products.map(product => {
+        // Ensure images is an array and fix paths
+        const fixedImages = (product.images || []).map(img => {
+          if (img.startsWith("public/")) {
+            return img.replace("public/", "/");
+          }
+          return img.startsWith("/") ? img : `/${img}`;
+        });
+        
+        return {
+          ...product,
+          image: fixedImages[0] || "/placeholder.svg", // Add required image property
+          images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
+        } as Product;
       });
       
-      return {
-        ...product,
-        image: fixedImages[0] || "/placeholder.svg", // Add required image property
-        images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
-      } as Product;
-    });
+      setAllProducts(convertedProducts);
+      setFilteredProducts(convertedProducts);
+      setDataSource("local");
+      
+      // Pre-load images to check for errors
+      convertedProducts.forEach(product => {
+        const imagePath = getImagePath(product);
+        const img = new Image();
+        img.onload = () => {
+          setImagesLoaded(prev => ({...prev, [product.id]: true}));
+        };
+        img.onerror = () => {
+          console.error(`Failed to load image for product ${product.id}: ${imagePath}`);
+          // Don't toast as it would create too many notifications
+        };
+        img.src = imagePath;
+      });
+    };
     
-    setAllProducts(convertedProducts);
-    setFilteredProducts(convertedProducts);
-    
-    // Pre-load images to check for errors
-    convertedProducts.forEach(product => {
-      const imagePath = getImagePath(product);
-      const img = new Image();
-      img.onload = () => {
-        setImagesLoaded(prev => ({...prev, [product.id]: true}));
-      };
-      img.onerror = () => {
-        console.error(`Failed to load image for product ${product.id}: ${imagePath}`);
-        // Don't toast as it would create too many notifications
-      };
-      img.src = imagePath;
-    });
+    loadProducts();
   }, []);
 
   // Helper function to parse THC percentage to number
@@ -172,6 +198,19 @@ const Products = () => {
     });
   };
 
+  if (dataSource === "loading") {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-4">Unsere Produkte</h1>
+          <div className="flex items-center justify-center h-64">
+            <div className="h-10 w-10 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   if (!filteredProducts || filteredProducts.length === 0) {
     return <EmptyProductState message="Keine Produkte gefunden" />;
   }
@@ -179,7 +218,12 @@ const Products = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Unsere Produkte</h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold">Unsere Produkte</h1>
+          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+            Quelle: {dataSource === "woocommerce" ? "WooCommerce" : "Lokale Daten"}
+          </div>
+        </div>
         
         <Filters 
           filters={filters}
