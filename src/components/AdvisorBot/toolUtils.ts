@@ -49,7 +49,8 @@ export const createWebTools = (navigate: ReturnType<typeof useNavigate>, toast: 
     },
     
     showProductDetails: (productId: string | number) => {
-      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      // Fix: Convert string productId to number before comparison
+      const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
       const product = products.find(p => p.id === id);
       
       if (product) {
@@ -63,7 +64,8 @@ export const createWebTools = (navigate: ReturnType<typeof useNavigate>, toast: 
     },
     
     addToCart: (productId: string | number, quantity: number = 1) => {
-      const id = typeof productId === 'string' ? parseInt(productId) : productId;
+      // Fix: Convert string productId to number before comparison
+      const id = typeof productId === 'string' ? parseInt(productId, 10) : productId;
       const product = products.find(p => p.id === id);
       
       if (product) {
