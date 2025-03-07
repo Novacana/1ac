@@ -1,30 +1,38 @@
 
 import { ProductDetailProps } from "@/components/ProductDetail";
 import { blütenProducts } from "./blüten";
+import { oilsProducts } from "./oils";
 import { hybridsProducts } from "./hybrids";
 import { indicaProducts } from "./indica";
-import { oilsProducts } from "./oils";
 
-// Combine all products from different categories
-export const products: ProductDetailProps[] = [
+// Combine all products from different files
+const allProducts = [
   ...blütenProducts,
+  ...oilsProducts,
   ...hybridsProducts,
   ...indicaProducts,
-  ...oilsProducts
 ];
 
-// Helper function to get products by category
+// Export individual product arrays by category
 export const getProductsByCategory = (category: string): ProductDetailProps[] => {
-  return products.filter(product => 
-    product.category === category || 
-    // Handle English/German category mapping
-    (product.category === "Blüten" && category === "Flowers") ||
-    (product.category === "Öle" && category === "Oils") ||
-    (product.category === "Zubehör" && category === "Accessories")
-  );
+  return allProducts.filter(product => product.category === category);
 };
 
-// Helper function to get product by ID
-export const getProductById = (id: string): ProductDetailProps | undefined => {
-  return products.find(product => product.id === id);
+// Export all products
+export const getAllProducts = (): ProductDetailProps[] => {
+  return allProducts;
 };
+
+// Export individual products by ID
+export const getProductById = (id: string): ProductDetailProps | undefined => {
+  return allProducts.find(product => product.id === id);
+};
+
+// Export all products
+export { allProducts as products };
+
+// Re-export individual product arrays
+export { blütenProducts } from "./blüten";
+export { oilsProducts } from "./oils";
+export { hybridsProducts } from "./hybrids";
+export { indicaProducts } from "./indica";
