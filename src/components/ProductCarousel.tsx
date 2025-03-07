@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment, Float, PresentationControls } from "@react-three/drei";
@@ -28,8 +29,10 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
   const getGeometryForCategory = (category: string) => {
     switch(category) {
       case "Flowers":
+      case "Blüten":
         return new THREE.IcosahedronGeometry(1, 1);
       case "Oils":
+      case "Öle":
         return new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32);
       case "Vapes":
         return new THREE.CylinderGeometry(0.3, 0.3, 2, 16);
@@ -38,6 +41,7 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
       case "Edibles":
         return new THREE.TorusGeometry(0.5, 0.2, 16, 32);
       case "Accessories":
+      case "Zubehör":
         return new THREE.TorusKnotGeometry(0.5, 0.2, 64, 16);
       default:
         return new THREE.SphereGeometry(1, 32, 32);
@@ -47,8 +51,10 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
   const getColorForCategory = (category: string) => {
     switch(category) {
       case "Flowers":
+      case "Blüten":
         return new THREE.Color("#3a9a40");
       case "Oils":
+      case "Öle":
         return new THREE.Color("#5db462");
       case "Vapes":
         return new THREE.Color("#8fcf93");
@@ -57,6 +63,7 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
       case "Edibles":
         return new THREE.Color("#2b7e31");
       case "Accessories":
+      case "Zubehör":
         return new THREE.Color("#24632a");
       default:
         return new THREE.Color("#3a9a40");
@@ -92,7 +99,11 @@ interface ProductCarouselProps {
 }
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCategory }) => {
+  console.log("ProductCarousel - selectedCategory:", selectedCategory);
+  console.log("ProductCarousel - products:", products);
+  
   const filteredProducts = products.filter(product => product.category === selectedCategory);
+  console.log("ProductCarousel - filteredProducts:", filteredProducts);
   
   const [activeIndex, setActiveIndex] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -138,7 +149,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   if (filteredProducts.length === 0) {
     return (
       <div className="w-full h-[400px] flex items-center justify-center">
-        <p className="text-xl text-muted-foreground">No products found in this category</p>
+        <p className="text-xl text-muted-foreground">Keine Produkte in dieser Kategorie gefunden</p>
       </div>
     );
   }
@@ -147,7 +158,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
 
   return (
     <div className="w-full relative">
-      <ProductInfoPanel product={activeProduct} />
+      {activeProduct && <ProductInfoPanel product={activeProduct} />}
       
       <div 
         ref={canvasRef} 
@@ -157,7 +168,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchEnd={handleTouchEnd}
       >
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
-          <color attach="background" args={['#0000']} />
+          <color attach="background" args={['#00000000']} />
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
           <PresentationControls
@@ -187,7 +198,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         <button 
           onClick={goPrevious}
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
-          aria-label="Previous product"
+          aria-label="Vorheriges Produkt"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -199,7 +210,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         <button 
           onClick={goNext}
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
-          aria-label="Next product"
+          aria-label="Nächstes Produkt"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -215,7 +226,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
             className={`h-2 w-2 mx-1 rounded-full transition-all ${
               index === activeIndex ? "bg-primary w-4" : "bg-gray-400"
             }`}
-            aria-label={`Go to product ${index + 1}`}
+            aria-label={`Gehe zu Produkt ${index + 1}`}
           />
         ))}
       </div>

@@ -25,6 +25,7 @@ const CartItem: React.FC<CartItemProps> = ({
 }) => {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleRemove = () => {
     setIsRemoving(true);
@@ -38,6 +39,12 @@ const CartItem: React.FC<CartItemProps> = ({
     if (newQuantity >= 1 && newQuantity <= 10) {
       onUpdateQuantity(id, newQuantity);
     }
+  };
+
+  const handleImageError = () => {
+    console.error("CartItem image error:", image);
+    setImageError(true);
+    setIsImageLoaded(true);
   };
 
   return (
@@ -56,15 +63,22 @@ const CartItem: React.FC<CartItemProps> = ({
         >
           <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
         </div>
-        <img
-          src={image}
-          alt={name}
-          className={cn(
-            "h-full w-full object-cover transition-opacity duration-500",
-            isImageLoaded ? "opacity-100" : "opacity-0"
-          )}
-          onLoad={() => setIsImageLoaded(true)}
-        />
+        {imageError ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-xs text-muted-foreground">Kein Bild</span>
+          </div>
+        ) : (
+          <img
+            src={image}
+            alt={name}
+            className={cn(
+              "h-full w-full object-cover transition-opacity duration-500",
+              isImageLoaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => setIsImageLoaded(true)}
+            onError={handleImageError}
+          />
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -84,7 +98,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 className="h-8 w-8 rounded-none"
               >
                 <Minus className="h-3 w-3" />
-                <span className="sr-only">Decrease quantity</span>
+                <span className="sr-only">Menge verringern</span>
               </Button>
 
               <span className="w-8 text-center text-sm">{quantity}</span>
@@ -97,7 +111,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 className="h-8 w-8 rounded-none"
               >
                 <Plus className="h-3 w-3" />
-                <span className="sr-only">Increase quantity</span>
+                <span className="sr-only">Menge erhöhen</span>
               </Button>
             </div>
 
@@ -108,14 +122,14 @@ const CartItem: React.FC<CartItemProps> = ({
               className="text-destructive h-8 w-8 ml-2"
             >
               <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Remove</span>
+              <span className="sr-only">Entfernen</span>
             </Button>
           </div>
         </div>
 
         <div className="mt-2 sm:mt-1 flex justify-between items-center">
           <p className="text-sm">
-            Subtotal: <span className="font-semibold">€{(price * quantity).toFixed(2)}</span>
+            Zwischensumme: <span className="font-semibold">€{(price * quantity).toFixed(2)}</span>
           </p>
         </div>
       </div>

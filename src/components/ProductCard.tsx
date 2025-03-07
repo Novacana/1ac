@@ -29,8 +29,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleImageLoad = () => {
+    console.log("ProductCard image loaded:", image);
+    setIsLoaded(true);
+  };
+
+  const handleImageError = () => {
+    console.error("ProductCard image error:", image);
+    setImageError(true);
+    // Versuchen, ein alternatives Bild zu laden oder ein Platzhalterbild zu verwenden
     setIsLoaded(true);
   };
 
@@ -51,16 +60,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
           )}
         </div>
-        <img
-          src={image}
-          alt={name}
-          className={cn(
-            "w-full h-full object-cover transition-all duration-700 ease-out",
-            isLoaded ? "opacity-100" : "opacity-0",
-            isHovered ? "scale-105" : "scale-100"
-          )}
-          onLoad={handleImageLoad}
-        />
+        {imageError ? (
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <span className="text-sm text-muted-foreground">Bild nicht verfügbar</span>
+          </div>
+        ) : (
+          <img
+            src={image}
+            alt={name}
+            className={cn(
+              "w-full h-full object-cover transition-all duration-700 ease-out",
+              isLoaded ? "opacity-100" : "opacity-0",
+              isHovered ? "scale-105" : "scale-100"
+            )}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+          />
+        )}
         <div className="absolute inset-x-0 top-4 flex justify-between px-4">
           <span className="bg-background/80 backdrop-blur-sm text-xs px-3 py-1 rounded-full">
             {category}
@@ -90,7 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           className="w-full transition-all duration-300 group/btn"
         >
           <ShoppingCart className="h-4 w-4 mr-2 transition-transform duration-300 group-hover/btn:scale-110" />
-          Add to Cart
+          Zum Warenkorb
         </Button>
         
         <Button
@@ -101,7 +117,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         >
           <Link to={`/product/${id}`}>
             <MoveRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            <span className="sr-only">View details</span>
+            <span className="sr-only">Details anzeigen</span>
           </Link>
         </Button>
       </CardFooter>

@@ -53,11 +53,14 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   };
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${name} to cart`);
+    console.log(`Hinzugefügt: ${quantity} von ${name} zum Warenkorb`);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
     // Here you would add the product to the cart state/context
   };
+
+  // Konsolenlog hinzugefügt, um zu prüfen, welche Bilder geladen werden sollen
+  console.log("Loading product images:", images);
 
   return (
     <div className="animate-fade-in">
@@ -67,7 +70,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:text-primary mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to products
+          Zurück zu Produkten
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
@@ -82,18 +85,28 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               >
                 <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
               </div>
-              <img
-                src={images[selectedImage]}
-                alt={name}
-                className={cn(
-                  "w-full h-full object-cover transition-opacity duration-500",
-                  isImageLoaded ? "opacity-100" : "opacity-0"
-                )}
-                onLoad={() => setIsImageLoaded(true)}
-              />
+              {images && images.length > 0 ? (
+                <img
+                  src={images[selectedImage]}
+                  alt={name}
+                  className={cn(
+                    "w-full h-full object-cover transition-opacity duration-500",
+                    isImageLoaded ? "opacity-100" : "opacity-0"
+                  )}
+                  onLoad={() => setIsImageLoaded(true)}
+                  onError={(e) => {
+                    console.error("Fehler beim Laden des Bildes:", e);
+                    setIsImageLoaded(false);
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                  Kein Bild verfügbar
+                </div>
+              )}
             </div>
 
-            {images.length > 1 && (
+            {images && images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
                 {images.map((img, index) => (
                   <button
@@ -108,8 +121,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   >
                     <img
                       src={img}
-                      alt={`${name} thumbnail ${index + 1}`}
+                      alt={`${name} Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(`Fehler beim Laden des Thumbnails ${index}:`, e);
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
                     />
                   </button>
                 ))}
@@ -141,7 +158,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Benefits */}
             {benefits?.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-semibold">Benefits</h3>
+                <h3 className="font-semibold">Vorteile</h3>
                 <ul className="space-y-1">
                   {benefits.map((benefit, index) => (
                     <li
@@ -160,7 +177,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Effects */}
             {effects?.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-semibold">Effects</h3>
+                <h3 className="font-semibold">Wirkungen</h3>
                 <div className="flex flex-wrap gap-2">
                   {effects.map((effect, index) => (
                     <span
@@ -178,7 +195,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* How to use */}
             {use && (
               <div className="space-y-2">
-                <h3 className="font-semibold">How to use</h3>
+                <h3 className="font-semibold">Anwendung</h3>
                 <p className="text-sm text-foreground/80">{use}</p>
               </div>
             )}
@@ -186,7 +203,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Quantity and Add to Cart */}
             <div className="pt-4 space-y-6">
               <div className="flex items-center">
-                <span className="mr-4">Quantity</span>
+                <span className="mr-4">Menge</span>
                 <div className="flex items-center border border-input rounded-md">
                   <Button
                     variant="ghost"
@@ -196,7 +213,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     className="h-9 w-9 rounded-none"
                   >
                     <Minus className="h-3 w-3" />
-                    <span className="sr-only">Decrease quantity</span>
+                    <span className="sr-only">Menge verringern</span>
                   </Button>
 
                   <span className="w-12 text-center">{quantity}</span>
@@ -209,7 +226,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     className="h-9 w-9 rounded-none"
                   >
                     <Plus className="h-3 w-3" />
-                    <span className="sr-only">Increase quantity</span>
+                    <span className="sr-only">Menge erhöhen</span>
                   </Button>
                 </div>
               </div>
@@ -222,12 +239,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 {addedToCart ? (
                   <>
                     <Check className="h-5 w-5 mr-2" />
-                    Added to Cart
+                    Zum Warenkorb hinzugefügt
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
+                    Zum Warenkorb hinzufügen
                   </>
                 )}
               </Button>

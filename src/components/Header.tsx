@@ -25,10 +25,10 @@ const Header = () => {
   }, [location.pathname]);
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Products", path: "/products" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
+    { name: "Startseite", path: "/" },
+    { name: "Produkte", path: "/products" },
+    { name: "Über uns", path: "/about" },
+    { name: "Kontakt", path: "/contact" },
   ];
 
   return (
@@ -50,6 +50,10 @@ const Header = () => {
             src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
             alt="1A Cannabis Logo" 
             className="h-16 w-auto" 
+            onError={(e) => {
+              console.error("Logo loading error");
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
           />
         </Link>
 
@@ -75,7 +79,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               className="relative hover:bg-background/10"
-              aria-label="Shopping cart"
+              aria-label="Warenkorb"
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
@@ -90,7 +94,7 @@ const Header = () => {
             size="icon"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden hover:bg-background/10"
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? "Menü schließen" : "Menü öffnen"}
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
