@@ -9,7 +9,7 @@ import {
   ShoppingBag,
   Pill,
   Leaf,
-  Palette,
+  FlaskConical,
   BookOpen
 } from "lucide-react";
 
@@ -30,7 +30,7 @@ const getCategoryIcon = (category: string) => {
     case "Edibles":
       return <Cookie className="h-4 w-4" />;
     case "Topicals":
-      return <Palette className="h-4 w-4" />; // Changed to Palette for better representation
+      return <FlaskConical className="h-4 w-4" />; // Changed to FlaskConical for cream/lotion representation
     case "Vapes":
       return <Cigarette className="h-4 w-4" />;
     case "Accessories":
