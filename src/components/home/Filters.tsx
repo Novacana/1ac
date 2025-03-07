@@ -8,7 +8,6 @@ import {
   Leaf,
   ArrowDownAZ,
   ArrowDownZA,
-  ArrowDown,
   Flame,
   TrendingUp,
   Filter,
@@ -48,6 +47,9 @@ const Filters: React.FC<FiltersProps> = ({
   maxPrice
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Constants for upper limits
+  const MAX_THC = 30;
 
   const handleThcChange = (values: number[]) => {
     onFilterChange({
@@ -174,11 +176,12 @@ const Filters: React.FC<FiltersProps> = ({
                     <Leaf className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium">THC {filters.thcRange[0]}-{filters.thcRange[1]}%</span>
                   </div>
+                  <span className="text-xs text-gray-500">Max: {MAX_THC}%</span>
                 </div>
                 <Slider
-                  defaultValue={[0, 30]}
+                  defaultValue={[0, MAX_THC]}
                   value={[filters.thcRange[0], filters.thcRange[1]]}
-                  max={30}
+                  max={MAX_THC}
                   step={1}
                   onValueChange={handleThcChange}
                   className="my-1"
@@ -192,6 +195,7 @@ const Filters: React.FC<FiltersProps> = ({
                     <DollarSign className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium">€{filters.priceRange[0]}-{filters.priceRange[1]}</span>
                   </div>
+                  <span className="text-xs text-gray-500">Max: €{maxPrice}</span>
                 </div>
                 <Slider
                   defaultValue={[0, maxPrice]}
