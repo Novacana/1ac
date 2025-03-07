@@ -21,6 +21,15 @@ export const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd
   const thcValue = parsePercentage(thc);
   const cbdValue = parsePercentage(cbd);
 
+  // Calculate ratio when both values are present
+  const getRatio = () => {
+    if (thcValue && cbdValue) {
+      const ratio = (thcValue / cbdValue).toFixed(1);
+      return `${ratio}:1 THC:CBD`;
+    }
+    return null;
+  };
+
   // Animate progress bars when component mounts
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -32,7 +41,14 @@ export const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd
 
   return (
     <div className="mb-3">
-      <h4 className="text-xs font-medium mb-1">Cannabinoid Profile</h4>
+      <div className="flex items-center justify-between mb-1">
+        <h4 className="text-xs font-medium">Cannabinoid Profile</h4>
+        {thcValue && cbdValue && (
+          <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+            {getRatio()}
+          </span>
+        )}
+      </div>
       <div className="space-y-2">
         {thc && (
           <div>
