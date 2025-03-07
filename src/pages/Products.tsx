@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { products } from "@/data/products";
@@ -9,6 +8,46 @@ import { toast } from "sonner";
 import Filters, { FilterOptions } from "@/components/home/Filters";
 import { Product } from "@/types/product";
 import { ProductDetailProps } from "@/components/ProductDetail";
+
+// Helper function to get correct image path - MOVED UP before being used
+const getImagePath = (product: any) => {
+  // Check if product has images array
+  if (product.images && product.images.length > 0) {
+    let imagePath = product.images[0];
+    
+    // Fix path if it starts with public/
+    if (imagePath.startsWith("public/")) {
+      return imagePath.replace("public/", "/");
+    }
+    
+    // Add leading slash if needed
+    if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
+      return "/" + imagePath;
+    }
+    
+    return imagePath;
+  }
+  
+  // Check if product has a single image
+  if (product.image) {
+    let imagePath = product.image;
+    
+    // Fix path if it starts with public/
+    if (imagePath.startsWith("public/")) {
+      return imagePath.replace("public/", "/");
+    }
+    
+    // Add leading slash if needed
+    if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
+      return "/" + imagePath;
+    }
+    
+    return imagePath;
+  }
+  
+  // Fallback to placeholder
+  return "/placeholder.svg";
+};
 
 const Products = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -136,46 +175,6 @@ const Products = () => {
   if (!filteredProducts || filteredProducts.length === 0) {
     return <EmptyProductState message="Keine Produkte gefunden" />;
   }
-
-  // Helper function to get correct image path
-  const getImagePath = (product: any) => {
-    // Check if product has images array
-    if (product.images && product.images.length > 0) {
-      let imagePath = product.images[0];
-      
-      // Fix path if it starts with public/
-      if (imagePath.startsWith("public/")) {
-        return imagePath.replace("public/", "/");
-      }
-      
-      // Add leading slash if needed
-      if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
-        return "/" + imagePath;
-      }
-      
-      return imagePath;
-    }
-    
-    // Check if product has a single image
-    if (product.image) {
-      let imagePath = product.image;
-      
-      // Fix path if it starts with public/
-      if (imagePath.startsWith("public/")) {
-        return imagePath.replace("public/", "/");
-      }
-      
-      // Add leading slash if needed
-      if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
-        return "/" + imagePath;
-      }
-      
-      return imagePath;
-    }
-    
-    // Fallback to placeholder
-    return "/placeholder.svg";
-  };
 
   return (
     <Layout>
