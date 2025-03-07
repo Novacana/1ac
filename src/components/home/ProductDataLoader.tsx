@@ -2,10 +2,11 @@
 import React from "react";
 import { Product } from "@/types/product";
 import { useProductLoader } from "@/hooks/useProductLoader";
+import { DataSource } from "@/hooks/useProductSources";
 
 interface ProductDataLoaderProps {
   selectedCategory: string;
-  onProductsLoaded: (products: Product[], source: "woocommerce" | "combined" | "local") => void;
+  onProductsLoaded: (products: Product[], source: DataSource) => void;
 }
 
 /**
