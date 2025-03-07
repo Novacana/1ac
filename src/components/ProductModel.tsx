@@ -4,9 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
 import { Product } from "@/types/product";
+import { ProductDetailProps } from "@/components/ProductDetail";
 
 interface ProductModelProps {
-  product: Product;
+  product: Product | ProductDetailProps;
   isActive: boolean;
   index: number;
 }

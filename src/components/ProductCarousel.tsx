@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Product } from "@/types/product";
 import { ProductDetailProps } from "@/components/ProductDetail";
+import ProductModel from "@/components/ProductModel";
 import EmptyProductState from "@/components/EmptyProductState";
 import CarouselNavigation from "@/components/CarouselNavigation";
 
