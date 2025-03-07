@@ -34,6 +34,13 @@ const Products = () => {
   const handleProductsLoaded = (products: Product[], source: "woocommerce" | "combined" | "local") => {
     console.log(`Products loaded: ${products.length} from source: ${source}`);
     
+    // Reset image loaded states for new products
+    const newImagesLoaded: {[key: string]: boolean} = {};
+    products.forEach(product => {
+      newImagesLoaded[product.id] = false;
+    });
+    setImagesLoaded(newImagesLoaded);
+    
     if (products.length === 0 && source === "local") {
       // If no products were loaded, show a toast notification
       toast.info("Keine Produkte gefunden. Bitte versuchen Sie es später erneut.");
@@ -43,20 +50,6 @@ const Products = () => {
     setFilteredProducts(products);
     setDataSource(source);
     setInitialLoadComplete(true);
-    
-    // Pre-load images to check for errors
-    products.forEach(product => {
-      if (product.image) {
-        const img = new Image();
-        img.onload = () => {
-          setImagesLoaded(prev => ({...prev, [product.id]: true}));
-        };
-        img.onerror = () => {
-          console.error(`Failed to load image for product: ${product.name}`, product.image);
-        };
-        img.src = product.image;
-      }
-    });
     
     // Update price range based on new products
     if (products.length > 0) {

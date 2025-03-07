@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/types/product";
@@ -17,13 +17,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
   imagesLoaded,
   setImagesLoaded
 }) => {
+  // Force loader to disappear after a timeout as a fallback
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!imagesLoaded[product.id]) {
+        console.log(`Force removing loader for ${product.name} after timeout`);
+        setImagesLoaded(prev => ({...prev, [product.id]: true}));
+      }
+    }, 3000); // 3 second timeout
+    
+    return () => clearTimeout(timeoutId);
+  }, [product.id, imagesLoaded, setImagesLoaded, product.name]);
+
   return (
     <Link key={product.id} to={`/product/${product.id}`}>
       <Card className="h-full hover:shadow-lg transition-shadow">
         <CardContent className="p-0">
           <div className="aspect-square relative overflow-hidden rounded-t-lg">
-            <div className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
-                  style={{opacity: imagesLoaded[product.id] ? 0 : 1}}>
+            <div 
+              className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
+              style={{opacity: imagesLoaded[product.id] ? 0 : 1}}
+            >
               <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
             </div>
             <img 
@@ -32,14 +46,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className="w-full h-full object-cover z-0"
               onLoad={() => {
                 console.log(`Image loaded successfully for ${product.name}`);
-                const updatedImagesLoaded = { ...imagesLoaded, [product.id]: true };
-                setImagesLoaded(updatedImagesLoaded);
+                setImagesLoaded(prev => ({...prev, [product.id]: true}));
               }}
               onError={(e) => {
                 console.error(`Error loading image for ${product.name}:`, e.currentTarget.src);
                 (e.target as HTMLImageElement).src = "/placeholder.svg";
-                const updatedImagesLoaded = { ...imagesLoaded, [product.id]: true };
-                setImagesLoaded(updatedImagesLoaded);
+                setImagesLoaded(prev => ({...prev, [product.id]: true}));
               }}
             />
           </div>
