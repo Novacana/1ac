@@ -12,6 +12,8 @@ export interface Product {
   strain?: string;
   terpenes?: { name: string; percentage: string }[];
   effects?: string[];
+  benefits?: string[];
+  use?: string;
   flavors?: string[];
   origin?: string;
   recommended_use?: string;

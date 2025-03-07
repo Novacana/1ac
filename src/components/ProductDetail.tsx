@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getAllProducts } from "@/data/products";
+import { getProductById } from "@/data/products";
 import { toast } from "sonner";
 import { ArrowLeft, Share } from "lucide-react";
 
@@ -17,9 +17,25 @@ import ProductLoading from "./ProductLoading";
 import { Button } from "./ui/button";
 import { Product } from "@/types/product";
 
+// Export the interface so it can be imported by other files
+export interface ProductDetailProps extends Product {
+  benefits?: string[];
+  use?: string;
+  effects?: string[];
+  terpenes?: { name: string; percentage: string }[];
+  flavors?: string[];
+  origin?: string;
+  recommended_use?: string;
+  lab_tested?: boolean;
+  product_type?: string;
+  weight?: string;
+  potency?: string;
+  strain?: string;
+}
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductDetailProps | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -30,17 +46,12 @@ const ProductDetail = () => {
     const loadProduct = async () => {
       setLoading(true);
       try {
-        // Get all products
-        const products = getAllProducts();
-        
         // Find the product with the matching ID
-        const foundProduct = products.find(
-          (p) => p.id === id || p.id === Number(id)
-        );
+        const foundProduct = getProductById(id || "");
         
         if (foundProduct) {
           console.log("Found product:", foundProduct);
-          setProduct(foundProduct);
+          setProduct(foundProduct as ProductDetailProps);
         } else {
           console.log("Product not found with ID:", id);
           toast.error("Produkt nicht gefunden");
