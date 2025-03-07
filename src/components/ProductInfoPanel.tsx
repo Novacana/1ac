@@ -62,6 +62,22 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       'Watermelon': '#FFDEE2', // Soft Pink
       'Blueberry': '#D3E4FD', // Soft Blue
       'Natural': '#F2FCE2', // Soft Green
+      // German flavor names
+      'Erdig': '#FDE1D3',
+      'Kiefer': '#F2FCE2',
+      'Süß': '#FEF7CD',
+      'Zitrus': '#FEC6A1',
+      'Tropisch': '#FEC6A1',
+      'Kräuter': '#F2FCE2',
+      'Nussig': '#FDE1D3',
+      'Würzig': '#FDE1D3',
+      'Holzig': '#A0522D',
+      'Trauben': '#D3E4FD',
+      'Beere': '#FFDEE2',
+      'Haze': '#F2FCE2',
+      'Dessert': '#FEF7CD',
+      'Haschartig': '#A0522D',
+      'Kräutrig': '#F2FCE2',
     };
     
     return colorMap[flavor] || '#F2FCE2'; // Default to soft green if no match
@@ -80,7 +96,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Cannabinoid Profile - Now at the top */}
       <div className="mb-3">
-        <h4 className="text-xs font-medium mb-1">Cannabinoid Profile</h4>
+        <h4 className="text-xs font-medium mb-1">Cannabinoid-Profil</h4>
         <div className="space-y-2">
           {product.thc && (
             <div>
@@ -115,7 +131,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Taste/Flavor Profile - New section in the middle */}
       {product.flavors && product.flavors.length > 0 && (
         <div className="mb-3">
-          <h4 className="text-xs font-medium mb-1">Taste Profile</h4>
+          <h4 className="text-xs font-medium mb-1">Geschmacksprofil</h4>
           <div className="flex flex-wrap gap-1">
             {product.flavors.map((flavor, index) => (
               <span 
@@ -148,7 +164,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Terpene Profile - Now at the bottom */}
       {terpeneData.length > 0 && (
         <div>
-          <h4 className="text-xs font-medium mb-1">Terpene Profile</h4>
+          <h4 className="text-xs font-medium mb-1">Terpen-Profil</h4>
           <div className="h-[100px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -168,7 +184,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value) => [`${value}%`, 'Concentration']}
+                  formatter={(value) => [`${value}%`, 'Konzentration']}
                   contentStyle={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.8)', 
                     borderRadius: '4px',
@@ -201,13 +217,19 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
 // Helper function to get colors for different terpenes
 const getTerpeneColor = (terpene: string): string => {
   const colors: Record<string, string> = {
-    'Myrcene': '#3a9a40',
+    'Myrcen': '#3a9a40',
+    'Limonen': '#ffbb00',
     'Limonene': '#ffbb00',
+    'Caryophyllen': '#ff5733',
     'Caryophyllene': '#ff5733',
+    'Pinen': '#00a86b',
     'Pinene': '#00a86b',
     'Linalool': '#8a2be2',
+    'Terpinolen': '#4682b4',
     'Terpinolene': '#4682b4',
+    'Ocimen': '#ff4500',
     'Ocimene': '#ff4500',
+    'Humulen': '#a0522d',
     'Humulene': '#a0522d',
     'Bisabolol': '#d8bfd8'
   };
@@ -216,3 +238,4 @@ const getTerpeneColor = (terpene: string): string => {
 };
 
 export default ProductInfoPanel;
+
