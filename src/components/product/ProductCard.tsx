@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/types/product";
+import { Cannabis } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -54,6 +55,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 setImagesLoaded(prev => ({...prev, [product.id]: true}));
               }}
             />
+            {product.thc && (
+              <div className="absolute top-2 right-2 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 backdrop-blur-sm">
+                <Cannabis className="h-3 w-3" />
+                <span>THC: {product.thc}</span>
+              </div>
+            )}
           </div>
           <div className="p-3">
             <h3 className="font-semibold text-sm mb-0.5 line-clamp-1">{product.name}</h3>
