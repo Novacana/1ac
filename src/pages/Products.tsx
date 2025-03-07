@@ -6,13 +6,48 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import EmptyProductState from "@/components/EmptyProductState";
 import { toast } from "sonner";
+import Filters, { FilterOptions } from "@/components/home/Filters";
+import { Product } from "@/types/product";
+import { ProductDetailProps } from "@/components/ProductDetail";
 
 const Products = () => {
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
   
+  // Get max price from all products for slider range
+  const maxPrice = Math.ceil(Math.max(...products.map(p => typeof p.price === 'number' ? p.price : 0)));
+  
+  // Initialize filters
+  const [filters, setFilters] = useState<FilterOptions>({
+    thcRange: [0, 30],
+    priceRange: [0, maxPrice],
+    sortBy: 'popularity'
+  });
+
   useEffect(() => {
+    // Convert ProductDetailProps to Product type
+    const convertedProducts = products.map(product => {
+      // Ensure images is an array and fix paths
+      const fixedImages = (product.images || []).map(img => {
+        if (img.startsWith("public/")) {
+          return img.replace("public/", "/");
+        }
+        return img.startsWith("/") ? img : `/${img}`;
+      });
+      
+      return {
+        ...product,
+        image: fixedImages[0] || "/placeholder.svg", // Add required image property
+        images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
+      } as Product;
+    });
+    
+    setAllProducts(convertedProducts);
+    setFilteredProducts(convertedProducts);
+    
     // Pre-load images to check for errors
-    products.forEach(product => {
+    convertedProducts.forEach(product => {
       const imagePath = getImagePath(product);
       const img = new Image();
       img.onload = () => {
@@ -26,7 +61,79 @@ const Products = () => {
     });
   }, []);
 
-  if (!products || products.length === 0) {
+  // Helper function to parse THC percentage to number
+  const parseThcPercentage = (thcStr?: string): number => {
+    if (!thcStr) return 0;
+    
+    // Handle ranges like "10-15%"
+    if (thcStr.includes("-")) {
+      const parts = thcStr.split("-");
+      const avg = parts.map(p => parseFloat(p)).reduce((a, b) => a + b, 0) / parts.length;
+      return avg;
+    }
+    
+    // Handle "< 0.2%" format
+    if (thcStr.includes("<")) {
+      return 0.1; // Just a small value for "less than" cases
+    }
+    
+    // Handle "X% per piece" format
+    if (thcStr.includes("per piece")) {
+      return parseFloat(thcStr) || 0;
+    }
+    
+    // Regular percentage
+    return parseFloat(thcStr) || 0;
+  };
+
+  // Apply filters
+  useEffect(() => {
+    let result = allProducts.filter(product => {
+      // Filter by price
+      if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+        return false;
+      }
+      
+      // Filter by THC (skip for accessories which don't have THC)
+      if (product.category !== "Accessories" && product.category !== "Zubehör") {
+        const thcValue = parseThcPercentage(product.thc);
+        if (thcValue < filters.thcRange[0] || thcValue > filters.thcRange[1]) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    // Apply sorting
+    switch (filters.sortBy) {
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'thc-desc':
+        result.sort((a, b) => parseThcPercentage(b.thc) - parseThcPercentage(a.thc));
+        break;
+      case 'popularity':
+        // We don't have real popularity data, so we'll just use the original order
+        break;
+    }
+    
+    setFilteredProducts(result);
+  }, [allProducts, filters]);
+  
+  // Reset filters to defaults
+  const handleResetFilters = () => {
+    setFilters({
+      thcRange: [0, 30],
+      priceRange: [0, maxPrice],
+      sortBy: 'popularity'
+    });
+  };
+
+  if (!filteredProducts || filteredProducts.length === 0) {
     return <EmptyProductState message="Keine Produkte gefunden" />;
   }
 
@@ -73,10 +180,17 @@ const Products = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Unsere Produkte</h1>
+        <h1 className="text-3xl font-bold mb-4">Unsere Produkte</h1>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {products.map((product) => {
+        <Filters 
+          filters={filters}
+          onFilterChange={setFilters}
+          onReset={handleResetFilters}
+          maxPrice={maxPrice}
+        />
+        
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+          {filteredProducts.map((product) => {
             const imagePath = getImagePath(product);
             
             return (
