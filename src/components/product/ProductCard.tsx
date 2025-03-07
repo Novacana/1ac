@@ -32,12 +32,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className="w-full h-full object-cover z-0"
               onLoad={() => {
                 console.log(`Image loaded successfully for ${product.name}`);
-                setImagesLoaded(prev => ({...prev, [product.id]: true}));
+                const updatedImagesLoaded = { ...imagesLoaded, [product.id]: true };
+                setImagesLoaded(updatedImagesLoaded);
               }}
               onError={(e) => {
                 console.error(`Error loading image for ${product.name}:`, e.currentTarget.src);
                 (e.target as HTMLImageElement).src = "/placeholder.svg";
-                setImagesLoaded(prev => ({...prev, [product.id]: true}));
+                const updatedImagesLoaded = { ...imagesLoaded, [product.id]: true };
+                setImagesLoaded(updatedImagesLoaded);
               }}
             />
           </div>
