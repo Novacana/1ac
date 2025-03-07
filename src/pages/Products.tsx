@@ -1,12 +1,31 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { products } from "@/data/products";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import EmptyProductState from "@/components/EmptyProductState";
+import { toast } from "sonner";
 
 const Products = () => {
+  const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
+  
+  useEffect(() => {
+    // Pre-load images to check for errors
+    products.forEach(product => {
+      const imagePath = getImagePath(product);
+      const img = new Image();
+      img.onload = () => {
+        setImagesLoaded(prev => ({...prev, [product.id]: true}));
+      };
+      img.onerror = () => {
+        console.error(`Failed to load image for product ${product.id}: ${imagePath}`);
+        // Don't toast as it would create too many notifications
+      };
+      img.src = imagePath;
+    });
+  }, []);
+
   if (!products || products.length === 0) {
     return <EmptyProductState message="Keine Produkte gefunden" />;
   }
@@ -16,28 +35,34 @@ const Products = () => {
     // Check if product has images array
     if (product.images && product.images.length > 0) {
       let imagePath = product.images[0];
+      
       // Fix path if it starts with public/
       if (imagePath.startsWith("public/")) {
         return imagePath.replace("public/", "/");
       }
+      
       // Add leading slash if needed
       if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
         return "/" + imagePath;
       }
+      
       return imagePath;
     }
     
     // Check if product has a single image
     if (product.image) {
       let imagePath = product.image;
+      
       // Fix path if it starts with public/
       if (imagePath.startsWith("public/")) {
         return imagePath.replace("public/", "/");
       }
+      
       // Add leading slash if needed
       if (!imagePath.startsWith("http") && !imagePath.startsWith("/")) {
         return "/" + imagePath;
       }
+      
       return imagePath;
     }
     
@@ -60,13 +85,23 @@ const Products = () => {
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardContent className="p-0">
                     <div className="aspect-square relative overflow-hidden rounded-t-lg">
+                      <div className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
+                           style={{opacity: imagesLoaded[product.id] ? 0 : 1}}>
+                        <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
+                      </div>
                       <img 
                         src={imagePath}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover z-0"
+                        onLoad={() => {
+                          console.log(`Image loaded successfully for ${product.name}`);
+                          setImagesLoaded(prev => ({...prev, [product.id]: true}));
+                        }}
                         onError={(e) => {
                           console.error(`Error loading image for ${product.name}:`, e.currentTarget.src);
+                          toast.error(`Bild für ${product.name} konnte nicht geladen werden`);
                           (e.target as HTMLImageElement).src = "/placeholder.svg";
+                          setImagesLoaded(prev => ({...prev, [product.id]: true}));
                         }}
                       />
                     </div>

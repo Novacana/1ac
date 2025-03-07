@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ProductImagesProps {
   images: string[];
@@ -33,9 +34,25 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
       const processed = images.map(getFixedImagePath);
       setFixedImages(processed);
       console.log("Fixed product images in ProductImages:", processed);
+      
+      // Preload the images to check for errors
+      processed.forEach((imgPath, index) => {
+        const img = new Image();
+        img.onload = () => {
+          console.log(`Preloaded image ${index} successfully:`, imgPath);
+        };
+        img.onerror = () => {
+          console.error(`Failed to preload image ${index}:`, imgPath);
+          toast.error(`Ein Produktbild konnte nicht geladen werden`);
+        };
+        img.src = imgPath;
+      });
     } else {
       setFixedImages(["/placeholder.svg"]);
     }
+    
+    // Reset loading state when images change
+    setIsImageLoaded(false);
   }, [images]);
 
   return (
@@ -43,7 +60,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
       <div className="aspect-square relative overflow-hidden rounded-xl border border-border/40 bg-card">
         <div
           className={cn(
-            "absolute inset-0 bg-card/20 backdrop-blur-sm flex items-center justify-center z-0 transition-opacity duration-300",
+            "absolute inset-0 bg-card/20 backdrop-blur-sm flex items-center justify-center z-10 transition-opacity duration-300",
             isImageLoaded ? "opacity-0" : "opacity-100"
           )}
         >
@@ -54,12 +71,16 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images, name }) => {
             src={fixedImages[selectedImage]}
             alt={name}
             className={cn(
-              "w-full h-full object-cover transition-opacity duration-500",
+              "w-full h-full object-contain transition-opacity duration-500 z-0",
               isImageLoaded ? "opacity-100" : "opacity-0"
             )}
-            onLoad={() => setIsImageLoaded(true)}
+            onLoad={() => {
+              console.log(`Main image loaded successfully:`, fixedImages[selectedImage]);
+              setIsImageLoaded(true);
+            }}
             onError={(e) => {
               console.error("Fehler beim Laden des Bildes:", e, "Quelle:", fixedImages[selectedImage]);
+              toast.error(`Hauptbild konnte nicht geladen werden`);
               (e.target as HTMLImageElement).src = "/placeholder.svg";
               setIsImageLoaded(true);
             }}

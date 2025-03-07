@@ -97,6 +97,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onTouchEnd={handleTouchEnd}
       >
         <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 35 }}>
+          {/* Fix the background color to use a valid hex format */}
           <color attach="background" args={['#00000000']} />
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
