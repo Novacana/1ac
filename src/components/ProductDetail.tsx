@@ -15,9 +15,16 @@ export interface ProductDetailProps {
   thc?: string;
   cbd?: string;
   category: string;
-  benefits: string[];
+  benefits?: string[];
   use?: string;
   effects?: string[];
+  terpenes?: { name: string; percentage: string }[];
+  flavors?: string[];
+  origin?: string;
+  product_type?: string;
+  weight?: string;
+  potency?: string;
+  strain?: string;
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({
