@@ -1,6 +1,9 @@
 
 import { Product } from "@/types/product";
-import { fetchWooCommerceProducts, isWooCommerceConfigured } from "@/utils/woocommerce";
+import { 
+  fetchWooCommerceProducts, 
+  isWooCommerceConfigured 
+} from "@/utils/woocommerce";
 import { convertLocalProducts } from "@/utils/product-image-utils";
 import { toast } from "sonner";
 
@@ -21,8 +24,6 @@ export const loadProductsFromAllSources = async (
   let dataSource: DataSource = "local";
   let wooCommerceProductCount = 0;
   let localProductCount = 0;
-  
-  console.log(`Loading products from all sources for category "${selectedCategory}"`);
   
   // Always load local products first
   try {
@@ -49,50 +50,43 @@ export const loadProductsFromAllSources = async (
     console.error("Error importing local products:", importError);
   }
   
-  // Try to load WooCommerce products with safe error handling
-  try {
-    if (isWooCommerceConfigured()) {
-      console.log("WooCommerce is configured, fetching products...");
+  // Always try to fetch products from WooCommerce, regardless of whether local products were found
+  if (isWooCommerceConfigured()) {
+    console.log("Fetching products from WooCommerce integration");
+    
+    try {
+      const wooProducts = await fetchWooCommerceProducts();
       
-      try {
-        const wooProducts = await fetchWooCommerceProducts(selectedCategory);
+      if (wooProducts && wooProducts.length > 0) {
+        console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
         
-        if (wooProducts && wooProducts.length > 0) {
-          console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
-          
-          // Add WooCommerce products to combined list
-          allProducts = [...allProducts, ...wooProducts];
-          wooCommerceProductCount = wooProducts.length;
-          
-          // Update data source indicator
-          if (localProductCount > 0 && wooCommerceProductCount > 0) {
-            dataSource = "combined";
-            console.log(`Using combined data source with ${localProductCount} local and ${wooCommerceProductCount} WooCommerce products`);
-          } else if (wooCommerceProductCount > 0) {
-            dataSource = "woocommerce";
-            console.log(`Using WooCommerce data source with ${wooCommerceProductCount} products`);
-          }
-          
-          // Show toast notification on successful load
-          if (!alreadyLoaded) {
-            toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
-          }
-        } else {
-          console.log("No products found in WooCommerce");
+        // Add WooCommerce products to combined list
+        allProducts = [...allProducts, ...wooProducts];
+        wooCommerceProductCount = wooProducts.length;
+        
+        // Update data source indicator
+        if (localProductCount > 0 && wooCommerceProductCount > 0) {
+          dataSource = "combined";
+        } else if (allProducts.length === wooCommerceProductCount) {
+          dataSource = "woocommerce";
         }
-      } catch (wooError) {
-        console.error("Error fetching WooCommerce products:", wooError);
+        
+        // Show toast notification on successful load
         if (!alreadyLoaded) {
-          toast.error("Failed to load WooCommerce products");
+          toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
         }
+      } else {
+        console.log("No products found in WooCommerce");
       }
-    } else {
-      console.log("WooCommerce is not configured, skipping");
+    } catch (wooError) {
+      console.error("Error fetching WooCommerce products:", wooError);
+      if (!alreadyLoaded) {
+        toast.error("Failed to load WooCommerce products");
+      }
     }
-  } catch (error) {
-    console.error("Error processing WooCommerce products:", error);
+  } else {
+    console.log("WooCommerce is not configured");
   }
   
-  console.log(`Total products loaded: ${allProducts.length} (${dataSource})`);
   return { allProducts, dataSource };
 };
