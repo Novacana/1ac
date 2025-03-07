@@ -1,3 +1,4 @@
+
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
@@ -25,11 +26,14 @@ export const loadProductsFromAllSources = async (
   
   // Always load local products first
   try {
-    const { getProductsByCategory } = await import('@/data/products');
-    const dataProducts = getProductsByCategory(selectedCategory);
+    // Import directly to ensure we get the latest data
+    const productsModule = await import('@/data/products');
+    
+    // Use the helper function to get products by category or all products
+    const dataProducts = productsModule.getProductsByCategory(selectedCategory);
     
     if (dataProducts && dataProducts.length > 0) {
-      console.log(`Loaded ${dataProducts.length} local products`);
+      console.log(`Loaded ${dataProducts.length} local products for category "${selectedCategory}"`);
       
       // Process data directory products using the utility function
       const processedDataProducts = convertLocalProducts(dataProducts);
@@ -37,6 +41,8 @@ export const loadProductsFromAllSources = async (
       // Add local products to the combined list
       allProducts = [...processedDataProducts];
       dataSource = "local";
+    } else {
+      console.log(`No local products found for category "${selectedCategory}"`);
     }
   } catch (importError) {
     console.error("Error importing local products:", importError);
