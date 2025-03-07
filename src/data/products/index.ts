@@ -17,9 +17,12 @@ export const products: ProductDetailProps[] = [
 export const getProductsByCategory = (category: string): ProductDetailProps[] => {
   return products.filter(product => 
     product.category === category || 
-    // Handle English/German category mapping
+    // Handle German/English category mapping
     (product.category === "Blüten" && category === "Flowers") ||
     (product.category === "Öle" && category === "Oils") ||
+    (product.category === "Esswaren" && category === "Edibles") ||
+    (product.category === "Topische Mittel" && category === "Topicals") ||
+    (product.category === "Vaporisatoren" && category === "Vapes") ||
     (product.category === "Zubehör" && category === "Accessories")
   );
 };

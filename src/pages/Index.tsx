@@ -9,16 +9,16 @@ import ProductDataLoader from "@/components/home/ProductDataLoader";
 
 // Sample data - in a real app this would come from an API
 const categories = [
-  "Flowers",
-  "Oils",
-  "Edibles", 
-  "Topicals",
-  "Vapes",
-  "Accessories",
+  "Blüten",
+  "Öle",
+  "Esswaren", 
+  "Topische Mittel",
+  "Vaporisatoren",
+  "Zubehör",
 ];
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Flowers");
+  const [selectedCategory, setSelectedCategory] = useState("Blüten");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
   return (
