@@ -4,14 +4,11 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { t, language } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,10 +25,10 @@ const Header = () => {
   }, [location.pathname]);
 
   const navItems = [
-    { name: language === "de" ? "Home" : "Home", path: "/" },
-    { name: language === "de" ? "Produkte" : "Products", path: "/products" },
-    { name: language === "de" ? "Über uns" : "About", path: "/about" },
-    { name: language === "de" ? "Kontakt" : "Contact", path: "/contact" },
+    { name: "Home", path: "/" },
+    { name: "Products", path: "/products" },
+    { name: "About", path: "/about" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -73,13 +70,12 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <LanguageSwitcher />
           <Link to="/cart">
             <Button
               variant="ghost"
               size="icon"
               className="relative hover:bg-background/10"
-              aria-label={language === "de" ? "Warenkorb" : "Shopping cart"}
+              aria-label="Shopping cart"
             >
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
@@ -94,7 +90,7 @@ const Header = () => {
             size="icon"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden hover:bg-background/10"
-            aria-label={isMenuOpen ? (language === "de" ? "Menü schließen" : "Close menu") : (language === "de" ? "Menü öffnen" : "Open menu")}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
