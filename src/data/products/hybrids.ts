@@ -11,7 +11,6 @@ export const hybridsProducts: ProductDetailProps[] = [
       "public/lovable-uploads/dc40d978-afef-449a-8fd1-ebd973d2ec3f.png",
       "public/lovable-uploads/6056859b-68b7-449a-b5c1-f8f4f654b38e.png"
     ],
-    image: "public/lovable-uploads/dc40d978-afef-449a-8fd1-ebd973d2ec3f.png",
     thc: "23%",
     cbd: "0.1%",
     category: "Blüten",

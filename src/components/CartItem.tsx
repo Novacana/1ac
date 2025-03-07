@@ -41,25 +41,8 @@ const CartItem: React.FC<CartItemProps> = ({
     }
   };
 
-  // Fix image path
-  const fixImagePath = (path: string) => {
-    if (!path) return "/placeholder.svg";
-    
-    if (path.startsWith("public/")) {
-      return path.replace("public/", "/");
-    }
-    
-    if (!path.startsWith("http") && !path.startsWith("/")) {
-      return "/" + path;
-    }
-    
-    return path;
-  };
-
-  const fixedImagePath = fixImagePath(image);
-
   const handleImageError = () => {
-    console.error("CartItem image error:", image, "Fixed path:", fixedImagePath);
+    console.error("CartItem image error:", image);
     setImageError(true);
     setIsImageLoaded(true);
   };
@@ -67,7 +50,7 @@ const CartItem: React.FC<CartItemProps> = ({
   return (
     <div
       className={cn(
-        "flex items-start gap-4 p-4 rounded-lg border border-border/40 transition-all duration-300 animate-slide-up bg-card shadow-sm",
+        "flex items-start gap-4 p-4 rounded-lg border border-border/40 transition-all duration-300 animate-slide-up",
         isRemoving && "opacity-0 translate-x-8"
       )}
     >
@@ -86,16 +69,13 @@ const CartItem: React.FC<CartItemProps> = ({
           </div>
         ) : (
           <img
-            src={fixedImagePath}
+            src={image}
             alt={name}
             className={cn(
               "h-full w-full object-cover transition-opacity duration-500",
               isImageLoaded ? "opacity-100" : "opacity-0"
             )}
-            onLoad={() => {
-              console.log("CartItem image loaded:", fixedImagePath);
-              setIsImageLoaded(true);
-            }}
+            onLoad={() => setIsImageLoaded(true)}
             onError={handleImageError}
           />
         )}
@@ -104,12 +84,12 @@ const CartItem: React.FC<CartItemProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
           <div>
-            <h3 className="text-base font-medium line-clamp-1 text-foreground">{name}</h3>
-            <p className="text-sm text-foreground/70 mt-0.5">€{price.toFixed(2)}</p>
+            <h3 className="text-base font-medium line-clamp-1">{name}</h3>
+            <p className="text-sm text-foreground/60 mt-0.5">€{price.toFixed(2)}</p>
           </div>
 
           <div className="flex items-center">
-            <div className="flex items-center border border-input rounded-md bg-background">
+            <div className="flex items-center border border-input rounded-md">
               <Button
                 variant="ghost"
                 size="icon"
@@ -139,7 +119,7 @@ const CartItem: React.FC<CartItemProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleRemove}
-              className="text-destructive h-8 w-8 ml-2 hover:bg-destructive/10"
+              className="text-destructive h-8 w-8 ml-2"
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Entfernen</span>
@@ -148,8 +128,8 @@ const CartItem: React.FC<CartItemProps> = ({
         </div>
 
         <div className="mt-2 sm:mt-1 flex justify-between items-center">
-          <p className="text-sm text-foreground/80">
-            Zwischensumme: <span className="font-semibold text-foreground">€{(price * quantity).toFixed(2)}</span>
+          <p className="text-sm">
+            Zwischensumme: <span className="font-semibold">€{(price * quantity).toFixed(2)}</span>
           </p>
         </div>
       </div>

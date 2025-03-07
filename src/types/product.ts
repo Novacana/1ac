@@ -3,7 +3,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  image?: string;
+  image: string;
   images?: string[];
   description: string;
   thc?: string;
@@ -12,8 +12,6 @@ export interface Product {
   strain?: string;
   terpenes?: { name: string; percentage: string }[];
   effects?: string[];
-  benefits?: string[];
-  use?: string;
   flavors?: string[];
   origin?: string;
   recommended_use?: string;

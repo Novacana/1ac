@@ -11,7 +11,6 @@ export const blütenProducts: ProductDetailProps[] = [
       "public/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png",
       "public/lovable-uploads/e309be49-454e-4b04-b656-75ae60cb7145.png"
     ],
-    image: "public/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png",
     thc: "10%",
     cbd: "12%",
     category: "Blüten",
@@ -44,7 +43,6 @@ export const blütenProducts: ProductDetailProps[] = [
       "public/lovable-uploads/51f7c998-91ad-4cf3-ba40-81d2f23bbddc.png",
       "public/lovable-uploads/d7b32644-0f4d-443e-9c1a-e2fdab15fd76.png"
     ],
-    image: "public/lovable-uploads/51f7c998-91ad-4cf3-ba40-81d2f23bbddc.png",
     thc: "20%",
     cbd: "0.1%",
     category: "Blüten",
@@ -77,7 +75,6 @@ export const blütenProducts: ProductDetailProps[] = [
       "public/lovable-uploads/8db2393e-a67f-435f-9eb7-467e1a367470.png",
       "public/lovable-uploads/431a2c6a-1009-4805-ada8-1a396cdafa29.png"
     ],
-    image: "public/lovable-uploads/8db2393e-a67f-435f-9eb7-467e1a367470.png",
     thc: "18%",
     cbd: "0.3%",
     category: "Blüten",
@@ -110,7 +107,6 @@ export const blütenProducts: ProductDetailProps[] = [
       "public/lovable-uploads/f7dcbc87-d445-4dba-9119-0a44108a567c.png",
       "public/lovable-uploads/2e49b88e-56ed-4d1e-9b78-6ed041d8fda5.png"
     ],
-    image: "public/lovable-uploads/f7dcbc87-d445-4dba-9119-0a44108a567c.png",
     thc: "19%",
     cbd: "0.2%",
     category: "Blüten",
@@ -143,7 +139,6 @@ export const blütenProducts: ProductDetailProps[] = [
       "public/lovable-uploads/e8108207-f6a3-46fa-955d-2eec65d1d013.png",
       "public/lovable-uploads/ec590630-2962-446a-b8cc-9b7fce1ae53a.png"
     ],
-    image: "public/lovable-uploads/e8108207-f6a3-46fa-955d-2eec65d1d013.png",
     thc: "21%",
     cbd: "0.1%",
     category: "Blüten",

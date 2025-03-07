@@ -11,7 +11,6 @@ export const oilsProducts: ProductDetailProps[] = [
       "public/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png",
       "public/lovable-uploads/e309be49-454e-4b04-b656-75ae60cb7145.png"
     ],
-    image: "public/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png",
     thc: "<0.2%",
     cbd: "10%",
     category: "Öle",
@@ -44,7 +43,6 @@ export const oilsProducts: ProductDetailProps[] = [
       "public/lovable-uploads/f7dcbc87-d445-4dba-9119-0a44108a567c.png",
       "public/lovable-uploads/2e49b88e-56ed-4d1e-9b78-6ed041d8fda5.png"
     ],
-    image: "public/lovable-uploads/f7dcbc87-d445-4dba-9119-0a44108a567c.png",
     thc: "5%",
     cbd: "5%",
     category: "Öle",

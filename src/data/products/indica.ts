@@ -11,7 +11,6 @@ export const indicaProducts: ProductDetailProps[] = [
       "public/lovable-uploads/2e4972d1-cad4-4080-8445-33fcfdee5f57.png",
       "public/lovable-uploads/d309619a-3ff7-42f3-b273-ab1586713f9f.png"
     ],
-    image: "public/lovable-uploads/2e4972d1-cad4-4080-8445-33fcfdee5f57.png",
     thc: "20%",
     cbd: "0.1%",
     category: "Blüten",

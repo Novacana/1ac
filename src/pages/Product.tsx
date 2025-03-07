@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 import ProductDetail, { ProductDetailProps } from "@/components/ProductDetail";
 import ProductLoading from "@/components/ProductLoading";
 import ProductNotFound from "@/components/ProductNotFound";
-import { getProductById } from "@/data/products";
+import { products, getProductById } from "@/data/products";
 
 const Product = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +17,7 @@ const Product = () => {
     setIsLoading(true);
     
     setTimeout(() => {
-      // Use the helper function
+      // Use the new helper function
       const foundProduct = getProductById(id || "") || null;
       console.log("Found product:", foundProduct);
       setProduct(foundProduct);

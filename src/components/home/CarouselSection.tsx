@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import ProductCarousel from "@/components/ProductCarousel";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 import { FilterX } from "lucide-react";
 import { getProductsByCategory } from "@/data/products";
 

@@ -13,11 +13,6 @@ export const products: ProductDetailProps[] = [
   ...oilsProducts
 ];
 
-// Helper function to get all products
-export const getAllProducts = (): ProductDetailProps[] => {
-  return products;
-};
-
 // Helper function to get products by category
 export const getProductsByCategory = (category: string): ProductDetailProps[] => {
   return products.filter(product => 
