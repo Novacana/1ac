@@ -8,8 +8,8 @@ import {
   Leaf,
   ArrowDownAZ,
   ArrowDownZA,
-  ArrowDown19,
-  Fire,
+  ArrowDown,
+  Flame,
   TrendingUp
 } from "lucide-react";
 import {
@@ -68,7 +68,7 @@ const Filters: React.FC<FiltersProps> = ({
       case 'price-desc':
         return <ArrowDownAZ className="h-3.5 w-3.5" />;
       case 'thc-desc':
-        return <Fire className="h-3.5 w-3.5" />;
+        return <Flame className="h-3.5 w-3.5" />;
       case 'popularity':
         return <TrendingUp className="h-3.5 w-3.5" />;
       default:
@@ -159,7 +159,7 @@ const Filters: React.FC<FiltersProps> = ({
                 className="text-xs cursor-pointer"
                 onClick={() => handleSortChange('thc-desc')}
               >
-                <Fire className="h-3.5 w-3.5 mr-2" />
+                <Flame className="h-3.5 w-3.5 mr-2" />
                 THC: Höchster zuerst
               </DropdownMenuItem>
             </DropdownMenuContent>
