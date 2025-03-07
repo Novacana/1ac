@@ -46,7 +46,10 @@ describe('FeaturesSection Component', () => {
       // Find the parent card element
       const cardElement = titleElement.closest('div[class*="animate-scale-in"]');
       expect(cardElement).toBeInTheDocument();
-      expect(cardElement?.style.animationDelay).toBe(`${index * 100}ms`);
+      
+      // Use getAttribute instead of style property as it's not available in testing environment
+      const styleAttribute = cardElement?.getAttribute('style');
+      expect(styleAttribute).toContain(`animation-delay: ${index * 100}ms`);
     });
   });
 

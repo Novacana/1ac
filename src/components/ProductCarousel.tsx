@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Product } from "@/types/product";
 import { ProductDetailProps } from "@/components/ProductDetail";
-import ProductModel from "@/components/ProductModel";
 import EmptyProductState from "@/components/EmptyProductState";
 import CarouselNavigation from "@/components/CarouselNavigation";
 
@@ -21,16 +21,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const totalProducts = products.length;
-
-  const nextProduct = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % featuredProducts.length);
-  };
-
-  const prevProduct = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + featuredProducts.length) % featuredProducts.length);
-  };
 
   // Get featured products based on the selected category
   const getFeaturedProducts = () => {
@@ -65,6 +55,14 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
 
   const featuredProducts = getFeaturedProducts();
   
+  const nextProduct = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % featuredProducts.length);
+  };
+
+  const prevProduct = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + featuredProducts.length) % featuredProducts.length);
+  };
+  
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (isMounted && featuredProducts.length > 0) {
@@ -83,19 +81,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
     return product.images?.[0] || '/placeholder.svg';
   };
 
-  // Common product props extraction for reuse
-  const getProductProps = (product: Product | ProductDetailProps) => {
-    return {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      thc: product.thc,
-      cbd: product.cbd,
-      category: product.category,
-      image: getProductImage(product)
-    };
-  };
-
   return (
     <section className="relative">
       <div className="container px-4 mx-auto">
@@ -111,12 +96,17 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                   transition={{ duration: 0.5 }}
                   className="h-full w-full"
                 >
+                  {/* Updated product prop passing to match ProductModel component interface */}
                   <ProductModel 
-                    {...getProductProps(featuredProducts[currentIndex])}
+                    product={featuredProducts[currentIndex]}
+                    isActive={true}
+                    index={currentIndex}
                   />
                 </motion.div>
               ) : (
-                <EmptyProductState text="No products available in this category" />
+                <EmptyProductState 
+                  message="No products available in this category" 
+                />
               )}
             </div>
             
@@ -147,11 +137,13 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
       
       
       <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-10">
+        {/* Updated props to match CarouselNavigation component interface */}
         <CarouselNavigation
+          activeIndex={currentIndex}
+          totalItems={featuredProducts.length}
           onPrevious={prevProduct}
           onNext={nextProduct}
-          hasPrevious={currentIndex > 0}
-          hasNext={currentIndex < featuredProducts.length - 1}
+          onDotClick={setCurrentIndex}
         />
       </div>
     </section>
