@@ -30,6 +30,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         // Array to hold products from all sources
         let allProducts: Product[] = [];
         let dataSource: "woocommerce" | "combined" | "local" = "local";
+        let wooCommerceProductCount = 0;
         
         // Try to fetch products from WooCommerce first if configured
         if (isWooCommerceConfigured()) {
@@ -42,6 +43,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
             
             // Add WooCommerce products to combined list
             allProducts = [...wooProducts];
+            wooCommerceProductCount = wooProducts.length;
             dataSource = "woocommerce";
             
             // Display toast to indicate WooCommerce integration is active
@@ -81,7 +83,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
             allProducts = [...allProducts, ...processedDataProducts];
             
             // Update data source indicator
-            if (dataSource === "woocommerce" && allProducts.length > wooProducts.length) {
+            if (dataSource === "woocommerce" && allProducts.length > wooCommerceProductCount) {
               dataSource = "combined";
             } else if (dataSource === "local" && allProducts.length > 0) {
               dataSource = "local";
