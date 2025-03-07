@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
+import ProductAdvisor from "./AdvisorBot";
 import { cn } from "@/lib/utils";
 
 interface LayoutProps {
@@ -33,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({
       >
         {children}
       </main>
+      <ProductAdvisor />
     </div>
   );
 };
