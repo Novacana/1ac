@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
+import TerpeneProfile from "./TerpeneProfile";
+import FlavorProfile from "./FlavorProfile";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -33,6 +35,17 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
+      
+      {/* Terpene and Flavor Profiles */}
+      <div className="grid grid-cols-1 gap-3 mt-3">
+        {product.flavors && product.flavors.length > 0 && (
+          <FlavorProfile flavors={product.flavors} />
+        )}
+        
+        {product.terpenes && product.terpenes.length > 0 && (
+          <TerpeneProfile product={product} />
+        )}
+      </div>
     </div>
   );
 };

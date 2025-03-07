@@ -1,4 +1,3 @@
-
 import React from "react";
 import { getFlavorColor } from "./utils";
 import { 
@@ -70,21 +69,18 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
   return (
     <div className="mb-3">
       <h4 className="text-xs font-medium mb-1">Geschmacksprofil</h4>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {flavors.map((flavor, index) => {
           const icon = getFlavorIcon(flavor);
           return (
-            <span 
-              key={index} 
-              className="px-2 py-2 rounded-full flex items-center justify-center"
-              style={{ 
-                backgroundColor: getFlavorColor(flavor),
-                color: 'rgba(0, 0, 0, 0.7)'
-              }}
-              title={flavor} // Add title for hover tooltip
-            >
+            <div key={index} className="flex items-center text-xs bg-background/50 rounded px-1.5 py-0.5 border border-border/30">
+              <span 
+                className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"
+                style={{ backgroundColor: getFlavorColor(flavor) }}
+              />
+              <span className="mr-1">{flavor}</span>
               {icon}
-            </span>
+            </div>
           );
         })}
       </div>
