@@ -44,9 +44,13 @@ const Header = () => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link
           to="/"
-          className="text-foreground font-display font-bold text-2xl transition-all duration-300 hover:opacity-80"
+          className="flex items-center transition-all duration-300 hover:opacity-80"
         >
-          1A Cannabis
+          <img 
+            src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
+            alt="1A Cannabis Logo" 
+            className="h-12 w-auto" 
+          />
         </Link>
 
         {/* Desktop Navigation */}
