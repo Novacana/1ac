@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
-  Flower2, 
+  Cannabis, 
   Droplet, 
   Cookie, 
   Cigarette, 
@@ -24,7 +24,7 @@ export interface CategoryPillProps {
 const getCategoryIcon = (category: string) => {
   switch (category) {
     case "Flowers":
-      return <Flower2 className="h-4 w-4" />;
+      return <Cannabis className="h-4 w-4" />; // Changed from Flower2 to Cannabis
     case "Oils":
       return <Pipette className="h-4 w-4" />; // Swapped: now using Pipette (toothpaste tube) for Oils
     case "Edibles":
@@ -42,7 +42,7 @@ const getCategoryIcon = (category: string) => {
     case "Books":
       return <BookOpen className="h-4 w-4" />;
     default:
-      return <Flower2 className="h-4 w-4" />; // Default to Flower2 if no match
+      return <Cannabis className="h-4 w-4" />; // Updated default to Cannabis as well
   }
 };
 

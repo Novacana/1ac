@@ -1,7 +1,7 @@
 
 import React from "react";
 import { 
-  Flower2, 
+  Cannabis, 
   Droplet, 
   Cookie, 
   Cigarette, 
@@ -18,7 +18,7 @@ interface ProductTagsProps {
 const getCategoryIcon = (category: string) => {
   switch (category) {
     case "Flowers":
-      return <Flower2 className="h-3 w-3" />;
+      return <Cannabis className="h-3 w-3" />; // Changed from Flower2 to Cannabis
     case "Oils":
       return <Pipette className="h-3 w-3" />; // Swapped: now using Pipette (toothpaste tube) for Oils
     case "Edibles":
