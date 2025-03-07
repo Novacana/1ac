@@ -26,10 +26,8 @@ const Header = () => {
   }, [location.pathname]);
 
   const navItems = [
-    { name: "Startseite", path: "/" },
-    { name: "Produkte", path: "/products" },
-    { name: "Über uns", path: "/about" },
-    { name: "Kontakt", path: "/contact" },
+    { name: "Showroom", path: "/" },
+    { name: "Shop", path: "/products" },
   ];
 
   return (
