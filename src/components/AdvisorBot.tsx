@@ -1,5 +1,6 @@
+
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX } from "lucide-react";
+import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -77,14 +78,20 @@ const ProductAdvisor = () => {
   const [elevenlabsApiKey, setElevenlabsApiKey] = useState<string | null>(
     localStorage.getItem("elevenlabsApiKey")
   );
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
     if (audioRef.current && audioRef.current.played) {
       audioRef.current.pause();
       setIsPlaying(false);
+    }
+    if (isListening) {
+      stopListening();
     }
   };
 
@@ -112,6 +119,9 @@ const ProductAdvisor = () => {
       audio.pause();
       audio.removeEventListener('ended', () => setIsPlaying(false));
       audio.removeEventListener('error', () => setIsPlaying(false));
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     };
   }, [toast]);
 
@@ -220,10 +230,93 @@ const ProductAdvisor = () => {
     }
   };
 
-  const handleSend = async () => {
-    if (input.trim() === "" || isLoading) return;
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
 
-    const userMessage = { role: "user" as const, content: input };
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: "Spracherkennung nicht unterstützt",
+        description: "Dein Browser unterstützt keine Spracherkennung. Bitte verwende Chrome, Edge oder Safari.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'de-DE';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast({
+        title: "Spracherkennung aktiv",
+        description: "Du kannst jetzt sprechen.",
+      });
+    };
+    
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      
+      if (finalTranscript !== '') {
+        setInput(finalTranscript);
+        if (!isLoading) {
+          handleSend(finalTranscript);
+          stopListening();
+        }
+      } else if (interimTranscript !== '') {
+        setInput(interimTranscript);
+      }
+    };
+    
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error('Speech recognition error', event.error);
+      stopListening();
+      toast({
+        title: "Fehler bei der Spracherkennung",
+        description: `Fehler: ${event.error}`,
+        variant: "destructive",
+      });
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleSend = async (manualInput?: string) => {
+    const userInput = manualInput || input;
+    if (userInput.trim() === "" || isLoading) return;
+
+    const userMessage = { role: "user" as const, content: userInput };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -233,7 +326,7 @@ const ProductAdvisor = () => {
       
       let botResponse = "";
       let recommendedProducts: Product[] = [];
-      const userQuery = input.toLowerCase();
+      const userQuery = userInput.toLowerCase();
       
       if (userQuery.includes("schmerz") || userQuery.includes("pain")) {
         botResponse = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
@@ -441,36 +534,62 @@ const ProductAdvisor = () => {
 
           <div className="p-3 border-t bg-card">
             <div className="flex items-center justify-center mb-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleVoice}
-                className="flex items-center gap-2 w-full max-w-[240px] justify-center"
-              >
-                {isVoiceEnabled ? (
-                  <>
-                    <Volume2 className="h-4 w-4" />
-                    <span>Sprachausgabe: Aktiv</span>
-                  </>
-                ) : (
-                  <>
-                    <VolumeX className="h-4 w-4" />
-                    <span>Sprachausgabe: Inaktiv</span>
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-2 w-full max-w-[240px] justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleVoice}
+                  className="flex items-center gap-2 justify-center"
+                >
+                  {isVoiceEnabled ? (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      <span>Stimme: An</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-4 w-4" />
+                      <span>Stimme: Aus</span>
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant={isListening ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleListening}
+                  className={cn(
+                    "flex items-center gap-2 justify-center",
+                    isListening && "bg-destructive hover:bg-destructive/90"
+                  )}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-4 w-4" />
+                      <span>Stopp</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-4 w-4" />
+                      <span>Sprechen</span>
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="flex gap-2">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Frage zu Cannabis-Produkten..."
-                className="min-h-[60px] resize-none"
+                placeholder={isListening ? "Sprich jetzt..." : "Frage zu Cannabis-Produkten..."}
+                className={cn(
+                  "min-h-[60px] resize-none",
+                  isListening && "border-primary animate-pulse"
+                )}
                 disabled={isLoading}
               />
               <Button 
-                onClick={handleSend} 
+                onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
                 className="shrink-0"
               >
