@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -33,6 +34,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const [isSwiping, setIsSwiping] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
+  const [hasMoved, setHasMoved] = useState(false);
   
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +79,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     startX.current = e.touches[0].clientX;
     setTouchStartX(e.touches[0].clientX);
     setIsSwiping(false);
+    setHasMoved(false);
     pauseAutoPlay();
   };
 
@@ -89,6 +92,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     
     if (Math.abs(distance) > 10) {
       setIsSwiping(true);
+      setHasMoved(true);
     }
   };
 
@@ -115,6 +119,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     startX.current = e.clientX;
     setTouchStartX(e.clientX);
     setIsSwiping(true);
+    setHasMoved(false);
     pauseAutoPlay();
   };
 
@@ -123,6 +128,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     
     const distance = e.clientX - startX.current;
     setSwipeDistance(distance);
+    
+    if (Math.abs(distance) > 10) {
+      setHasMoved(true);
+    }
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -266,7 +275,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   console.log("Current product image path:", imagePath);
 
   const handleProductClick = () => {
-    if (!isSwiping && filteredProducts.length > 0) {
+    if (!hasMoved && filteredProducts.length > 0) {
       const productId = filteredProducts[activeIndex].id;
       console.log(`Navigating to product detail page for product ID: ${productId}`);
       navigate(`/product/${productId}`);
