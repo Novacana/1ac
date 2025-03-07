@@ -7,22 +7,22 @@ const FeaturesSection: React.FC = () => {
     <section className="py-16 bg-primary/5">
       <div className="container px-4 mx-auto text-center">
         <h2 className="text-3xl font-bold mb-8 animate-slide-up">
-          Why Choose 1A Cannabis for Medical Cannabis?
+          Warum 1A Cannabis für medizinisches Cannabis wählen?
         </h2>
         
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
             {
-              title: "Licensed Physicians",
-              description: "Our products are prescribed by licensed doctors after a thorough consultation.",
+              title: "Lizenzierte Ärzte",
+              description: "Unsere Produkte werden von lizenzierten Ärzten nach einer gründlichen Beratung verschrieben.",
             },
             {
-              title: "Quality Guaranteed",
-              description: "All products are lab-tested for purity, potency and safety.",
+              title: "Garantierte Qualität",
+              description: "Alle Produkte werden im Labor auf Reinheit, Wirksamkeit und Sicherheit getestet.",
             },
             {
-              title: "Discreet Delivery",
-              description: "Your privacy matters - all orders are shipped in discreet packaging.",
+              title: "Diskrete Lieferung",
+              description: "Ihre Privatsphäre ist wichtig - alle Bestellungen werden in diskreter Verpackung verschickt.",
             },
           ].map((item, index) => (
             <div 

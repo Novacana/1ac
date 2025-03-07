@@ -58,20 +58,20 @@ const OrderConfirmation: React.FC = () => {
         <CheckCircle2 className="h-12 w-12 text-primary" />
       </div>
       
-      <h1 className="text-3xl font-bold mb-4">Thank You for Your Order!</h1>
+      <h1 className="text-3xl font-bold mb-4">Vielen Dank für Ihre Bestellung!</h1>
       
       <p className="text-foreground/70 mb-8 max-w-md mx-auto">
-        Your order has been placed and is being processed. You will receive an email confirmation shortly.
+        Ihre Bestellung wurde aufgegeben und wird bearbeitet. Sie erhalten in Kürze eine Bestätigungs-E-Mail.
       </p>
       
       <div className="bg-card border border-border rounded-lg p-6 max-w-md mx-auto mb-8 text-left">
-        <h3 className="font-medium mb-2">Order Details</h3>
-        <p className="text-sm text-muted-foreground mb-1">Order #: {orderId}</p>
-        <p className="text-sm text-muted-foreground mb-4">Estimated delivery: {estimatedDelivery}</p>
+        <h3 className="font-medium mb-2">Bestelldetails</h3>
+        <p className="text-sm text-muted-foreground mb-1">Bestellnummer: {orderId}</p>
+        <p className="text-sm text-muted-foreground mb-4">Voraussichtliche Lieferung: {estimatedDelivery}</p>
         
         {cartItems.length > 0 && (
           <div className="mt-4 pt-4 border-t border-border">
-            <h4 className="text-sm font-medium mb-2">Ordered Items:</h4>
+            <h4 className="text-sm font-medium mb-2">Bestellte Artikel:</h4>
             <ul className="space-y-2">
               {cartItems.map(item => (
                 <li key={item.id} className="text-sm flex justify-between">
@@ -90,22 +90,22 @@ const OrderConfirmation: React.FC = () => {
             className="w-full flex items-center justify-center"
             onClick={() => {
               // This would download the invoice in a real implementation
-              alert('Invoice download functionality would be implemented here');
+              alert('Rechnungsdownload-Funktion würde hier implementiert werden');
             }}
           >
             <FileText className="h-4 w-4 mr-2" />
-            Download Invoice
+            Rechnung herunterladen
           </Button>
         </div>
       </div>
       
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Your prescription information has been sent to the pharmacy. They will review your order and prepare your medication.
+          Ihre Rezeptinformationen wurden an die Apotheke gesendet. Sie werden Ihre Bestellung prüfen und Ihr Medikament vorbereiten.
         </p>
         
         <Button onClick={() => navigate("/")}>
-          Continue Shopping
+          Weiter einkaufen
         </Button>
       </div>
     </div>
