@@ -44,6 +44,29 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
     color: getTerpeneColor(terpene.name)
   })) || [];
 
+  // Function to get appropriate background color for flavor tags
+  const getFlavorColor = (flavor: string): string => {
+    const colorMap: Record<string, string> = {
+      'Earthy': '#FDE1D3', // Soft Peach
+      'Pine': '#F2FCE2',   // Soft Green
+      'Sweet': '#FEF7CD',  // Soft Yellow
+      'Citrus': '#FEC6A1', // Soft Orange
+      'Tropical': '#FEC6A1', // Soft Orange
+      'Herbal': '#F2FCE2', // Soft Green
+      'Nutty': '#FDE1D3',  // Soft Peach
+      'Menthol': '#D3E4FD', // Soft Blue
+      'Eucalyptus': '#D3E4FD', // Soft Blue
+      'Clean': '#D3E4FD',  // Soft Blue
+      'Mango': '#FEC6A1',  // Soft Orange
+      'Strawberry': '#FFDEE2', // Soft Pink
+      'Watermelon': '#FFDEE2', // Soft Pink
+      'Blueberry': '#D3E4FD', // Soft Blue
+      'Natural': '#F2FCE2', // Soft Green
+    };
+    
+    return colorMap[flavor] || '#F2FCE2'; // Default to soft green if no match
+  };
+
   return (
     <div 
       className={cn(
@@ -55,7 +78,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
     >
       <h3 className="text-sm font-medium mb-2 text-primary truncate">{product.name}</h3>
       
-      {/* Cannabinoid Profile */}
+      {/* Cannabinoid Profile - Now at the top */}
       <div className="mb-3">
         <h4 className="text-xs font-medium mb-1">Cannabinoid Profile</h4>
         <div className="space-y-2">
@@ -89,7 +112,40 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
         </div>
       </div>
       
-      {/* Terpene Profile */}
+      {/* Taste/Flavor Profile - New section in the middle */}
+      {product.flavors && product.flavors.length > 0 && (
+        <div className="mb-3">
+          <h4 className="text-xs font-medium mb-1">Taste Profile</h4>
+          <div className="flex flex-wrap gap-1">
+            {product.flavors.map((flavor, index) => (
+              <span 
+                key={index} 
+                className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                style={{ 
+                  backgroundColor: getFlavorColor(flavor),
+                  color: 'rgba(0, 0, 0, 0.7)'
+                }}
+              >
+                {flavor}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Quick info tags */}
+      <div className="flex flex-wrap gap-1 mb-3">
+        {product.strain && (
+          <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
+            {product.strain}
+          </span>
+        )}
+        <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
+          {product.category}
+        </span>
+      </div>
+      
+      {/* Terpene Profile - Now at the bottom */}
       {terpeneData.length > 0 && (
         <div>
           <h4 className="text-xs font-medium mb-1">Terpene Profile</h4>
@@ -138,18 +194,6 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
           </div>
         </div>
       )}
-      
-      {/* Quick info tags */}
-      <div className="flex flex-wrap gap-1 mt-2">
-        {product.strain && (
-          <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
-            {product.strain}
-          </span>
-        )}
-        <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
-          {product.category}
-        </span>
-      </div>
     </div>
   );
 };
