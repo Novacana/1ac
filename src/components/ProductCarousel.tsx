@@ -23,18 +23,24 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const [activeIndex, setActiveIndex] = useState(0);
   const canvasRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
+    setIsSwiping(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (startX.current === null) return;
+    // If the user has moved more than 10px, consider it a swipe
+    if (Math.abs(e.touches[0].clientX - startX.current) > 10) {
+      setIsSwiping(true);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (startX.current === null) return;
+    if (startX.current === null || !isSwiping) return;
     
     const endX = e.changedTouches[0].clientX;
     const diffX = endX - startX.current;
@@ -48,6 +54,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     }
     
     startX.current = null;
+    setIsSwiping(false);
   };
 
   // Navigation functions
@@ -77,7 +84,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
 
   return (
     <div className="w-full relative">
-      {activeProduct && <ProductInfoPanel product={activeProduct} />}
+      {/* Move the product info panel outside the touch area on mobile */}
+      <div className="hidden md:block">
+        {activeProduct && <ProductInfoPanel product={activeProduct} />}
+      </div>
       
       <div 
         ref={canvasRef} 
@@ -111,6 +121,11 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
           </PresentationControls>
           <Environment preset="city" />
         </Canvas>
+      </div>
+
+      {/* Show the product info panel below the carousel on mobile */}
+      <div className="md:hidden mt-4 px-4">
+        {activeProduct && <ProductInfoPanel product={activeProduct} />}
       </div>
 
       <CarouselNavigation
