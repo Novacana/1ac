@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,22 +7,36 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { products, getProductsByCategory } from "@/data/products";
 import { ProductDetailProps } from "@/components/ProductDetail";
+import { useConversation } from "@11labs/react";
 
 const ProductAdvisor = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
-  const [isListening, setIsListening] = useState(false);
+  const [isListening, setIsLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
   const [isPlaying, setIsPlaying] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState<ProductDetailProps[]>([]);
   const [showProducts, setShowProducts] = useState(false);
+  const [elevenLabsApiKey, setElevenLabsApiKey] = useState(localStorage.getItem("elevenlabs-key") || "");
+  const [isApiKeySet, setIsApiKeySet] = useState(!!localStorage.getItem("elevenlabs-key"));
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // ElevenLabs Voice Settings
+  const conversation = useConversation({
+    onError: (error) => {
+      console.error("ElevenLabs error:", error);
+      toast({
+        title: "Fehler bei der Sprachausgabe",
+        description: "Es gab ein Problem mit der ElevenLabs Sprachausgabe.",
+        variant: "destructive",
+      });
+    }
+  });
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -32,29 +45,25 @@ const ProductAdvisor = () => {
   }, [botResponse, recommendedProducts]);
 
   useEffect(() => {
-    if (isOpen && isVoiceEnabled && botResponse && !isPlaying) {
-      speakResponse(botResponse);
-    }
-  }, [botResponse, isOpen, isVoiceEnabled]);
-
-  useEffect(() => {
     // Cleanup function for speech services
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      if (speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
+      
+      // End ElevenLabs conversation if active
+      if (conversation.status === "connected") {
+        conversation.endSession();
       }
     };
-  }, []);
+  }, [conversation]);
 
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
     if (isOpen) {
       // Stop all audio if closing the advisor
-      if (speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
+      if (conversation.status === "connected") {
+        conversation.endSession();
         setIsPlaying(false);
       }
       if (isListening) {
@@ -63,36 +72,55 @@ const ProductAdvisor = () => {
     }
   };
 
-  const speakResponse = (text: string) => {
-    if (!isVoiceEnabled) return;
+  const speakResponse = async (text: string) => {
+    if (!isVoiceEnabled || !isApiKeySet) return;
     
     try {
-      if (isPlaying && speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
+      if (isPlaying) {
+        if (conversation.status === "connected") {
+          conversation.endSession();
+        }
         setIsPlaying(false);
         return;
       }
 
       setIsPlaying(true);
       
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'de-DE';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+      // Use ElevenLabs for voice synthesis
+      const options = {
+        overrides: {
+          tts: {
+            voiceId: "XB0fDUnXU5powFXDhCwa", // Charlotte - German voice
+          },
+          agent: {
+            language: "de",
+          }
+        }
+      };
       
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => {
+      // Simulate ElevenLabs response for this demo
+      // In a real implementation, you would use the actual agent
+      conversation.startSession({
+        url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa`,
+        headers: {
+          'xi-api-key': elevenLabsApiKey,
+          'Content-Type': 'application/json',
+        },
+        ...options
+      }).then(() => {
+        setTimeout(() => {
+          setIsPlaying(false);
+        }, text.length * 80); // Approximate duration based on text length
+      }).catch(error => {
+        console.error("Error with ElevenLabs:", error);
         setIsPlaying(false);
         toast({
           title: "Fehler bei der Sprachausgabe",
-          description: "Die Sprachausgabe konnte nicht gestartet werden.",
+          description: "Die ElevenLabs Sprachausgabe konnte nicht gestartet werden.",
           variant: "destructive",
         });
-      };
+      });
       
-      speechSynthesisRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
     } catch (error) {
       console.error("Error generating speech:", error);
       toast({
@@ -104,10 +132,24 @@ const ProductAdvisor = () => {
     }
   };
 
+  // Function to handle saving the API key
+  const handleSaveApiKey = () => {
+    if (elevenLabsApiKey) {
+      localStorage.setItem("elevenlabs-key", elevenLabsApiKey);
+      setIsApiKeySet(true);
+      toast({
+        title: "API-Schlüssel gespeichert",
+        description: "Dein ElevenLabs API-Schlüssel wurde gespeichert.",
+      });
+    }
+  };
+
   const toggleVoice = () => {
     setIsVoiceEnabled(!isVoiceEnabled);
-    if (isPlaying && speechSynthesisRef.current) {
-      window.speechSynthesis.cancel();
+    if (isPlaying) {
+      if (conversation.status === "connected") {
+        conversation.endSession();
+      }
       setIsPlaying(false);
     }
   };
@@ -349,136 +391,158 @@ const ProductAdvisor = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <div className="flex flex-col items-center justify-center text-center mb-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-                <Bot className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="font-medium">Cannabis-Berater</h3>
-              <p className="text-sm text-muted-foreground">Sprich mit mir über Cannabis-Produkte</p>
+          {!isApiKeySet ? (
+            <div className="flex-1 p-4 flex flex-col items-center justify-center">
+              <h3 className="text-lg font-medium mb-4">ElevenLabs API-Schlüssel</h3>
+              <p className="text-sm text-center mb-4">
+                Für eine bessere Sprachqualität benötigen wir deinen ElevenLabs API-Schlüssel. 
+                Du kannst einen kostenlosen API-Schlüssel bei <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" className="text-primary underline">ElevenLabs</a> erhalten.
+              </p>
+              <input
+                type="password"
+                value={elevenLabsApiKey}
+                onChange={(e) => setElevenLabsApiKey(e.target.value)}
+                placeholder="Gib deinen ElevenLabs API-Schlüssel ein"
+                className="w-full p-2 border rounded mb-4"
+              />
+              <Button onClick={handleSaveApiKey} disabled={!elevenLabsApiKey}>
+                Speichern
+              </Button>
             </div>
-
-            {/* Bot response section */}
-            <div className="animate-fade-in">
-              <div className="bg-secondary text-secondary-foreground self-start rounded-lg p-3 rounded-tl-none">
-                <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                  <Bot className="h-3 w-3" /> Berater
-                  {isPlaying && (
-                    <span className="inline-flex gap-1">
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
-                      <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
-                    </span>
-                  )}
-                </div>
-                {botResponse}
-              </div>
-            </div>
-
-            {/* User input display */}
-            {transcript && (
-              <div className="animate-fade-in">
-                <div className="bg-primary text-primary-foreground self-end rounded-lg p-3 rounded-br-none ml-auto">
-                  <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
-                    <User className="h-3 w-3" /> Du
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex flex-col items-center justify-center text-center mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+                    <Bot className="h-8 w-8 text-primary" />
                   </div>
-                  {transcript}
+                  <h3 className="font-medium">Cannabis-Berater</h3>
+                  <p className="text-sm text-muted-foreground">Sprich mit mir über Cannabis-Produkte</p>
+                </div>
+
+                {/* Bot response section */}
+                <div className="animate-fade-in">
+                  <div className="bg-secondary text-secondary-foreground self-start rounded-lg p-3 rounded-tl-none">
+                    <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                      <Bot className="h-3 w-3" /> Berater
+                      {isPlaying && (
+                        <span className="inline-flex gap-1">
+                          <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                          <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                          <span className="inline-block h-1.5 w-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                        </span>
+                      )}
+                    </div>
+                    {botResponse}
+                  </div>
+                </div>
+
+                {/* User input display */}
+                {transcript && (
+                  <div className="animate-fade-in">
+                    <div className="bg-primary text-primary-foreground self-end rounded-lg p-3 rounded-br-none ml-auto">
+                      <div className="flex items-center gap-2 mb-1 text-xs opacity-70">
+                        <User className="h-3 w-3" /> Du
+                      </div>
+                      {transcript}
+                    </div>
+                  </div>
+                )}
+
+                {/* Products display */}
+                {showProducts && recommendedProducts.length > 0 && (
+                  <div className="mt-2 grid gap-2 max-w-[90%]">
+                    {recommendedProducts.map((product) => (
+                      <Link 
+                        to={`/product/${product.id}`}
+                        key={product.id}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-200 animate-scale-in"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
+                          <img 
+                            src={product.images?.[0] || "public/placeholder.svg"} 
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
+                          <div className="flex justify-between items-center mt-0.5">
+                            <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{
+                              product.category === "Blüten" ? "Blüten" : 
+                              product.category === "Öle" ? "Öle" : 
+                              product.category
+                            }</span>
+                            <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                {/* Loading indicator */}
+                {isLoading && (
+                  <div className="flex max-w-[85%] rounded-lg p-3 bg-secondary text-secondary-foreground self-start rounded-tl-none animate-pulse">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  </div>
+                )}
+
+                <div ref={bottomRef} />
+              </div>
+
+              <div className="p-3 border-t bg-card">
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-center mb-1">
+                    <Button
+                      variant={isListening ? "destructive" : "default"}
+                      size="lg"
+                      onClick={toggleListening}
+                      className="w-full max-w-[280px] h-12 rounded-full gap-2"
+                    >
+                      {isListening ? (
+                        <>
+                          <div className="relative">
+                            <Mic className="h-5 w-5" />
+                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                          </div>
+                          <span>Zuhören... (Klick zum Stoppen)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="h-5 w-5" />
+                          <span>Drücke zum Sprechen</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleVoice}
+                      className="flex items-center gap-2 justify-center"
+                    >
+                      {isVoiceEnabled ? (
+                        <>
+                          <Volume2 className="h-4 w-4" />
+                          <span>Stimme: An</span>
+                        </>
+                      ) : (
+                        <>
+                          <VolumeX className="h-4 w-4" />
+                          <span>Stimme: Aus</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
-            )}
-
-            {/* Products display */}
-            {showProducts && recommendedProducts.length > 0 && (
-              <div className="mt-2 grid gap-2 max-w-[90%]">
-                {recommendedProducts.map((product) => (
-                  <Link 
-                    to={`/product/${product.id}`}
-                    key={product.id}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-200 animate-scale-in"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <div className="w-12 h-12 rounded-md overflow-hidden bg-secondary/20 shrink-0">
-                      <img 
-                        src={product.images?.[0] || "public/placeholder.svg"} 
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
-                      <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-xs bg-secondary/40 px-1.5 py-0.5 rounded">{
-                          product.category === "Blüten" ? "Blüten" : 
-                          product.category === "Öle" ? "Öle" : 
-                          product.category
-                        }</span>
-                        <span className="font-bold text-sm">€{product.price.toFixed(2)}</span>
-                      </div>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            )}
-
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex max-w-[85%] rounded-lg p-3 bg-secondary text-secondary-foreground self-start rounded-tl-none animate-pulse">
-                <Loader2 className="h-5 w-5 animate-spin" />
-              </div>
-            )}
-
-            <div ref={bottomRef} />
-          </div>
-
-          <div className="p-3 border-t bg-card">
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-center mb-1">
-                <Button
-                  variant={isListening ? "destructive" : "default"}
-                  size="lg"
-                  onClick={toggleListening}
-                  className="w-full max-w-[280px] h-12 rounded-full gap-2"
-                >
-                  {isListening ? (
-                    <>
-                      <div className="relative">
-                        <Mic className="h-5 w-5" />
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
-                      </div>
-                      <span>Zuhören... (Klick zum Stoppen)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="h-5 w-5" />
-                      <span>Drücke zum Sprechen</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-              
-              <div className="flex items-center justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleVoice}
-                  className="flex items-center gap-2 justify-center"
-                >
-                  {isVoiceEnabled ? (
-                    <>
-                      <Volume2 className="h-4 w-4" />
-                      <span>Stimme: An</span>
-                    </>
-                  ) : (
-                    <>
-                      <VolumeX className="h-4 w-4" />
-                      <span>Stimme: Aus</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </Card>
       </div>
     </>
