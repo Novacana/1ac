@@ -55,11 +55,12 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (startX.current === null || !isSwiping) return;
+    if (startX.current === null) return;
     
     setTouchEndX(e.changedTouches[0].clientX);
     const diffX = e.changedTouches[0].clientX - startX.current;
     
+    // If swipe distance is significant enough, navigate
     if (Math.abs(diffX) > 50) {
       if (diffX > 0) {
         goToPrevious();
@@ -93,6 +94,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     
     const diffX = e.clientX - startX.current;
     
+    // If swipe distance is significant enough, navigate
     if (Math.abs(diffX) > 50) {
       if (diffX > 0) {
         goToPrevious();
@@ -117,25 +119,32 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
 
   // Navigation functions
   const goToNext = () => {
+    if (filteredProducts.length <= 1) return;
     setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
     setImageLoading(true);
+    console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
   };
 
   const goToPrevious = () => {
+    if (filteredProducts.length <= 1) return;
     setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
     setImageLoading(true);
+    console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
   };
 
   const goToIndex = (index: number) => {
+    if (index === activeIndex) return;
     setActiveIndex(index);
     setImageLoading(true);
+    console.log("Going to specific index:", index);
   };
 
-  // Reset active index when category changes
+  // Reset active index when category changes or products change
   useEffect(() => {
+    console.log("Products or category changed, resetting active index");
     setActiveIndex(0);
     setImageLoading(true);
-  }, [selectedCategory]);
+  }, [selectedCategory, filteredProducts.length]);
 
   // If no products, show empty state
   if (filteredProducts.length === 0) {

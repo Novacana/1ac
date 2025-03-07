@@ -34,10 +34,12 @@ const CarouselSection: React.FC<CarouselSectionProps> = ({ products, selectedCat
           return img.startsWith("/") ? img : `/${img}`;
         });
         
+        // Convert to Product type to ensure compatibility
         return {
           ...product,
+          image: fixedImages[0] || "/placeholder.svg", // Add required image property
           images: fixedImages.length > 0 ? fixedImages : ["/placeholder.svg"]
-        };
+        } as Product;
       });
       
       setCheckedProducts(processedDataProducts);
