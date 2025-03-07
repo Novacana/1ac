@@ -3,9 +3,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import CategoryPill from "@/components/CategoryPill";
-import ProductCarousel from "@/components/ProductCarousel";
 import { cn } from "@/lib/utils";
-import { Product } from "@/types/product";
 
 // Sample data - in a real app this would come from an API
 const categories = [
@@ -18,12 +16,12 @@ const categories = [
   "Accessories",
 ];
 
-const products: Product[] = [
+const products = [
   {
     id: "1",
-    name: "Purple Haze",
+    name: "Medical Cannabis Flower",
     price: 49.99,
-    image: "https://flowzz.com/wp-content/uploads/2023/05/purple-haze-1.jpg",
+    image: "https://images.unsplash.com/photo-1603909223429-69bb7101f92e?q=80&w=2940&auto=format&fit=crop",
     thc: "20%",
     cbd: "0.5%",
     category: "Flowers",
@@ -48,12 +46,12 @@ const products: Product[] = [
   },
   {
     id: "4",
-    name: "Blue Dream",
-    price: 45.99,
-    image: "https://flowzz.com/wp-content/uploads/2023/08/blue-dream-flowers.jpg",
-    thc: "18%",
-    cbd: "1%",
-    category: "Flowers",
+    name: "Hemp-Infused Body Cream",
+    price: 29.99,
+    image: "https://images.unsplash.com/photo-1607621048318-c2d5bdc0ee39?q=80&w=2940&auto=format&fit=crop",
+    thc: "0%",
+    cbd: "5%",
+    category: "Topicals",
   },
   {
     id: "5",
@@ -66,12 +64,10 @@ const products: Product[] = [
   },
   {
     id: "6",
-    name: "OG Kush",
-    price: 52.99,
-    image: "https://flowzz.com/wp-content/uploads/2023/07/og-kush-strain.jpg",
-    thc: "22%",
-    cbd: "0.3%",
-    category: "Flowers",
+    name: "Premium Grinder",
+    price: 19.99,
+    image: "https://images.unsplash.com/photo-1603851887849-5eca2b0f8fae?q=80&w=2940&auto=format&fit=crop",
+    category: "Accessories",
   },
 ];
 
@@ -102,13 +98,21 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-background/80">
-        <div className="container px-4 mx-auto">
-          {/* 3D Product Carousel */}
-          <ProductCarousel products={products} selectedCategory={selectedCategory} />
+      <section className="py-12 md:py-16">
+        <div className="container px-4 mx-auto text-center">
+          <div className="flex justify-center mb-4 animate-slide-down">
+            <img 
+              src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
+              alt="1A Cannabis Logo" 
+              className="h-32 w-auto" 
+            />
+          </div>
+          <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
+            High-quality medical cannabis products prescribed by licensed physicians, 
+            delivered discreetly to your door.
+          </p>
           
-          {/* Traditional Products Grid (as backup/alternative) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product, index) => (
               <div
                 key={product.id}
