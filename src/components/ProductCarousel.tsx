@@ -3,6 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Environment, Float, PresentationControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Product } from "@/types/product";
+import ProductInfoPanel from "./ProductInfoPanel";
 
 interface ProductModelProps {
   product: Product;
@@ -10,17 +11,14 @@ interface ProductModelProps {
   index: number;
 }
 
-// Individual product model
 const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   
-  // Position the product at the center when active, otherwise to the side
   const position: [number, number, number] = isActive 
     ? [0, 0, 0] 
     : [isActive ? 0 : index > 0 ? 5 : -5, 0, 0];
   
-  // Rotate the product
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.01;
@@ -65,7 +63,6 @@ const ProductModel: React.FC<ProductModelProps> = ({ product, isActive, index })
     }
   };
 
-  // Scale up active product
   const scale = isActive ? (hovered ? 1.15 : 1.05) : 0.8;
 
   return (
@@ -101,7 +98,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   const canvasRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
 
-  // Handle swipe gesture
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
   };
@@ -116,13 +112,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     const endX = e.changedTouches[0].clientX;
     const diffX = endX - startX.current;
     
-    // Determine swipe direction based on distance moved
     if (Math.abs(diffX) > 50) {
       if (diffX > 0) {
-        // Swipe right (previous)
         setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
       } else {
-        // Swipe left (next)
         setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
       }
     }
@@ -130,12 +123,10 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     startX.current = null;
   };
 
-  // Reset active index when filtered products change
   useEffect(() => {
     setActiveIndex(0);
   }, [selectedCategory]);
 
-  // Handle manual navigation
   const goNext = () => {
     setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
   };
@@ -144,7 +135,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
   };
 
-  // If no products match the filter, show the first category's products
   if (filteredProducts.length === 0) {
     return (
       <div className="w-full h-[400px] flex items-center justify-center">
@@ -153,8 +143,12 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     );
   }
 
+  const activeProduct = filteredProducts[activeIndex];
+
   return (
     <div className="w-full relative">
+      <ProductInfoPanel product={activeProduct} />
+      
       <div 
         ref={canvasRef} 
         className="w-full h-[400px] md:h-[500px] touch-none"
@@ -189,7 +183,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         </Canvas>
       </div>
 
-      {/* Navigation buttons for desktop */}
       <div className="hidden md:flex absolute inset-y-0 left-4 items-center">
         <button 
           onClick={goPrevious}
@@ -214,7 +207,6 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         </button>
       </div>
 
-      {/* Dots indicator */}
       <div className="flex justify-center mt-4">
         {filteredProducts.map((_, index) => (
           <button
