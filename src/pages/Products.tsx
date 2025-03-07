@@ -17,6 +17,7 @@ const Products = () => {
   const [imagesLoaded, setImagesLoaded] = useState<{[key: string]: boolean}>({});
   const [dataSource, setDataSource] = useState<"woocommerce" | "local" | "combined" | "loading">("loading");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [isDataLoading, setIsDataLoading] = useState(true);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -36,6 +37,7 @@ const Products = () => {
     setAllProducts(products);
     setFilteredProducts(products);
     setDataSource(source);
+    setIsDataLoading(false);
     
     // Pre-load images to check for errors
     products.forEach(product => {
@@ -118,7 +120,7 @@ const Products = () => {
           <DataSourceIndicator dataSource={dataSource} />
         </div>
         
-        {dataSource === "loading" ? (
+        {isDataLoading ? (
           <LoadingState />
         ) : (
           <>
