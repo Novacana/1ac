@@ -3,12 +3,15 @@ import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { getTerpeneColor, parsePercentage, getTerpeneEffect } from "./utils";
 import { Product } from "@/types/product";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TerpeneProfileProps {
   product: Product;
 }
 
 const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
+  const isMobile = useIsMobile();
+  
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
   // Create terpene data for the pie chart
@@ -28,7 +31,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
       <div className="flex items-start">
-        <div className="h-[100px] relative w-1/2">
+        <div className={`h-[100px] relative ${isMobile ? 'w-full' : 'w-1/2'}`}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -68,23 +71,25 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
           </ResponsiveContainer>
         </div>
         
-        {/* Terpene effects */}
-        <div className="ml-2 w-1/2">
-          <div className="text-[9px] text-foreground/70 h-[100px] overflow-y-auto">
-            {terpeneData.map((terpene, index) => (
-              <div key={index} className="mb-1.5 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="flex items-center">
-                  <div 
-                    className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
-                    style={{ backgroundColor: terpene.color }}
-                  />
-                  <span className="font-medium">{terpene.name}</span>
+        {/* Terpene effects - only show on desktop */}
+        {!isMobile && (
+          <div className="ml-2 w-1/2">
+            <div className="text-[9px] text-foreground/70 h-[100px] overflow-y-auto">
+              {terpeneData.map((terpene, index) => (
+                <div key={index} className="mb-1.5 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div className="flex items-center">
+                    <div 
+                      className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0"
+                      style={{ backgroundColor: terpene.color }}
+                    />
+                    <span className="font-medium">{terpene.name}</span>
+                  </div>
+                  <div className="pl-2.5 leading-tight">{terpene.effect}</div>
                 </div>
-                <div className="pl-2.5 leading-tight">{terpene.effect}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
       
       {/* Compact legend */}
