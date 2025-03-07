@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Flower2, Droplet, Cookie, Spray, Cigarette, ShoppingBag } from "lucide-react";
+import { Flower2, Droplet, Cookie, Cigarette, ShoppingBag } from "lucide-react";
 
 export interface CategoryPillProps {
   label: string;
@@ -20,7 +20,7 @@ const getCategoryIcon = (category: string) => {
     case "Edibles":
       return <Cookie className="h-4 w-4" />;
     case "Topicals":
-      return <Spray className="h-4 w-4" />;
+      return <Droplet className="h-4 w-4" />; // Changed from Spray to Droplet for Topicals
     case "Vapes":
       return <Cigarette className="h-4 w-4" />;
     case "Accessories":
@@ -46,14 +46,14 @@ const CategoryPill: React.FC<CategoryPillProps> = ({
       onClick={onClick}
       className={cn(
         "rounded-full transition-all duration-200 whitespace-nowrap",
-        "hover:shadow-md min-w-fit",
+        "hover:shadow-md min-w-fit p-2",
         active && "font-medium",
         className
       )}
       style={style}
+      title={label} // Added title attribute for accessibility
     >
       {icon}
-      <span className="md:inline hidden">{label}</span>
     </Button>
   );
 };
