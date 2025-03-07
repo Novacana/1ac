@@ -3,7 +3,9 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import CategoryPill from "@/components/CategoryPill";
+import ProductCarousel from "@/components/ProductCarousel";
 import { cn } from "@/lib/utils";
+import { Product } from "@/types/product";
 
 // Sample data - in a real app this would come from an API
 const categories = [
@@ -16,7 +18,7 @@ const categories = [
   "Accessories",
 ];
 
-const products = [
+const products: Product[] = [
   {
     id: "1",
     name: "Medical Cannabis Flower",
@@ -98,21 +100,13 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
-        <div className="container px-4 mx-auto text-center">
-          <div className="flex justify-center mb-4 animate-slide-down">
-            <img 
-              src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
-              alt="1A Cannabis Logo" 
-              className="h-32 w-auto" 
-            />
-          </div>
-          <p className="text-foreground/70 text-lg max-w-2xl mx-auto mb-12 animate-fade-in">
-            High-quality medical cannabis products prescribed by licensed physicians, 
-            delivered discreetly to your door.
-          </p>
+      <section className="py-12 md:py-16 bg-gradient-to-b from-background to-background/80">
+        <div className="container px-4 mx-auto">
+          {/* 3D Product Carousel */}
+          <ProductCarousel products={products} selectedCategory={selectedCategory} />
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Traditional Products Grid (as backup/alternative) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
             {filteredProducts.map((product, index) => (
               <div
                 key={product.id}
