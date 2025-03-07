@@ -13,7 +13,7 @@ const ProductAdvisor = () => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
-  const [isListening, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
@@ -241,8 +241,8 @@ const ProductAdvisor = () => {
 
     try {
       // If bot is currently speaking, stop it
-      if (isPlaying && speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
+      if (isPlaying && conversation.status === "connected") {
+        conversation.endSession();
         setIsPlaying(false);
       }
 
