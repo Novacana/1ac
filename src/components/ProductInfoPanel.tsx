@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -13,6 +14,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   const [thcProgress, setThcProgress] = useState(0);
   const [cbdProgress, setCbdProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const { t, language } = useLanguage();
 
   // Parse THC and CBD values
   const parsePercentage = (value: string | undefined) => {
@@ -62,9 +64,27 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       'Watermelon': '#FFDEE2', // Soft Pink
       'Blueberry': '#D3E4FD', // Soft Blue
       'Natural': '#F2FCE2', // Soft Green
+      'Erdig': '#FDE1D3', // Soft Peach
+      'Kiefer': '#F2FCE2',   // Soft Green
+      'Süß': '#FEF7CD',  // Soft Yellow
+      'Zitrus': '#FEC6A1', // Soft Orange
+      'Tropisch': '#FEC6A1', // Soft Orange
+      'Kräuterig': '#F2FCE2', // Soft Green
+      'Nussig': '#FDE1D3',  // Soft Peach
+      'Eukalyptus': '#D3E4FD', // Soft Blue
+      'Rein': '#D3E4FD',  // Soft Blue
+      'Erdbeere': '#FFDEE2', // Soft Pink
+      'Wassermelone': '#FFDEE2', // Soft Pink
+      'Blaubeere': '#D3E4FD', // Soft Blue
+      'Natürlich': '#F2FCE2', // Soft Green
     };
     
     return colorMap[flavor] || '#F2FCE2'; // Default to soft green if no match
+  };
+
+  // Übersetze Flavor-Text je nach ausgewählter Sprache
+  const translateFlavor = (flavor: string): string => {
+    return t(flavor) || flavor;
   };
 
   return (
@@ -80,7 +100,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Cannabinoid Profile - Now at the top */}
       <div className="mb-3">
-        <h4 className="text-xs font-medium mb-1">Cannabinoid Profile</h4>
+        <h4 className="text-xs font-medium mb-1">{t("cannabinoid_profile")}</h4>
         <div className="space-y-2">
           {product.thc && (
             <div>
@@ -115,7 +135,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Taste/Flavor Profile - New section in the middle */}
       {product.flavors && product.flavors.length > 0 && (
         <div className="mb-3">
-          <h4 className="text-xs font-medium mb-1">Taste Profile</h4>
+          <h4 className="text-xs font-medium mb-1">{t("taste_profile")}</h4>
           <div className="flex flex-wrap gap-1">
             {product.flavors.map((flavor, index) => (
               <span 
@@ -126,7 +146,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
                   color: 'rgba(0, 0, 0, 0.7)'
                 }}
               >
-                {flavor}
+                {translateFlavor(flavor)}
               </span>
             ))}
           </div>
@@ -148,7 +168,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Terpene Profile - Now at the bottom */}
       {terpeneData.length > 0 && (
         <div>
-          <h4 className="text-xs font-medium mb-1">Terpene Profile</h4>
+          <h4 className="text-xs font-medium mb-1">{t("terpene_profile")}</h4>
           <div className="h-[100px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -168,7 +188,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value) => [`${value}%`, 'Concentration']}
+                  formatter={(value) => [`${value}%`, t("concentration")]}
                   contentStyle={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.8)', 
                     borderRadius: '4px',

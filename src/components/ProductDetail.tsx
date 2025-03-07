@@ -5,6 +5,7 @@ import { ShoppingCart, ArrowLeft, Minus, Plus, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface ProductDetailProps {
   id: string;
@@ -44,6 +45,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const { t } = useLanguage();
 
   const handleQuantityChange = (amount: number) => {
     const newQuantity = quantity + amount;
@@ -67,7 +69,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:text-primary mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to products
+          {t("back_to_products")}
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
@@ -141,7 +143,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Benefits */}
             {benefits?.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-semibold">Benefits</h3>
+                <h3 className="font-semibold">{t("benefits")}</h3>
                 <ul className="space-y-1">
                   {benefits.map((benefit, index) => (
                     <li
@@ -160,7 +162,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Effects */}
             {effects?.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-semibold">Effects</h3>
+                <h3 className="font-semibold">{t("effects")}</h3>
                 <div className="flex flex-wrap gap-2">
                   {effects.map((effect, index) => (
                     <span
@@ -178,7 +180,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* How to use */}
             {use && (
               <div className="space-y-2">
-                <h3 className="font-semibold">How to use</h3>
+                <h3 className="font-semibold">{t("how_to_use")}</h3>
                 <p className="text-sm text-foreground/80">{use}</p>
               </div>
             )}
@@ -186,7 +188,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Quantity and Add to Cart */}
             <div className="pt-4 space-y-6">
               <div className="flex items-center">
-                <span className="mr-4">Quantity</span>
+                <span className="mr-4">{t("quantity")}</span>
                 <div className="flex items-center border border-input rounded-md">
                   <Button
                     variant="ghost"
@@ -196,7 +198,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     className="h-9 w-9 rounded-none"
                   >
                     <Minus className="h-3 w-3" />
-                    <span className="sr-only">Decrease quantity</span>
+                    <span className="sr-only">{t("decrease_quantity")}</span>
                   </Button>
 
                   <span className="w-12 text-center">{quantity}</span>
@@ -209,7 +211,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                     className="h-9 w-9 rounded-none"
                   >
                     <Plus className="h-3 w-3" />
-                    <span className="sr-only">Increase quantity</span>
+                    <span className="sr-only">{t("increase_quantity")}</span>
                   </Button>
                 </div>
               </div>
@@ -222,12 +224,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 {addedToCart ? (
                   <>
                     <Check className="h-5 w-5 mr-2" />
-                    Added to Cart
+                    {t("added_to_cart")}
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
+                    {t("add_to_cart")}
                   </>
                 )}
               </Button>
