@@ -1,11 +1,56 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileText } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { isWooCommerceConfigured } from "@/utils/woocommerce";
 
 const OrderConfirmation: React.FC = () => {
   const navigate = useNavigate();
+  const { cartItems, clearCart } = useCart();
+  const [orderId, setOrderId] = useState<string>('');
+  const [estimatedDelivery, setEstimatedDelivery] = useState<string>('');
+  
+  useEffect(() => {
+    // Generate a random order ID for simulation purposes
+    // In a real implementation, this would come from the WooCommerce API
+    const generateRandomOrderId = () => {
+      const prefix = isWooCommerceConfigured() ? 'WC-' : 'DRA-';
+      const randomNum = Math.floor(Math.random() * 9000000) + 1000000;
+      return `${prefix}${randomNum}`;
+    };
+    
+    // Calculate estimated delivery date (3-5 business days from now)
+    const calculateEstimatedDelivery = () => {
+      const today = new Date();
+      const minDays = 3;
+      const maxDays = 5;
+      
+      // Format as date range
+      const minDate = new Date(today);
+      minDate.setDate(today.getDate() + minDays);
+      
+      const maxDate = new Date(today);
+      maxDate.setDate(today.getDate() + maxDays);
+      
+      // Format dates
+      const formatDate = (date: Date) => {
+        return date.toLocaleDateString('de-DE', {
+          day: 'numeric',
+          month: 'long'
+        });
+      };
+      
+      return `${formatDate(minDate)} - ${formatDate(maxDate)}`;
+    };
+    
+    setOrderId(generateRandomOrderId());
+    setEstimatedDelivery(calculateEstimatedDelivery());
+    
+    // Clear the cart after successful order
+    clearCart();
+  }, [clearCart]);
 
   return (
     <div className="text-center py-12 animate-fade-in">
@@ -21,13 +66,48 @@ const OrderConfirmation: React.FC = () => {
       
       <div className="bg-card border border-border rounded-lg p-6 max-w-md mx-auto mb-8 text-left">
         <h3 className="font-medium mb-2">Order Details</h3>
-        <p className="text-sm text-muted-foreground mb-1">Order #: DRA-9385721</p>
-        <p className="text-sm text-muted-foreground">Estimated delivery: 3-5 business days</p>
+        <p className="text-sm text-muted-foreground mb-1">Order #: {orderId}</p>
+        <p className="text-sm text-muted-foreground mb-4">Estimated delivery: {estimatedDelivery}</p>
+        
+        {cartItems.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-border">
+            <h4 className="text-sm font-medium mb-2">Ordered Items:</h4>
+            <ul className="space-y-2">
+              {cartItems.map(item => (
+                <li key={item.id} className="text-sm flex justify-between">
+                  <span>{item.name} x{item.quantity}</span>
+                  <span className="font-medium">€{(item.price * item.quantity).toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        <div className="mt-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center justify-center"
+            onClick={() => {
+              // This would download the invoice in a real implementation
+              alert('Invoice download functionality would be implemented here');
+            }}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Download Invoice
+          </Button>
+        </div>
       </div>
       
-      <Button onClick={() => navigate("/")}>
-        Continue Shopping
-      </Button>
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          Your prescription information has been sent to the pharmacy. They will review your order and prepare your medication.
+        </p>
+        
+        <Button onClick={() => navigate("/")}>
+          Continue Shopping
+        </Button>
+      </div>
     </div>
   );
 };
