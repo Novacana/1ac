@@ -17,7 +17,12 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   console.log("ProductCarousel - selectedCategory:", selectedCategory);
   console.log("ProductCarousel - products:", products);
   
-  const filteredProducts = products.filter(product => product.category === selectedCategory);
+  // Wandle die Kategorie "Flowers" zu "Blüten" um, wenn wir die deutsche Version verwenden
+  const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
+  
+  const filteredProducts = products.filter(product => 
+    product.category === normalizedCategory || product.category === selectedCategory
+  );
   console.log("ProductCarousel - filteredProducts:", filteredProducts);
   
   const [activeIndex, setActiveIndex] = useState(0);
