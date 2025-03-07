@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
@@ -20,8 +20,17 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const loadedRef = useRef(false);
+  const previousCategoryRef = useRef(selectedCategory);
 
   useEffect(() => {
+    // Only load products if:
+    // 1. We haven't loaded them yet
+    // 2. OR the category has changed
+    if (loadedRef.current && previousCategoryRef.current === selectedCategory) {
+      return;
+    }
+
     const loadProducts = async () => {
       setIsLoading(true);
       setError(null);
@@ -32,35 +41,7 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         let dataSource: "woocommerce" | "combined" | "local" = "local";
         let wooCommerceProductCount = 0;
         
-        // Try to fetch products from WooCommerce first if configured
-        if (isWooCommerceConfigured()) {
-          console.log("Fetching products from WooCommerce integration");
-          
-          try {
-            const wooProducts = await fetchWooCommerceProducts();
-            
-            if (wooProducts && wooProducts.length > 0) {
-              console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
-              
-              // Add WooCommerce products to combined list
-              allProducts = [...wooProducts];
-              wooCommerceProductCount = wooProducts.length;
-              dataSource = "woocommerce";
-              
-              // Display toast to indicate WooCommerce integration is active
-              toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
-            } else {
-              console.log("No products found in WooCommerce");
-            }
-          } catch (wooError) {
-            console.error("Error fetching WooCommerce products:", wooError);
-            toast.error("Failed to load WooCommerce products");
-          }
-        } else {
-          console.log("WooCommerce is not configured");
-        }
-        
-        // Always load local products to combine or as fallback
+        // Always load local products first
         try {
           const { getProductsByCategory } = await import('@/data/products');
           const dataProducts = getProductsByCategory(selectedCategory);
@@ -87,17 +68,49 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
             });
             
             // Add local products to the combined list
-            allProducts = [...allProducts, ...processedDataProducts];
-            
-            // Update data source indicator
-            if (dataSource === "woocommerce" && allProducts.length > wooCommerceProductCount) {
-              dataSource = "combined";
-            } else if (dataSource === "local" && allProducts.length > 0) {
-              dataSource = "local";
-            }
+            allProducts = [...processedDataProducts];
+            dataSource = "local";
           }
         } catch (importError) {
           console.error("Error importing local products:", importError);
+        }
+        
+        // Try to fetch products from WooCommerce if configured
+        if (isWooCommerceConfigured()) {
+          console.log("Fetching products from WooCommerce integration");
+          
+          try {
+            const wooProducts = await fetchWooCommerceProducts();
+            
+            if (wooProducts && wooProducts.length > 0) {
+              console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+              
+              // Add WooCommerce products to combined list
+              allProducts = [...allProducts, ...wooProducts];
+              wooCommerceProductCount = wooProducts.length;
+              
+              // Update data source indicator
+              if (dataSource === "local" && wooCommerceProductCount > 0) {
+                dataSource = "combined";
+              } else if (allProducts.length === wooCommerceProductCount) {
+                dataSource = "woocommerce";
+              }
+              
+              // Only show toast notification on first successful load
+              if (!loadedRef.current) {
+                toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+              }
+            } else {
+              console.log("No products found in WooCommerce");
+            }
+          } catch (wooError) {
+            console.error("Error fetching WooCommerce products:", wooError);
+            if (!loadedRef.current) {
+              toast.error("Failed to load WooCommerce products");
+            }
+          }
+        } else {
+          console.log("WooCommerce is not configured");
         }
         
         // Filter combined products by selected category
@@ -135,6 +148,10 @@ const ProductDataLoader: React.FC<ProductDataLoaderProps> = ({
         );
         
         console.log(`Final unique product count: ${uniqueProducts.length} (Data source: ${dataSource})`);
+        
+        // Mark as loaded and store current category
+        loadedRef.current = true;
+        previousCategoryRef.current = selectedCategory;
         
         // Pass the filtered products and data source to parent component
         onProductsLoaded(uniqueProducts, dataSource);
