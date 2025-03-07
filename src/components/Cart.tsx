@@ -119,7 +119,7 @@ const Cart: React.FC = () => {
                 </Button>
                 
                 <p className="text-xs text-center text-muted-foreground mt-4">
-                  Sicherer Checkout powered by Dr.Ansay
+                  Sicherer Checkout
                 </p>
               </div>
             </div>
