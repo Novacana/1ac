@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -57,7 +56,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [addedToCart, setAddedToCart] = useState(false);
   const packageSize = 10; // Package size in grams
 
-  // Convert ProductDetailProps to Product type for info panels
   const productData: Product = {
     id,
     name,
@@ -89,7 +87,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     console.log(`Hinzugefügt: ${quantity} Packungen von ${name} zum Warenkorb (${quantity * packageSize}g gesamt)`);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
-    // Here you would add the product to the cart state/context
   };
 
   return (
@@ -104,7 +101,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images with info above */}
           <ProductImages 
             images={images} 
             name={name} 
@@ -116,16 +112,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             packageSize={packageSize}
           />
 
-          {/* Product Info - Description and details */}
           <div className="space-y-6">
-            {/* Add to Cart Section - Moved above description */}
             <div className="space-y-4 mb-6">
-              <div className="flex items-center justify-between">
-                <QuantitySelector
-                  quantity={quantity}
-                  onQuantityChange={handleQuantityChange}
-                />
-              </div>
+              <QuantitySelector
+                quantity={quantity}
+                onQuantityChange={handleQuantityChange}
+              />
               
               <div className="text-lg font-medium bg-background border border-border/30 rounded-lg p-3 text-center">
                 Gesamtpreis: <span className="font-bold text-xl">{`€${(price * quantity).toFixed(2)}`}</span> 
@@ -142,7 +134,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               />
             </div>
 
-            {/* Cannabinoid and Product Info Panel */}
             <div className="bg-background/50 rounded-lg p-3 border border-border/30">
               <ProductInfoPanel product={productData} />
               <ProductDetailPanel product={productData} />
@@ -150,13 +141,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>
 
-            {/* Benefits */}
             <ProductBenefits benefits={benefits} />
 
-            {/* Effects */}
             <ProductEffects effects={effects} />
 
-            {/* How to use */}
             <ProductUsage use={use} />
           </div>
         </div>
