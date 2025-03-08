@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, User, Loader2, ExternalLink, Volume2, VolumeX, Mic, MicOff, ChevronUp, Search, ShoppingCart, Book, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,10 @@ const productKnowledgeBase = products.map(p => ({
   terpenes: p.terpenes,
   flavors: p.flavors
 }));
+
+// N8N Webhook Konfiguration
+const N8N_WEBHOOK_URL = ""; // Hier deine n8n Webhook URL eintragen
+const USE_N8N_AGENT = false; // Auf true setzen, um den n8n Agenten zu aktivieren
 
 const systemPrompt = `
 Du bist ein Berater für medizinisches Cannabis. Dein Zweck ist es, Menschen zu helfen, 
@@ -66,6 +69,9 @@ const ProductAdvisor = () => {
   const [conversationHistory, setConversationHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
+  // N8N Webhook Status
+  const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
+  const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
   
   // Wir speichern den API-Schlüssel direkt und überspringen den Eingabebildschirm
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
@@ -118,6 +124,87 @@ const ProductAdvisor = () => {
       if (isListening) {
         stopListening();
       }
+    }
+  };
+
+  // N8N Webhook Kommunikation
+  const sendToN8nWebhook = async (userMessage: string) => {
+    if (!webhookUrl || !useN8nAgent) return null;
+    
+    try {
+      setIsLoading(true);
+      console.log("Sende Anfrage an n8n Webhook:", webhookUrl);
+      
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversation_history: conversationHistory,
+          user_info: {
+            page: window.location.pathname,
+            timestamp: new Date().toISOString()
+          },
+          available_products: productKnowledgeBase,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Webhook responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Antwort vom n8n Webhook:", data);
+      
+      return {
+        botResponse: data.message || "Ich konnte keine Antwort vom n8n-Agenten erhalten.",
+        products: data.products || [],
+        actions: data.actions || {}
+      };
+    } catch (error) {
+      console.error("Fehler bei der Kommunikation mit n8n:", error);
+      toast({
+        title: "Fehler bei der n8n-Kommunikation",
+        description: "Es gab ein Problem mit dem n8n Webhook.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // N8N Aktionen ausführen
+  const executeN8nActions = (actions: any) => {
+    if (!actions) return;
+    
+    // Seiten-Navigation
+    if (actions.navigate_to) {
+      setTimeout(() => {
+        setIsOpen(false);
+        navigate(actions.navigate_to);
+      }, 1000);
+    }
+    
+    // Produkt zum Warenkorb hinzufügen
+    if (actions.add_to_cart) {
+      const { product_id, quantity = 1 } = actions.add_to_cart;
+      const product = products.find(p => p.id === product_id);
+      
+      if (product) {
+        toast({
+          title: "Produkt zum Warenkorb hinzugefügt",
+          description: `${quantity}x ${product.name} wurde zum Warenkorb hinzugefügt.`,
+        });
+      }
+    }
+    
+    // Sonstige benutzerdefinierte Aktionen
+    if (actions.custom_action) {
+      console.log("Führe benutzerdefinierte Aktion aus:", actions.custom_action);
+      // Hier könnten weitere benutzerdefinierte Aktionen implementiert werden
     }
   };
 
@@ -485,106 +572,58 @@ const ProductAdvisor = () => {
       // Add user message to conversation history
       setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
-      // Check if the user query implies using a tool
-      const toolIntent = detectToolIntent(userQuery);
-      
-      if (toolIntent) {
-        // Use the detected tool
-        const { tool, params } = toolIntent;
-        const toolResponse = webTools[tool](params);
+      // Wenn n8n aktiviert ist, nutze den n8n Webhook
+      if (useN8nAgent && webhookUrl) {
+        const n8nResponse = await sendToN8nWebhook(userQuery);
         
-        // Add tool response to conversation
-        const botResponseText = `${toolResponse}`;
-        setBotResponse(botResponseText);
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
-        
-        // Generate speech for the response if voice is enabled
-        if (isVoiceEnabled) {
-          speakResponse(botResponseText);
+        if (n8nResponse) {
+          const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
+          
+          // Bot-Antwort setzen
+          setBotResponse(n8nMessage);
+          setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
+          
+          // Empfohlene Produkte anzeigen, wenn vorhanden
+          if (n8nProducts && n8nProducts.length > 0) {
+            // Konvertiere die n8n-Produkte in das richtige Format
+            const formattedProducts = n8nProducts.map((p: any) => {
+              // Finde das entsprechende Produkt in unserer lokalen Datenbank
+              const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
+              
+              if (localProduct) return localProduct;
+              
+              // Fallback, falls kein lokales Produkt gefunden wurde
+              return {
+                id: p.id || "unknown",
+                name: p.name || "Unbekanntes Produkt",
+                price: p.price || 0,
+                images: p.images || ["/placeholder.svg"],
+                category: p.category || "Sonstiges"
+              };
+            });
+            
+            setRecommendedProducts(formattedProducts);
+            setShowProducts(formattedProducts.length > 0);
+          } else {
+            setShowProducts(false);
+            setRecommendedProducts([]);
+          }
+          
+          // Führe alle vom n8n-Agenten angeforderten Aktionen aus
+          executeN8nActions(actions);
+          
+          // Sprachausgabe
+          if (isVoiceEnabled) {
+            speakResponse(n8nMessage);
+          }
+          
+        } else {
+          // Fallback bei n8n-Fehler
+          fallbackProcessing(userQuery);
         }
       } else {
-        // Process with LLM algorithm (simplified for demo)
-        // In production, this would connect to an actual LLM API
-        let response = "";
-        let matchedProducts: ProductDetailProps[] = [];
-        const query = userQuery.toLowerCase();
-        
-        if (query.includes("schmerz") || query.includes("pain")) {
-          response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
-          matchedProducts = [...products.filter(p => 
-            p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
-            p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
-          )].slice(0, 3);
-        } else if (query.includes("schlaf") || query.includes("sleep")) {
-          response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
-          matchedProducts = [...products.filter(p => 
-            p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
-            p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
-          )].slice(0, 3);
-        } else if (query.includes("angst") || query.includes("anxiety")) {
-          response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
-          matchedProducts = [...products.filter(p => 
-            p.effects?.some(e => e.toLowerCase().includes("angst")) ||
-            p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
-            p.strain?.toLowerCase().includes("indica")
-          )].slice(0, 3);
-        } else if (query.includes("appetit") || query.includes("hunger")) {
-          response = "Diese Produkte können den Appetit anregen:";
-          matchedProducts = [...products.filter(p => 
-            p.strain?.toLowerCase().includes("indica") || 
-            parseFloat(p.thc?.replace("%", "") || "0") > 15
-          )].slice(0, 3);
-        } else if (query.includes("thc")) {
-          response = "Hier sind unsere THC-haltigen Produkte:";
-          matchedProducts = [...products.filter(p => 
-            parseFloat(p.thc?.replace("%", "") || "0") > 15
-          )].slice(0, 3);
-        } else if (query.includes("cbd")) {
-          response = "Hier sind unsere CBD-haltigen Produkte:";
-          matchedProducts = [...products.filter(p => 
-            parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
-          )].slice(0, 3);
-        } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
-          response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
-          matchedProducts = [...products.filter(p => 
-            p.strain?.toLowerCase().includes("sativa") ||
-            p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
-          )].slice(0, 3);
-        } else if (query.includes("indica")) {
-          response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
-          matchedProducts = [...products.filter(p => 
-            p.strain?.toLowerCase().includes("indica")
-          )].slice(0, 3);
-        } else if (query.includes("sativa")) {
-          response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
-          matchedProducts = [...products.filter(p => 
-            p.strain?.toLowerCase().includes("sativa")
-          )].slice(0, 3);
-        } else if (query.includes("hybrid")) {
-          response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
-          matchedProducts = [...products.filter(p => 
-            p.strain?.toLowerCase().includes("hybrid")
-          )].slice(0, 3);
-        } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
-          response = "Hier sind einige unserer beliebtesten Produkte:";
-          matchedProducts = [...products].slice(0, 3);
-        } else {
-          response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
-          const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 3);
-          matchedProducts = randomProducts;
-        }
-
-        setBotResponse(response);
-        setRecommendedProducts(matchedProducts);
-        setShowProducts(matchedProducts.length > 0);
-        
-        // Add bot response to conversation history
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
-        
-        // Generate speech for the response if voice is enabled
-        if (isVoiceEnabled) {
-          speakResponse(response);
-        }
+        // Standard-Verarbeitung ohne n8n
+        fallbackProcessing(userQuery);
       }
       
       // Clear transcript after processing
@@ -599,6 +638,110 @@ const ProductAdvisor = () => {
       setConversationHistory(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fallbackProcessing = (query: string) => {
+    // Check if the user query implies using a tool
+    const toolIntent = detectToolIntent(query);
+    
+    if (toolIntent) {
+      // Use the detected tool
+      const { tool, params } = toolIntent;
+      const toolResponse = webTools[tool](params);
+      
+      // Add tool response to conversation
+      const botResponseText = `${toolResponse}`;
+      setBotResponse(botResponseText);
+      setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
+      
+      // Generate speech for the response if voice is enabled
+      if (isVoiceEnabled) {
+        speakResponse(botResponseText);
+      }
+    } else {
+      // Process with LLM algorithm (simplified for demo)
+      // In production, this would connect to an actual LLM API
+      let response = "";
+      let matchedProducts: ProductDetailProps[] = [];
+      const query = query.toLowerCase();
+      
+      if (query.includes("schmerz") || query.includes("pain")) {
+        response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
+        )].slice(0, 3);
+      } else if (query.includes("schlaf") || query.includes("sleep")) {
+        response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
+        )].slice(0, 3);
+      } else if (query.includes("angst") || query.includes("anxiety")) {
+        response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
+        matchedProducts = [...products.filter(p => 
+          p.effects?.some(e => e.toLowerCase().includes("angst")) ||
+          p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
+          p.strain?.toLowerCase().includes("indica")
+        )].slice(0, 3);
+      } else if (query.includes("appetit") || query.includes("hunger")) {
+        response = "Diese Produkte können den Appetit anregen:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("indica") || 
+          parseFloat(p.thc?.replace("%", "") || "0") > 15
+        )].slice(0, 3);
+      } else if (query.includes("thc")) {
+        response = "Hier sind unsere THC-haltigen Produkte:";
+        matchedProducts = [...products.filter(p => 
+          parseFloat(p.thc?.replace("%", "") || "0") > 15
+        )].slice(0, 3);
+      } else if (query.includes("cbd")) {
+        response = "Hier sind unsere CBD-haltigen Produkte:";
+        matchedProducts = [...products.filter(p => 
+          parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
+        )].slice(0, 3);
+      } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
+        response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("sativa") ||
+          p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
+        )].slice(0, 3);
+      } else if (query.includes("indica")) {
+        response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("indica")
+        )].slice(0, 3);
+      } else if (query.includes("sativa")) {
+        response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("sativa")
+        )].slice(0, 3);
+      } else if (query.includes("hybrid")) {
+        response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
+        matchedProducts = [...products.filter(p => 
+          p.strain?.toLowerCase().includes("hybrid")
+        )].slice(0, 3);
+      } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
+        response = "Hier sind einige unserer beliebtesten Produkte:";
+        matchedProducts = [...products].slice(0, 3);
+      } else {
+        response = "Basierend auf deiner Anfrage könnte ich dir folgende Produkte empfehlen:";
+        const randomProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 3);
+        matchedProducts = randomProducts;
+      }
+
+      setBotResponse(response);
+      setRecommendedProducts(matchedProducts);
+      setShowProducts(matchedProducts.length > 0);
+      
+      // Add bot response to conversation history
+      setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
+      
+      // Generate speech for the response if voice is enabled
+      if (isVoiceEnabled) {
+        speakResponse(response);
+      }
     }
   };
 
@@ -706,6 +849,33 @@ const ProductAdvisor = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
+            {/* N8N Webhook Konfiguration (nur während der Entwicklung anzeigen) */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="border rounded-md p-3 bg-accent/10 text-xs">
+                <h4 className="font-medium mb-2">N8N Webhook Konfiguration</h4>
+                <div className="space-y-2">
+                  <div>
+                    <Input 
+                      type="text" 
+                      placeholder="N8N Webhook URL" 
+                      value={webhookUrl} 
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      className="text-xs h-8 mb-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="useN8nAgent" 
+                      checked={useN8nAgent} 
+                      onChange={(e) => setUseN8nAgent(e.target.checked)}
+                    />
+                    <label htmlFor="useN8nAgent" className="text-xs">N8N Agent aktivieren</label>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col items-center justify-center text-center mb-4">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
                 <Bot className="h-8 w-8 text-primary" />
@@ -859,3 +1029,4 @@ const ProductAdvisor = () => {
 };
 
 export default ProductAdvisor;
+
