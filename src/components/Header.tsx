@@ -1,82 +1,128 @@
-
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 
-interface HeaderProps {
-  showUserLink?: boolean;
-}
-
-const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
+const Header = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
   const { getCartCount } = useCart();
-  const { isAuthenticated, isDoctor, user } = useAuth();
-  const navigate = useNavigate();
   const cartCount = getCartCount();
 
-  const navigateToDashboard = () => {
-    if (isDoctor) {
-      navigate('/doctor/dashboard');
-    } else {
-      navigate('/user/dashboard');
-    }
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
 
-  const navigateToLogin = () => {
-    navigate('/login');
-  };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  const navItems = [
+    { name: "Showroom", path: "/" },
+    { name: "Shop", path: "/products" },
+  ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-md z-30 border-b border-border/40">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="font-bold text-xl flex gap-2 items-center">
-          <span className="hidden sm:block">SmartCare</span>
-          <span className="sm:hidden">SC</span>
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md md:block hidden",
+        isScrolled
+          ? "py-3 bg-background/70 shadow-sm"
+          : "py-5 bg-transparent",
+        "animate-fade-in"
+      )}
+    >
+      <div className="container mx-auto px-4 flex items-center justify-between">
+        <Link
+          to="/"
+          className="flex items-center transition-all duration-300 hover:opacity-80"
+        >
+          <img 
+            src="/lovable-uploads/0b90ddd4-3b5f-4f64-8e87-5f7f9af7e0a3.png" 
+            alt="1A Cannabis Logo" 
+            className="h-16 w-auto" 
+            onError={(e) => {
+              console.error("Logo loading error");
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
+          />
         </Link>
 
-        <div className="flex items-center gap-2">
-          {isAuthenticated ? (
+        <nav className="flex items-center space-x-8">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={cn(
+                "text-foreground/80 hover:text-foreground font-medium transition-all duration-200",
+                location.pathname === item.path && "text-primary font-semibold"
+              )}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <Link to="/cart">
             <Button
               variant="ghost"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={navigateToDashboard}
+              size="icon"
+              className="relative hover:bg-background/10"
+              aria-label="Warenkorb"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {user?.name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:block">
-                {user?.name}
-              </span>
-            </Button>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={navigateToLogin}
-              className="flex items-center gap-1"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:block">Login</span>
-            </Button>
-          )}
-
-          <Link to="/cart">
-            <Button variant="ghost" size="sm" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
                   {cartCount}
                 </span>
               )}
             </Button>
           </Link>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden hover:bg-background/10"
+            aria-label={isMenuOpen ? "Menü schließen" : "Menü öffnen"}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
+      </div>
+
+      <div
+        className={cn(
+          "fixed inset-x-0 top-[var(--header-height)] h-screen bg-background/95 backdrop-blur-md md:hidden transition-transform duration-300 ease-in-out transform",
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <nav className="container flex flex-col space-y-6 py-8 px-4 animate-fade-in">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={cn(
+                "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md",
+                location.pathname === item.path
+                  ? "text-primary font-semibold bg-primary/10"
+                  : "hover:bg-background/10"
+              )}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
       </div>
     </header>
   );
