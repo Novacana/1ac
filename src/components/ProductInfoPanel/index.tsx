@@ -33,12 +33,6 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
-      
-      {/* Product Description (desktop only) */}
-      <div className="mt-3 hidden md:block">
-        <h4 className="text-xs font-medium mb-1">Beschreibung</h4>
-        <p className="text-xs text-foreground/80 line-clamp-6">{product.description}</p>
-      </div>
     </div>
   );
 };
