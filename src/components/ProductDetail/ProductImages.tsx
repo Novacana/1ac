@@ -11,13 +11,19 @@ interface ProductImagesProps {
   name: string;
   productId: string;
   productPrice: number;
+  category?: string;
+  thc?: string;
+  cbd?: string;
 }
 
 const ProductImages: React.FC<ProductImagesProps> = ({ 
   images, 
   name,
   productId,
-  productPrice 
+  productPrice,
+  category,
+  thc,
+  cbd 
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -84,6 +90,27 @@ const ProductImages: React.FC<ProductImagesProps> = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Product Info Overlay - Always visible */}
+        <div className="absolute top-0 left-0 right-0 z-20 p-4 text-white">
+          <div className="flex gap-2 mb-2">
+            {category && (
+              <span className="bg-background/80 text-foreground rounded-full px-4 py-1 text-sm font-medium">
+                {category}
+              </span>
+            )}
+            {(thc || cbd) && (
+              <span className="bg-green-500/90 rounded-full px-4 py-1 text-sm font-medium">
+                {thc && `THC: ${thc}`} {thc && cbd && "| "} {cbd && `CBD: ${cbd}`}
+              </span>
+            )}
+          </div>
+          
+          <div className="mt-auto">
+            <h1 className="text-4xl font-bold text-foreground mt-1">{name}</h1>
+            <div className="text-3xl font-bold text-foreground">{`€${productPrice.toFixed(2)}`}</div>
+          </div>
+        </div>
+
         <div
           className={cn(
             "absolute inset-0 bg-card/20 backdrop-blur-sm flex items-center justify-center z-10 transition-opacity duration-300",

@@ -61,9 +61,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
     // Here you would add the product to the cart state/context
   };
 
-  // Konsolenlog hinzugefügt, um zu prüfen, welche Bilder geladen werden sollen
-  console.log("Loading product images:", images);
-
   return (
     <div className="animate-fade-in">
       <div className="container px-4 mx-auto pt-6 pb-8">
@@ -82,6 +79,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             name={name} 
             productId={id}
             productPrice={price}
+            category={category}
+            thc={thc}
+            cbd={cbd}
           />
 
           {/* Product Info */}
