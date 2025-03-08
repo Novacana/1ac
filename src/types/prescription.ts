@@ -14,6 +14,7 @@ export interface PrescriptionRequest {
   };
   status: 'pending' | 'approved' | 'rejected' | 'needs_more_info';
   doctorNotes?: string;
+  cartItems?: PrescriptionCartItem[];
   prescription?: {
     id: string;
     product: string;
@@ -22,5 +23,18 @@ export interface PrescriptionRequest {
     instructions: string;
     dateIssued: string;
     expiryDate: string;
+    signature?: {
+      doctorName: string;
+      dateSigned: string;
+      signatureImage?: string;
+    };
   };
+}
+
+export interface PrescriptionCartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
 }

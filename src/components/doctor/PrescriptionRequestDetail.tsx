@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { updatePrescriptionRequest } from '@/data/prescriptionRequests';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { FileText, Check, X, HelpCircle } from 'lucide-react';
+import { FileText, Check, X, HelpCircle, ShoppingCart } from 'lucide-react';
 
 // Import the tab components
 import PatientDetailsTab from './prescription-detail/PatientDetailsTab';
 import SymptomsTab from './prescription-detail/SymptomsTab';
 import PrescriptionTab from './prescription-detail/PrescriptionTab';
+import CartItemsTab from './prescription-detail/CartItemsTab';
 
 interface PrescriptionRequestDetailProps {
   request: PrescriptionRequest;
@@ -41,6 +42,18 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
     setPrescription(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  // Handle signature change
+  const handleSignatureChange = (signatureData: {
+    doctorName: string;
+    dateSigned: string;
+    signatureImage?: string;
+  }) => {
+    setPrescription(prev => ({
+      ...prev,
+      signature: signatureData
     }));
   };
 
@@ -99,9 +112,13 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
       
       <CardContent className="p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="details">Patientendetails</TabsTrigger>
             <TabsTrigger value="symptoms">Symptome</TabsTrigger>
+            <TabsTrigger value="cart">
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Warenkorb
+            </TabsTrigger>
             <TabsTrigger value="prescription">Rezept</TabsTrigger>
           </TabsList>
           
@@ -119,12 +136,18 @@ const PrescriptionRequestDetail: React.FC<PrescriptionRequestDetailProps> = ({
             />
           </TabsContent>
           
+          <TabsContent value="cart">
+            <CartItemsTab cartItems={request.cartItems} />
+          </TabsContent>
+          
           <TabsContent value="prescription">
             <PrescriptionTab 
               status={status}
               prescription={prescription}
+              cartItems={request.cartItems}
               onPrescriptionChange={handlePrescriptionChange}
               onStatusChange={handleApproveStatus}
+              onSignatureChange={handleSignatureChange}
             />
           </TabsContent>
         </Tabs>

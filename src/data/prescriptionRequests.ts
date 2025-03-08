@@ -1,5 +1,5 @@
 
-import { PrescriptionRequest } from "@/types/prescription";
+import { PrescriptionCartItem, PrescriptionRequest } from "@/types/prescription";
 
 // Simulierte Daten für Rezeptanfragen
 export const prescriptionRequests: PrescriptionRequest[] = [
@@ -16,7 +16,23 @@ export const prescriptionRequests: PrescriptionRequest[] = [
       anxiety: "no",
       previous_treatment: "yes"
     },
-    status: "pending"
+    status: "pending",
+    cartItems: [
+      {
+        id: "prod-001",
+        name: "CBD Öl 5%",
+        price: 49.99,
+        quantity: 1,
+        image: "/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png"
+      },
+      {
+        id: "prod-002",
+        name: "THC Tropfen 10mg",
+        price: 39.99,
+        quantity: 2,
+        image: "/lovable-uploads/2e4972d1-cad4-4080-8445-33fcfdee5f57.png"
+      }
+    ]
   },
   {
     id: "req-002",
@@ -33,6 +49,15 @@ export const prescriptionRequests: PrescriptionRequest[] = [
     },
     status: "approved",
     doctorNotes: "Patientin hat bereits mehrere Behandlungsoptionen versucht. Cannabis könnte eine gute Alternative sein.",
+    cartItems: [
+      {
+        id: "prod-003",
+        name: "CBD-Öl 5%",
+        price: 49.99,
+        quantity: 1,
+        image: "/lovable-uploads/5ab221cf-6167-4c7a-9c6f-3ba8f9f37d5d.png"
+      }
+    ],
     prescription: {
       id: "presc-002",
       product: "CBD-Öl 5%",
@@ -40,7 +65,11 @@ export const prescriptionRequests: PrescriptionRequest[] = [
       duration: "3 Monate",
       instructions: "5 Tropfen morgens und abends unter die Zunge",
       dateIssued: "2023-07-15T09:20:00Z",
-      expiryDate: "2023-10-15T09:20:00Z"
+      expiryDate: "2023-10-15T09:20:00Z",
+      signature: {
+        doctorName: "Dr. Müller",
+        dateSigned: "2023-07-15T09:20:00Z"
+      }
     }
   },
   {
