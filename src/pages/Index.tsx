@@ -22,7 +22,7 @@ const Index = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
   return (
-    <Layout>
+    <Layout fullWidth>
       <CategoryFilter 
         categories={categories}
         selectedCategory={selectedCategory}

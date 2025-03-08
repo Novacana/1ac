@@ -13,7 +13,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   onQuantityChange,
 }) => {
   return (
-    <div className="flex items-center w-full">
+    <div className="flex items-center gap-2">
       <span className="text-lg font-medium">Menge</span>
       <div className="flex items-center border border-input rounded-lg overflow-hidden">
         <Button

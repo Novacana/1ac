@@ -16,20 +16,22 @@ const ProductList: React.FC<ProductListProps> = ({
   setImagesLoaded 
 }) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
-      {products.map((product) => {
-        const imagePath = getImagePath(product);
-        
-        return (
-          <ProductCard 
-            key={product.id}
-            product={product}
-            imagePath={imagePath}
-            imagesLoaded={imagesLoaded}
-            setImagesLoaded={setImagesLoaded}
-          />
-        );
-      })}
+    <div className="w-full max-w-screen-2xl mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4 px-4">
+        {products.map((product) => {
+          const imagePath = getImagePath(product);
+          
+          return (
+            <ProductCard 
+              key={product.id}
+              product={product}
+              imagePath={imagePath}
+              imagesLoaded={imagesLoaded}
+              setImagesLoaded={setImagesLoaded}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };

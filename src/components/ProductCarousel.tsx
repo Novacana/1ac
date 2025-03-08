@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -299,8 +300,8 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
   };
 
   return (
-    <div className="w-full relative">
-      <div className="container max-w-md mx-auto px-4">
+    <div className="w-full relative px-4">
+      <div className="w-full max-w-screen-2xl mx-auto">
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
@@ -315,15 +316,15 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-4">
               {activeProduct && <ProductInfoPanel product={activeProduct} />}
             </div>
             
-            <div className="md:col-span-3">
+            <div className="md:col-span-8">
               <div 
                 ref={containerRef}
-                className="w-full h-[220px] relative overflow-hidden rounded-lg border border-border cursor-pointer"
+                className="w-full h-[300px] md:h-[400px] relative overflow-hidden rounded-lg border border-border cursor-pointer"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}

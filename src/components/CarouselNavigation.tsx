@@ -21,7 +21,7 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
 
   return (
     <>
-      <div className="hidden md:flex absolute inset-y-0 left-4 items-center">
+      <div className="hidden md:flex absolute inset-y-0 left-8 items-center">
         <button 
           onClick={onPrevious}
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
@@ -31,7 +31,7 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
         </button>
       </div>
       
-      <div className="hidden md:flex absolute inset-y-0 right-4 items-center">
+      <div className="hidden md:flex absolute inset-y-0 right-8 items-center">
         <button 
           onClick={onNext}
           className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"

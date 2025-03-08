@@ -10,12 +10,14 @@ interface LayoutProps {
   children: React.ReactNode;
   noHeader?: boolean;
   className?: string;
+  fullWidth?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({
   children,
   noHeader = false,
   className,
+  fullWidth = true, // Default to full width
 }) => {
   const location = useLocation();
   
@@ -30,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({
       <MobileNavDots />
       <main
         className={cn(
-          "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in",
+          "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in w-full",
           className
         )}
       >

@@ -127,8 +127,8 @@ const Products = () => {
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-2">
+    <Layout fullWidth>
+      <div className="w-full px-4 py-2">
         {!initialLoadComplete ? (
           <LoadingState />
         ) : (
