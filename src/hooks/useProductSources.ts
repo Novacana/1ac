@@ -1,16 +1,19 @@
-
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
   isWooCommerceConfigured 
 } from "@/utils/woocommerce";
+import {
+  fetchShopifyProducts,
+  isShopifyConfigured
+} from "@/utils/shopify";
 import { convertLocalProducts } from "@/utils/product-image-utils";
 import { toast } from "sonner";
 
-export type DataSource = "woocommerce" | "combined" | "local";
+export type DataSource = "woocommerce" | "shopify" | "combined" | "local";
 
 /**
- * Load products from all available sources (local and WooCommerce)
+ * Load products from all available sources (local, WooCommerce, and Shopify)
  */
 export const loadProductsFromAllSources = async (
   selectedCategory: string, 
@@ -23,6 +26,7 @@ export const loadProductsFromAllSources = async (
   let allProducts: Product[] = [];
   let dataSource: DataSource = "local";
   let wooCommerceProductCount = 0;
+  let shopifyProductCount = 0;
   
   // Always load local products first
   try {
@@ -63,15 +67,11 @@ export const loadProductsFromAllSources = async (
         wooCommerceProductCount = wooProducts.length;
         
         // Update data source indicator
-        if (dataSource === "local" && wooCommerceProductCount > 0) {
-          dataSource = "combined";
-        } else if (allProducts.length === wooCommerceProductCount) {
-          dataSource = "woocommerce";
-        }
+        dataSource = updateDataSource(dataSource, "woocommerce", allProducts.length, wooCommerceProductCount);
         
         // Show toast notification on successful load
         if (!alreadyLoaded) {
-          toast.success(`Loaded ${wooProducts.length} products from WooCommerce`);
+          toast.success(`${wooProducts.length} Produkte aus WooCommerce geladen`);
         }
       } else {
         console.log("No products found in WooCommerce");
@@ -79,12 +79,75 @@ export const loadProductsFromAllSources = async (
     } catch (wooError) {
       console.error("Error fetching WooCommerce products:", wooError);
       if (!alreadyLoaded) {
-        toast.error("Failed to load WooCommerce products");
+        toast.error("Fehler beim Laden der WooCommerce-Produkte");
       }
     }
   } else {
     console.log("WooCommerce is not configured");
   }
   
+  // Try to fetch products from Shopify if configured
+  if (isShopifyConfigured()) {
+    console.log("Fetching products from Shopify integration");
+    
+    try {
+      const shopifyProducts = await fetchShopifyProducts();
+      
+      if (shopifyProducts && shopifyProducts.length > 0) {
+        console.log(`Fetched ${shopifyProducts.length} products from Shopify`);
+        
+        // Add Shopify products to combined list
+        allProducts = [...allProducts, ...shopifyProducts];
+        shopifyProductCount = shopifyProducts.length;
+        
+        // Update data source indicator
+        dataSource = updateDataSource(dataSource, "shopify", allProducts.length, shopifyProductCount);
+        
+        // Show toast notification on successful load
+        if (!alreadyLoaded) {
+          toast.success(`${shopifyProducts.length} Produkte aus Shopify geladen`);
+        }
+      } else {
+        console.log("No products found in Shopify");
+      }
+    } catch (shopifyError) {
+      console.error("Error fetching Shopify products:", shopifyError);
+      if (!alreadyLoaded) {
+        toast.error("Fehler beim Laden der Shopify-Produkte");
+      }
+    }
+  } else {
+    console.log("Shopify is not configured");
+  }
+  
   return { allProducts, dataSource };
+};
+
+/**
+ * Helper function to update the data source indicator
+ */
+const updateDataSource = (
+  currentDataSource: DataSource, 
+  newSource: "woocommerce" | "shopify", 
+  totalProductCount: number,
+  newSourceProductCount: number
+): DataSource => {
+  if (currentDataSource === "local") {
+    // If we only had local products before, check if we now have new source products
+    if (newSourceProductCount > 0) {
+      // If we also have local products, it's a combined source
+      return newSourceProductCount < totalProductCount ? "combined" : newSource;
+    }
+    // If no new source products, keep as local
+    return "local";
+  } else if (currentDataSource === newSource) {
+    // If already using this source, keep it
+    return newSource;
+  } else if (currentDataSource === "combined") {
+    // Already combined, stay combined
+    return "combined";
+  } else {
+    // Different source already set, now we're combining
+    return "combined";
+  }
 };
