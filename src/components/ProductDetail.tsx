@@ -105,16 +105,25 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          <ProductImages 
-            images={images} 
-            name={name} 
-            productId={id}
-            productPrice={price}
-            category={category}
-            thc={thc}
-            cbd={cbd}
-            packageSize={packageSize}
-          />
+          <div className="space-y-4">
+            <ProductImages 
+              images={images} 
+              name={name} 
+              productId={id}
+              productPrice={price}
+              category={category}
+              thc={thc}
+              cbd={cbd}
+              packageSize={packageSize}
+            />
+            
+            {/* Terpene profile for desktop view - below the product image */}
+            {!isMobile && terpenes && terpenes.length > 0 && (
+              <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+                <TerpeneProfile product={productData} />
+              </div>
+            )}
+          </div>
 
           <div className="space-y-6">
             <div className="space-y-4 mb-6">
@@ -141,20 +150,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="bg-background/50 rounded-lg p-3 border border-border/30">
               <ProductInfoPanel product={productData} />
               
-              {/* Only show these profiles in desktop view */}
+              {/* Only show flavor profile in desktop view */}
               {!isMobile && (
                 <div className="mt-4 border-t border-border/30 pt-4">
                   <FlavorProfile flavors={flavors} />
-                  <div className="mt-4">
-                    <TerpeneProfile product={productData} />
-                  </div>
-                </div>
-              )}
-              
-              {/* Show terpene profile in mobile view */}
-              {isMobile && terpenes && terpenes.length > 0 && (
-                <div className="mt-4 border-t border-border/30 pt-4">
-                  <TerpeneProfile product={productData} />
                 </div>
               )}
             </div>
@@ -166,6 +165,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <ProductEffects effects={effects} />
 
             <ProductUsage use={use} />
+            
+            {/* Show terpene profile in mobile view */}
+            {isMobile && terpenes && terpenes.length > 0 && (
+              <div className="mt-4 bg-background/50 rounded-lg p-3 border border-border/30">
+                <TerpeneProfile product={productData} />
+              </div>
+            )}
           </div>
         </div>
       </div>

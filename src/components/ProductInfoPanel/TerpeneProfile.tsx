@@ -39,17 +39,17 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
       
-      <div className="flex gap-2">
-        {/* Compact pie chart */}
-        <div className="h-[70px] w-[70px] relative">
+      <div className={cn("flex gap-2", !isMobile && "items-start")}>
+        {/* Pie chart - made slightly larger on desktop */}
+        <div className={cn("relative", isMobile ? "h-[70px] w-[70px]" : "h-[80px] w-[80px]")}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={terpeneData}
                 cx="50%"
                 cy="50%"
-                innerRadius={12}
-                outerRadius={30}
+                innerRadius={isMobile ? 12 : 15}
+                outerRadius={isMobile ? 30 : 35}
                 paddingAngle={2}
                 dataKey="value"
                 animationDuration={1500}
@@ -68,12 +68,15 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
           </ResponsiveContainer>
         </div>
         
-        {/* Compact terpene list with interactive elements */}
+        {/* Terpene list - enhanced for desktop */}
         <div className="flex flex-col justify-center flex-1">
-          {terpeneData.slice(0, 3).map((terpene, index) => (
+          {terpeneData.map((terpene, index) => (
             <div 
               key={index} 
-              className="flex items-center text-xs mb-0.5 cursor-pointer group"
+              className={cn(
+                "flex items-center text-xs mb-0.5 cursor-pointer group",
+                !isMobile && "mb-1"
+              )}
               onClick={() => handleTerpeneClick(terpene.name)}
             >
               <span 
@@ -94,7 +97,9 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
           key={terpene.name}
           className={cn(
             "text-xs text-foreground/80 mt-1 border-t border-border/20 pt-1 pb-1 overflow-hidden transition-all duration-300",
-            expandedTerpene === terpene.name ? "max-h-24 opacity-100" : "max-h-0 opacity-0 border-t-0 pt-0 pb-0"
+            expandedTerpene === terpene.name 
+              ? "max-h-24 opacity-100" 
+              : "max-h-0 opacity-0 border-t-0 pt-0 pb-0"
           )}
         >
           <div className="flex items-start">
@@ -110,10 +115,10 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         </div>
       ))}
       
-      {/* Default terpene effects - only show on desktop when no terpene is selected */}
+      {/* Default terpene effects - show on desktop view with better formatting */}
       {!isMobile && !expandedTerpene && terpeneData.length > 0 && (
-        <div className="text-[10px] text-foreground/80 mt-2 border-t border-border/20 pt-2 max-h-[150px] overflow-auto">
-          {terpeneData.slice(0, 3).map((terpene, index) => (
+        <div className="text-[11px] text-foreground/80 mt-2 border-t border-border/20 pt-2 max-h-[150px] overflow-auto">
+          {terpeneData.map((terpene, index) => (
             <div key={index} className="mb-2 last:mb-0">
               <div className="flex items-start">
                 <div 
