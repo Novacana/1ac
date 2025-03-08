@@ -1,4 +1,5 @@
-import { ShoppingCart, Menu, X, User } from "lucide-react";
+
+import { ShoppingCart, Menu, X, User, Stethoscope, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -108,13 +109,19 @@ const Header = () => {
                 <DropdownMenuSeparator />
                 {isDoctor ? (
                   <DropdownMenuItem onClick={() => navigate('/doctor/dashboard')}>
+                    <Stethoscope className="h-4 w-4 mr-2" />
                     Arzt Dashboard
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    <User className="h-4 w-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
+                  <Building className="h-4 w-4 mr-2" />
+                  Apotheken-Management
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   Abmelden
@@ -183,6 +190,21 @@ const Header = () => {
               {item.name}
             </Link>
           ))}
+          
+          {isAuthenticated && (
+            <Link
+              to="/pharmacy/management"
+              className={cn(
+                "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md",
+                location.pathname === '/pharmacy/management'
+                  ? "text-primary font-semibold bg-primary/10"
+                  : "hover:bg-background/10"
+              )}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Apotheken-Management
+            </Link>
+          )}
         </nav>
       </div>
     </header>

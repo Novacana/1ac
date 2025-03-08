@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
@@ -13,6 +12,7 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
+import PharmacyManagement from "./pages/PharmacyManagement";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
@@ -30,6 +30,17 @@ const DoctorRoute = ({ children }) => {
 
 // Protected Route Component for Authenticated Users
 const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Protected Route Component for Pharmacy Users
+const PharmacyRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
   if (!isAuthenticated) {
@@ -59,6 +70,14 @@ function App() {
                 <DoctorRoute>
                   <DoctorDashboard />
                 </DoctorRoute>
+              } 
+            />
+            <Route 
+              path="/pharmacy/management" 
+              element={
+                <PharmacyRoute>
+                  <PharmacyManagement />
+                </PharmacyRoute>
               } 
             />
             <Route 
