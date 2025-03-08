@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,7 @@ interface ProductImageCarouselProps {
   onMouseUp: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
   onClick: () => void;
+  onImageLoad: () => void;
 }
 
 const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
@@ -40,8 +41,25 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   onMouseMove,
   onMouseUp,
   onMouseLeave,
-  onClick
+  onClick,
+  onImageLoad
 }) => {
+  // Preload image to ensure it's ready before displaying
+  useEffect(() => {
+    if (imagePath) {
+      const img = new Image();
+      img.onload = () => {
+        console.log("Image preloaded successfully:", imagePath);
+        onImageLoad();
+      };
+      img.onerror = (e) => {
+        console.error("Failed to preload image:", imagePath, e);
+        onImageLoad(); // Still mark as loaded so the UI doesn't get stuck
+      };
+      img.src = imagePath;
+    }
+  }, [imagePath, onImageLoad]);
+
   return (
     <div 
       ref={containerRef}
@@ -72,6 +90,10 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
             src={previousImagePath} 
             alt="Previous product" 
             className="max-h-full max-w-full object-contain p-4"
+            onError={(e) => {
+              console.error("Failed to load previous image:", previousImagePath);
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
           />
         </div>
       )}
@@ -99,11 +121,13 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
             imageLoading ? "opacity-0" : "opacity-100"
           )}
           onLoad={() => {
-            console.log("Image loaded successfully:", imagePath);
+            console.log("Image loaded successfully in DOM:", imagePath);
+            onImageLoad();
           }}
           onError={(e) => {
-            console.error("Failed to load product image:", e);
+            console.error("Failed to load product image:", imagePath);
             (e.target as HTMLImageElement).src = "/placeholder.svg";
+            onImageLoad();
           }}
         />
       </div>

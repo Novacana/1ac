@@ -169,89 +169,130 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
   };
 
   const getImagePath = (product: Product) => {
-    if (product.images && product.images.length > 0) {
-      let path = product.images[0];
-      
-      if (path.startsWith("public/")) {
-        return path.replace("public/", "/");
-      }
-      
-      if (!path.startsWith("http") && !path.startsWith("/")) {
-        return "/" + path;
-      }
-      
-      return path;
-    } else if (product.image) {
-      let path = product.image;
-      
-      if (path.startsWith("public/")) {
-        return path.replace("public/", "/");
-      }
-      
-      if (!path.startsWith("http") && !path.startsWith("/")) {
-        return "/" + path;
-      }
-      
-      return path;
+    if (!product) {
+      console.error("No product provided to getImagePath");
+      return "/placeholder.svg";
     }
     
+    try {
+      // First try to get from images array
+      if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        let path = product.images[0];
+        
+        if (typeof path !== 'string') {
+          console.error("Invalid image path type:", path);
+          return "/placeholder.svg";
+        }
+        
+        // Fix path if it starts with public/
+        if (path.startsWith("public/")) {
+          return path.replace("public/", "/");
+        }
+        
+        // Add leading slash if needed
+        if (!path.startsWith("http") && !path.startsWith("/")) {
+          return "/" + path;
+        }
+        
+        return path;
+      }
+      
+      // Fall back to single image property
+      if (product.image && typeof product.image === 'string') {
+        let path = product.image;
+        
+        // Fix path if it starts with public/
+        if (path.startsWith("public/")) {
+          return path.replace("public/", "/");
+        }
+        
+        // Add leading slash if needed
+        if (!path.startsWith("http") && !path.startsWith("/")) {
+          return "/" + path;
+        }
+        
+        return path;
+      }
+    } catch (error) {
+      console.error("Error processing image path:", error);
+    }
+    
+    // Fallback to placeholder
     return "/placeholder.svg";
   };
 
   const goToNext = () => {
     if (filteredProducts.length <= 1 || isTransitioning) return;
     
-    const currentProduct = filteredProducts[activeIndex];
-    previousImageRef.current = getImagePath(currentProduct);
-    
-    setDirection('next');
-    setIsTransitioning(true);
-    setImageLoading(true);
-    
-    setTimeout(() => {
-      setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
-    }, 50);
-    
-    pauseAutoPlay();
-    console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
+    try {
+      const currentProduct = filteredProducts[activeIndex];
+      previousImageRef.current = getImagePath(currentProduct);
+      
+      setDirection('next');
+      setIsTransitioning(true);
+      setImageLoading(true);
+      
+      setTimeout(() => {
+        setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
+      }, 50);
+      
+      pauseAutoPlay();
+      console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
+    } catch (error) {
+      console.error("Error in goToNext:", error);
+      setIsTransitioning(false);
+      setImageLoading(false);
+    }
   };
 
   const goToPrevious = () => {
     if (filteredProducts.length <= 1 || isTransitioning) return;
     
-    const currentProduct = filteredProducts[activeIndex];
-    previousImageRef.current = getImagePath(currentProduct);
-    
-    setDirection('prev');
-    setIsTransitioning(true);
-    setImageLoading(true);
-    
-    setTimeout(() => {
-      setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
-    }, 50);
-    
-    pauseAutoPlay();
-    console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
+    try {
+      const currentProduct = filteredProducts[activeIndex];
+      previousImageRef.current = getImagePath(currentProduct);
+      
+      setDirection('prev');
+      setIsTransitioning(true);
+      setImageLoading(true);
+      
+      setTimeout(() => {
+        setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
+      }, 50);
+      
+      pauseAutoPlay();
+      console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
+    } catch (error) {
+      console.error("Error in goToPrevious:", error);
+      setIsTransitioning(false);
+      setImageLoading(false);
+    }
   };
 
   const goToIndex = (index: number) => {
     if (index === activeIndex || isTransitioning) return;
     
-    const currentProduct = filteredProducts[activeIndex];
-    previousImageRef.current = getImagePath(currentProduct);
-    
-    const newDirection = index > activeIndex ? 'next' : 'prev';
-    setDirection(newDirection as 'next' | 'prev');
-    
-    setIsTransitioning(true);
-    setImageLoading(true);
-    
-    setTimeout(() => {
-      setActiveIndex(index);
-    }, 50);
-    
-    pauseAutoPlay();
-    console.log("Going to specific index:", index);
+    try {
+      const currentProduct = filteredProducts[activeIndex];
+      previousImageRef.current = getImagePath(currentProduct);
+      
+      const newDirection = index > activeIndex ? 'next' : 'prev';
+      setDirection(newDirection as 'next' | 'prev');
+      
+      setIsTransitioning(true);
+      setImageLoading(true);
+      
+      setTimeout(() => {
+        setActiveIndex(index);
+      }, 50);
+      
+      pauseAutoPlay();
+      console.log("Going to specific index:", index);
+    } catch (error) {
+      console.error("Error in goToIndex:", error);
+      setIsTransitioning(false);
+      setImageLoading(false);
+    }
   };
 
   const handleProductClick = () => {
@@ -263,6 +304,7 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
   };
 
   const updateImageLoadingState = () => {
+    console.log("Image loading completed, updating state");
     setImageLoading(false);
   };
 

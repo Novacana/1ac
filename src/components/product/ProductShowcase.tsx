@@ -29,6 +29,7 @@ interface ProductShowcaseProps {
   isTransitioning: boolean;
   direction: 'next' | 'prev' | null;
   imageLoading: boolean;
+  updateImageLoadingState: () => void;
   getImagePath: (product: Product) => string;
   previousImageRef: React.MutableRefObject<string | null>;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -55,6 +56,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
   isTransitioning,
   direction,
   imageLoading,
+  updateImageLoadingState,
   getImagePath,
   previousImageRef,
   containerRef
@@ -83,6 +85,11 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div className="md:col-span-3 order-2 md:order-1">
             {activeProduct && <ProductInfoPanel product={activeProduct} />}
+            
+            {/* Add description on desktop view */}
+            <div className="hidden md:block mt-4">
+              <p className="text-sm text-muted-foreground">{activeProduct.description}</p>
+            </div>
           </div>
           
           <div className="md:col-span-6 order-1 md:order-2">
@@ -104,6 +111,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
               onClick={onProductClick}
+              onImageLoad={updateImageLoadingState}
             />
           </div>
           

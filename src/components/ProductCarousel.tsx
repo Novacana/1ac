@@ -67,6 +67,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         isTransitioning={isTransitioning}
         direction={direction}
         imageLoading={imageLoading}
+        updateImageLoadingState={updateImageLoadingState}
         getImagePath={getImagePath}
         previousImageRef={previousImageRef}
         containerRef={containerRef}
