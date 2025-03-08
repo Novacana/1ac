@@ -14,17 +14,17 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelectCategory 
 }) => {
   return (
-    <section className="py-0 border-b border-border/20">
+    <section className="py-2 border-b border-border/10 bg-gradient-to-r from-background to-secondary/10">
       <div className="container">
-        <div className="overflow-x-auto scrollbar-none py-2">
-          <div className="flex items-center gap-3 justify-center min-w-max px-2">
+        <div className="overflow-x-auto scrollbar-none py-3">
+          <div className="flex items-center gap-4 justify-center min-w-max px-4">
             {categories.map((category, index) => (
               <CategoryPill
                 key={category}
                 label={category}
                 active={selectedCategory === category}
                 onClick={() => onSelectCategory(category)}
-                className="animate-scale-in"
+                className="animate-scale-in shadow-sm"
                 style={{ animationDelay: `${index * 50}ms` }}
               />
             ))}

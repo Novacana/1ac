@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -91,16 +92,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
   return (
     <div className="animate-fade-in">
-      <div className="container px-4 mx-auto pt-6 pb-8">
+      <div className="container px-4 mx-auto pt-8 pb-12">
         <Link
           to="/"
-          className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:text-primary mb-6"
+          className="inline-flex items-center text-sm font-medium transition-all duration-200 hover:text-primary mb-8"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Zurück zu Produkten
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
           <ProductImages 
             images={images} 
             name={name} 
@@ -112,15 +113,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             packageSize={packageSize}
           />
 
-          <div className="space-y-6">
-            <div className="space-y-4 mb-6">
-              <QuantitySelector
-                quantity={quantity}
-                onQuantityChange={handleQuantityChange}
-              />
+          <div className="space-y-8">
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center gap-0.5">
+                <QuantitySelector
+                  quantity={quantity}
+                  onQuantityChange={handleQuantityChange}
+                />
+              </div>
               
-              <div className="text-lg font-medium bg-background border border-border/30 rounded-lg p-3 text-center">
-                Gesamtpreis: <span className="font-bold text-xl">{`€${(price * quantity).toFixed(2)}`}</span> 
+              <div className="text-lg font-medium bg-primary/5 border border-primary/10 rounded-lg p-4 text-center shadow-sm">
+                Gesamtpreis: <span className="font-bold text-xl text-primary">{`€${(price * quantity).toFixed(2)}`}</span> 
                 <span className="text-sm text-muted-foreground ml-1">für {quantity * packageSize}g</span>
               </div>
               
@@ -134,12 +137,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               />
             </div>
 
-            <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+            <div className="bg-card/5 rounded-lg p-5 border border-border/20 shadow-sm backdrop-blur-sm">
               <ProductInfoPanel product={productData} />
               <ProductDetailPanel product={productData} />
             </div>
 
-            <p className="text-foreground/80 leading-relaxed">{description}</p>
+            <p className="text-foreground/80 leading-relaxed text-base">{description}</p>
 
             <ProductBenefits benefits={benefits} />
 
