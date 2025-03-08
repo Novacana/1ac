@@ -47,6 +47,10 @@ const PharmacyIntegrationSettings: React.FC = () => {
       connected: false
     }
   ]);
+  
+  const [apiKey, setApiKey] = useState("sk_live_pharmacy_2938749823742983749");
+  const [webhookUrl, setWebhookUrl] = useState("https://example.com/webhook/pharmacy");
+  const [apiEnabled, setApiEnabled] = useState(true);
 
   const toggleConnection = (systemId: string) => {
     setSystems(prevSystems => prevSystems.map(system => {
@@ -68,6 +72,30 @@ const PharmacyIntegrationSettings: React.FC = () => {
 
   const handleTestConnection = (systemName: string) => {
     toast.success(`Verbindung zu ${systemName} erfolgreich getestet`);
+  };
+
+  const handleConfigure = (systemName: string) => {
+    toast.info(`Konfiguration für ${systemName} wird geöffnet`);
+  };
+
+  const handleCopyApiKey = () => {
+    navigator.clipboard.writeText(apiKey);
+    toast.success("API-Schlüssel in die Zwischenablage kopiert");
+  };
+
+  const handleGenerateNewApiKey = () => {
+    // Normally we'd call an API here to generate a new key
+    const newKey = "sk_live_pharmacy_" + Math.random().toString().substring(2, 20);
+    setApiKey(newKey);
+    toast.success("Neuer API-Schlüssel wurde generiert");
+  };
+
+  const handleSaveChanges = () => {
+    toast.success("Änderungen wurden gespeichert");
+  };
+
+  const handleDocumentation = (type: string) => {
+    toast.info(`${type} wird geöffnet`);
   };
 
   return (
@@ -119,6 +147,7 @@ const PharmacyIntegrationSettings: React.FC = () => {
                 variant={system.connected ? "default" : "outline"} 
                 size="sm"
                 className="flex items-center gap-1"
+                onClick={() => handleConfigure(system.name)}
               >
                 <Settings className="h-3.5 w-3.5 mr-1" />
                 Konfigurieren
@@ -139,9 +168,24 @@ const PharmacyIntegrationSettings: React.FC = () => {
           <div className="space-y-2">
             <Label htmlFor="api-key">API-Schlüssel</Label>
             <div className="flex gap-2">
-              <Input id="api-key" type="password" value="sk_live_pharmacy_2938749823742983749" readOnly />
-              <Button variant="outline">Kopieren</Button>
-              <Button variant="outline">Neu generieren</Button>
+              <Input 
+                id="api-key" 
+                type="password" 
+                value={apiKey} 
+                readOnly 
+              />
+              <Button 
+                variant="outline"
+                onClick={handleCopyApiKey}
+              >
+                Kopieren
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleGenerateNewApiKey}
+              >
+                Neu generieren
+              </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Halten Sie Ihren API-Schlüssel geheim. Dieser Schlüssel gewährt vollen Zugriff auf Ihr Konto.
@@ -150,16 +194,24 @@ const PharmacyIntegrationSettings: React.FC = () => {
 
           <div className="space-y-2">
             <Label htmlFor="webhook-url">Webhook URL</Label>
-            <Input id="webhook-url" value="https://example.com/webhook/pharmacy" />
+            <Input 
+              id="webhook-url" 
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+            />
           </div>
 
           <div className="flex items-center space-x-2 mt-4">
-            <Switch id="enable-api" defaultChecked />
+            <Switch 
+              id="enable-api" 
+              checked={apiEnabled}
+              onCheckedChange={setApiEnabled}
+            />
             <Label htmlFor="enable-api">API aktivieren</Label>
           </div>
         </CardContent>
         <CardFooter className="border-t pt-4">
-          <Button>Änderungen speichern</Button>
+          <Button onClick={handleSaveChanges}>Änderungen speichern</Button>
         </CardFooter>
       </Card>
 
@@ -172,7 +224,11 @@ const PharmacyIntegrationSettings: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="grid gap-4 md:grid-cols-3">
-            <Button variant="outline" className="justify-start h-auto py-4 px-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => handleDocumentation("API Dokumentation")}
+            >
               <div className="flex flex-col items-start text-left">
                 <div className="flex items-center mb-1">
                   <Database className="h-4 w-4 mr-2" />
@@ -185,7 +241,11 @@ const PharmacyIntegrationSettings: React.FC = () => {
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
             
-            <Button variant="outline" className="justify-start h-auto py-4 px-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => handleDocumentation("Entwickler-Portal")}
+            >
               <div className="flex flex-col items-start text-left">
                 <div className="flex items-center mb-1">
                   <Globe className="h-4 w-4 mr-2" />
@@ -198,7 +258,11 @@ const PharmacyIntegrationSettings: React.FC = () => {
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
             
-            <Button variant="outline" className="justify-start h-auto py-4 px-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => handleDocumentation("Support kontaktieren")}
+            >
               <div className="flex flex-col items-start text-left">
                 <div className="flex items-center mb-1">
                   <AlertCircle className="h-4 w-4 mr-2" />

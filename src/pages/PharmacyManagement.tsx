@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import PharmacyProductsList from "@/components/pharmacy/PharmacyProductsList";
 import PharmacyIntegrationSettings from "@/components/pharmacy/PharmacyIntegrationSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const PharmacyManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,18 @@ const PharmacyManagement: React.FC = () => {
   if (!isAuthenticated) {
     return <div className="loading-placeholder">Loading...</div>;
   }
+
+  const handleImport = () => {
+    toast.info("Import-Funktion wird geöffnet");
+  };
+
+  const handleExport = () => {
+    toast.info("Produkte werden exportiert");
+  };
+
+  const handleAddProduct = () => {
+    toast.info("Neues Produkt hinzufügen");
+  };
 
   return (
     <Layout>
@@ -54,15 +67,26 @@ const PharmacyManagement: React.FC = () => {
             </div>
             
             <div className="flex gap-2 mt-4 md:mt-0">
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={handleImport}
+              >
                 <Upload className="h-4 w-4" />
                 Importieren
               </Button>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={handleExport}
+              >
                 <Download className="h-4 w-4" />
                 Exportieren
               </Button>
-              <Button className="flex items-center gap-2">
+              <Button 
+                className="flex items-center gap-2"
+                onClick={handleAddProduct}
+              >
                 <Plus className="h-4 w-4" />
                 Neues Produkt
               </Button>

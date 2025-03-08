@@ -23,11 +23,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const PharmacyProductsList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProducts, setSelectedProducts] = useState<Record<string, boolean>>({});
+  const [selectAll, setSelectAll] = useState(false);
 
   // Load pharmacy products
   useEffect(() => {
@@ -55,6 +58,61 @@ const PharmacyProductsList: React.FC = () => {
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Toggle individual product selection
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProducts(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
+
+  // Handle select all toggle
+  const handleSelectAll = () => {
+    const newSelectAll = !selectAll;
+    setSelectAll(newSelectAll);
+    
+    // Update all product selections based on selectAll state
+    const updatedSelections = {};
+    filteredProducts.forEach(product => {
+      updatedSelections[product.id] = newSelectAll;
+    });
+    
+    setSelectedProducts(updatedSelections);
+  };
+
+  // Product action handlers
+  const handleViewProduct = (product: Product) => {
+    toast.info(`Produkt ansehen: ${product.name}`);
+    window.open(`/product/${product.id}`, '_blank');
+  };
+
+  const handleEditProduct = (product: Product) => {
+    toast.info(`Produkt bearbeiten: ${product.name}`);
+  };
+
+  const handleDeleteProduct = (product: Product) => {
+    toast.warning(`Möchten Sie das Produkt wirklich löschen: ${product.name}?`, {
+      action: {
+        label: "Löschen",
+        onClick: () => {
+          toast.success(`Produkt gelöscht: ${product.name}`);
+          // Here we would actually delete the product, for now just filter it out
+          setProducts(prevProducts => prevProducts.filter(p => p.id !== product.id));
+        }
+      },
+      cancel: {
+        label: "Abbrechen",
+        onClick: () => {}
+      }
+    });
+  };
+
+  const handleFilter = () => {
+    toast.info("Filter-Optionen werden geöffnet");
+  };
+
+  const isAnyProductSelected = Object.values(selectedProducts).some(isSelected => isSelected);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 justify-between">
@@ -68,10 +126,45 @@ const PharmacyProductsList: React.FC = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={handleFilter}
+          >
             <Filter className="h-4 w-4" />
             Filter
           </Button>
+          {isAnyProductSelected && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                const selectedIds = Object.entries(selectedProducts)
+                  .filter(([_, isSelected]) => isSelected)
+                  .map(([id]) => id);
+                
+                toast.warning(`${selectedIds.length} Produkte löschen?`, {
+                  action: {
+                    label: "Löschen",
+                    onClick: () => {
+                      toast.success(`${selectedIds.length} Produkte gelöscht`);
+                      setProducts(prevProducts => 
+                        prevProducts.filter(p => !selectedProducts[p.id]));
+                      setSelectedProducts({});
+                    }
+                  },
+                  cancel: {
+                    label: "Abbrechen",
+                    onClick: () => {}
+                  }
+                });
+              }}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Ausgewählte löschen
+            </Button>
+          )}
         </div>
       </div>
 
@@ -86,7 +179,11 @@ const PharmacyProductsList: React.FC = () => {
               <TableRow>
                 <TableHead className="w-[50px]">
                   <div className="flex items-center">
-                    <Switch id="select-all" />
+                    <Switch
+                      id="select-all"
+                      checked={selectAll}
+                      onCheckedChange={handleSelectAll}
+                    />
                   </div>
                 </TableHead>
                 <TableHead>Produkt</TableHead>
@@ -108,7 +205,11 @@ const PharmacyProductsList: React.FC = () => {
                 filteredProducts.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <Switch id={`select-${product.id}`} />
+                      <Switch
+                        id={`select-${product.id}`}
+                        checked={!!selectedProducts[product.id]}
+                        onCheckedChange={() => toggleProductSelection(product.id)}
+                      />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -143,13 +244,25 @@ const PharmacyProductsList: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleViewProduct(product)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEditProduct(product)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDeleteProduct(product)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
