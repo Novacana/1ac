@@ -13,10 +13,8 @@ const MobileNavDots = () => {
   const cartCount = getCartCount();
   const isMobile = useIsMobile();
   
+  // Only render on mobile devices
   if (!isMobile) return null;
-  
-  const isShop = location.pathname === "/products" || location.pathname.startsWith("/product/");
-  const isShowroom = location.pathname === "/";
   
   return (
     <div className="fixed z-50 top-3 w-full px-4 flex justify-between md:hidden animate-fade-in">

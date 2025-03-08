@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
             </Button>
           )}
 
-          {/* Only show cart button on non-mobile screens */}
+          {/* Show cart button in header only on desktop */}
           {!isMobile && (
             <Link to="/cart">
               <Button variant="ghost" size="sm" className="relative">
