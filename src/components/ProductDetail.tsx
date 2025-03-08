@@ -8,6 +8,9 @@ import ProductEffects from "./ProductDetail/ProductEffects";
 import ProductUsage from "./ProductDetail/ProductUsage";
 import QuantitySelector from "./ProductDetail/QuantitySelector";
 import AddToCartButton from "./ProductDetail/AddToCartButton";
+import ProductInfoPanel from "./ProductInfoPanel";
+import ProductDetailPanel from "./ProductDetailPanel";
+import { Product } from "@/types/product";
 
 export interface ProductDetailProps {
   id: string;
@@ -42,10 +45,38 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   benefits,
   use,
   effects,
+  terpenes,
+  flavors,
+  strain,
+  product_type,
+  weight,
+  potency,
+  origin,
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const packageSize = 10; // Package size in grams
+
+  // Convert ProductDetailProps to Product type for info panels
+  const productData: Product = {
+    id,
+    name,
+    price,
+    description,
+    image: images && images.length > 0 ? images[0] : "",
+    images,
+    thc,
+    cbd,
+    category,
+    strain,
+    terpenes,
+    effects,
+    flavors,
+    origin,
+    product_type,
+    weight,
+    potency,
+  };
 
   const handleQuantityChange = (amount: number) => {
     const newQuantity = quantity + amount;
@@ -109,6 +140,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 productPrice={price}
                 productImage={images && images.length > 0 ? images[0] : ""}
               />
+            </div>
+
+            {/* Cannabinoid and Product Info Panel */}
+            <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+              <ProductInfoPanel product={productData} />
+              <ProductDetailPanel product={productData} />
             </div>
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>
