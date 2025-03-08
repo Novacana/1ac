@@ -1,7 +1,10 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Product } from "@/types/product";
 import { useNavigate } from "react-router-dom";
+import { useImageHandling } from "./carousel/useImageHandling";
+import { useSwipeHandling } from "./carousel/useSwipeHandling";
+import { useCarouselNavigation } from "./carousel/useCarouselNavigation";
 
 interface UseProductCarouselProps {
   products: Product[];
@@ -9,29 +12,73 @@ interface UseProductCarouselProps {
 }
 
 export const useProductCarousel = ({ products, selectedCategory }: UseProductCarouselProps) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [touchEndX, setTouchEndX] = useState(0);
-  const [swipeDistance, setSwipeDistance] = useState(0);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
-  const [hasMoved, setHasMoved] = useState(false);
-  
   const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const startX = useRef<number | null>(null);
-  const autoPlayTimerRef = useRef<number | null>(null);
-  const previousImageRef = useRef<string | null>(null);
-
+  
   const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
   
   const filteredProducts = products.filter(product => 
     product.category === normalizedCategory || product.category === selectedCategory
   );
 
+  const {
+    imageLoading,
+    setImageLoading,
+    updateImageLoadingState,
+    getImagePath,
+    previousImageRef
+  } = useImageHandling({ 
+    currentProduct: filteredProducts.length > 0 ? filteredProducts[0] : null 
+  });
+
+  const {
+    swipeDistance,
+    isSwiping,
+    hasMoved,
+    containerRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    setHasMoved
+  } = useSwipeHandling();
+
+  const {
+    activeIndex,
+    isTransitioning,
+    direction,
+    isAutoPlaying,
+    autoPlayTimerRef,
+    setActiveIndex,
+    setIsTransitioning,
+    goToNext,
+    goToPrevious,
+    goToIndex
+  } = useCarouselNavigation({
+    filteredProducts,
+    getImagePath,
+    setImageLoading,
+    previousImageRef
+  });
+
+  // Handle touch end with navigation logic
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isSwiping) return;
+    
+    const currentX = e.changedTouches[0].clientX;
+    const diffX = currentX - (e.target as any).touchStartX || 0;
+    
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        goToPrevious();
+      } else {
+        goToNext();
+      }
+    }
+  };
+
+  // Auto-play functionality
   useEffect(() => {
     const startAutoPlay = () => {
       if (filteredProducts.length <= 1) return;
@@ -54,16 +101,18 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
         window.clearInterval(autoPlayTimerRef.current);
       }
     };
-  }, [filteredProducts.length, isAutoPlaying]);
+  }, [filteredProducts.length, isAutoPlaying, goToNext]);
 
+  // Reset active index when products or category changes
   useEffect(() => {
     console.log("Products or category changed, resetting active index");
     setActiveIndex(0);
     setImageLoading(true);
     setIsTransitioning(false);
     previousImageRef.current = null;
-  }, [selectedCategory, filteredProducts.length]);
+  }, [selectedCategory, filteredProducts.length, setActiveIndex, setImageLoading, setIsTransitioning]);
 
+  // Clear transition state after image loads
   useEffect(() => {
     if (!imageLoading && isTransitioning) {
       const timer = setTimeout(() => {
@@ -73,239 +122,15 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
       
       return () => clearTimeout(timer);
     }
-  }, [imageLoading, isTransitioning]);
-  
-  const pauseAutoPlay = () => {
-    setIsAutoPlaying(false);
-    
-    setTimeout(() => {
-      setIsAutoPlaying(true);
-    }, 10000);
-  };
+  }, [imageLoading, isTransitioning, setIsTransitioning]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-    setTouchStartX(e.touches[0].clientX);
-    setIsSwiping(false);
-    setHasMoved(false);
-    pauseAutoPlay();
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (startX.current === null) return;
-    
-    const currentX = e.touches[0].clientX;
-    const distance = currentX - startX.current;
-    setSwipeDistance(distance);
-    
-    if (Math.abs(distance) > 10) {
-      setIsSwiping(true);
-      setHasMoved(true);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (startX.current === null) return;
-    
-    setTouchEndX(e.changedTouches[0].clientX);
-    const diffX = e.changedTouches[0].clientX - startX.current;
-    
-    if (Math.abs(diffX) > 50) {
-      if (diffX > 0) {
-        goToPrevious();
-      } else {
-        goToNext();
-      }
-    }
-    
-    startX.current = null;
-    setIsSwiping(false);
-    setSwipeDistance(0);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    startX.current = e.clientX;
-    setTouchStartX(e.clientX);
-    setIsSwiping(true);
-    setHasMoved(false);
-    pauseAutoPlay();
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isSwiping || startX.current === null) return;
-    
-    const distance = e.clientX - startX.current;
-    setSwipeDistance(distance);
-    
-    if (Math.abs(distance) > 10) {
-      setHasMoved(true);
-    }
-  };
-
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (!isSwiping || startX.current === null) return;
-    
-    const diffX = e.clientX - startX.current;
-    
-    if (Math.abs(diffX) > 50) {
-      if (diffX > 0) {
-        goToPrevious();
-      } else {
-        goToNext();
-      }
-    }
-    
-    startX.current = null;
-    setIsSwiping(false);
-    setSwipeDistance(0);
-  };
-
-  const handleMouseLeave = () => {
-    if (isSwiping) {
-      setIsSwiping(false);
-      setSwipeDistance(0);
-      startX.current = null;
-    }
-  };
-
-  const getImagePath = (product: Product) => {
-    if (!product) {
-      console.error("No product provided to getImagePath");
-      return "/placeholder.svg";
-    }
-    
-    try {
-      // First try to get from images array
-      if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-        let path = product.images[0];
-        
-        if (typeof path !== 'string') {
-          console.error("Invalid image path type:", path);
-          return "/placeholder.svg";
-        }
-        
-        // Fix path if it starts with public/
-        if (path.startsWith("public/")) {
-          return path.replace("public/", "/");
-        }
-        
-        // Add leading slash if needed
-        if (!path.startsWith("http") && !path.startsWith("/")) {
-          return "/" + path;
-        }
-        
-        return path;
-      }
-      
-      // Fall back to single image property
-      if (product.image && typeof product.image === 'string') {
-        let path = product.image;
-        
-        // Fix path if it starts with public/
-        if (path.startsWith("public/")) {
-          return path.replace("public/", "/");
-        }
-        
-        // Add leading slash if needed
-        if (!path.startsWith("http") && !path.startsWith("/")) {
-          return "/" + path;
-        }
-        
-        return path;
-      }
-    } catch (error) {
-      console.error("Error processing image path:", error);
-    }
-    
-    // Fallback to placeholder
-    return "/placeholder.svg";
-  };
-
-  const goToNext = () => {
-    if (filteredProducts.length <= 1 || isTransitioning) return;
-    
-    try {
-      const currentProduct = filteredProducts[activeIndex];
-      previousImageRef.current = getImagePath(currentProduct);
-      
-      setDirection('next');
-      setIsTransitioning(true);
-      setImageLoading(true);
-      
-      setTimeout(() => {
-        setActiveIndex(prev => (prev === filteredProducts.length - 1 ? 0 : prev + 1));
-      }, 50);
-      
-      pauseAutoPlay();
-      console.log("Going to next product, new index:", (activeIndex === filteredProducts.length - 1 ? 0 : activeIndex + 1));
-    } catch (error) {
-      console.error("Error in goToNext:", error);
-      setIsTransitioning(false);
-      setImageLoading(false);
-    }
-  };
-
-  const goToPrevious = () => {
-    if (filteredProducts.length <= 1 || isTransitioning) return;
-    
-    try {
-      const currentProduct = filteredProducts[activeIndex];
-      previousImageRef.current = getImagePath(currentProduct);
-      
-      setDirection('prev');
-      setIsTransitioning(true);
-      setImageLoading(true);
-      
-      setTimeout(() => {
-        setActiveIndex(prev => (prev === 0 ? filteredProducts.length - 1 : prev - 1));
-      }, 50);
-      
-      pauseAutoPlay();
-      console.log("Going to previous product, new index:", (activeIndex === 0 ? filteredProducts.length - 1 : activeIndex - 1));
-    } catch (error) {
-      console.error("Error in goToPrevious:", error);
-      setIsTransitioning(false);
-      setImageLoading(false);
-    }
-  };
-
-  const goToIndex = (index: number) => {
-    if (index === activeIndex || isTransitioning) return;
-    
-    try {
-      const currentProduct = filteredProducts[activeIndex];
-      previousImageRef.current = getImagePath(currentProduct);
-      
-      const newDirection = index > activeIndex ? 'next' : 'prev';
-      setDirection(newDirection as 'next' | 'prev');
-      
-      setIsTransitioning(true);
-      setImageLoading(true);
-      
-      setTimeout(() => {
-        setActiveIndex(index);
-      }, 50);
-      
-      pauseAutoPlay();
-      console.log("Going to specific index:", index);
-    } catch (error) {
-      console.error("Error in goToIndex:", error);
-      setIsTransitioning(false);
-      setImageLoading(false);
-    }
-  };
-
+  // Handle product selection
   const handleProductClick = () => {
     if (!hasMoved && filteredProducts.length > 0) {
       const productId = filteredProducts[activeIndex].id;
       console.log(`Navigating to product detail page for product ID: ${productId}`);
       navigate(`/product/${productId}`);
     }
-  };
-
-  const updateImageLoadingState = () => {
-    console.log("Image loading completed, updating state");
-    setImageLoading(false);
   };
 
   return {
