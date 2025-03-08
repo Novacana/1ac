@@ -35,7 +35,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       
       <div className="flex flex-wrap justify-between items-baseline gap-2 mt-2">
         <h1 className="text-3xl font-bold text-foreground">{name}</h1>
-        <div className="text-2xl font-bold text-foreground">
+        <div className="text-2xl font-bold text-foreground whitespace-nowrap">
           €{productPrice.toFixed(2)}
           <span className="text-sm font-normal text-muted-foreground ml-1">/ {packageSize}g</span>
         </div>

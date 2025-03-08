@@ -4,8 +4,9 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { getTerpeneColor, parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect } from "./utils";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Info } from "lucide-react";
+import { Info, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface TerpeneProfileProps {
   product: Product;
@@ -17,11 +18,10 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
-  // Create terpene data for the pie chart
+  // Create terpene data for the pie chart with more vibrant colors
   const terpeneData = product.terpenes.map((terpene) => ({
     name: terpene.name,
     value: parsePercentage(terpene.percentage),
-    color: getTerpeneColor(terpene.name),
     effect: getTerpeneEffect(terpene.name),
     detailedEffect: getTerpeneDetailedEffect(terpene.name)
   }));
@@ -33,107 +33,81 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-1.5">
-        <h4 className="text-xs font-medium">Terpene</h4>
-        <span className="text-xs font-medium">{totalPercentage}%</span>
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-sm font-medium">Terpene</h4>
+        <span className="text-sm font-medium">{totalPercentage}%</span>
       </div>
       
-      <div className={cn("flex gap-2", !isMobile && "items-start")}>
-        {/* Pie chart - made slightly larger on desktop */}
-        <div className={cn("relative", isMobile ? "h-[70px] w-[70px]" : "h-[80px] w-[80px]")}>
+      <div className={cn("flex gap-3", !isMobile && "items-start")}>
+        {/* Pie chart - improved size and visibility */}
+        <div className={cn("relative", isMobile ? "h-[80px] w-[80px]" : "h-[100px] w-[100px] flex-shrink-0")}>
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <Pie
                 data={terpeneData}
                 cx="50%"
                 cy="50%"
-                innerRadius={isMobile ? 12 : 15}
-                outerRadius={isMobile ? 30 : 35}
-                paddingAngle={2}
+                innerRadius={isMobile ? 15 : 20}
+                outerRadius={isMobile ? 35 : 45}
+                paddingAngle={3}
                 dataKey="value"
-                animationDuration={1500}
-                animationBegin={300}
+                animationDuration={1000}
+                animationBegin={200}
                 stroke="none"
               >
-                {terpeneData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color} 
-                    style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.05))' }}
-                  />
-                ))}
+                {terpeneData.map((entry, index) => {
+                  // More vibrant color palette
+                  const colors = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#EF4444'];
+                  return (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={colors[index % colors.length]} 
+                      style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}
+                    />
+                  );
+                })}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
         </div>
         
-        {/* Terpene list - enhanced for desktop */}
-        <div className="flex flex-col justify-center flex-1">
-          {terpeneData.map((terpene, index) => (
-            <div 
-              key={index} 
-              className={cn(
-                "flex items-center text-xs mb-0.5 cursor-pointer group",
-                !isMobile && "mb-1"
-              )}
-              onClick={() => handleTerpeneClick(terpene.name)}
-            >
-              <span 
-                className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"
-                style={{ backgroundColor: terpene.color }}
-              />
-              <span className="mr-1 group-hover:underline">{terpene.name}</span>
-              <span className="text-foreground/70 mr-1">{terpene.value}%</span>
-              <Info className="h-3 w-3 text-muted-foreground opacity-60 group-hover:opacity-100" />
-            </div>
-          ))}
+        {/* Terpene list - enhanced for better visibility */}
+        <div className="flex flex-col justify-center flex-1 overflow-hidden">
+          {terpeneData.map((terpene, index) => {
+            // More vibrant color palette for indicators
+            const colors = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#EF4444'];
+            
+            return (
+              <Collapsible 
+                key={index}
+                className="mb-1.5 last:mb-0"
+                open={expandedTerpene === terpene.name}
+                onOpenChange={() => handleTerpeneClick(terpene.name)}
+              >
+                <CollapsibleTrigger className="flex items-center w-full text-sm py-0.5 hover:bg-background/60 rounded px-1 transition-colors">
+                  <span 
+                    className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                    style={{ backgroundColor: colors[index % colors.length] }}
+                  />
+                  <span className="mr-1 font-medium flex-grow text-left">{terpene.name}</span>
+                  <span className="text-foreground/70 mr-2">{terpene.value}%</span>
+                  {expandedTerpene === terpene.name ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="pl-5 pr-1 pt-1 pb-1 text-sm text-foreground/80 border-l-2 ml-1.5" 
+                  style={{ borderColor: colors[index % colors.length] }}>
+                  {isMobile ? terpene.effect : terpene.detailedEffect}
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
         </div>
       </div>
-      
-      {/* Expanded terpene effects information (when a terpene is clicked) */}
-      {terpeneData.map((terpene) => (
-        <div 
-          key={terpene.name}
-          className={cn(
-            "text-xs text-foreground/80 mt-1 border-t border-border/20 pt-1 pb-1 overflow-hidden transition-all duration-300",
-            expandedTerpene === terpene.name 
-              ? "max-h-24 opacity-100" 
-              : "max-h-0 opacity-0 border-t-0 pt-0 pb-0"
-          )}
-        >
-          <div className="flex items-start">
-            <div 
-              className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 mt-0.5"
-              style={{ backgroundColor: terpene.color }}
-            />
-            <div>
-              <span className="font-medium">{terpene.name}: </span>
-              <span>{isMobile ? terpene.effect : terpene.detailedEffect}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-      
-      {/* Default terpene effects - show on desktop view with better formatting */}
-      {!isMobile && !expandedTerpene && terpeneData.length > 0 && (
-        <div className="text-[11px] text-foreground/80 mt-2 border-t border-border/20 pt-2 max-h-[150px] overflow-auto">
-          {terpeneData.map((terpene, index) => (
-            <div key={index} className="mb-2 last:mb-0">
-              <div className="flex items-start">
-                <div 
-                  className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 mt-1"
-                  style={{ backgroundColor: terpene.color }}
-                />
-                <div>
-                  <div className="font-medium">{terpene.name} ({terpene.value}%):</div>
-                  <div className="ml-1 mt-0.5">{terpene.detailedEffect}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

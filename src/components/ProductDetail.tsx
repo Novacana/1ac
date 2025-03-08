@@ -119,7 +119,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             
             {/* Terpene profile for desktop view - below the product image */}
             {!isMobile && terpenes && terpenes.length > 0 && (
-              <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+              <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
                 <TerpeneProfile product={productData} />
               </div>
             )}
@@ -147,7 +147,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               />
             </div>
 
-            <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+            <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
               <ProductInfoPanel product={productData} />
               
               {/* Only show flavor profile in desktop view */}
@@ -168,7 +168,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             
             {/* Show terpene profile in mobile view */}
             {isMobile && terpenes && terpenes.length > 0 && (
-              <div className="mt-4 bg-background/50 rounded-lg p-3 border border-border/30">
+              <div className="mt-4 bg-background rounded-lg p-4 border border-border/30 shadow-sm">
                 <TerpeneProfile product={productData} />
               </div>
             )}

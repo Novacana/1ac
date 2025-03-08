@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "../ProductInfoPanel"; 
@@ -117,7 +118,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
           
           <div className="md:col-span-3 order-3">
             {activeProduct && (
-              <div className="rounded-lg p-2 h-full border border-border/20">
+              <div className="rounded-lg p-4 h-full border border-border/20 bg-background shadow-sm">
                 <TerpeneProfile product={activeProduct} />
               </div>
             )}
