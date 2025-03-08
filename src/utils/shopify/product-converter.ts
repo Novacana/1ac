@@ -11,7 +11,7 @@ export const convertShopifyProduct = (shopifyProduct: ShopifyProduct): Product =
   
   // Safely access price - check if variants exist and have price property
   const price = shopifyProduct.variants.length > 0 && 'price' in firstVariant 
-    ? parseFloat(firstVariant.price) 
+    ? parseFloat(String(firstVariant.price)) 
     : 0;
   
   // Extract image information
