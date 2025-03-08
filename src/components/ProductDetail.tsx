@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ProductImages from "./ProductDetail/ProductImages";
-import ProductHeader from "./ProductDetail/ProductHeader";
 import ProductBenefits from "./ProductDetail/ProductBenefits";
 import ProductEffects from "./ProductDetail/ProductEffects";
 import ProductUsage from "./ProductDetail/ProductUsage";
@@ -73,7 +72,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </Link>
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images */}
+          {/* Product Images with info above */}
           <ProductImages 
             images={images} 
             name={name} 
@@ -84,16 +83,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             cbd={cbd}
           />
 
-          {/* Product Info */}
+          {/* Product Info - Description and details */}
           <div className="space-y-6">
-            <ProductHeader
-              name={name}
-              price={price}
-              category={category}
-              thc={thc}
-              cbd={cbd}
-            />
-
             <p className="text-foreground/80 leading-relaxed">{description}</p>
 
             {/* Benefits */}
