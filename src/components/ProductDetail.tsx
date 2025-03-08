@@ -77,7 +77,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Images */}
-          <ProductImages images={images} name={name} />
+          <ProductImages 
+            images={images} 
+            name={name} 
+            productId={id}
+            productPrice={price}
+          />
 
           {/* Product Info */}
           <div className="space-y-6">
