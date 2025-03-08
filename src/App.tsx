@@ -10,16 +10,28 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import UserDashboard from "./pages/UserDashboard";
 import Login from "./pages/Login";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
+// Protected Route for Doctors
+const DoctorRoute = ({ children }) => {
   const { isAuthenticated, isDoctor } = useAuth();
   
   if (!isAuthenticated || !isDoctor) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Protected Route for Users
+const UserRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
@@ -42,9 +54,17 @@ function App() {
             <Route 
               path="/doctor/dashboard" 
               element={
-                <ProtectedRoute>
+                <DoctorRoute>
                   <DoctorDashboard />
-                </ProtectedRoute>
+                </DoctorRoute>
+              } 
+            />
+            <Route 
+              path="/user/dashboard" 
+              element={
+                <UserRoute>
+                  <UserDashboard />
+                </UserRoute>
               } 
             />
             <Route path="*" element={<NotFound />} />

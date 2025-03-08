@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -13,6 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isDoctor: boolean;
   isAdmin: boolean;
+  isUser: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -43,10 +44,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = user !== null;
   const isDoctor = isAuthenticated && user.role === 'doctor';
   const isAdmin = isAuthenticated && user.role === 'admin';
+  const isUser = isAuthenticated && user.role === 'user';
   
   const login = async (email: string, password: string) => {
     // Simulation - in production, this would be a real API call
-    // Demo user for development - in production, validate credentials on server
     if (email === 'doctor@example.com' && password === 'password') {
       const demoUser = {
         id: '1',
@@ -56,6 +57,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
+    } else if (email === 'user@example.com' && password === 'password') {
+      const regularUser = {
+        id: '2',
+        name: 'Max Mustermann',
+        email: 'user@example.com',
+        role: 'user' as const
+      };
+      setUser(regularUser);
+      localStorage.setItem('doctor_user', JSON.stringify(regularUser));
     } else {
       throw new Error('Invalid credentials');
     }
@@ -71,7 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user, 
       isAuthenticated, 
       isDoctor, 
-      isAdmin, 
+      isAdmin,
+      isUser,
       login, 
       logout 
     }}>

@@ -5,6 +5,7 @@ import Header from "./Header";
 import MobileNavDots from "./MobileNavDots";
 import ProductAdvisor from "./AdvisorBot";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ const Layout: React.FC<LayoutProps> = ({
   fullWidth = true, // Default to full width
 }) => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   
   // Scroll to top on route change
   useEffect(() => {
@@ -28,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      {!noHeader && <Header />}
+      {!noHeader && <Header showUserLink={isAuthenticated} />}
       <MobileNavDots />
       <main
         className={cn(
