@@ -6,6 +6,15 @@ interface User {
   name: string;
   email: string;
   role: 'doctor' | 'admin' | 'user';
+  address?: {
+    street?: string;
+    additionalInfo?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    country?: string;
+  };
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -16,6 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
+  updateUserProfile: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,7 +63,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '1',
         name: 'Dr. Schmidt',
         email: 'doctor@example.com',
-        role: 'doctor' as const
+        role: 'doctor' as const,
+        address: {
+          street: 'Musterstraße 1',
+          city: 'Berlin',
+          state: 'Berlin',
+          zip: '10115',
+          country: 'Deutschland'
+        },
+        phone: '+49 123 456789'
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -62,7 +80,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '2',
         name: 'Max Mustermann',
         email: 'user@example.com',
-        role: 'user' as const
+        role: 'user' as const,
+        address: {
+          street: 'Musterstraße 123',
+          additionalInfo: 'Wohnung 4B',
+          city: 'Berlin',
+          state: 'Berlin',
+          zip: '10115',
+          country: 'Deutschland'
+        },
+        phone: '+49 987 654321'
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -83,6 +110,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(newUser);
     localStorage.setItem('doctor_user', JSON.stringify(newUser));
   };
+
+  const updateUserProfile = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('doctor_user', JSON.stringify(updatedUser));
+    }
+  };
   
   const logout = () => {
     setUser(null);
@@ -97,7 +132,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAdmin, 
       login, 
       logout,
-      register
+      register,
+      updateUserProfile
     }}>
       {children}
     </AuthContext.Provider>
