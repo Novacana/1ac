@@ -1,76 +1,90 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Database, Globe, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DocumentationCard: React.FC = () => {
-  const handleDocumentation = (type: string) => {
-    toast.info(`${type} wird geöffnet`);
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dokumentation & Hilfe</CardTitle>
+        <CardTitle>API-Dokumentation</CardTitle>
         <CardDescription>
-          Ressourcen zur Unterstützung bei der Integration Ihrer Apothekensoftware
+          Detaillierte Informationen zur Verwendung unserer API
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Button 
-            variant="outline" 
-            className="justify-start h-auto py-4 px-4"
-            onClick={() => handleDocumentation("API Dokumentation")}
-          >
-            <div className="flex flex-col items-start text-left">
-              <div className="flex items-center mb-1">
-                <Database className="h-4 w-4 mr-2" />
-                <span className="font-medium">API Dokumentation</span>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                Technische Details zur API-Integration
-              </span>
-            </div>
-            <ArrowRight className="h-4 w-4 ml-auto" />
-          </Button>
+      <CardContent>
+        <Tabs defaultValue="overview">
+          <TabsList className="mb-4">
+            <TabsTrigger value="overview">Übersicht</TabsTrigger>
+            <TabsTrigger value="endpoints">Endpunkte</TabsTrigger>
+            <TabsTrigger value="gdpr">DSGVO-Konformität</TabsTrigger>
+          </TabsList>
           
-          <Button 
-            variant="outline" 
-            className="justify-start h-auto py-4 px-4"
-            onClick={() => handleDocumentation("Entwickler-Portal")}
-          >
-            <div className="flex flex-col items-start text-left">
-              <div className="flex items-center mb-1">
-                <Globe className="h-4 w-4 mr-2" />
-                <span className="font-medium">Entwickler-Portal</span>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                Tools und Ressourcen für Entwickler
-              </span>
-            </div>
-            <ArrowRight className="h-4 w-4 ml-auto" />
-          </Button>
+          <TabsContent value="overview" className="space-y-4">
+            <h3 className="text-lg font-medium">Einführung in die API</h3>
+            <p>
+              Unsere API ermöglicht es Ihnen, programmatisch auf Ihre Apothekendaten zuzugreifen 
+              und die Integration mit anderen Systemen zu automatisieren.
+            </p>
+            <h4 className="text-md font-medium mt-4">Authentifizierung</h4>
+            <p>
+              Alle API-Anfragen benötigen einen gültigen API-Schlüssel, der im Header 
+              "Authorization" übergeben wird.
+            </p>
+            <pre className="bg-muted p-2 rounded-md overflow-x-auto mt-2">
+              <code>Authorization: Bearer sk_live_pharmacy_YOUR_API_KEY</code>
+            </pre>
+          </TabsContent>
           
-          <Button 
-            variant="outline" 
-            className="justify-start h-auto py-4 px-4"
-            onClick={() => handleDocumentation("Support kontaktieren")}
-          >
-            <div className="flex flex-col items-start text-left">
-              <div className="flex items-center mb-1">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                <span className="font-medium">Support kontaktieren</span>
+          <TabsContent value="endpoints" className="space-y-4">
+            <h3 className="text-lg font-medium">Verfügbare Endpunkte</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium">GET /api/pharmacy/products</h4>
+                <p className="text-sm text-muted-foreground">
+                  Liefert eine Liste aller Produkte in Ihrer Apotheke.
+                </p>
               </div>
-              <span className="text-xs text-muted-foreground">
-                Hilfe bei Integrationsproblemen
-              </span>
+              <div>
+                <h4 className="font-medium">POST /api/pharmacy/products</h4>
+                <p className="text-sm text-muted-foreground">
+                  Erstellt ein neues Produkt in Ihrer Apotheke.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium">GET /api/pharmacy/orders</h4>
+                <p className="text-sm text-muted-foreground">
+                  Liefert eine Liste aller Bestellungen.
+                </p>
+              </div>
             </div>
-            <ArrowRight className="h-4 w-4 ml-auto" />
-          </Button>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="gdpr" className="space-y-4">
+            <h3 className="text-lg font-medium">DSGVO-Konformität</h3>
+            <p>
+              Bei der Nutzung der API müssen Sie sicherstellen, dass Sie die Anforderungen 
+              der Datenschutz-Grundverordnung (DSGVO) einhalten.
+            </p>
+            
+            <h4 className="text-md font-medium mt-4">Datenschutzmaßnahmen</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Verwenden Sie die API nur für legitime Geschäftszwecke</li>
+              <li>Verarbeiten Sie nur die Daten, die Sie tatsächlich benötigen</li>
+              <li>Speichern Sie keine sensiblen Daten länger als notwendig</li>
+              <li>Stellen Sie sicher, dass Ihre Systeme entsprechend geschützt sind</li>
+              <li>Implementieren Sie die Rechte der betroffenen Personen (Auskunft, Löschung, etc.)</li>
+            </ul>
+            
+            <h4 className="text-md font-medium mt-4">Technische Maßnahmen</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Alle API-Kommunikation erfolgt über TLS/SSL</li>
+              <li>API-Schlüssel sollten sicher aufbewahrt werden</li>
+              <li>Protokollieren Sie Zugriffe auf personenbezogene Daten</li>
+              <li>Implementieren Sie geeignete Zugriffskontrollen</li>
+            </ul>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
