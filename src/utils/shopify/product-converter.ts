@@ -9,8 +9,10 @@ export const convertShopifyProduct = (shopifyProduct: ShopifyProduct): Product =
   // Extract variant information (using first variant as default)
   const firstVariant = shopifyProduct.variants[0] || {};
   
-  // Use nullish coalescing to safely access the price property from variants
-  const price = parseFloat(firstVariant.price ?? '0');
+  // Safely access price - check if variants exist and have price property
+  const price = shopifyProduct.variants.length > 0 && 'price' in firstVariant 
+    ? parseFloat(firstVariant.price) 
+    : 0;
   
   // Extract image information
   const mainImage = shopifyProduct.images.length > 0 ? shopifyProduct.images[0].src : '/placeholder.svg';
