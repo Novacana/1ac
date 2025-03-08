@@ -1,71 +1,69 @@
 
 import { useToast } from "@/hooks/use-toast";
 
-// Vordefinierter API-Schlüssel für ElevenLabs
+// API key for ElevenLabs
 export const ELEVENLABS_API_KEY = "e9d69bd26aaea5fc0e626febff0e5c6f";
 
-export const setupSpeechRecognition = (
-  setIsListening: (isListening: boolean) => void,
-  setTranscript: (transcript: string) => void,
-  processUserQuery: (query: string) => void
+export const speakResponse = async (
+  text: string, 
+  isVoiceEnabled: boolean, 
+  isApiKeySet: boolean,
+  conversation: any,
+  setIsPlaying: (playing: boolean) => void,
+  isPlaying: boolean,
+  toast: ReturnType<typeof useToast>["toast"]
 ) => {
-  const { toast } = useToast();
+  if (!isVoiceEnabled || !isApiKeySet) return;
   
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    toast({
-      title: "Spracherkennung nicht unterstützt",
-      description: "Dein Browser unterstützt keine Spracherkennung. Bitte verwende Chrome, Edge oder Safari.",
-      variant: "destructive",
-    });
-    return null;
-  }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  
-  recognition.lang = 'de-DE';
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  
-  recognition.onstart = () => {
-    setIsListening(true);
-    setTranscript("");
-    toast({
-      title: "Spracherkennung aktiv",
-      description: "Du kannst jetzt sprechen.",
-    });
-  };
-  
-  recognition.onresult = (event: SpeechRecognitionEvent) => {
-    let interimTranscript = '';
-    let finalTranscript = '';
-    
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript;
-        processUserQuery(finalTranscript);
-      } else {
-        interimTranscript += transcript;
-        // Display interim results in real-time
-        setTranscript(interimTranscript);
+  try {
+    if (isPlaying) {
+      if (conversation.status === "connected") {
+        conversation.endSession();
       }
+      setIsPlaying(false);
+      return;
     }
-  };
-  
-  recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-    console.error('Speech recognition error', event.error);
-    setIsListening(false);
+
+    setIsPlaying(true);
+    
+    const options = {
+      overrides: {
+        tts: {
+          voiceId: "XB0fDUnXU5powFXDhCwa",
+        },
+        agent: {
+          language: "de",
+        }
+      }
+    };
+    
+    conversation.startSession({
+      url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa`,
+      headers: {
+        'xi-api-key': ELEVENLABS_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      ...options
+    }).then(() => {
+      setTimeout(() => {
+        setIsPlaying(false);
+      }, text.length * 80);
+    }).catch(error => {
+      console.error("Error with ElevenLabs:", error);
+      setIsPlaying(false);
+      toast({
+        title: "Fehler bei der Sprachausgabe",
+        description: "Die ElevenLabs Sprachausgabe konnte nicht gestartet werden.",
+        variant: "destructive",
+      });
+    });
+  } catch (error) {
+    console.error("Error generating speech:", error);
     toast({
-      title: "Fehler bei der Spracherkennung",
-      description: `Fehler: ${event.error}`,
+      title: "Fehler bei der Sprachausgabe",
+      description: "Ein Fehler ist bei der Sprachausgabe aufgetreten.",
       variant: "destructive",
     });
-  };
-  
-  recognition.onend = () => {
-    // Handled in component
-  };
-  
-  return recognition;
+    setIsPlaying(false);
+  }
 };

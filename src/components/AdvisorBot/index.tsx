@@ -4,18 +4,43 @@ import { Bot, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { ProductDetailProps } from "@/components/ProductDetail";
+import { products, getProductsByCategory } from "@/data/products";
 import { useConversation } from "@11labs/react";
-import AdvisorBotHeader from "./AdvisorBotHeader";
-import ConversationHistory from "./ConversationHistory";
-import UserInputArea from "./UserInputArea";
-import { createWebTools, detectToolIntent, processQuery } from "./toolUtils";
-import { ELEVENLABS_API_KEY } from "./voiceUtils";
-import { Message } from "./types";
 
-// LLM Context für bessere Empfehlungen
+// Import components
+import AdvisorHeader from "./AdvisorHeader";
+import ConfigPanel from "./ConfigPanel";
+import BotIntroduction from "./BotIntroduction";
+import QuickActions from "./QuickActions";
+import ConversationView from "./ConversationView";
+import InputArea from "./InputArea";
+
+// Import utilities
+import { createWebTools, detectToolIntent, processQuery, executeN8nActions, sendToN8nWebhook } from "./toolUtils";
+import { speakResponse } from "./voiceUtils";
+import { startListening, stopListening } from "./speechRecognition";
+import { Message } from "./types";
+import { ELEVENLABS_API_KEY } from "./voiceUtils";
+
+// Constants
+const N8N_WEBHOOK_URL = ""; // Hier deine n8n Webhook URL eintragen
+const USE_N8N_AGENT = false; // Auf true setzen, um den n8n Agenten zu aktivieren
+
+const productKnowledgeBase = products.map(p => ({
+  id: p.id,
+  name: p.name,
+  category: p.category,
+  strain: p.strain,
+  effects: p.effects,
+  benefits: p.benefits,
+  thcContent: p.thc,
+  cbdContent: p.cbd,
+  terpenes: p.terpenes,
+  flavors: p.flavors
+}));
+
 const systemPrompt = `
 Du bist ein Berater für medizinisches Cannabis. Dein Zweck ist es, Menschen zu helfen, 
 die idealen Cannabis-Produkte für ihre individuellen Bedürfnisse zu finden.
@@ -32,6 +57,10 @@ Verwende die folgenden Tools, um dem Nutzer zu helfen:
 - showProductDetails: Zeige Details zu einem bestimmten Produkt.
 
 Deine Antworten sollten knapp, freundlich und informativ sein. Vermeide lange Einleitungen.
+Verwende die Informationen, die dir zur Verfügung stehen, um immer die am besten geeignetsten Produktempfehlungen zu geben.
+
+Aktuelle Produktbasis: 
+${JSON.stringify(productKnowledgeBase).substring(0, 1000)}...
 `;
 
 const ProductAdvisor = () => {
@@ -45,19 +74,21 @@ const ProductAdvisor = () => {
   const [userInput, setUserInput] = useState("");
   const [botResponse, setBotResponse] = useState("Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [recommendedProducts, setRecommendedProducts] = useState<ProductDetailProps[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [showProducts, setShowProducts] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
+  const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
+  const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
   
-  // Wir speichern den API-Schlüssel direkt und überspringen den Eingabebildschirm
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
   const isApiKeySet = true;
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
-  // ElevenLabs Voice Settings
   const conversation = useConversation({
     onError: (error) => {
       console.error("ElevenLabs error:", error);
@@ -69,16 +100,12 @@ const ProductAdvisor = () => {
     }
   });
 
-  const webTools = createWebTools(navigate, toast);
-
   useEffect(() => {
-    // Cleanup function for speech services
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       
-      // End ElevenLabs conversation if active
       if (conversation.status === "connected") {
         conversation.endSession();
       }
@@ -88,163 +115,13 @@ const ProductAdvisor = () => {
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
     if (isOpen) {
-      // Stop all audio if closing the advisor
       if (conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
       if (isListening) {
-        stopListening();
+        stopListening(recognitionRef, setIsListening);
       }
-    }
-  };
-
-  const speakResponse = async (text: string) => {
-    if (!isVoiceEnabled || !isApiKeySet) return;
-    
-    try {
-      if (isPlaying) {
-        if (conversation.status === "connected") {
-          conversation.endSession();
-        }
-        setIsPlaying(false);
-        return;
-      }
-
-      setIsPlaying(true);
-      
-      // Use ElevenLabs for voice synthesis
-      const options = {
-        overrides: {
-          tts: {
-            voiceId: "XB0fDUnXU5powFXDhCwa", // Charlotte - German voice
-          },
-          agent: {
-            language: "de",
-          }
-        }
-      };
-      
-      // Simulate ElevenLabs response for this demo
-      // In a real implementation, you would use the actual agent
-      conversation.startSession({
-        url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa`,
-        headers: {
-          'xi-api-key': elevenLabsApiKey,
-          'Content-Type': 'application/json',
-        },
-        ...options
-      }).then(() => {
-        setTimeout(() => {
-          setIsPlaying(false);
-        }, text.length * 80); // Approximate duration based on text length
-      }).catch(error => {
-        console.error("Error with ElevenLabs:", error);
-        setIsPlaying(false);
-        toast({
-          title: "Fehler bei der Sprachausgabe",
-          description: "Die ElevenLabs Sprachausgabe konnte nicht gestartet werden.",
-          variant: "destructive",
-        });
-      });
-      
-    } catch (error) {
-      console.error("Error generating speech:", error);
-      toast({
-        title: "Fehler bei der Sprachausgabe",
-        description: "Ein Fehler ist bei der Sprachausgabe aufgetreten.",
-        variant: "destructive",
-      });
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleVoice = () => {
-    setIsVoiceEnabled(!isVoiceEnabled);
-    if (isPlaying) {
-      if (conversation.status === "connected") {
-        conversation.endSession();
-      }
-      setIsPlaying(false);
-    }
-  };
-
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: "Spracherkennung nicht unterstützt",
-        description: "Dein Browser unterstützt keine Spracherkennung. Bitte verwende Chrome, Edge oder Safari.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.lang = 'de-DE';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    
-    recognition.onstart = () => {
-      setIsListening(true);
-      setTranscript("");
-      toast({
-        title: "Spracherkennung aktiv",
-        description: "Du kannst jetzt sprechen.",
-      });
-    };
-    
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
-      
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-          processUserQuery(finalTranscript);
-        } else {
-          interimTranscript += transcript;
-          // Display interim results in real-time
-          setTranscript(interimTranscript);
-        }
-      }
-    };
-    
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error', event.error);
-      stopListening();
-      toast({
-        title: "Fehler bei der Spracherkennung",
-        description: `Fehler: ${event.error}`,
-        variant: "destructive",
-      });
-    };
-    
-    recognition.onend = () => {
-      if (isListening) {
-        // Restart if it ends unexpectedly while still in listening mode
-        recognition.start();
-      }
-    };
-    
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
     }
   };
 
@@ -262,13 +139,65 @@ const ProductAdvisor = () => {
     }
   };
 
+  const toggleVoice = () => {
+    setIsVoiceEnabled(!isVoiceEnabled);
+    if (isPlaying) {
+      if (conversation.status === "connected") {
+        conversation.endSession();
+      }
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening(recognitionRef, setIsListening);
+    } else {
+      startListening(
+        setIsListening,
+        setTranscript,
+        processUserQuery,
+        recognitionRef,
+        toast
+      );
+    }
+  };
+
+  const webTools = createWebTools(navigate, toast);
+
   const handleNavigate = (path: string) => {
     const response = webTools.navigateToPage(path);
     setBotResponse(response);
     setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
     
     if (isVoiceEnabled) {
-      speakResponse(response);
+      speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+    }
+  };
+
+  const fallbackProcessing = (userQuery: string) => {
+    const toolIntent = detectToolIntent(userQuery);
+    
+    if (toolIntent) {
+      const { tool, params } = toolIntent;
+      const toolResponse = webTools[tool](params);
+      
+      const botResponseText = `${toolResponse}`;
+      setBotResponse(botResponseText);
+      setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
+      
+      if (isVoiceEnabled) {
+        speakResponse(botResponseText, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+      }
+    } else {
+      const response = processQuery(userQuery, setRecommendedProducts, setShowProducts);
+      
+      setBotResponse(response);
+      setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
+      
+      if (isVoiceEnabled) {
+        speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+      }
     }
   };
 
@@ -276,51 +205,67 @@ const ProductAdvisor = () => {
     if (userQuery.trim() === "" || isLoading) return;
     
     setIsLoading(true);
-    setTranscript(userQuery); // Display the final transcript
-
+    setTranscript(userQuery);
+    
     try {
-      // If bot is currently speaking, stop it
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
 
-      // Add user message to conversation history
       setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
-      // Check if the user query implies using a tool
-      const toolIntent = detectToolIntent(userQuery);
-      
-      if (toolIntent) {
-        // Use the detected tool
-        const { tool, params } = toolIntent;
-        const toolResponse = webTools[tool](params);
+      if (useN8nAgent && webhookUrl) {
+        const n8nResponse = await sendToN8nWebhook(
+          userQuery, 
+          webhookUrl, 
+          useN8nAgent, 
+          conversationHistory, 
+          productKnowledgeBase, 
+          setIsLoading, 
+          toast
+        );
         
-        // Add tool response to conversation
-        const botResponseText = `${toolResponse}`;
-        setBotResponse(botResponseText);
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
-        
-        // Generate speech for the response if voice is enabled
-        if (isVoiceEnabled) {
-          speakResponse(botResponseText);
+        if (n8nResponse) {
+          const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
+          
+          setBotResponse(n8nMessage);
+          setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
+          
+          if (n8nProducts && n8nProducts.length > 0) {
+            const formattedProducts = n8nProducts.map((p: any) => {
+              const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
+              
+              if (localProduct) return localProduct;
+              
+              return {
+                id: p.id || "unknown",
+                name: p.name || "Unbekanntes Produkt",
+                price: p.price || 0,
+                images: p.images || ["/placeholder.svg"],
+                category: p.category || "Sonstiges"
+              };
+            });
+            
+            setRecommendedProducts(formattedProducts);
+            setShowProducts(formattedProducts.length > 0);
+          } else {
+            setShowProducts(false);
+            setRecommendedProducts([]);
+          }
+          
+          executeN8nActions(actions, navigate, toast, setIsOpen);
+          
+          if (isVoiceEnabled) {
+            speakResponse(n8nMessage, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+          }
+        } else {
+          fallbackProcessing(userQuery);
         }
       } else {
-        // Process with LLM algorithm
-        const response = processQuery(userQuery, setRecommendedProducts, setShowProducts);
-        
-        setBotResponse(response);
-        
-        // Add bot response to conversation history
-        setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
-        
-        // Generate speech for the response if voice is enabled
-        if (isVoiceEnabled) {
-          speakResponse(response);
-        }
+        fallbackProcessing(userQuery);
       }
       
-      // Clear transcript after processing
       setTimeout(() => {
         setTranscript("");
       }, 2000);
@@ -355,25 +300,39 @@ const ProductAdvisor = () => {
         )}
       >
         <Card className="border shadow-lg overflow-hidden flex flex-col h-[600px]">
-          <AdvisorBotHeader 
+          <AdvisorHeader 
             isVoiceEnabled={isVoiceEnabled}
             toggleVoice={toggleVoice}
             toggleAdvisor={toggleAdvisor}
           />
 
-          <ConversationHistory
-            conversationHistory={conversationHistory}
-            isPlaying={isPlaying}
-            transcript={transcript}
-            isLoading={isLoading}
-            recommendedProducts={recommendedProducts}
-            showProducts={showProducts}
-            onActionClick={processUserQuery}
-            onNavigate={handleNavigate}
-            onProductClick={() => setIsOpen(false)}
-          />
+          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
+            <ConfigPanel 
+              webhookUrl={webhookUrl}
+              setWebhookUrl={setWebhookUrl}
+              useN8nAgent={useN8nAgent}
+              setUseN8nAgent={setUseN8nAgent}
+            />
 
-          <UserInputArea
+            <BotIntroduction />
+
+            <QuickActions 
+              onActionClick={processUserQuery}
+              onNavigate={handleNavigate}
+            />
+
+            <ConversationView 
+              conversationHistory={conversationHistory}
+              isPlaying={isPlaying}
+              transcript={transcript}
+              isLoading={isLoading}
+              recommendedProducts={recommendedProducts}
+              showProducts={showProducts}
+              onProductClick={() => setIsOpen(false)}
+            />
+          </div>
+
+          <InputArea 
             userInput={userInput}
             setUserInput={setUserInput}
             handleSendMessage={handleSendMessage}
