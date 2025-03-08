@@ -45,6 +45,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const packageSize = 10; // Package size in grams
 
   const handleQuantityChange = (amount: number) => {
     const newQuantity = quantity + amount;
@@ -54,7 +55,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   };
 
   const handleAddToCart = () => {
-    console.log(`Hinzugefügt: ${quantity} von ${name} zum Warenkorb`);
+    console.log(`Hinzugefügt: ${quantity} Packungen von ${name} zum Warenkorb (${quantity * packageSize}g gesamt)`);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
     // Here you would add the product to the cart state/context
@@ -89,13 +90,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="space-y-4 mb-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Standardgröße: 10g</p>
-                  <p className="text-xl font-semibold">{`€${price.toFixed(2)} / 10g`}</p>
+                  <p className="text-sm text-muted-foreground">Standardpaketgröße: 10g</p>
+                  <p className="text-xl font-semibold">{`€${price.toFixed(2)} / Packung`}</p>
                 </div>
                 <QuantitySelector
                   quantity={quantity}
                   onQuantityChange={handleQuantityChange}
                 />
+              </div>
+              
+              <div className="text-sm text-muted-foreground mb-2">
+                Gesamtpreis: <span className="font-medium">{`€${(price * quantity).toFixed(2)}`}</span> für {quantity * packageSize}g
               </div>
               
               <AddToCartButton
