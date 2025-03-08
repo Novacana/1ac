@@ -112,16 +112,17 @@ const Header = () => {
                     <Stethoscope className="h-4 w-4 mr-2" />
                     Arzt Dashboard
                   </DropdownMenuItem>
+                ) : isPharmacy ? (
+                  <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
+                    <Building className="h-4 w-4 mr-2" />
+                    Apotheken-Management
+                  </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
-                  <Building className="h-4 w-4 mr-2" />
-                  Apotheken-Management
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   Abmelden
@@ -191,7 +192,7 @@ const Header = () => {
             </Link>
           ))}
           
-          {isAuthenticated && (
+          {isAuthenticated && isPharmacy && (
             <Link
               to="/pharmacy/management"
               className={cn(

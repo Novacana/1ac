@@ -11,12 +11,14 @@ const MobileNavDots = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { getCartCount } = useCart();
-  const { isAuthenticated, isDoctor } = useAuth();
+  const { isAuthenticated, isDoctor, isPharmacy } = useAuth();
   const cartCount = getCartCount();
   
   const handleUserClick = () => {
     if (isDoctor) {
       navigate('/doctor/dashboard');
+    } else if (isPharmacy) {
+      navigate('/pharmacy/management');
     } else {
       navigate('/dashboard');
     }
@@ -34,7 +36,9 @@ const MobileNavDots = () => {
             onClick={handleUserClick}
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
-              location.pathname === '/dashboard' || location.pathname === '/doctor/dashboard'
+              (location.pathname === '/dashboard' || 
+               location.pathname === '/doctor/dashboard' || 
+               location.pathname === '/pharmacy/management')
                 ? "bg-primary text-white"
                 : "bg-background/70 text-foreground shadow-sm"
             )}

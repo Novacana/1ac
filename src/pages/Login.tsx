@@ -15,7 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isDoctor } = useAuth();
+  const { login, isDoctor, isPharmacy } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +30,8 @@ const Login = () => {
       // Redirect based on role
       if (isDoctor) {
         navigate('/doctor/dashboard');
+      } else if (isPharmacy) {
+        navigate('/pharmacy/management');
       } else {
         navigate('/dashboard');
       }
@@ -108,8 +110,9 @@ const Login = () => {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm text-muted-foreground">
               <p>Demo Zugangsdaten:</p>
-              <p>Email: user@example.com</p>
-              <p>Passwort: password</p>
+              <p>Email: user@example.com | Passwort: password</p>
+              <p>Email: doctor@example.com | Passwort: password</p>
+              <p>Email: pharmacy@example.com | Passwort: password</p>
             </div>
             <div className="w-full text-center">
               <p className="text-sm text-muted-foreground">

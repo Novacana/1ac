@@ -25,7 +25,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'doctor' | 'admin' | 'user';
+  role: 'doctor' | 'admin' | 'user' | 'pharmacy';
   addresses: Address[];
   paymentMethods: PaymentMethod[];
   phone?: string;
@@ -36,6 +36,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isDoctor: boolean;
   isAdmin: boolean;
+  isPharmacy: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -98,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = user !== null;
   const isDoctor = isAuthenticated && user.role === 'doctor';
   const isAdmin = isAuthenticated && user.role === 'admin';
+  const isPharmacy = isAuthenticated && user.role === 'pharmacy';
   
   const login = async (email: string, password: string) => {
     // Simulation - in production, this would be a real API call
@@ -162,6 +164,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         ],
         phone: '+49 987 654321'
+      };
+      setUser(demoUser);
+      localStorage.setItem('doctor_user', JSON.stringify(demoUser));
+    } else if (email === 'pharmacy@example.com' && password === 'password') {
+      const demoUser = {
+        id: '3',
+        name: 'Apotheke am Hauptplatz',
+        email: 'pharmacy@example.com',
+        role: 'pharmacy' as const,
+        addresses: [
+          {
+            id: '1',
+            street: 'Hauptplatz 5',
+            city: 'Berlin',
+            state: 'Berlin',
+            zip: '10115',
+            country: 'Deutschland',
+            isDefault: true
+          }
+        ],
+        paymentMethods: [],
+        phone: '+49 123 456700'
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -330,6 +354,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAuthenticated, 
       isDoctor, 
       isAdmin, 
+      isPharmacy,
       login, 
       logout,
       register,
