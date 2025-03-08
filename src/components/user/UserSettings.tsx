@@ -1,23 +1,27 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import AddressManager from './AddressManager';
+import PaymentMethodManager from './PaymentMethodManager';
+import { UserCircle, Lock, Phone } from 'lucide-react';
 
 const UserSettings = () => {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement profile update logic here
+    updateUserProfile({ name, email, phone });
     toast.success('Profil aktualisiert');
   };
   
@@ -42,7 +46,10 @@ const UserSettings = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Persönliche Informationen</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <UserCircle className="h-5 w-5" />
+            Persönliche Informationen
+          </CardTitle>
           <CardDescription>
             Aktualisieren Sie Ihre persönlichen Daten
           </CardDescription>
@@ -70,14 +77,32 @@ const UserSettings = () => {
               />
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefonnummer</Label>
+              <Input 
+                id="phone" 
+                type="tel" 
+                value={phone || ''} 
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+49 123 456789"
+              />
+            </div>
+            
             <Button type="submit">Speichern</Button>
           </form>
         </CardContent>
       </Card>
       
+      <AddressManager />
+      
+      <PaymentMethodManager />
+      
       <Card>
         <CardHeader>
-          <CardTitle>Passwort ändern</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Passwort ändern
+          </CardTitle>
           <CardDescription>
             Aktualisieren Sie Ihr Passwort regelmäßig für mehr Sicherheit
           </CardDescription>
