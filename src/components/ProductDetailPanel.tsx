@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
-import FlavorProfile from "./ProductInfoPanel/FlavorProfile";
-import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProductDetailPanelProps {
   product: Product | null;
@@ -11,6 +10,7 @@ interface ProductDetailPanelProps {
 
 const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const isMobile = useIsMobile();
 
   // Animate when component mounts
   useEffect(() => {
@@ -18,8 +18,8 @@ const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
     return () => setIsVisible(false);
   }, []);
 
-  // Early return if no product
-  if (!product) return null;
+  // Early return if no product or on mobile (we don't need this panel on mobile anymore)
+  if (!product || isMobile) return null;
 
   return (
     <div 
@@ -28,17 +28,8 @@ const ProductDetailPanel: React.FC<ProductDetailPanelProps> = ({ product }) => {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {/* Taste/Flavor Profile */}
-        <div>
-          <FlavorProfile flavors={product.flavors} />
-        </div>
-        
-        {/* Terpene Profile */}
-        <div>
-          <TerpeneProfile product={product} />
-        </div>
-      </div>
+      {/* This panel is now only shown on desktop and its contents have been moved */}
+      {/* to ProductDetail.tsx for better organization */}
     </div>
   );
 };

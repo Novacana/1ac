@@ -5,6 +5,8 @@ import { Product } from "@/types/product";
 import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
 import FlavorProfile from "./FlavorProfile";
+import { useIsMobile } from "@/hooks/use-mobile";
+import TerpeneProfile from "./TerpeneProfile";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -12,6 +14,7 @@ interface ProductInfoPanelProps {
 
 const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const isMobile = useIsMobile();
 
   // Animate when component mounts
   useEffect(() => {
@@ -35,10 +38,19 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Flavor Profile */}
-      <div className="mt-4">
-        <FlavorProfile flavors={product.flavors} />
-      </div>
+      {/* Flavor Profile - Only show in mobile view */}
+      {isMobile && (
+        <div className="mt-4">
+          <FlavorProfile flavors={product.flavors} />
+        </div>
+      )}
+
+      {/* Terpene Profile - Only show in mobile view */}
+      {isMobile && (
+        <div className="mt-4">
+          <TerpeneProfile product={product} />
+        </div>
+      )}
     </div>
   );
 };

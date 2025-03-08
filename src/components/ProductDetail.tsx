@@ -8,7 +8,9 @@ import ProductUsage from "./ProductDetail/ProductUsage";
 import QuantitySelector from "./ProductDetail/QuantitySelector";
 import AddToCartButton from "./ProductDetail/AddToCartButton";
 import ProductInfoPanel from "./ProductInfoPanel";
-import ProductDetailPanel from "./ProductDetailPanel";
+import { useIsMobile } from "@/hooks/use-mobile";
+import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
+import FlavorProfile from "./ProductInfoPanel/FlavorProfile";
 import { Product } from "@/types/product";
 
 export interface ProductDetailProps {
@@ -55,6 +57,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const packageSize = 10; // Package size in grams
+  const isMobile = useIsMobile();
 
   const productData: Product = {
     id,
@@ -136,7 +139,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
             <div className="bg-background/50 rounded-lg p-3 border border-border/30">
               <ProductInfoPanel product={productData} />
-              <ProductDetailPanel product={productData} />
+              
+              {!isMobile && (
+                <div className="mt-4 border-t border-border/30 pt-4">
+                  <FlavorProfile flavors={flavors} />
+                  <div className="mt-4">
+                    <TerpeneProfile product={productData} />
+                  </div>
+                </div>
+              )}
             </div>
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>
