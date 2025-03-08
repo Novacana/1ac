@@ -6,7 +6,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderProps {
   showUserLink?: boolean;
@@ -16,7 +15,6 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
   const { getCartCount } = useCart();
   const { isAuthenticated, isDoctor, user } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const cartCount = getCartCount();
 
   const navigateToDashboard = () => {
@@ -35,7 +33,8 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
     <header className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-md z-30 border-b border-border/40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="font-bold text-xl flex gap-2 items-center">
-          <span className="text-xl sm:text-2xl font-bold">SmartCare</span>
+          <span className="hidden sm:block">SmartCare</span>
+          <span className="sm:hidden">SC</span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -63,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
               className="flex items-center gap-1"
             >
               <User className="h-4 w-4" />
-              <span>Login</span>
+              <span className="hidden sm:block">Login</span>
             </Button>
           )}
 
