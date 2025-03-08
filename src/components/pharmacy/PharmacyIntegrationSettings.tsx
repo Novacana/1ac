@@ -44,6 +44,11 @@ const integrationSystems = [
 const PharmacyIntegrationSettings: React.FC = () => {
   const [systems, setSystems] = useState(integrationSystems);
   const [activeTab, setActiveTab] = useState("systems");
+  
+  // Add state for API configuration
+  const [apiKey, setApiKey] = useState("sk_live_pharmacy_3847583745734857");
+  const [webhookUrl, setWebhookUrl] = useState("https://example.com/webhook");
+  const [apiEnabled, setApiEnabled] = useState(true);
 
   // Handle toggling connection status for integration systems
   const handleToggleConnection = (systemId: string) => {
@@ -114,7 +119,14 @@ const PharmacyIntegrationSettings: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="api" className="mt-6">
-          <ApiConfigurationCard />
+          <ApiConfigurationCard 
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            webhookUrl={webhookUrl}
+            setWebhookUrl={setWebhookUrl}
+            apiEnabled={apiEnabled}
+            setApiEnabled={setApiEnabled}
+          />
         </TabsContent>
         
         <TabsContent value="docs" className="mt-6">
