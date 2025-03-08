@@ -1,82 +1,126 @@
 
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { ArrowRight, Sparkles } from "lucide-react";
 import IntegrationSystemsGrid from "./integrations/IntegrationSystemsGrid";
 import ApiConfigurationCard from "./integrations/ApiConfigurationCard";
 import DocumentationCard from "./integrations/DocumentationCard";
-import { IntegrationSystem } from "./integrations/IntegrationSystemCard";
+
+// Definition of available integration systems
+const integrationSystems = [
+  {
+    id: "aposoft",
+    name: "ApoSoft",
+    description: "Verbinden Sie Ihre ApoSoft-Warenwirtschaft mit unserem Shop.",
+    logo: "/placeholder.svg",
+    connected: true,
+  },
+  {
+    id: "awinta",
+    name: "Awinta",
+    description: "Integration mit Awinta-Apothekensoftware für automatische Bestandsführung.",
+    logo: "/placeholder.svg",
+    connected: false,
+  },
+  {
+    id: "lauer-fischer",
+    name: "Lauer-Fischer",
+    description: "Synchronisieren Sie Produkte und Bestände mit Lauer-Fischer WINAPO.",
+    logo: "/placeholder.svg",
+    connected: false,
+  },
+  {
+    id: "pharmatechnik",
+    name: "Pharmatechnik",
+    description: "Verbinden Sie XTCommerce mit Pharmatechnik IXOS.",
+    logo: "/placeholder.svg",
+    connected: true,
+  },
+];
 
 const PharmacyIntegrationSettings: React.FC = () => {
-  const [systems, setSystems] = useState<IntegrationSystem[]>([
-    {
-      id: "aposoft",
-      name: "APOSOFT",
-      description: "Verbinden Sie Ihr APOSOFT-System für automatischen Produktimport und Bestandssynchronisation.",
-      logo: "/placeholder.svg",
-      connected: false
-    },
-    {
-      id: "lauer-fischer",
-      name: "Lauer-Fischer WINAPO",
-      description: "Verbinden Sie Ihr WINAPO-System für automatischen Produktimport und Bestandssynchronisation.",
-      logo: "/placeholder.svg",
-      connected: true
-    },
-    {
-      id: "awinta",
-      name: "Awinta PROKAS",
-      description: "Verbinden Sie Ihr PROKAS-System für automatischen Produktimport und Bestandssynchronisation.",
-      logo: "/placeholder.svg",
-      connected: false
-    },
-    {
-      id: "pharmatechnik",
-      name: "PHARMATECHNIK IXOS",
-      description: "Verbinden Sie Ihr IXOS-System für automatischen Produktimport und Bestandssynchronisation.",
-      logo: "/placeholder.svg",
-      connected: false
-    }
-  ]);
-  
-  const [apiKey, setApiKey] = useState("sk_live_pharmacy_2938749823742983749");
-  const [webhookUrl, setWebhookUrl] = useState("https://example.com/webhook/pharmacy");
-  const [apiEnabled, setApiEnabled] = useState(true);
+  const [systems, setSystems] = useState(integrationSystems);
+  const [activeTab, setActiveTab] = useState("systems");
 
-  const toggleConnection = (systemId: string) => {
-    setSystems(prevSystems => prevSystems.map(system => {
+  // Handle toggling connection status for integration systems
+  const handleToggleConnection = (systemId: string) => {
+    const updatedSystems = systems.map((system) => {
       if (system.id === systemId) {
-        const newConnected = !system.connected;
+        const newConnectedState = !system.connected;
         
-        // Show toast notification
-        if (newConnected) {
-          toast.success(`${system.name} wurde erfolgreich verbunden`);
-        } else {
-          toast.info(`Verbindung zu ${system.name} wurde getrennt`);
-        }
+        toast[newConnectedState ? "success" : "info"](
+          newConnectedState
+            ? `Verbindung zu ${system.name} wurde hergestellt`
+            : `Verbindung zu ${system.name} wurde getrennt`
+        );
         
-        return { ...system, connected: newConnected };
+        return { ...system, connected: newConnectedState };
       }
       return system;
-    }));
+    });
+    
+    setSystems(updatedSystems);
   };
+
+  // Get count of connected systems
+  const connectedCount = systems.filter(system => system.connected).length;
 
   return (
     <div className="space-y-6">
-      <IntegrationSystemsGrid 
-        systems={systems}
-        onToggleConnection={toggleConnection}
-      />
-
-      <ApiConfigurationCard
-        apiKey={apiKey}
-        setApiKey={setApiKey}
-        webhookUrl={webhookUrl}
-        setWebhookUrl={setWebhookUrl}
-        apiEnabled={apiEnabled}
-        setApiEnabled={setApiEnabled}
-      />
-
-      <DocumentationCard />
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="systems">Systeme</TabsTrigger>
+          <TabsTrigger value="api">API</TabsTrigger>
+          <TabsTrigger value="docs">Dokumentation</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="systems" className="mt-6">
+          <div className="mb-6">
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      Integrationsübersicht
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {connectedCount > 0 
+                        ? `${connectedCount} Integrationssystem${connectedCount > 1 ? 'e' : ''} verbunden` 
+                        : 'Keine Systeme verbunden'
+                      }
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    className="flex items-center gap-2"
+                    onClick={() => toast.info("Willkommen beim Integrationsassistenten!")}
+                  >
+                    Integrationsassistent
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <IntegrationSystemsGrid 
+            systems={systems} 
+            onToggleConnection={handleToggleConnection}
+          />
+        </TabsContent>
+        
+        <TabsContent value="api" className="mt-6">
+          <ApiConfigurationCard />
+        </TabsContent>
+        
+        <TabsContent value="docs" className="mt-6">
+          <DocumentationCard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
