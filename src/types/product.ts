@@ -19,4 +19,5 @@ export interface Product {
   product_type?: string;
   weight?: string;
   potency?: string;
+  source?: "woocommerce" | "shopify" | "local";  // Added source property
 }

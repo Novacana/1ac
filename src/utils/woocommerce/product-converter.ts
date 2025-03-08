@@ -1,3 +1,4 @@
+
 import { WooCommerceProduct } from "@/types/woocommerce";
 import { Product } from "@/types/product";
 import { getCategoryMapping, getBestCategoryMatch } from "./category-mapping";
@@ -97,6 +98,6 @@ export const convertWooCommerceProduct = (wooProduct: WooCommerceProduct): Produ
     weight: getAttributeValue(wooProduct, 'weight'),
     potency: getAttributeValue(wooProduct, 'potency'),
     lab_tested: hasAttribute(wooProduct, 'lab_tested', 'yes'),
-    source: "woocommerce" 
+    source: "woocommerce"
   };
 };

@@ -57,7 +57,7 @@ export const convertShopifyProduct = (shopifyProduct: ShopifyProduct): Product =
     description: shopifyProduct.description,
     image: mainImage,
     images: allImages,
-    thcContent,
+    thc: thcContent,           // Changed from thcContent to thc to match Product type
     cbd: cbdContent,
     category: shopifyProduct.product_type || 'Uncategorized',
     strain: strainType,
