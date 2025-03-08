@@ -15,6 +15,7 @@ interface ProductImagesProps {
   category?: string;
   thc?: string;
   cbd?: string;
+  packageSize?: number;
 }
 
 const ProductImages: React.FC<ProductImagesProps> = ({ 
@@ -24,7 +25,8 @@ const ProductImages: React.FC<ProductImagesProps> = ({
   productPrice,
   category,
   thc,
-  cbd 
+  cbd,
+  packageSize = 10
 }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -103,8 +105,13 @@ const ProductImages: React.FC<ProductImagesProps> = ({
           )}
         </div>
         
-        <h1 className="text-3xl font-bold text-foreground mt-2">{name}</h1>
-        <div className="text-2xl font-bold text-foreground">{`€${productPrice.toFixed(2)}`}</div>
+        <div className="flex flex-wrap justify-between items-baseline gap-2 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">{name}</h1>
+          <div className="text-2xl font-bold text-foreground">
+            €{productPrice.toFixed(2)}
+            <span className="text-sm font-normal text-muted-foreground ml-1">/ {packageSize}g</span>
+          </div>
+        </div>
       </div>
 
       <div 

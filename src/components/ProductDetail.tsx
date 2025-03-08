@@ -82,6 +82,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             category={category}
             thc={thc}
             cbd={cbd}
+            packageSize={packageSize}
           />
 
           {/* Product Info - Description and details */}
