@@ -23,7 +23,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { getCartCount } = useCart();
-  const { user, isAuthenticated, isDoctor, isPharmacy, logout } = useAuth();
+  const { user, isAuthenticated, isDoctor, logout } = useAuth();
   const cartCount = getCartCount();
   const isMobile = useIsMobile();
 
