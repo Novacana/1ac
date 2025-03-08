@@ -150,6 +150,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   </div>
                 </div>
               )}
+              
+              {/* Show terpene profile in mobile view */}
+              {isMobile && terpenes && terpenes.length > 0 && (
+                <div className="mt-4 border-t border-border/30 pt-4">
+                  <TerpeneProfile product={productData} />
+                </div>
+              )}
             </div>
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>

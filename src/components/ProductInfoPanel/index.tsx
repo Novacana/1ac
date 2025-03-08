@@ -38,19 +38,14 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Flavor Profile - Only show in mobile view */}
+      {/* Only show flavor profile in mobile view */}
       {isMobile && (
         <div className="mt-4">
           <FlavorProfile flavors={product.flavors} />
         </div>
       )}
 
-      {/* Terpene Profile - Only show in mobile view */}
-      {isMobile && (
-        <div className="mt-4">
-          <TerpeneProfile product={product} />
-        </div>
-      )}
+      {/* We're removing the terpene profile from here as it's already shown in ProductDetail */}
     </div>
   );
 };
