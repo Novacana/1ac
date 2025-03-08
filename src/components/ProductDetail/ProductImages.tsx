@@ -108,7 +108,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
       </div>
 
       <div 
-        className="aspect-square relative overflow-hidden rounded-lg border border-border/40 bg-card"
+        className="relative overflow-hidden rounded-lg border border-border/40 bg-card max-w-md mx-auto"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -126,9 +126,10 @@ const ProductImages: React.FC<ProductImagesProps> = ({
               src={fixedImages[selectedImage]}
               alt={name}
               className={cn(
-                "w-full h-full object-contain transition-opacity duration-500 z-0",
+                "w-full h-auto object-contain transition-opacity duration-500 z-0 p-4",
                 isImageLoaded ? "opacity-100" : "opacity-0"
               )}
+              style={{ maxHeight: "400px" }}
               onLoad={() => {
                 console.log(`Main image loaded successfully:`, fixedImages[selectedImage]);
                 setIsImageLoaded(true);
@@ -168,7 +169,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
       </div>
 
       {fixedImages && fixedImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 snap-x">
+        <div className="flex gap-2 overflow-x-auto pb-1 snap-x max-w-md mx-auto">
           {fixedImages.map((img, index) => (
             <button
               key={index}
