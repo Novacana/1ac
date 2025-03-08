@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProductImagesProps {
   images: string[];
@@ -30,6 +31,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
   const [fixedImages, setFixedImages] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
+  const isMobile = useIsMobile();
 
   // Function to fix image paths
   const getFixedImagePath = (path: string) => {
@@ -81,6 +83,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
       image: fixedImages[selectedImage],
       quantity: 1,
     });
+    toast.success(`${name} wurde zum Warenkorb hinzugefügt`);
   };
 
   return (
@@ -138,22 +141,24 @@ const ProductImages: React.FC<ProductImagesProps> = ({
               }}
             />
             
-            {/* Add to cart button overlay */}
-            <div 
-              className={cn(
-                "absolute bottom-4 left-0 right-0 flex justify-center items-center transition-opacity duration-300 z-20",
-                isHovered || isImageLoaded ? "opacity-100" : "opacity-0"
-              )}
-            >
-              <Button 
-                onClick={handleAddToCart}
-                size="sm"
-                className="bg-primary/90 hover:bg-primary shadow-md"
+            {/* Add to cart button overlay - only on mobile */}
+            {isMobile && (
+              <div 
+                className={cn(
+                  "absolute bottom-4 left-0 right-0 flex justify-center items-center transition-opacity duration-300 z-20",
+                  isHovered || isImageLoaded ? "opacity-100" : "opacity-0"
+                )}
               >
-                <ShoppingCart size={16} className="mr-2" />
-                In den Warenkorb
-              </Button>
-            </div>
+                <Button 
+                  onClick={handleAddToCart}
+                  size="sm"
+                  className="bg-primary/90 hover:bg-primary shadow-md"
+                >
+                  <ShoppingCart size={16} className="mr-2" />
+                  In den Warenkorb
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
