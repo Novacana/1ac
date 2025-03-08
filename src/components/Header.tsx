@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderProps {
   showUserLink?: boolean;
@@ -15,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
   const { getCartCount } = useCart();
   const { isAuthenticated, isDoctor, user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const cartCount = getCartCount();
 
   const navigateToDashboard = () => {
@@ -66,16 +68,19 @@ const Header: React.FC<HeaderProps> = ({ showUserLink = false }) => {
             </Button>
           )}
 
-          <Link to="/cart">
-            <Button variant="ghost" size="sm" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
-          </Link>
+          {/* Only show cart button on non-mobile screens */}
+          {!isMobile && (
+            <Link to="/cart">
+              <Button variant="ghost" size="sm" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>
