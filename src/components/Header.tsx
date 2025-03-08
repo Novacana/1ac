@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Menu, X, User, UserRound } from "lucide-react";
+import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -129,19 +129,6 @@ const Header = () => {
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Anmelden</span>
             </Button>
-          )}
-
-          {isAuthenticated && (
-            <Link to="/dashboard/settings">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:bg-background/10"
-                aria-label="Konto-Einstellungen"
-              >
-                <UserRound className="h-5 w-5" />
-              </Button>
-            </Link>
           )}
 
           <Link to="/cart">
