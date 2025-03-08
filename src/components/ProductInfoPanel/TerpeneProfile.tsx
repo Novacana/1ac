@@ -32,23 +32,23 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
   };
 
   return (
-    <div className="bg-card/10 p-3 rounded-lg border border-border/10 shadow-sm">
-      <div className="flex justify-between items-center mb-2">
-        <h4 className="text-sm font-medium">Terpene</h4>
-        <span className="text-xs font-medium bg-primary/10 px-2 py-0.5 rounded-full">{totalPercentage}%</span>
+    <div>
+      <div className="flex justify-between items-center mb-1.5">
+        <h4 className="text-xs font-medium">Terpene</h4>
+        <span className="text-xs font-medium">{totalPercentage}%</span>
       </div>
       
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         {/* Compact pie chart */}
-        <div className="h-[80px] w-[80px] relative">
+        <div className="h-[70px] w-[70px] relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={terpeneData}
                 cx="50%"
                 cy="50%"
-                innerRadius={15}
-                outerRadius={35}
+                innerRadius={12}
+                outerRadius={30}
                 paddingAngle={2}
                 dataKey="value"
                 animationDuration={1500}
@@ -59,7 +59,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
                   <Cell 
                     key={`cell-${index}`} 
                     fill={entry.color} 
-                    style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.1))' }}
+                    style={{ filter: 'drop-shadow(0px 2px 3px rgba(0,0,0,0.05))' }}
                   />
                 ))}
               </Pie>
@@ -72,16 +72,16 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
           {terpeneData.slice(0, 3).map((terpene, index) => (
             <div 
               key={index} 
-              className="flex items-center text-xs mb-1 cursor-pointer group hover:bg-primary/5 p-1 rounded transition-colors"
+              className="flex items-center text-xs mb-0.5 cursor-pointer group"
               onClick={() => handleTerpeneClick(terpene.name)}
             >
               <span 
-                className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0"
                 style={{ backgroundColor: terpene.color }}
               />
-              <span className="mr-1 group-hover:underline font-medium">{terpene.name}</span>
+              <span className="mr-1 group-hover:underline">{terpene.name}</span>
               <span className="text-foreground/70 mr-1">{terpene.value}%</span>
-              <Info className="h-3 w-3 text-primary opacity-60 group-hover:opacity-100" />
+              <Info className="h-3 w-3 text-muted-foreground opacity-60 group-hover:opacity-100" />
             </div>
           ))}
         </div>
@@ -92,13 +92,13 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         <div 
           key={terpene.name}
           className={cn(
-            "text-xs text-foreground/80 mt-2 border-t border-border/20 pt-2 pb-1 overflow-hidden transition-all duration-300 bg-primary/5 rounded-md",
-            expandedTerpene === terpene.name ? "max-h-32 opacity-100 p-2" : "max-h-0 opacity-0 border-t-0 pt-0 pb-0 p-0"
+            "text-xs text-foreground/80 mt-1 border-t border-border/20 pt-1 pb-1 overflow-hidden transition-all duration-300",
+            expandedTerpene === terpene.name ? "max-h-24 opacity-100" : "max-h-0 opacity-0 border-t-0 pt-0 pb-0"
           )}
         >
           <div className="flex items-start">
             <div 
-              className="w-3 h-3 rounded-full mr-2 flex-shrink-0 mt-0.5"
+              className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 mt-0.5"
               style={{ backgroundColor: terpene.color }}
             />
             <div>
@@ -111,10 +111,10 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
       
       {/* Default terpene effects - only show on desktop when no terpene is selected */}
       {!isMobile && !expandedTerpene && terpeneData.length > 0 && (
-        <div className="text-[10px] text-foreground/70 mt-2 border-t border-border/20 pt-2 bg-primary/5 p-2 rounded-md">
+        <div className="text-[9px] text-foreground/70 mt-1 border-t border-border/20 pt-1 max-h-[30px] overflow-hidden">
           <div className="flex items-start">
             <div 
-              className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 mt-0.5"
+              className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0 mt-0.5"
               style={{ backgroundColor: terpeneData[0].color }}
             />
             <div>
