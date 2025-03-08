@@ -90,18 +90,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Add to Cart Section - Moved above description */}
             <div className="space-y-4 mb-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Standardpaketgröße: 10g</p>
-                  <p className="text-xl font-semibold">{`€${price.toFixed(2)} / Packung`}</p>
-                </div>
                 <QuantitySelector
                   quantity={quantity}
                   onQuantityChange={handleQuantityChange}
                 />
               </div>
               
-              <div className="text-sm text-muted-foreground mb-2">
-                Gesamtpreis: <span className="font-medium">{`€${(price * quantity).toFixed(2)}`}</span> für {quantity * packageSize}g
+              <div className="text-lg font-medium bg-background border border-border/30 rounded-lg p-3 text-center">
+                Gesamtpreis: <span className="font-bold text-xl">{`€${(price * quantity).toFixed(2)}`}</span> 
+                <span className="text-sm text-muted-foreground ml-1">für {quantity * packageSize}g</span>
               </div>
               
               <AddToCartButton
