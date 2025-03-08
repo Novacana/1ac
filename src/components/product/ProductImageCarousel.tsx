@@ -1,7 +1,10 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Product } from "@/types/product";
-import { cn } from "@/lib/utils";
+import CarouselImage from "./carousel/CarouselImage";
+import TransitionWrapper from "./carousel/TransitionWrapper";
+import LoadingIndicator from "./carousel/LoadingIndicator";
+import PreviousImage from "./carousel/PreviousImage";
 
 interface ProductImageCarouselProps {
   product: Product;
@@ -44,22 +47,6 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   onClick,
   onImageLoad
 }) => {
-  // Preload image to ensure it's ready before displaying
-  useEffect(() => {
-    if (imagePath) {
-      const img = new Image();
-      img.onload = () => {
-        console.log("Image preloaded successfully:", imagePath);
-        onImageLoad();
-      };
-      img.onerror = (e) => {
-        console.error("Failed to preload image:", imagePath, e);
-        onImageLoad(); // Still mark as loaded so the UI doesn't get stuck
-      };
-      img.src = imagePath;
-    }
-  }, [imagePath, onImageLoad]);
-
   return (
     <div 
       ref={containerRef}
@@ -75,62 +62,27 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
       role="button"
       aria-label={`View details for ${product.name}`}
     >
-      {imageLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm z-10">
-          <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></div>
-        </div>
-      )}
+      <LoadingIndicator isVisible={imageLoading} />
       
-      {isTransitioning && previousImagePath && (
-        <div className={cn(
-          "absolute inset-0 flex items-center justify-center bg-card/5 z-0 transition-transform duration-300",
-          direction === 'next' ? '-translate-x-full' : 'translate-x-full'
-        )}>
-          <img 
-            src={previousImagePath} 
-            alt="Previous product" 
-            className="max-h-full max-w-full object-contain p-4"
-            onError={(e) => {
-              console.error("Failed to load previous image:", previousImagePath);
-              (e.target as HTMLImageElement).src = "/placeholder.svg";
-            }}
-          />
-        </div>
-      )}
+      <PreviousImage 
+        src={previousImagePath}
+        isVisible={isTransitioning}
+        direction={direction}
+      />
       
-      <div 
-        className={cn(
-          "w-full h-full flex items-center justify-center transition-all duration-300 relative bg-card/5 backdrop-blur-sm",
-          isSwiping 
-            ? `transform translate-x-[${swipeDistance}px]` 
-            : isTransitioning 
-              ? cn("transform", direction === 'next' ? 'translate-x-full' : '-translate-x-full', 'animate-slide-in')
-              : 'translate-x-0'
-        )}
-        style={{ 
-          transform: isSwiping 
-            ? `translateX(${swipeDistance}px)` 
-            : undefined 
-        }}
+      <TransitionWrapper
+        isTransitioning={isTransitioning}
+        direction={direction}
+        isSwiping={isSwiping}
+        swipeDistance={swipeDistance}
       >
-        <img 
-          src={imagePath} 
-          alt={product.name} 
-          className={cn(
-            "max-h-full max-w-full object-contain p-4 transition-opacity duration-300",
-            imageLoading ? "opacity-0" : "opacity-100"
-          )}
-          onLoad={() => {
-            console.log("Image loaded successfully in DOM:", imagePath);
-            onImageLoad();
-          }}
-          onError={(e) => {
-            console.error("Failed to load product image:", imagePath);
-            (e.target as HTMLImageElement).src = "/placeholder.svg";
-            onImageLoad();
-          }}
+        <CarouselImage
+          src={imagePath}
+          alt={product.name}
+          isLoading={imageLoading}
+          onLoad={onImageLoad}
         />
-      </div>
+      </TransitionWrapper>
     </div>
   );
 };
