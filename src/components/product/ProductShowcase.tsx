@@ -1,0 +1,135 @@
+
+import React from "react";
+import { Product } from "@/types/product";
+import ProductInfoPanel from "../ProductInfoPanel"; 
+import ProductDetailPanel from "../ProductDetailPanel";
+import CarouselNavigation from "../CarouselNavigation";
+import ProductActionButtons from "./ProductActionButtons";
+import ProductImageCarousel from "./ProductImageCarousel";
+import TerpeneProfile from "../ProductInfoPanel/TerpeneProfile";
+
+interface ProductShowcaseProps {
+  products: Product[];
+  selectedCategory: string;
+  activeIndex: number;
+  onPrevious: () => void;
+  onNext: () => void;
+  onGoToIndex: (index: number) => void;
+  onProductClick: () => void;
+  isSwiping: boolean;
+  hasMoved: boolean;
+  swipeDistance: number;
+  handleTouchStart: (e: React.TouchEvent) => void;
+  handleTouchMove: (e: React.TouchEvent) => void;
+  handleTouchEnd: (e: React.TouchEvent) => void;
+  handleMouseDown: (e: React.MouseEvent) => void;
+  handleMouseMove: (e: React.MouseEvent) => void;
+  handleMouseUp: (e: React.MouseEvent) => void;
+  handleMouseLeave: () => void;
+  isTransitioning: boolean;
+  direction: 'next' | 'prev' | null;
+  imageLoading: boolean;
+  getImagePath: (product: Product) => string;
+  previousImageRef: React.MutableRefObject<string | null>;
+  containerRef: React.RefObject<HTMLDivElement>;
+}
+
+const ProductShowcase: React.FC<ProductShowcaseProps> = ({
+  products,
+  selectedCategory,
+  activeIndex,
+  onPrevious,
+  onNext,
+  onGoToIndex,
+  onProductClick,
+  isSwiping,
+  hasMoved,
+  swipeDistance,
+  handleTouchStart,
+  handleTouchMove,
+  handleTouchEnd,
+  handleMouseDown,
+  handleMouseMove,
+  handleMouseUp,
+  handleMouseLeave,
+  isTransitioning,
+  direction,
+  imageLoading,
+  getImagePath,
+  previousImageRef,
+  containerRef
+}) => {
+  const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
+  
+  const filteredProducts = products.filter(product => 
+    product.category === normalizedCategory || product.category === selectedCategory
+  );
+  
+  if (filteredProducts.length === 0) {
+    return null;
+  }
+
+  const activeProduct = filteredProducts[activeIndex];
+  const imagePath = getImagePath(activeProduct);
+
+  return (
+    <div className="w-full max-w-screen-2xl mx-auto">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-primary mt-2">{activeProduct.name}</h2>
+          <ProductActionButtons product={activeProduct} getImagePath={getImagePath} />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-3 order-2 md:order-1">
+            {activeProduct && <ProductInfoPanel product={activeProduct} />}
+          </div>
+          
+          <div className="md:col-span-6 order-1 md:order-2">
+            <ProductImageCarousel 
+              product={activeProduct}
+              imagePath={imagePath}
+              previousImagePath={previousImageRef.current}
+              isTransitioning={isTransitioning}
+              direction={direction}
+              isSwiping={isSwiping}
+              swipeDistance={swipeDistance}
+              imageLoading={imageLoading}
+              containerRef={containerRef}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onClick={onProductClick}
+            />
+          </div>
+          
+          <div className="md:col-span-3 order-3">
+            {activeProduct && (
+              <div className="rounded-lg p-2 h-full border border-border/20">
+                <TerpeneProfile product={activeProduct} />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="mt-2 md:hidden">
+          {activeProduct && <ProductDetailPanel product={activeProduct} />}
+        </div>
+      </div>
+
+      <CarouselNavigation
+        activeIndex={activeIndex}
+        totalItems={filteredProducts.length}
+        onPrevious={onPrevious}
+        onNext={onNext}
+        onDotClick={onGoToIndex}
+      />
+    </div>
+  );
+};
+
+export default ProductShowcase;
