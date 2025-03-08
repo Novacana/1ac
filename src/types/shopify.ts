@@ -5,8 +5,8 @@ export interface ShopifyProduct {
   title: string;
   handle: string;
   description: string;
-  price: string;
-  compare_at_price: string | null;
+  published_at?: string;
+  created_at?: string;
   vendor: string;
   product_type: string;
   available: boolean;
