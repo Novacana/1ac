@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "./ProductInfoPanel"; 
@@ -11,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
+import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
 
 interface ProductCarouselProps {
   products: Product[];
