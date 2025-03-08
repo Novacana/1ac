@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
+import FlavorProfile from "./FlavorProfile";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -33,6 +34,11 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
+      
+      {/* Flavor Profile */}
+      <div className="mt-4">
+        <FlavorProfile flavors={product.flavors} />
+      </div>
     </div>
   );
 };

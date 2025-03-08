@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Product } from "@/types/product";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import CarouselImage from "./carousel/CarouselImage";
 import TransitionWrapper from "./carousel/TransitionWrapper";
 import LoadingIndicator from "./carousel/LoadingIndicator";
@@ -25,6 +26,8 @@ interface ProductImageCarouselProps {
   onMouseLeave: () => void;
   onClick: () => void;
   onImageLoad: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
 }
 
 const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
@@ -45,7 +48,9 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   onMouseUp,
   onMouseLeave,
   onClick,
-  onImageLoad
+  onImageLoad,
+  onPrevious,
+  onNext
 }) => {
   return (
     <div 
@@ -83,6 +88,33 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
           onLoad={onImageLoad}
         />
       </TransitionWrapper>
+      
+      {/* Navigation buttons on the image */}
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 z-20">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the container click
+            onPrevious();
+          }}
+          className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
+          aria-label="Vorheriges Produkt"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+      </div>
+      
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the container click
+            onNext();
+          }}
+          className="bg-primary/80 text-white rounded-full p-2 hover:bg-primary transition-colors"
+          aria-label="Nächstes Produkt"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,9 +1,7 @@
-
 import React from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "../ProductInfoPanel"; 
 import ProductDetailPanel from "../ProductDetailPanel";
-import CarouselNavigation from "../CarouselNavigation";
 import ProductActionButtons from "./ProductActionButtons";
 import ProductImageCarousel from "./ProductImageCarousel";
 import TerpeneProfile from "../ProductInfoPanel/TerpeneProfile";
@@ -112,6 +110,8 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
               onMouseLeave={handleMouseLeave}
               onClick={onProductClick}
               onImageLoad={updateImageLoadingState}
+              onPrevious={onPrevious}
+              onNext={onNext}
             />
           </div>
           
@@ -129,13 +129,19 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         </div>
       </div>
 
-      <CarouselNavigation
-        activeIndex={activeIndex}
-        totalItems={filteredProducts.length}
-        onPrevious={onPrevious}
-        onNext={onNext}
-        onDotClick={onGoToIndex}
-      />
+      {/* We keep the dots for pagination but remove the side buttons */}
+      <div className="flex justify-center mt-4">
+        {filteredProducts.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => onGoToIndex(index)}
+            className={`h-2 w-2 mx-1 rounded-full transition-all ${
+              index === activeIndex ? "bg-primary w-4" : "bg-gray-400"
+            }`}
+            aria-label={`Gehe zu Produkt ${index + 1}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
