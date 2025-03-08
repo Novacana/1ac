@@ -11,15 +11,28 @@ import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserDashboard from "./pages/UserDashboard";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
+// Protected Route Component for Doctor
+const DoctorRoute = ({ children }) => {
   const { isAuthenticated, isDoctor } = useAuth();
   
   if (!isAuthenticated || !isDoctor) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Protected Route Component for Authenticated Users
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
@@ -39,11 +52,20 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin/config" element={<AdminConfig />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route 
               path="/doctor/dashboard" 
               element={
-                <ProtectedRoute>
+                <DoctorRoute>
                   <DoctorDashboard />
+                </DoctorRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/*" 
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
                 </ProtectedRoute>
               } 
             />

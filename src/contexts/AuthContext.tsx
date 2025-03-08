@@ -15,6 +15,7 @@ interface AuthContextType {
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (name: string, email: string, password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,9 +57,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
+    } else if (email === 'user@example.com' && password === 'password') {
+      const demoUser = {
+        id: '2',
+        name: 'Max Mustermann',
+        email: 'user@example.com',
+        role: 'user' as const
+      };
+      setUser(demoUser);
+      localStorage.setItem('doctor_user', JSON.stringify(demoUser));
     } else {
       throw new Error('Invalid credentials');
     }
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    // Simulation - in production, this would be a real API call
+    const newUser = {
+      id: Math.random().toString(36).substring(2, 9), // Generate random ID
+      name,
+      email,
+      role: 'user' as const
+    };
+    
+    setUser(newUser);
+    localStorage.setItem('doctor_user', JSON.stringify(newUser));
   };
   
   const logout = () => {
@@ -73,7 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isDoctor, 
       isAdmin, 
       login, 
-      logout 
+      logout,
+      register
     }}>
       {children}
     </AuthContext.Provider>

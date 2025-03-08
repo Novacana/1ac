@@ -8,34 +8,37 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Lock, User, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, AlertCircle } from 'lucide-react';
 
-const Login = () => {
+const Register = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isDoctor } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validation
+    if (password !== confirmPassword) {
+      setError('Passwörter stimmen nicht überein');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
-      await login(email, password);
-      toast.success('Erfolgreich angemeldet');
-      
-      // Redirect based on role
-      if (isDoctor) {
-        navigate('/doctor/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      await register(name, email, password);
+      toast.success('Registrierung erfolgreich');
+      navigate('/dashboard');
     } catch (err) {
-      setError('Ungültige Anmeldedaten');
-      toast.error('Anmeldefehler: Ungültige Anmeldedaten');
+      setError('Registrierung fehlgeschlagen');
+      toast.error('Registrierungsfehler');
     } finally {
       setIsLoading(false);
     }
@@ -46,9 +49,9 @@ const Login = () => {
       <div className="container px-4 pt-8 pb-16 max-w-md mx-auto">
         <Card className="shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Anmelden</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Konto erstellen</CardTitle>
             <CardDescription className="text-center">
-              Melden Sie sich an, um Ihre Bestellungen zu verfolgen
+              Registrieren Sie sich, um Ihre Bestellungen zu verfolgen
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -61,10 +64,28 @@ const Login = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">E-Mail</Label>
+                <Label htmlFor="name">Name</Label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                     <User className="h-4 w-4" />
+                  </div>
+                  <Input 
+                    id="name" 
+                    type="text" 
+                    placeholder="Max Mustermann" 
+                    className="pl-10"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">E-Mail</Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                    <Mail className="h-4 w-4" />
                   </div>
                   <Input 
                     id="email" 
@@ -92,6 +113,26 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <Input 
+                    id="confirmPassword" 
+                    type="password"
+                    placeholder="••••••••" 
+                    className="pl-10"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
                   />
                 </div>
               </div>
@@ -100,25 +141,21 @@ const Login = () => {
                 {isLoading ? (
                   <div className="h-5 w-5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
                 ) : (
-                  'Anmelden'
+                  <span className="flex items-center">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Registrieren
+                  </span>
                 )}
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Demo Zugangsdaten:</p>
-              <p>Email: user@example.com</p>
-              <p>Passwort: password</p>
-            </div>
-            <div className="w-full text-center">
-              <p className="text-sm text-muted-foreground">
-                Noch kein Konto?{' '}
-                <Link to="/register" className="text-primary hover:underline">
-                  Registrieren
-                </Link>
-              </p>
-            </div>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-muted-foreground">
+              Haben Sie bereits ein Konto?{' '}
+              <Link to="/login" className="text-primary hover:underline">
+                Anmelden
+              </Link>
+            </p>
           </CardFooter>
         </Card>
       </div>
@@ -126,4 +163,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
