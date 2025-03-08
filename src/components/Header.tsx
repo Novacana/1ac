@@ -1,4 +1,3 @@
-
 import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -24,6 +24,7 @@ const Header = () => {
   const { getCartCount } = useCart();
   const { user, isAuthenticated, isDoctor, logout } = useAuth();
   const cartCount = getCartCount();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,11 +52,12 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md md:block hidden",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md",
         isScrolled
           ? "py-3 bg-background/70 shadow-sm"
           : "py-5 bg-transparent",
-        "animate-fade-in"
+        "animate-fade-in",
+        isMobile ? "hidden" : "block"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
