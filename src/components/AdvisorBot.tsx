@@ -10,10 +10,8 @@ import { ProductDetailProps } from "@/components/ProductDetail";
 import { useConversation } from "@11labs/react";
 import { Input } from "@/components/ui/input";
 
-// Vordefinierter API-Schlüssel für ElevenLabs
 const ELEVENLABS_API_KEY = "e9d69bd26aaea5fc0e626febff0e5c6f";
 
-// LLM Context für bessere Empfehlungen
 const productKnowledgeBase = products.map(p => ({
   id: p.id,
   name: p.name,
@@ -27,7 +25,6 @@ const productKnowledgeBase = products.map(p => ({
   flavors: p.flavors
 }));
 
-// N8N Webhook Konfiguration
 const N8N_WEBHOOK_URL = ""; // Hier deine n8n Webhook URL eintragen
 const USE_N8N_AGENT = false; // Auf true setzen, um den n8n Agenten zu aktivieren
 
@@ -69,11 +66,9 @@ const ProductAdvisor = () => {
   const [conversationHistory, setConversationHistory] = useState<{role: 'user' | 'assistant', content: string}[]>([
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
-  // N8N Webhook Status
   const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
   const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
   
-  // Wir speichern den API-Schlüssel direkt und überspringen den Eingabebildschirm
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
   const isApiKeySet = true;
   
@@ -81,7 +76,6 @@ const ProductAdvisor = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  // ElevenLabs Voice Settings
   const conversation = useConversation({
     onError: (error) => {
       console.error("ElevenLabs error:", error);
@@ -100,13 +94,11 @@ const ProductAdvisor = () => {
   }, [conversationHistory, recommendedProducts]);
 
   useEffect(() => {
-    // Cleanup function for speech services
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       
-      // End ElevenLabs conversation if active
       if (conversation.status === "connected") {
         conversation.endSession();
       }
@@ -116,7 +108,6 @@ const ProductAdvisor = () => {
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
     if (isOpen) {
-      // Stop all audio if closing the advisor
       if (conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
@@ -127,7 +118,6 @@ const ProductAdvisor = () => {
     }
   };
 
-  // N8N Webhook Kommunikation
   const sendToN8nWebhook = async (userMessage: string) => {
     if (!webhookUrl || !useN8nAgent) return null;
     
@@ -176,11 +166,9 @@ const ProductAdvisor = () => {
     }
   };
 
-  // N8N Aktionen ausführen
   const executeN8nActions = (actions: any) => {
     if (!actions) return;
     
-    // Seiten-Navigation
     if (actions.navigate_to) {
       setTimeout(() => {
         setIsOpen(false);
@@ -188,7 +176,6 @@ const ProductAdvisor = () => {
       }, 1000);
     }
     
-    // Produkt zum Warenkorb hinzufügen
     if (actions.add_to_cart) {
       const { product_id, quantity = 1 } = actions.add_to_cart;
       const product = products.find(p => p.id === product_id);
@@ -201,10 +188,8 @@ const ProductAdvisor = () => {
       }
     }
     
-    // Sonstige benutzerdefinierte Aktionen
     if (actions.custom_action) {
       console.log("Führe benutzerdefinierte Aktion aus:", actions.custom_action);
-      // Hier könnten weitere benutzerdefinierte Aktionen implementiert werden
     }
   };
 
@@ -222,11 +207,10 @@ const ProductAdvisor = () => {
 
       setIsPlaying(true);
       
-      // Use ElevenLabs for voice synthesis
       const options = {
         overrides: {
           tts: {
-            voiceId: "XB0fDUnXU5powFXDhCwa", // Charlotte - German voice
+            voiceId: "XB0fDUnXU5powFXDhCwa",
           },
           agent: {
             language: "de",
@@ -234,8 +218,6 @@ const ProductAdvisor = () => {
         }
       };
       
-      // Simulate ElevenLabs response for this demo
-      // In a real implementation, you would use the actual agent
       conversation.startSession({
         url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa`,
         headers: {
@@ -246,7 +228,7 @@ const ProductAdvisor = () => {
       }).then(() => {
         setTimeout(() => {
           setIsPlaying(false);
-        }, text.length * 80); // Approximate duration based on text length
+        }, text.length * 80);
       }).catch(error => {
         console.error("Error with ElevenLabs:", error);
         setIsPlaying(false);
@@ -256,7 +238,6 @@ const ProductAdvisor = () => {
           variant: "destructive",
         });
       });
-      
     } catch (error) {
       console.error("Error generating speech:", error);
       toast({
@@ -323,7 +304,6 @@ const ProductAdvisor = () => {
           processUserQuery(finalTranscript);
         } else {
           interimTranscript += transcript;
-          // Display interim results in real-time
           setTranscript(interimTranscript);
         }
       }
@@ -341,7 +321,6 @@ const ProductAdvisor = () => {
     
     recognition.onend = () => {
       if (isListening) {
-        // Restart if it ends unexpectedly while still in listening mode
         recognition.start();
       }
     };
@@ -371,7 +350,6 @@ const ProductAdvisor = () => {
     }
   };
 
-  // Website navigation tools
   const webTools = {
     navigateToPage: (page: string) => {
       let route = '';
@@ -388,7 +366,6 @@ const ProductAdvisor = () => {
         route = page;
       }
       
-      // Close advisor before navigation
       setTimeout(() => {
         setIsOpen(false);
         navigate(route);
@@ -438,7 +415,6 @@ const ProductAdvisor = () => {
       const product = products.find(p => p.id === id);
       
       if (product) {
-        // Normally we would call a cart context function here
         toast({
           title: "Produkt zum Warenkorb hinzugefügt",
           description: `${quantity}x ${product.name} wurde zum Warenkorb hinzugefügt.`,
@@ -451,11 +427,9 @@ const ProductAdvisor = () => {
     }
   };
 
-  // Parse user message and detect tool usage intent
   const detectToolIntent = (message: string): {tool: keyof typeof webTools, params: any} | null => {
     const lowerMessage = message.toLowerCase();
     
-    // Navigation intent
     if (
       lowerMessage.includes('geh zu') || 
       lowerMessage.includes('zeig mir die') || 
@@ -467,7 +441,6 @@ const ProductAdvisor = () => {
         return { tool: 'navigateToPage', params: '/' };
       }
       if (lowerMessage.includes('produkt') && !lowerMessage.includes('produkte')) {
-        // Extract product ID if available
         const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
         if (productIdMatch && productIdMatch[1]) {
           return { tool: 'showProductDetails', params: productIdMatch[1] };
@@ -484,7 +457,6 @@ const ProductAdvisor = () => {
       }
     }
     
-    // Search intent
     if (
       lowerMessage.includes('such') || 
       lowerMessage.includes('find') || 
@@ -507,7 +479,6 @@ const ProductAdvisor = () => {
           searchQuery = parts[1].trim();
         }
       } else {
-        // Extract potential keywords
         const keywords = ['schmerz', 'schlaf', 'angst', 'appetit', 'fokus', 'energie', 'entspannung', 'indica', 'sativa', 'hybrid'];
         for (const keyword of keywords) {
           if (lowerMessage.includes(keyword)) {
@@ -522,14 +493,12 @@ const ProductAdvisor = () => {
       }
     }
     
-    // Add to cart intent
     if (
       lowerMessage.includes('zum warenkorb hinzufügen') || 
       lowerMessage.includes('in den warenkorb') || 
       lowerMessage.includes('kaufen') ||
       lowerMessage.includes('bestellen')
     ) {
-      // Extract product ID and quantity if available
       const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
       const quantityMatch = lowerMessage.match(/(\d+)\s*stück/i);
       
@@ -540,13 +509,11 @@ const ProductAdvisor = () => {
       }
     }
     
-    // Show product details intent
     if (
       lowerMessage.includes('details zu produkt') || 
       lowerMessage.includes('mehr über produkt') || 
       lowerMessage.includes('information zu produkt')
     ) {
-      // Extract product ID if available
       const productIdMatch = lowerMessage.match(/produkt\s+(\d+)/i);
       if (productIdMatch && productIdMatch[1]) {
         return { tool: 'showProductDetails', params: productIdMatch[1] };
@@ -560,39 +527,31 @@ const ProductAdvisor = () => {
     if (userQuery.trim() === "" || isLoading) return;
     
     setIsLoading(true);
-    setTranscript(userQuery); // Display the final transcript
-
+    setTranscript(userQuery);
+    
     try {
-      // If bot is currently speaking, stop it
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
 
-      // Add user message to conversation history
       setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
-      // Wenn n8n aktiviert ist, nutze den n8n Webhook
       if (useN8nAgent && webhookUrl) {
         const n8nResponse = await sendToN8nWebhook(userQuery);
         
         if (n8nResponse) {
           const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
           
-          // Bot-Antwort setzen
           setBotResponse(n8nMessage);
           setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
           
-          // Empfohlene Produkte anzeigen, wenn vorhanden
           if (n8nProducts && n8nProducts.length > 0) {
-            // Konvertiere die n8n-Produkte in das richtige Format
             const formattedProducts = n8nProducts.map((p: any) => {
-              // Finde das entsprechende Produkt in unserer lokalen Datenbank
               const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
               
               if (localProduct) return localProduct;
               
-              // Fallback, falls kein lokales Produkt gefunden wurde
               return {
                 id: p.id || "unknown",
                 name: p.name || "Unbekanntes Produkt",
@@ -609,24 +568,18 @@ const ProductAdvisor = () => {
             setRecommendedProducts([]);
           }
           
-          // Führe alle vom n8n-Agenten angeforderten Aktionen aus
           executeN8nActions(actions);
           
-          // Sprachausgabe
           if (isVoiceEnabled) {
             speakResponse(n8nMessage);
           }
-          
         } else {
-          // Fallback bei n8n-Fehler
           fallbackProcessing(userQuery);
         }
       } else {
-        // Standard-Verarbeitung ohne n8n
         fallbackProcessing(userQuery);
       }
       
-      // Clear transcript after processing
       setTimeout(() => {
         setTranscript("");
       }, 2000);
@@ -641,88 +594,82 @@ const ProductAdvisor = () => {
     }
   };
 
-  const fallbackProcessing = (query: string) => {
-    // Check if the user query implies using a tool
-    const toolIntent = detectToolIntent(query);
+  const fallbackProcessing = (userQuery: string) => {
+    const toolIntent = detectToolIntent(userQuery);
     
     if (toolIntent) {
-      // Use the detected tool
       const { tool, params } = toolIntent;
       const toolResponse = webTools[tool](params);
       
-      // Add tool response to conversation
       const botResponseText = `${toolResponse}`;
       setBotResponse(botResponseText);
       setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
       
-      // Generate speech for the response if voice is enabled
       if (isVoiceEnabled) {
         speakResponse(botResponseText);
       }
     } else {
-      // Process with LLM algorithm (simplified for demo)
-      // In production, this would connect to an actual LLM API
       let response = "";
       let matchedProducts: ProductDetailProps[] = [];
-      const query = query.toLowerCase();
+      const lowercaseQuery = userQuery.toLowerCase();
       
-      if (query.includes("schmerz") || query.includes("pain")) {
+      if (lowercaseQuery.includes("schmerz") || lowercaseQuery.includes("pain")) {
         response = "Für Schmerzpatienten empfehle ich folgende Produkte, die entzündungshemmend wirken oder bei stärkeren Schmerzen helfen können:";
         matchedProducts = [...products.filter(p => 
           p.effects?.some(e => e.toLowerCase().includes("schmerz")) ||
           p.benefits?.some(b => b.toLowerCase().includes("schmerz"))
         )].slice(0, 3);
-      } else if (query.includes("schlaf") || query.includes("sleep")) {
+      } else if (lowercaseQuery.includes("schlaf") || lowercaseQuery.includes("sleep")) {
         response = "Bei Schlafstörungen können diese Produkte besonders hilfreich sein:";
         matchedProducts = [...products.filter(p => 
           p.effects?.some(e => e.toLowerCase().includes("schlaf")) ||
           p.benefits?.some(b => b.toLowerCase().includes("schlaf"))
         )].slice(0, 3);
-      } else if (query.includes("angst") || query.includes("anxiety")) {
+      } else if (lowercaseQuery.includes("angst") || lowercaseQuery.includes("anxiety")) {
         response = "Gegen Angstzustände wirken folgende Produkte besonders gut:";
         matchedProducts = [...products.filter(p => 
           p.effects?.some(e => e.toLowerCase().includes("angst")) ||
           p.benefits?.some(b => b.toLowerCase().includes("angst")) ||
           p.strain?.toLowerCase().includes("indica")
         )].slice(0, 3);
-      } else if (query.includes("appetit") || query.includes("hunger")) {
+      } else if (lowercaseQuery.includes("appetit") || lowercaseQuery.includes("hunger")) {
         response = "Diese Produkte können den Appetit anregen:";
         matchedProducts = [...products.filter(p => 
           p.strain?.toLowerCase().includes("indica") || 
           parseFloat(p.thc?.replace("%", "") || "0") > 15
         )].slice(0, 3);
-      } else if (query.includes("thc")) {
+      } else if (lowercaseQuery.includes("thc")) {
         response = "Hier sind unsere THC-haltigen Produkte:";
         matchedProducts = [...products.filter(p => 
           parseFloat(p.thc?.replace("%", "") || "0") > 15
         )].slice(0, 3);
-      } else if (query.includes("cbd")) {
+      } else if (lowercaseQuery.includes("cbd")) {
         response = "Hier sind unsere CBD-haltigen Produkte:";
         matchedProducts = [...products.filter(p => 
           parseFloat(p.cbd?.replace("%", "") || "0") > 0.5
         )].slice(0, 3);
-      } else if (query.includes("kreativ") || query.includes("fokus") || query.includes("concentration")) {
+      } else if (lowercaseQuery.includes("kreativ") || lowercaseQuery.includes("fokus") || lowercaseQuery.includes("concentration")) {
         response = "Für Kreativität und Fokus sind diese Sorten besonders geeignet:";
         matchedProducts = [...products.filter(p => 
           p.strain?.toLowerCase().includes("sativa") ||
           p.effects?.some(e => e.toLowerCase().includes("fokus") || e.toLowerCase().includes("kreativ"))
         )].slice(0, 3);
-      } else if (query.includes("indica")) {
+      } else if (lowercaseQuery.includes("indica")) {
         response = "Hier sind unsere Indica-Sorten, die für tiefe Entspannung bekannt sind:";
         matchedProducts = [...products.filter(p => 
           p.strain?.toLowerCase().includes("indica")
         )].slice(0, 3);
-      } else if (query.includes("sativa")) {
+      } else if (lowercaseQuery.includes("sativa")) {
         response = "Hier sind unsere Sativa-Sorten, die für energetische Effekte bekannt sind:";
         matchedProducts = [...products.filter(p => 
           p.strain?.toLowerCase().includes("sativa")
         )].slice(0, 3);
-      } else if (query.includes("hybrid")) {
+      } else if (lowercaseQuery.includes("hybrid")) {
         response = "Hier sind unsere ausgewogenen Hybrid-Sorten:";
         matchedProducts = [...products.filter(p => 
           p.strain?.toLowerCase().includes("hybrid")
         )].slice(0, 3);
-      } else if (query.includes("produkt") || query.includes("empfehl") || query.includes("zeig")) {
+      } else if (lowercaseQuery.includes("produkt") || lowercaseQuery.includes("empfehl") || lowercaseQuery.includes("zeig")) {
         response = "Hier sind einige unserer beliebtesten Produkte:";
         matchedProducts = [...products].slice(0, 3);
       } else {
@@ -735,10 +682,8 @@ const ProductAdvisor = () => {
       setRecommendedProducts(matchedProducts);
       setShowProducts(matchedProducts.length > 0);
       
-      // Add bot response to conversation history
       setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
       
-      // Generate speech for the response if voice is enabled
       if (isVoiceEnabled) {
         speakResponse(response);
       }
@@ -849,7 +794,6 @@ const ProductAdvisor = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
-            {/* N8N Webhook Konfiguration (nur während der Entwicklung anzeigen) */}
             {process.env.NODE_ENV === 'development' && (
               <div className="border rounded-md p-3 bg-accent/10 text-xs">
                 <h4 className="font-medium mb-2">N8N Webhook Konfiguration</h4>
@@ -884,7 +828,6 @@ const ProductAdvisor = () => {
               <p className="text-sm text-muted-foreground">Sprich mit mir über Cannabis-Produkte</p>
             </div>
 
-            {/* Quick Action Tools */}
             <div className="flex flex-wrap gap-2 justify-center mb-2">
               {renderToolButton(<Search className="h-3.5 w-3.5" />, "Produktsuche", () => processUserQuery("Zeig mir Produkte für Schmerzen"))}
               {renderToolButton(<ShoppingCart className="h-3.5 w-3.5" />, "Warenkorb", () => webTools.navigateToPage('/cart'))}
@@ -892,14 +835,12 @@ const ProductAdvisor = () => {
               {renderToolButton(<Info className="h-3.5 w-3.5" />, "Was ist CBD?", () => processUserQuery("Was ist CBD?"))}
             </div>
 
-            {/* Conversation history */}
             <div className="space-y-4">
               {conversationHistory.map((message, index) => (
                 renderMessage(message, index)
               ))}
             </div>
 
-            {/* User input display */}
             {transcript && (
               <div className="animate-fade-in">
                 <div className="bg-primary text-primary-foreground self-end rounded-lg p-3 rounded-br-none ml-auto">
@@ -911,7 +852,6 @@ const ProductAdvisor = () => {
               </div>
             )}
 
-            {/* Products display */}
             {showProducts && recommendedProducts.length > 0 && (
               <div className="mt-2 grid gap-2 max-w-[90%]">
                 {recommendedProducts.map((product) => (
@@ -945,7 +885,6 @@ const ProductAdvisor = () => {
               </div>
             )}
 
-            {/* Loading indicator */}
             {isLoading && (
               <div className="flex max-w-[85%] rounded-lg p-3 bg-secondary text-secondary-foreground self-start rounded-tl-none animate-pulse">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -957,7 +896,6 @@ const ProductAdvisor = () => {
 
           <div className="p-3 border-t bg-card">
             <div className="flex flex-col gap-2">
-              {/* Text input */}
               <div className="flex gap-2">
                 <Input
                   value={userInput}
@@ -1029,4 +967,3 @@ const ProductAdvisor = () => {
 };
 
 export default ProductAdvisor;
-
