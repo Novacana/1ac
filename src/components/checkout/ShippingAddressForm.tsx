@@ -18,13 +18,18 @@ const ShippingAddressForm: React.FC = () => {
 
   // Fill in user data if logged in
   useEffect(() => {
-    if (isAuthenticated && user && user.address) {
-      setAddress(user.address.street || "");
-      setAdditionalInfo(user.address.additionalInfo || "");
-      setCity(user.address.city || "");
-      setState(user.address.state || "");
-      setZip(user.address.zip || "");
-      setCountry(user.address.country || "Deutschland");
+    if (isAuthenticated && user && user.addresses && user.addresses.length > 0) {
+      // Get the default address or the first one if there's no default
+      const defaultAddress = user.addresses.find(addr => addr.isDefault) || user.addresses[0];
+      
+      if (defaultAddress) {
+        setAddress(defaultAddress.street || "");
+        setAdditionalInfo(defaultAddress.additionalInfo || "");
+        setCity(defaultAddress.city || "");
+        setState(defaultAddress.state || "");
+        setZip(defaultAddress.zip || "");
+        setCountry(defaultAddress.country || "Deutschland");
+      }
     }
   }, [user, isAuthenticated]);
 
