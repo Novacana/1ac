@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Upload, Download, Settings } from "lucide-react";
@@ -23,9 +23,16 @@ const PharmacyManagement: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("products");
 
-  // Redirect if not authenticated
+  // Handle authentication check with useEffect instead of early return
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
+  // If not authenticated, render a loading placeholder until the navigation happens
   if (!isAuthenticated) {
-    return navigate("/login");
+    return <div className="loading-placeholder">Loading...</div>;
   }
 
   return (

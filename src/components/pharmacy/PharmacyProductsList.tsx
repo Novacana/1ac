@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,7 +15,6 @@ import {
   Search, Edit, Trash2, Eye, CheckCircle, XCircle, Filter 
 } from "lucide-react";
 import { Product } from "@/types/product";
-import { useProductLoader } from "@/hooks/useProductLoader";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,17 +30,16 @@ const PharmacyProductsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Load pharmacy products
-  React.useEffect(() => {
+  useEffect(() => {
     const loadProducts = async () => {
       try {
+        setIsLoading(true);
         // This would be replaced with a dedicated pharmacy products API endpoint
-        const { onProductsLoaded } = useProductLoader({
-          selectedCategory: "All",
-          onProductsLoaded: (loadedProducts) => {
-            setProducts(loadedProducts);
-            setIsLoading(false);
-          }
-        });
+        const { loadProductsFromAllSources } = await import("@/hooks/useProductSources");
+        const { allProducts } = await loadProductsFromAllSources("All", false);
+        
+        setProducts(allProducts);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error loading pharmacy products:", error);
         setIsLoading(false);
