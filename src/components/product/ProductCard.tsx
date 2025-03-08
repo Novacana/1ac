@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/types/product";
+import { CheckCircle, XCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -28,6 +30,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     
     return () => clearTimeout(timeoutId);
   }, [product.id, imagesLoaded, setImagesLoaded, product.name]);
+
+  // Default package size if not specified
+  const packageSize = product.weight || "10g";
+  
+  // Determine availability (in a real app, this would come from inventory data)
+  const isAvailable = true; // Default to available for now
 
   return (
     <Link key={product.id} to={`/product/${product.id}`}>
@@ -63,7 +71,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="p-3">
             <h3 className="font-semibold text-sm mb-0.5 line-clamp-1">{product.name}</h3>
             <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
-            <p className="font-medium text-sm">{product.price.toFixed(2)} €</p>
+            
+            <div className="flex justify-between items-center mt-2">
+              <p className="font-medium text-sm">{product.price.toFixed(2)} €</p>
+              <p className="text-xs text-muted-foreground">{packageSize}</p>
+            </div>
+            
+            <div className={cn(
+              "flex items-center text-xs gap-1 mt-1",
+              isAvailable ? "text-green-600" : "text-red-500"
+            )}>
+              {isAvailable ? (
+                <>
+                  <CheckCircle className="h-3 w-3" />
+                  <span>Verfügbar</span>
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-3 w-3" />
+                  <span>Nicht verfügbar</span>
+                </>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
