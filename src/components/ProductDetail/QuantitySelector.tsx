@@ -14,8 +14,8 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
 }) => {
   return (
     <div className="flex items-center w-full">
-      <span className="text-lg font-medium mr-4">Menge</span>
-      <div className="flex items-center border border-input rounded-lg overflow-hidden ml-auto">
+      <span className="text-lg font-medium">Menge</span>
+      <div className="flex items-center border border-input rounded-lg overflow-hidden">
         <Button
           variant="ghost"
           size="icon"
