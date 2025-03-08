@@ -27,7 +27,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
           <span className="sr-only">Menge verringern</span>
         </Button>
 
-        <span className="w-12 text-center">{quantity}</span>
+        <span className="w-12 text-center">{quantity}g</span>
 
         <Button
           variant="ghost"

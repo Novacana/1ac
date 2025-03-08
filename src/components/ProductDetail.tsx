@@ -85,6 +85,29 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
           {/* Product Info - Description and details */}
           <div className="space-y-6">
+            {/* Add to Cart Section - Moved above description */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Standardgröße: 10g</p>
+                  <p className="text-xl font-semibold">{`€${price.toFixed(2)} / 10g`}</p>
+                </div>
+                <QuantitySelector
+                  quantity={quantity}
+                  onQuantityChange={handleQuantityChange}
+                />
+              </div>
+              
+              <AddToCartButton
+                addedToCart={addedToCart}
+                onAddToCart={handleAddToCart}
+                productId={id}
+                productName={name}
+                productPrice={price}
+                productImage={images && images.length > 0 ? images[0] : ""}
+              />
+            </div>
+
             <p className="text-foreground/80 leading-relaxed">{description}</p>
 
             {/* Benefits */}
@@ -95,23 +118,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
             {/* How to use */}
             <ProductUsage use={use} />
-
-            {/* Quantity and Add to Cart */}
-            <div className="pt-4 space-y-6">
-              <QuantitySelector
-                quantity={quantity}
-                onQuantityChange={handleQuantityChange}
-              />
-
-              <AddToCartButton
-                addedToCart={addedToCart}
-                onAddToCart={handleAddToCart}
-                productId={id}
-                productName={name}
-                productPrice={price}
-                productImage={images && images.length > 0 ? images[0] : ""}
-              />
-            </div>
           </div>
         </div>
       </div>
