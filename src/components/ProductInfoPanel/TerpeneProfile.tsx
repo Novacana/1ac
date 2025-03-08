@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { getTerpeneColor, parsePercentage, getTerpeneEffect } from "./utils";
+import { getTerpeneColor, parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect } from "./utils";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Info } from "lucide-react";
@@ -22,7 +22,8 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
     name: terpene.name,
     value: parsePercentage(terpene.percentage),
     color: getTerpeneColor(terpene.name),
-    effect: getTerpeneEffect(terpene.name)
+    effect: getTerpeneEffect(terpene.name),
+    detailedEffect: getTerpeneDetailedEffect(terpene.name)
   }));
 
   const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
@@ -87,7 +88,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
         </div>
       </div>
       
-      {/* Expanded terpene effects information */}
+      {/* Expanded terpene effects information (when a terpene is clicked) */}
       {terpeneData.map((terpene) => (
         <div 
           key={terpene.name}
@@ -103,7 +104,7 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
             />
             <div>
               <span className="font-medium">{terpene.name}: </span>
-              <span>{terpene.effect}</span>
+              <span>{isMobile ? terpene.effect : terpene.detailedEffect}</span>
             </div>
           </div>
         </div>
@@ -111,17 +112,21 @@ const TerpeneProfile: React.FC<TerpeneProfileProps> = ({ product }) => {
       
       {/* Default terpene effects - only show on desktop when no terpene is selected */}
       {!isMobile && !expandedTerpene && terpeneData.length > 0 && (
-        <div className="text-[9px] text-foreground/70 mt-1 border-t border-border/20 pt-1 max-h-[30px] overflow-hidden">
-          <div className="flex items-start">
-            <div 
-              className="w-1.5 h-1.5 rounded-full mr-1 flex-shrink-0 mt-0.5"
-              style={{ backgroundColor: terpeneData[0].color }}
-            />
-            <div>
-              <span className="font-medium">{terpeneData[0].name}:</span>
-              <span className="ml-0.5">{terpeneData[0].effect}</span>
+        <div className="text-[10px] text-foreground/80 mt-2 border-t border-border/20 pt-2 max-h-[150px] overflow-auto">
+          {terpeneData.slice(0, 3).map((terpene, index) => (
+            <div key={index} className="mb-2 last:mb-0">
+              <div className="flex items-start">
+                <div 
+                  className="w-2 h-2 rounded-full mr-1.5 flex-shrink-0 mt-1"
+                  style={{ backgroundColor: terpene.color }}
+                />
+                <div>
+                  <div className="font-medium">{terpene.name} ({terpene.value}%):</div>
+                  <div className="ml-1 mt-0.5">{terpene.detailedEffect}</div>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
     </div>
