@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -140,6 +141,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="bg-background/50 rounded-lg p-3 border border-border/30">
               <ProductInfoPanel product={productData} />
               
+              {/* Only show these profiles in desktop view */}
               {!isMobile && (
                 <div className="mt-4 border-t border-border/30 pt-4">
                   <FlavorProfile flavors={flavors} />
