@@ -57,7 +57,7 @@ export const convertShopifyProduct = (shopifyProduct: ShopifyProduct): Product =
     description: shopifyProduct.description,
     image: mainImage,
     images: allImages,
-    thc: thcContent,
+    thcContent,
     cbd: cbdContent,
     category: shopifyProduct.product_type || 'Uncategorized',
     strain: strainType,
@@ -65,6 +65,7 @@ export const convertShopifyProduct = (shopifyProduct: ShopifyProduct): Product =
     flavors: flavors,
     weight: undefined, // Not directly available in basic Shopify data
     potency: undefined, // Not directly available in basic Shopify data
-    lab_tested: shopifyProduct.tags?.includes('lab-tested') || false
+    lab_tested: shopifyProduct.tags?.includes('lab-tested') || false,
+    source: "shopify"
   };
 };

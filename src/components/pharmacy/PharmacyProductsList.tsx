@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -12,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Search, Edit, Trash2, Eye, CheckCircle, XCircle, Filter 
+  Search, Edit, Trash2, Eye, CheckCircle, XCircle, Filter, ShoppingCart
 } from "lucide-react";
 import { Product } from "@/types/product";
 import { Switch } from "@/components/ui/switch";
@@ -24,24 +23,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { DataSource } from "@/hooks/useProductSources";
 
 const PharmacyProductsList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState<Record<string, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
+  const [offeredInShop, setOfferedInShop] = useState<Record<string, boolean>>({});
 
-  // Load pharmacy products
+  // Load pharmacy products from integrations only
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setIsLoading(true);
         // This would be replaced with a dedicated pharmacy products API endpoint
         const { loadProductsFromAllSources } = await import("@/hooks/useProductSources");
-        const { allProducts } = await loadProductsFromAllSources("All", false);
+        const { allProducts, dataSource } = await loadProductsFromAllSources("All", false);
         
-        setProducts(allProducts);
+        // Only keep products from integrations (WooCommerce, Shopify)
+        const integrationProducts = allProducts.filter(product => 
+          product.source === "woocommerce" || product.source === "shopify"
+        );
+        
+        console.log(`Loaded ${integrationProducts.length} products from integrations`);
+        setProducts(integrationProducts);
+        
+        // Initialize offered in shop state
+        const initialOfferedState = {};
+        integrationProducts.forEach(product => {
+          initialOfferedState[product.id] = false;
+        });
+        setOfferedInShop(initialOfferedState);
+        
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading pharmacy products:", error);
@@ -53,10 +69,13 @@ const PharmacyProductsList: React.FC = () => {
   }, []);
 
   // Filter products based on search query
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const filtered = products.filter(product => 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [products, searchQuery]);
 
   // Toggle individual product selection
   const toggleProductSelection = (productId: string) => {
@@ -64,6 +83,21 @@ const PharmacyProductsList: React.FC = () => {
       ...prev,
       [productId]: !prev[productId]
     }));
+  };
+
+  // Toggle offering product in shop
+  const toggleOfferedInShop = (productId: string, productName: string) => {
+    const newState = !offeredInShop[productId];
+    setOfferedInShop(prev => ({
+      ...prev,
+      [productId]: newState
+    }));
+    
+    toast.success(
+      newState 
+        ? `${productName} wird jetzt im Shop angeboten` 
+        : `${productName} wird nicht mehr im Shop angeboten`
+    );
   };
 
   // Handle select all toggle
@@ -112,6 +146,13 @@ const PharmacyProductsList: React.FC = () => {
   };
 
   const isAnyProductSelected = Object.values(selectedProducts).some(isSelected => isSelected);
+
+  // Show source label based on product source
+  const getSourceLabel = (product: Product): string => {
+    if (product.source === "woocommerce") return "WooCommerce";
+    if (product.source === "shopify") return "Shopify";
+    return "Extern";
+  };
 
   return (
     <div className="space-y-4">
@@ -189,8 +230,8 @@ const PharmacyProductsList: React.FC = () => {
                 <TableHead>Produkt</TableHead>
                 <TableHead>Kategorie</TableHead>
                 <TableHead>Preis</TableHead>
-                <TableHead>Vorrat</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Quelle</TableHead>
+                <TableHead>Im Shop</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
             </TableHeader>
@@ -233,13 +274,31 @@ const PharmacyProductsList: React.FC = () => {
                       <Badge variant="outline">{product.category}</Badge>
                     </TableCell>
                     <TableCell>{product.price.toFixed(2)} €</TableCell>
-                    <TableCell>{product.weight || "N/A"}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Aktiv
-                        </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {getSourceLabel(product)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`offer-${product.id}`}
+                          checked={!!offeredInShop[product.id]}
+                          onCheckedChange={() => toggleOfferedInShop(product.id, product.name)}
+                        />
+                        <Label htmlFor={`offer-${product.id}`} className="text-xs">
+                          {offeredInShop[product.id] ? (
+                            <span className="flex items-center text-green-600">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Angeboten
+                            </span>
+                          ) : (
+                            <span className="flex items-center text-muted-foreground">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Nicht angeboten
+                            </span>
+                          )}
+                        </Label>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">

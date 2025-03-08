@@ -1,3 +1,4 @@
+
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
@@ -42,8 +43,14 @@ export const loadProductsFromAllSources = async (
       // Process data directory products using the utility function
       const processedDataProducts = convertLocalProducts(dataProducts);
       
+      // Add source information to each product
+      const localProductsWithSource = processedDataProducts.map(product => ({
+        ...product,
+        source: "local" as const
+      }));
+      
       // Add local products to the combined list
-      allProducts = [...processedDataProducts];
+      allProducts = [...localProductsWithSource];
       dataSource = "local";
     } else {
       console.log(`No local products found for category "${selectedCategory}"`);
@@ -62,8 +69,14 @@ export const loadProductsFromAllSources = async (
       if (wooProducts && wooProducts.length > 0) {
         console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
         
+        // Add source information to each product
+        const wooProductsWithSource = wooProducts.map(product => ({
+          ...product,
+          source: "woocommerce" as const
+        }));
+        
         // Add WooCommerce products to combined list
-        allProducts = [...allProducts, ...wooProducts];
+        allProducts = [...allProducts, ...wooProductsWithSource];
         wooCommerceProductCount = wooProducts.length;
         
         // Update data source indicator
@@ -96,8 +109,14 @@ export const loadProductsFromAllSources = async (
       if (shopifyProducts && shopifyProducts.length > 0) {
         console.log(`Fetched ${shopifyProducts.length} products from Shopify`);
         
+        // Add source information to each product
+        const shopifyProductsWithSource = shopifyProducts.map(product => ({
+          ...product,
+          source: "shopify" as const
+        }));
+        
         // Add Shopify products to combined list
-        allProducts = [...allProducts, ...shopifyProducts];
+        allProducts = [...allProducts, ...shopifyProductsWithSource];
         shopifyProductCount = shopifyProducts.length;
         
         // Update data source indicator
