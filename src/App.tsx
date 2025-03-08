@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
@@ -42,9 +41,9 @@ const ProtectedRoute = ({ children }) => {
 
 // Protected Route Component for Pharmacy Users
 const PharmacyRoute = ({ children }) => {
-  const { isAuthenticated, isPharmacy } = useAuth();
+  const { isAuthenticated } = useAuth();
   
-  if (!isAuthenticated || !isPharmacy) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   
