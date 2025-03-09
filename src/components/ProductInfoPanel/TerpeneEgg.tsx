@@ -65,18 +65,36 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
 
   // Helper to get the terpene position in the egg visualization
   const getTerpenePosition = (index: number, total: number) => {
-    const positions = [
-      { top: '10%', left: '50%' },      // Top center
-      { top: '25%', left: '20%' },      // Top left 
-      { top: '25%', right: '20%' },     // Top right
-      { bottom: '25%', left: '20%' },   // Bottom left
-      { bottom: '25%', right: '20%' },  // Bottom right
-      { bottom: '10%', left: '50%' },   // Bottom center
-    ];
+    // Calculate positions to form an oval/egg shape
+    const angle = (index / total) * 2 * Math.PI;
+    const xRadius = 40; // horizontal radius
+    const yRadius = 50; // vertical radius - larger to make more egg-shaped
     
-    // Use modulo to handle more than 6 terpenes
-    return positions[index % positions.length];
+    // Adjust the center point to be slightly higher to create egg shape
+    const xCenter = 50;
+    const yCenter = 45; // Slightly above center
+    
+    // Calculate x and y positions
+    const x = xCenter + xRadius * Math.sin(angle);
+    const y = yCenter + yRadius * Math.cos(angle);
+    
+    return {
+      left: `${x}%`,
+      top: `${y}%`
+    };
   };
+
+  // Effect labels arranged in a circle around the egg
+  const effectLabels = [
+    { text: "beruhigend", angle: 30 },
+    { text: "fokussierend", angle: 60 },
+    { text: "stimmungsaufhellend", angle: 120 },
+    { text: "schlaffördernd", angle: 150 },
+    { text: "schmerzlindernd", angle: 210 },
+    { text: "entzündungshemmend", angle: 240 },
+    { text: "antioxidativ", angle: 300 },
+    { text: "entspannend", angle: 330 }
+  ];
 
   // Determine the size of the dot based on the percentage
   const getDotSize = (percentage: number) => {
@@ -94,46 +112,44 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
       </div>
       
       <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
-        {/* The egg visualization */}
-        <div className="relative h-[180px] w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 
-                      border border-border/50 rounded-[50%] 
-                      bg-gradient-to-b from-primary/5 to-secondary/10 
-                      dark:from-primary/10 dark:to-secondary/20">
-          {/* Egg property text with improved visibility */}
-          <div className="absolute inset-0 rounded-[50%] border border-dashed border-primary/30 flex items-center justify-center">
-            {/* Property texts with better contrast */}
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[30deg] absolute top-3 left-1/4 shadow-md">
-              entspannend
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[60deg] absolute top-1/4 right-4 shadow-md">
-              beruhigend
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[120deg] absolute bottom-1/4 right-6 shadow-md">
-              entzündungshemmend
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[145deg] absolute bottom-3 right-1/4 shadow-md">
-              schmerzlindernd
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[-30deg] absolute top-3 right-1/4 shadow-md">
-              stimmungsaufhellend
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[-60deg] absolute top-1/4 left-4 shadow-md">
-              fokussierend
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[-120deg] absolute bottom-1/4 left-6 shadow-md">
-              antioxidativ
-            </div>
-            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
-                          rotate-[-145deg] absolute bottom-3 left-1/4 shadow-md">
-              schlaffördernd
-            </div>
+        {/* The egg visualization - with proper egg shape */}
+        <div className="relative h-[220px] w-[200px] flex-shrink-0 mx-auto mb-4 md:mx-0">
+          {/* Gradient background for the egg */}
+          <div className="absolute w-[180px] h-[220px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                        bg-gradient-to-b from-yellow-100/20 to-blue-100/20 dark:from-yellow-400/20 dark:to-blue-500/20
+                        rounded-[50%] border border-border/50"
+               style={{ 
+                 borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", /* egg shape */
+                 boxShadow: isDark ? "0 0 30px rgba(255,255,255,0.1)" : "0 0 30px rgba(0,0,0,0.05)"
+               }}>
+            
+            {/* Effect labels arranged in a circle */}
+            {effectLabels.map((label, idx) => {
+              const angle = label.angle;
+              const radian = (angle * Math.PI) / 180;
+              const distance = 110; // Distance from center
+              
+              // Calculate position for each label
+              const left = 50 + 43 * Math.sin(radian);
+              const top = 50 + 48 * Math.cos(radian);
+              
+              return (
+                <div
+                  key={idx}
+                  className="absolute text-[9px] font-medium px-1.5 py-0.5 rounded-full 
+                           bg-primary/40 backdrop-blur-sm shadow-md text-white z-10 whitespace-nowrap"
+                  style={{
+                    left: `${left}%`,
+                    top: `${top}%`,
+                    transform: `rotate(${angle}deg) translate(-50%, -50%)`,
+                    transformOrigin: "center",
+                    textShadow: "0px 0px 4px rgba(0,0,0,0.5)"
+                  }}
+                >
+                  {label.text}
+                </div>
+              );
+            })}
           </div>
           
           {/* Terpene shapes positioned in the egg */}
@@ -146,7 +162,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               <div 
                 key={terpene.name} 
                 className={cn(
-                  "absolute flex items-center justify-center transition-all cursor-pointer hover:scale-110",
+                  "absolute flex items-center justify-center transition-all cursor-pointer hover:scale-110 z-20",
                   expandedTerpene === terpene.name ? "ring-2 ring-primary ring-offset-1" : ""
                 )}
                 style={{
@@ -159,11 +175,11 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               >
                 {/* Glowing background for the shape */}
                 <div 
-                  className="absolute inset-0 rounded-full blur-[8px] opacity-40"
+                  className="absolute inset-0 rounded-full blur-[8px] opacity-70"
                   style={{ 
                     backgroundColor: color,
-                    width: `${dotSize + 4}px`,
-                    height: `${dotSize + 4}px`
+                    width: `${dotSize + 6}px`,
+                    height: `${dotSize + 6}px`
                   }}
                 ></div>
                 
@@ -179,7 +195,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                 
                 {/* Terpene name label with improved visibility */}
                 <div 
-                  className="hidden md:flex absolute whitespace-nowrap px-2 py-1 
+                  className="absolute whitespace-nowrap px-2 py-0.5 
                             rounded-full bg-background/90 dark:bg-background/80 
                             text-[10px] font-medium border border-primary/20 shadow-lg
                             backdrop-blur-sm items-center justify-center"
@@ -188,6 +204,9 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     color: color,
+                    opacity: expandedTerpene === terpene.name ? 1 : 0,
+                    visibility: expandedTerpene === terpene.name ? 'visible' : 'hidden',
+                    transition: 'opacity 0.2s, visibility 0.2s',
                   }}
                 >
                   {terpene.name}
