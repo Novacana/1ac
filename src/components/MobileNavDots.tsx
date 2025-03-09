@@ -7,7 +7,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import MobileViewToggle from "./MobileViewToggle";
-import { Input } from "@/components/ui/input";
 import SearchAutocomplete from "./SearchAutocomplete";
 import { useProductSuggestions } from "@/hooks/useProductSuggestions";
 
@@ -73,6 +72,7 @@ const MobileNavDots = () => {
               fullWidth
               autoFocus
               maxSuggestions={8}
+              compact={true}
             />
             <button 
               type="button" 

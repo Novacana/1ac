@@ -72,6 +72,7 @@ const Filters: React.FC<FiltersProps> = ({
             placeholder="Suche nach Sorte..."
             fullWidth
             maxSuggestions={5}
+            compact={true}
           />
         </div>
 

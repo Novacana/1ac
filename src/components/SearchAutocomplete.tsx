@@ -14,6 +14,7 @@ interface SearchAutocompleteProps {
   autoFocus?: boolean;
   onClose?: () => void;
   maxSuggestions?: number;
+  compact?: boolean;
 }
 
 const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
@@ -25,6 +26,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
   autoFocus = false,
   onClose,
   maxSuggestions = 5,
+  compact = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -106,13 +108,16 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           ref={inputRef}
           type="text"
           placeholder={placeholder}
-          className={`${fullWidth ? 'w-full' : ''} pr-16 pl-10`}
+          className={`
+            ${fullWidth ? 'w-full' : ''}
+            ${compact ? 'h-8 md:h-9 px-8 text-sm' : 'pr-16 pl-10'}
+          `}
           value={searchQuery}
           onChange={handleInputChange}
           autoFocus={autoFocus}
         />
         <Search 
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" 
+          className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground ${compact ? 'h-3 w-3' : 'h-4 w-4'}`} 
         />
         {searchQuery && (
           <button 
@@ -120,7 +125,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
             onClick={handleClearSearch}
             className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
-            <X size={16} />
+            <X size={compact ? 14 : 16} />
           </button>
         )}
         <button 
@@ -128,7 +133,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           aria-label="Suchen"
         >
-          <Search size={16} />
+          <Search size={compact ? 14 : 16} />
         </button>
       </form>
 
