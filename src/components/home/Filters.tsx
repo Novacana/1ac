@@ -1,32 +1,7 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { 
-  FilterX,
-  DollarSign,
-  Leaf,
-  ArrowDownAZ,
-  ArrowDownZA,
-  Flame,
-  TrendingUp,
-  Filter,
-  ChevronDown,
-  ChevronUp
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -34,230 +9,168 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
-export type FilterOptions = {
+export interface FilterOptions {
   thcRange: [number, number];
   priceRange: [number, number];
-  sortBy: 'price-asc' | 'price-desc' | 'thc-desc' | 'popularity';
-  category?: string;
-};
+  sortBy: string;
+}
 
 interface FiltersProps {
   filters: FilterOptions;
   onFilterChange: (filters: FilterOptions) => void;
   onReset: () => void;
   maxPrice: number;
-  categories?: string[];
-  selectedCategory?: string;
-  onCategoryChange?: (category: string) => void;
+  categories: string[];
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
-const Filters: React.FC<FiltersProps> = ({ 
-  filters, 
-  onFilterChange, 
+const Filters: React.FC<FiltersProps> = ({
+  filters,
+  onFilterChange,
   onReset,
   maxPrice,
-  categories = [],
-  selectedCategory = "All",
-  onCategoryChange
+  categories,
+  selectedCategory,
+  onCategoryChange,
+  searchQuery = "",
+  onSearchChange = () => {},
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Constants for upper limits
-  const MAX_THC = 30;
-
-  const handleThcChange = (values: number[]) => {
+  const updateThcRange = (value: number[]) => {
     onFilterChange({
       ...filters,
-      thcRange: [values[0], values[1]] as [number, number]
+      thcRange: [value[0], value[1]] as [number, number],
     });
   };
 
-  const handlePriceChange = (values: number[]) => {
+  const updatePriceRange = (value: number[]) => {
     onFilterChange({
       ...filters,
-      priceRange: [values[0], values[1]] as [number, number]
+      priceRange: [value[0], value[1]] as [number, number],
     });
   };
 
-  const handleSortChange = (value: 'price-asc' | 'price-desc' | 'thc-desc' | 'popularity') => {
-    onFilterChange({
-      ...filters,
-      sortBy: value
-    });
-  };
-
-  const handleCategoryChange = (category: string) => {
-    if (onCategoryChange) {
-      onCategoryChange(category);
-    }
-  };
-
-  // Get sort by icon
-  const getSortIcon = () => {
-    switch (filters.sortBy) {
-      case 'price-asc':
-        return <ArrowDownZA className="h-3.5 w-3.5" />;
-      case 'price-desc':
-        return <ArrowDownAZ className="h-3.5 w-3.5" />;
-      case 'thc-desc':
-        return <Flame className="h-3.5 w-3.5" />;
-      case 'popularity':
-        return <TrendingUp className="h-3.5 w-3.5" />;
-      default:
-        return <TrendingUp className="h-3.5 w-3.5" />;
-    }
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
   };
 
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="w-full py-1 px-2 bg-gray-50 rounded-lg mb-3"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center gap-1 h-7 text-xs px-2"
-            >
-              <Filter className="h-3.5 w-3.5 mr-1" />
-              Filter
-              {isOpen ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
-            </Button>
-          </CollapsibleTrigger>
-          
-          {/* Category Selector */}
-          {categories.length > 0 && (
-            <div className="flex-1 min-w-[120px]">
-              <Select
-                value={selectedCategory}
-                onValueChange={handleCategoryChange}
-              >
-                <SelectTrigger className="h-7 text-xs px-2 bg-white">
-                  <SelectValue placeholder="Kategorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[200px]">
-                    <SelectItem value="All" className="text-xs cursor-pointer">Alle Kategorien</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category} className="text-xs cursor-pointer">
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-lg mb-6 shadow-sm border border-border">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {/* Search field */}
+        <div className="col-span-1 md:col-span-2">
+          <form onSubmit={handleSearch} className="relative">
+            <Input
+              type="text"
+              placeholder="Suche nach Sorte..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full pl-10"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          </form>
         </div>
 
-        <div className="flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1 h-7 text-xs px-2"
-              >
-                {getSortIcon()}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="text-xs cursor-pointer"
-                onClick={() => handleSortChange('popularity')}
-              >
-                <TrendingUp className="h-3.5 w-3.5 mr-2" />
-                Beliebtheit
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-xs cursor-pointer"
-                onClick={() => handleSortChange('price-asc')}
-              >
-                <ArrowDownZA className="h-3.5 w-3.5 mr-2" />
-                Preis: Aufsteigend
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-xs cursor-pointer"
-                onClick={() => handleSortChange('price-desc')}
-              >
-                <ArrowDownAZ className="h-3.5 w-3.5 mr-2" />
-                Preis: Absteigend
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="text-xs cursor-pointer"
-                onClick={() => handleSortChange('thc-desc')}
-              >
-                <Flame className="h-3.5 w-3.5 mr-2" />
-                THC: Höchster zuerst
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Reset Button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onReset}
-            className="h-7 text-xs px-2"
-            title="Filter zurücksetzen"
+        {/* Category selector */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Kategorie</label>
+          <Select
+            value={selectedCategory}
+            onValueChange={onCategoryChange}
           >
-            <FilterX className="h-3.5 w-3.5" />
-          </Button>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Wähle eine Kategorie" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">Alle Kategorien</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Sort selector */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Sortieren nach</label>
+          <Select
+            value={filters.sortBy}
+            onValueChange={(value) =>
+              onFilterChange({
+                ...filters,
+                sortBy: value,
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sortieren nach" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="popularity">Beliebtheit</SelectItem>
+              <SelectItem value="price-asc">Preis: Aufsteigend</SelectItem>
+              <SelectItem value="price-desc">Preis: Absteigend</SelectItem>
+              <SelectItem value="thc-desc">THC: Höchster zuerst</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <CollapsibleContent className="mt-2">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* THC & Price Filter */}
-          <div className="flex-1 min-w-[200px]">
-            <div className="grid grid-cols-2 gap-2">
-              {/* THC Range */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1">
-                    <Leaf className="w-3 h-3 text-primary" />
-                    <span className="text-xs font-medium">THC {filters.thcRange[0]}-{filters.thcRange[1]}%</span>
-                  </div>
-                  <span className="text-xs text-gray-500">Max: {MAX_THC}%</span>
-                </div>
-                <Slider
-                  defaultValue={[0, MAX_THC]}
-                  value={[filters.thcRange[0], filters.thcRange[1]]}
-                  max={MAX_THC}
-                  step={1}
-                  onValueChange={handleThcChange}
-                  className="my-1"
-                />
-              </div>
-              
-              {/* Price Range */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="w-3 h-3 text-primary" />
-                    <span className="text-xs font-medium">€{filters.priceRange[0]}-{filters.priceRange[1]}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">Max: €{maxPrice}</span>
-                </div>
-                <Slider
-                  defaultValue={[0, maxPrice]}
-                  value={[filters.priceRange[0], filters.priceRange[1]]}
-                  max={maxPrice}
-                  step={1}
-                  onValueChange={handlePriceChange}
-                  className="my-1"
-                />
-              </div>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* THC Range */}
+        <div>
+          <div className="flex justify-between mb-2">
+            <label className="text-sm font-medium">THC Gehalt (%)</label>
+            <span className="text-sm text-muted-foreground">
+              {filters.thcRange[0]}% - {filters.thcRange[1]}%
+            </span>
           </div>
+          <Slider
+            defaultValue={[0, 30]}
+            value={[filters.thcRange[0], filters.thcRange[1]]}
+            max={30}
+            step={1}
+            onValueChange={updateThcRange}
+            className="mb-4"
+          />
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+
+        {/* Price Range */}
+        <div>
+          <div className="flex justify-between mb-2">
+            <label className="text-sm font-medium">Preis (€)</label>
+            <span className="text-sm text-muted-foreground">
+              {filters.priceRange[0]}€ - {filters.priceRange[1]}€
+            </span>
+          </div>
+          <Slider
+            defaultValue={[0, maxPrice]}
+            value={[filters.priceRange[0], filters.priceRange[1]]}
+            max={maxPrice}
+            step={1}
+            onValueChange={updatePriceRange}
+            className="mb-4"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onReset}
+          className="text-xs"
+        >
+          Filter zurücksetzen
+        </Button>
+      </div>
+    </div>
   );
 };
 

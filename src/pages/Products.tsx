@@ -9,6 +9,7 @@ import ProductList from "@/components/product/ProductList";
 import LoadingState from "@/components/product/LoadingState";
 import { parseThcPercentage } from "@/utils/product-value-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
+import { useLocation } from "react-router-dom";
 
 const Products = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -18,6 +19,18 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   const [categories, setCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  
+  // Parse search query from URL
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const searchFromUrl = queryParams.get("search") || "";
+  
+  useEffect(() => {
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchFromUrl]);
   
   // Find max price for filter slider
   const maxPrice = allProducts.length > 0 
@@ -76,6 +89,13 @@ const Products = () => {
     if (allProducts.length === 0) return;
     
     let result = allProducts.filter(product => {
+      // Filter by search query
+      if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !product.strain?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !product.description.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      
       // Filter by category
       if (selectedCategory !== "All" && product.category !== selectedCategory) {
         return false;
@@ -114,7 +134,7 @@ const Products = () => {
     }
     
     setFilteredProducts(result);
-  }, [allProducts, filters, selectedCategory]);
+  }, [allProducts, filters, selectedCategory, searchQuery]);
   
   // Reset filters to defaults
   const handleResetFilters = () => {
@@ -124,6 +144,7 @@ const Products = () => {
       sortBy: 'popularity'
     });
     setSelectedCategory("All");
+    setSearchQuery("");
   };
 
   return (
@@ -141,6 +162,8 @@ const Products = () => {
               categories={categories}
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
             />
             
             {filteredProducts.length === 0 ? (
