@@ -77,7 +77,7 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
 
   return (
     <div className="relative h-[280px] w-[240px] flex-shrink-0 mx-auto mb-4 md:mx-0">
-      {/* Egg background with gradient */}
+      {/* Single egg background with gradient */}
       <EggBackground isDark={isDark} />
       
       {/* Effect labels arranged around the egg */}
@@ -89,8 +89,6 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
           isDark={isDark} 
         />
       ))}
-      
-      {/* Remove the color-coded circles here since they were causing duplication */}
       
       {/* Terpene shapes positioned within the egg based on their effects */}
       {terpeneData.map((terpene, index) => {
