@@ -2,10 +2,17 @@
 import React from "react";
 import { getFlavorColor } from "./utils";
 import { 
-  Circle, 
-  Droplet, 
-  CircleDot,
-  Info
+  Cherry, 
+  Grape, 
+  Citrus, 
+  Apple, 
+  Cookie, 
+  Leaf, 
+  Coffee, 
+  Wheat,
+  Candy,
+  IceCream,
+  TreePine
 } from "lucide-react";
 
 interface FlavorProfileProps {
@@ -14,45 +21,45 @@ interface FlavorProfileProps {
 
 // Function to get appropriate icon for each flavor
 const getFlavorIcon = (flavor: string) => {
-  switch (flavor.toLowerCase()) {
-    case "süß":
-    case "sweet":
-      return <CircleDot className="h-4 w-4" />;
-    case "beere":
-    case "berry":
-      return <CircleDot className="h-4 w-4" />;
-    case "zitrus":
-    case "citrus":
-      return <Droplet className="h-4 w-4" />;
-    case "trauben":
-    case "grape":
-      return <CircleDot className="h-4 w-4" />;
-    case "erdig":
-    case "earthy":
-      return <Circle className="h-4 w-4" />;
-    case "kiefer":
-    case "pine":
-      return <Droplet className="h-4 w-4" />;
-    case "würzig":
-    case "spicy":
-      return <Droplet className="h-4 w-4" />;
-    case "dessert":
-      return <CircleDot className="h-4 w-4" />;
-    case "fruchtig":
-    case "fruity":
-      return <Droplet className="h-4 w-4" />;
-    case "kräuter":
-    case "herbal":
-      return <Droplet className="h-4 w-4" />;
-    case "haze":
-    case "holzig":
-    case "woody":
-      return <Circle className="h-4 w-4" />;
-    case "haschartig":
-    case "hashy":
-      return <Circle className="h-4 w-4" />;
+  switch (flavor) {
+    case "Süß":
+    case "Sweet":
+      return <Candy className="h-4 w-4" />;
+    case "Beere":
+    case "Berry":
+      return <Cherry className="h-4 w-4" />;
+    case "Zitrus":
+    case "Citrus":
+      return <Citrus className="h-4 w-4" />;
+    case "Trauben":
+    case "Grape":
+      return <Grape className="h-4 w-4" />;
+    case "Erdig":
+    case "Earthy":
+      return <Wheat className="h-4 w-4" />;
+    case "Kiefer":
+    case "Pine":
+      return <TreePine className="h-4 w-4" />;
+    case "Würzig":
+    case "Spicy":
+      return <Coffee className="h-4 w-4" />;
+    case "Dessert":
+      return <IceCream className="h-4 w-4" />;
+    case "Fruchtig":
+    case "Fruity":
+      return <Apple className="h-4 w-4" />;
+    case "Kräuter":
+    case "Herbal":
+      return <Leaf className="h-4 w-4" />;
+    case "Haze":
+    case "Holzig":
+    case "Woody":
+      return <Wheat className="h-4 w-4" />;
+    case "Haschartig":
+    case "Hashy":
+      return <Cookie className="h-4 w-4" />;
     default:
-      return <Circle className="h-4 w-4" />; // Default icon
+      return <Leaf className="h-4 w-4" />; // Default icon
   }
 };
 
@@ -61,10 +68,7 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
   
   return (
     <div>
-      <div className="flex items-center mb-1.5">
-        <h4 className="text-xs font-medium">Geschmack</h4>
-        <Info className="h-3.5 w-3.5 ml-1 text-muted-foreground" />
-      </div>
+      <h4 className="text-xs font-medium mb-1.5">Geschmack</h4>
       <div className="flex flex-wrap gap-2">
         {flavors.map((flavor, index) => {
           const icon = getFlavorIcon(flavor);
@@ -73,15 +77,15 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
           return (
             <div 
               key={index} 
-              className="flex items-center gap-1.5 px-2 py-1 rounded-md text-foreground dark:text-foreground text-xs"
+              className="flex items-center justify-center rounded-full w-10 h-10 text-foreground dark:text-foreground"
               style={{ 
                 backgroundColor: bgColor,
+                // Add a subtle shadow for better visibility in dark mode
                 boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)'
               }}
               title={flavor}
             >
               {icon}
-              <span>{flavor}</span>
             </div>
           );
         })}
