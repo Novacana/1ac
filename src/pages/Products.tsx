@@ -162,7 +162,7 @@ const Products = () => {
 
   return (
     <Layout fullWidth>
-      <div className="w-full px-4 py-2">
+      <div className="w-full px-4">
         {!initialLoadComplete ? (
           <LoadingState />
         ) : (

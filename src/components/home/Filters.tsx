@@ -74,8 +74,8 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   return (
-    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-lg mb-6 shadow-sm border border-border">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+    <div className="mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
         {/* Search field with autocomplete - now with click handler */}
         <div className="col-span-1">
           <div 

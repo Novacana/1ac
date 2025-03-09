@@ -25,7 +25,7 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         onClick={() => setShowSearch(true)}
         className={cn(
           "w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
-          "bg-background/70 text-foreground shadow-sm"
+          "bg-background/40 text-foreground"
         )}
         aria-label="Produkte suchen"
       >
@@ -55,7 +55,7 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         <button 
           type="button" 
           onClick={() => setShowSearch(false)}
-          className="absolute right-4 top-4 p-2 rounded-full bg-background/70 text-foreground shadow-sm"
+          className="absolute right-4 top-4 p-2 rounded-full bg-background/40 text-foreground"
         >
           <X size={18} />
         </button>

@@ -95,9 +95,6 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
     }
   };
 
-  // Do not stop click propagation so parent components can react to clicks
-  // This allows the filter expansion functionality to work
-
   return (
     <div 
       ref={wrapperRef} 
@@ -111,6 +108,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           className={`
             ${fullWidth ? 'w-full' : ''}
             ${compact ? 'h-8 md:h-9 pl-7 pr-12 text-sm rounded-full' : 'pr-16 pl-10'}
+            transition-all bg-background/20 backdrop-blur-sm border-transparent focus:border-primary/20 focus:bg-background/40
           `}
           value={searchQuery}
           onChange={handleInputChange}
@@ -139,7 +137,7 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
       </form>
 
       {showSuggestions && filteredSuggestions.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full bg-popover shadow-md rounded-md border border-border overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full bg-popover/80 backdrop-blur-md shadow-lg rounded-md border border-border/30 overflow-hidden">
           <ul className="py-1 max-h-60 overflow-auto">
             {filteredSuggestions.map((suggestion, index) => (
               <li 

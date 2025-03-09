@@ -3,8 +3,9 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/types/product";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductCardProps {
   product: Product;
@@ -37,10 +38,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // Determine availability (in a real app, this would come from inventory data)
   const isAvailable = true; // Default to available for now
 
+  // Generate random rating for display purposes (in a real app, this would come from actual ratings)
+  const rating = (4 + Math.random()).toFixed(1);
+
+  // Generate a random delivery time (in a real app, this would be calculated based on logistics)
+  const deliveryDays = Math.floor(Math.random() * 3) + 1;
+
   return (
     <Link key={product.id} to={`/product/${product.id}`}>
-      <Card className="h-full hover:shadow-lg transition-shadow">
-        <CardContent className="p-0">
+      <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02] bg-card/80 backdrop-blur-sm border-border/40">
+        <CardContent className="p-0 h-full relative flex flex-col">
+          {/* Image section */}
           <div className="aspect-square relative overflow-hidden rounded-t-lg">
             <div 
               className="absolute inset-0 bg-card/20 flex items-center justify-center z-10 transition-opacity duration-300" 
@@ -51,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <img 
               src={imagePath}
               alt={product.name}
-              className="w-full h-full object-cover z-0"
+              className="w-full h-full object-cover z-0 transition-transform duration-300 group-hover:scale-105"
               onLoad={() => {
                 console.log(`Image loaded successfully for ${product.name}`);
                 setImagesLoaded(prev => ({...prev, [product.id]: true}));
@@ -62,36 +70,73 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 setImagesLoaded(prev => ({...prev, [product.id]: true}));
               }}
             />
+            
+            {/* THC badge */}
             {product.thc && (
-              <div className="absolute top-2 right-2 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 backdrop-blur-sm">
+              <div className="absolute top-2 right-2 bg-green-500/80 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-md">
                 <span>THC: {product.thc}</span>
               </div>
             )}
-          </div>
-          <div className="p-3">
-            <h3 className="font-semibold text-sm mb-0.5 line-clamp-1">{product.name}</h3>
-            <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
             
-            <div className="flex justify-between items-center mt-2">
-              <p className="font-medium text-sm">{product.price.toFixed(2)} €</p>
+            {/* Category badge - only on desktop */}
+            {product.category && (
+              <div className="absolute top-2 left-2 hidden md:block">
+                <Badge variant="secondary" className="text-xs bg-black/50 text-white backdrop-blur-md">
+                  {product.category}
+                </Badge>
+              </div>
+            )}
+          </div>
+          
+          {/* Content section */}
+          <div className="p-3 flex flex-col flex-grow">
+            <div className="flex-grow">
+              <h3 className="font-semibold text-sm md:text-base mb-0.5 line-clamp-1">{product.name}</h3>
+              <p className="text-xs text-muted-foreground mb-1 line-clamp-1">{product.strain || product.category}</p>
+              
+              {/* Description - only visible on desktop */}
+              <p className="text-xs text-muted-foreground mb-2 line-clamp-2 hidden md:block">
+                {product.description.substring(0, 100)}{product.description.length > 100 ? '...' : ''}
+              </p>
+              
+              {/* Rating - only visible on desktop */}
+              <div className="flex items-center gap-1 text-amber-400 my-1 hidden md:flex">
+                <Star className="fill-amber-400 h-3 w-3" />
+                <span className="text-xs font-medium">{rating}</span>
+                <span className="text-xs text-muted-foreground">({Math.floor(Math.random() * 100) + 10})</span>
+              </div>
+            </div>
+            
+            {/* Price and package size */}
+            <div className="flex justify-between items-center mt-auto">
+              <p className="font-medium">{product.price.toFixed(2)} €</p>
               <p className="text-xs text-muted-foreground">{packageSize}</p>
             </div>
             
-            <div className={cn(
-              "flex items-center text-xs gap-1 mt-1",
-              isAvailable ? "text-green-600" : "text-red-500"
-            )}>
-              {isAvailable ? (
-                <>
-                  <CheckCircle className="h-3 w-3" />
-                  <span>Verfügbar</span>
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-3 w-3" />
-                  <span>Nicht verfügbar</span>
-                </>
-              )}
+            {/* Availability indicator */}
+            <div className="flex items-center justify-between mt-1">
+              <div className={cn(
+                "flex items-center text-xs gap-1",
+                isAvailable ? "text-green-600" : "text-red-500"
+              )}>
+                {isAvailable ? (
+                  <>
+                    <CheckCircle className="h-3 w-3" />
+                    <span>Verfügbar</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="h-3 w-3" />
+                    <span>Nicht verfügbar</span>
+                  </>
+                )}
+              </div>
+              
+              {/* Delivery time - only visible on desktop */}
+              <div className="text-xs flex items-center gap-1 text-muted-foreground hidden md:flex">
+                <Clock className="h-3 w-3" />
+                <span>Lieferung in {deliveryDays} {deliveryDays === 1 ? 'Tag' : 'Tagen'}</span>
+              </div>
             </div>
           </div>
         </CardContent>
