@@ -88,8 +88,9 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
               <>
                 <ProductInfoPanel product={activeProduct} />
                 
-                {/* Always show flavors in a separate card if available */}
-                {activeProduct.flavors && activeProduct.flavors.length > 0 && (
+                {/* Only show separate FlavorProfile when terpenes are not available */}
+                {activeProduct.flavors && activeProduct.flavors.length > 0 && 
+                 (!activeProduct.terpenes || activeProduct.terpenes.length === 0) && (
                   <div className="mt-4 p-3 bg-background rounded-lg border border-border/20 shadow-sm">
                     <FlavorProfile flavors={activeProduct.flavors} />
                   </div>
