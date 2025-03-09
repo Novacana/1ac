@@ -91,6 +91,16 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
         />
       ))}
       
+      {/* Add enhanced color-coded circles matching the image with increased opacity */}
+      <div className="absolute top-[50%] left-[40%] w-[60px] h-[60px] rounded-full bg-yellow-400/70 blur-sm" 
+           style={{ transform: 'translate(-50%, -50%)', filter: 'blur(10px)' }}></div>
+      <div className="absolute top-[40%] right-[35%] w-[15px] h-[15px] rounded-full bg-green-600/70 blur-sm"
+           style={{ transform: 'translate(50%, -50%)', filter: 'blur(5px)' }}></div>
+      <div className="absolute bottom-[40%] right-[30%] w-[20px] h-[20px] rounded-full bg-blue-600/70 blur-sm"
+           style={{ transform: 'translate(50%, 50%)', filter: 'blur(7px)' }}></div>
+      <div className="absolute bottom-[35%] left-[35%] w-[10px] h-[10px] rounded-full bg-red-800/70 blur-sm"
+           style={{ transform: 'translate(-50%, 50%)', filter: 'blur(4px)' }}></div>
+      
       {/* Terpene shapes positioned within the egg based on their effects */}
       {terpeneData.map((terpene, index) => {
         const position = getTerpenePositionInEgg(terpene.name, index);
@@ -110,16 +120,6 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
           />
         );
       })}
-
-      {/* Add color-coded circles matching the image with increased opacity */}
-      <div className="absolute top-[50%] left-[40%] w-[60px] h-[60px] rounded-full bg-yellow-400/90" 
-           style={{ transform: 'translate(-50%, -50%)' }}></div>
-      <div className="absolute top-[40%] right-[35%] w-[15px] h-[15px] rounded-full bg-green-600/90"
-           style={{ transform: 'translate(50%, -50%)' }}></div>
-      <div className="absolute bottom-[40%] right-[30%] w-[20px] h-[20px] rounded-full bg-blue-600/90"
-           style={{ transform: 'translate(50%, 50%)' }}></div>
-      <div className="absolute bottom-[35%] left-[35%] w-[10px] h-[10px] rounded-full bg-red-800/90"
-           style={{ transform: 'translate(-50%, 50%)' }}></div>
     </div>
   );
 };

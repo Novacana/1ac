@@ -42,41 +42,50 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       <div 
         className={cn(
           "rounded-full flex items-center justify-center shadow-md transition-all duration-300",
-          isExpanded ? "ring-2 ring-white/40" : ""
+          isExpanded ? "ring-2 ring-white/70" : ""
         )}
         style={{
           width: `${dotSize}px`,
           height: `${dotSize}px`,
           backgroundColor: color,
+          boxShadow: `0 0 10px ${color}80`,
         }}
       ></div>
       
-      {/* Terpene Name Label - More visible with background */}
+      {/* Terpene Name Label - More visible with enhanced background */}
       <div 
         className={cn(
-          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 bg-background/70 backdrop-blur-sm border border-border/30 shadow-sm",
-          isDark ? "text-white" : "text-foreground",
+          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
+          isDark 
+            ? "bg-background/80 text-white border border-white/30 shadow-[0_0_5px_rgba(255,255,255,0.3)]" 
+            : "bg-background/90 text-foreground border border-primary/30 shadow-sm",
           isExpanded ? "opacity-100 scale-100" : "opacity-100 scale-100"
         )}
         style={{
           top: `${dotSize + 4}px`,
           left: `50%`,
           transform: `translateX(-50%)`,
+          backdropFilter: "blur(3px)",
         }}
       >
-        {terpene.name} <span className="font-bold text-primary">{terpene.value.toFixed(1)}%</span>
+        <span className="font-bold">{terpene.name}</span> <span className="font-bold text-primary">{terpene.value.toFixed(1)}%</span>
       </div>
 
       {/* Expanded Info - Only show when expanded */}
       {isExpanded && (
         <div 
           className={cn(
-            "absolute -translate-x-1/2 bg-background/90 backdrop-blur-sm border border-border/50 p-2 rounded-lg shadow-lg z-20 w-44 text-xs transition-all duration-300",
-            isDark ? "text-white" : "text-foreground"
+            "absolute -translate-x-1/2 p-2 rounded-lg shadow-lg z-20 w-44 text-xs transition-all duration-300",
+            isDark 
+              ? "bg-background/95 backdrop-blur-sm border border-white/30 text-white" 
+              : "bg-background/95 backdrop-blur-sm border border-primary/30 text-foreground"
           )}
           style={{
             top: `${dotSize + 30}px`,
             left: '50%',
+            boxShadow: isDark 
+              ? "0 0 15px rgba(255,255,255,0.2)" 
+              : "0 0 15px rgba(0,0,0,0.1)",
           }}
         >
           <p className="font-semibold text-center">{terpene.name}</p>

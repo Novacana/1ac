@@ -86,7 +86,7 @@ export const getTerpeneEffect = (terpene: string): string => {
     'Camphor': 'Analgetisch, antioxidativ',
     'Geraniol': 'Antimikrobiell, neuroprotektiv',
     'Valencen': 'Aufheiternd, erfrischend',
-    'Valencene': 'Aufheiternd, erfrischend',
+    'Valencene': 'Aufheiternd, erfrischend'
   };
   
   return effects[terpene] || 'Unterstützt die Entourage-Wirkung';
@@ -118,7 +118,7 @@ export const getTerpeneDetailedEffect = (terpene: string): string => {
     'Camphor': 'Schmerzlindernd und durchblutungsfördernd. Wirkt kühlend und wärmend zugleich. Hilft bei Entzündungen und verbessert die Hautdurchblutung.',
     'Geraniol': 'Starke antimikrobielle Eigenschaften. Schützt neuronale Zellen und wirkt neuroprotektiv. Kann auch als natürliches Insektenschutzmittel dienen.',
     'Valencen': 'Stimulierend und aufheiternd. Vermittelt ein Gefühl von Frische und Energie. Weniger erforscht als andere Terpene, zeigt aber vielversprechende Eigenschaften.',
-    'Valencene': 'Stimulierend und aufheiternd. Vermittelt ein Gefühl von Frische und Energie. Weniger erforscht als andere Terpene, zeigt aber vielversprechende Eigenschaften.',
+    'Valencene': 'Stimulierend und aufheiternd. Vermittelt ein Gefühl von Frische und Energie. Weniger erforscht als andere Terpene, zeigt aber vielversprechende Eigenschaften.'
   };
   
   return detailedEffects[terpene] || 'Dieses Terpen trägt zum Entourage-Effekt bei, indem es mit Cannabinoiden interagiert und deren therapeutische Wirkungen verstärkt. Es unterstützt die Gesamtwirkung der Pflanze und verbessert das therapeutische Potential.';
