@@ -1,4 +1,3 @@
-
 import { ShoppingCart, Menu, X, User, Stethoscope, Building, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -6,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,6 +94,8 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center space-x-4">
+          <ThemeToggle />
+          
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -210,6 +212,13 @@ const Header = () => {
               Apotheken-Management
             </Link>
           )}
+          
+          <div className="px-2 py-3 flex items-center justify-between">
+            <span className="text-foreground/80 text-lg font-medium">
+              Dunkles Design
+            </span>
+            <ThemeToggle />
+          </div>
         </nav>
       </div>
     </header>

@@ -32,8 +32,11 @@ const Layout: React.FC<LayoutProps> = ({
   // Determine if we're on the documentation page
   const isDocumentation = location.pathname === "/documentation";
 
+  // Get stored theme preference or use default
+  const savedTheme = localStorage.getItem("cannabis-shop-theme") || "light";
+
   return (
-    <ThemeProvider defaultTheme="light" storageKey="cannabis-shop-theme">
+    <ThemeProvider defaultTheme={savedTheme} storageKey="cannabis-shop-theme">
       <div className="min-h-screen flex flex-col bg-background text-foreground relative">
         {/* Dark mode decoration elements */}
         <div className="dark:block hidden pointer-events-none">
