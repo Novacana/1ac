@@ -89,7 +89,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
           </div>
           
           <div className="md:col-span-3 order-3">
-            {/* Removed the duplicate TerpeneEgg here */}
+            {/* Keep this section empty as terpenes are now part of ProductInfoPanel */}
           </div>
         </div>
         
