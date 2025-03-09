@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Building2, ListPlus, Trash2 } from "lucide-react";
+import { Building2, ListPlus, Trash2, Edit, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { 
   Table, 
@@ -16,11 +16,12 @@ import {
   TableCell 
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import PartnerDetails from "./PartnerDetails";
 
-// Partner types
-type PartnerType = "pharmacy" | "growshop" | "seedshop";
+// Partner types, expanded to include doctors
+export type PartnerType = "pharmacy" | "growshop" | "seedshop" | "doctor";
 
-interface Partner {
+export interface Partner {
   id: string;
   name: string;
   type: PartnerType;
@@ -29,6 +30,16 @@ interface Partner {
   active: boolean;
   joinDate: string;
   commissionPaid: boolean;
+  revenue?: number;
+  payments?: {
+    date: string;
+    amount: number;
+    status: "paid" | "pending" | "overdue";
+  }[];
+  contactPerson?: string;
+  phone?: string;
+  vatId?: string;
+  notes?: string;
 }
 
 const PartnerConfig: React.FC = () => {
@@ -42,7 +53,17 @@ const PartnerConfig: React.FC = () => {
       address: "Hauptstraße 42, 10115 Berlin",
       active: true,
       joinDate: "2023-09-15",
-      commissionPaid: true
+      commissionPaid: true,
+      revenue: 12580.50,
+      payments: [
+        { date: "2023-10-01", amount: 528.38, status: "paid" },
+        { date: "2023-11-01", amount: 452.15, status: "paid" },
+        { date: "2023-12-01", amount: 498.72, status: "paid" }
+      ],
+      contactPerson: "Dr. Maria Schmidt",
+      phone: "+49 30 123456",
+      vatId: "DE123456789",
+      notes: "Zuverlässiger Partner seit Beginn"
     },
     {
       id: "p2",
@@ -52,7 +73,15 @@ const PartnerConfig: React.FC = () => {
       address: "Plantweg 20, 60313 Frankfurt",
       active: true,
       joinDate: "2023-10-22",
-      commissionPaid: false
+      commissionPaid: false,
+      revenue: 8920.75,
+      payments: [
+        { date: "2023-11-01", amount: 374.67, status: "paid" },
+        { date: "2023-12-01", amount: 412.20, status: "overdue" }
+      ],
+      contactPerson: "Thomas Müller",
+      phone: "+49 69 987654",
+      vatId: "DE987654321"
     },
     {
       id: "p3",
@@ -62,11 +91,39 @@ const PartnerConfig: React.FC = () => {
       address: "Gartenstraße 15, 80331 München",
       active: false,
       joinDate: "2023-11-05",
-      commissionPaid: true
+      commissionPaid: true,
+      revenue: 3450.25,
+      payments: [
+        { date: "2023-12-01", amount: 144.91, status: "paid" }
+      ],
+      contactPerson: "Laura Becker",
+      phone: "+49 89 456123"
+    },
+    {
+      id: "p4",
+      name: "Dr. med. Weber",
+      type: "doctor",
+      email: "dr.weber@medizin.de",
+      address: "Praxisweg 10, 40213 Düsseldorf",
+      active: true,
+      joinDate: "2023-08-10",
+      commissionPaid: true,
+      revenue: 9870.00,
+      payments: [
+        { date: "2023-09-01", amount: 414.54, status: "paid" },
+        { date: "2023-10-01", amount: 386.82, status: "paid" },
+        { date: "2023-11-01", amount: 399.12, status: "paid" },
+        { date: "2023-12-01", amount: 425.25, status: "pending" }
+      ],
+      contactPerson: "Dr. Johannes Weber",
+      phone: "+49 211 789456",
+      vatId: "DE567891234",
+      notes: "Spezialisiert auf Cannabistherapie"
     }
   ]);
 
   const [showAddPartner, setShowAddPartner] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [newPartner, setNewPartner] = useState({
     name: "",
     type: "pharmacy" as PartnerType,
@@ -89,7 +146,9 @@ const PartnerConfig: React.FC = () => {
       address: newPartner.address,
       active: true,
       joinDate: new Date().toISOString().split('T')[0],
-      commissionPaid: false
+      commissionPaid: false,
+      revenue: 0,
+      payments: []
     };
 
     setPartners([...partners, partner]);
@@ -131,11 +190,27 @@ const PartnerConfig: React.FC = () => {
     });
   };
 
+  const viewPartnerDetails = (partner: Partner) => {
+    setSelectedPartner(partner);
+  };
+
+  const updatePartner = (updatedPartner: Partner) => {
+    setPartners(partners.map(p => 
+      p.id === updatedPartner.id ? updatedPartner : p
+    ));
+    toast.success(`Partner "${updatedPartner.name}" wurde aktualisiert`);
+  };
+
+  const backToList = () => {
+    setSelectedPartner(null);
+  };
+
   const getPartnerTypeLabel = (type: PartnerType) => {
     switch (type) {
       case "pharmacy": return "Apotheke";
       case "growshop": return "Growshop";
       case "seedshop": return "Seedshop";
+      case "doctor": return "Arzt";
     }
   };
 
@@ -144,8 +219,29 @@ const PartnerConfig: React.FC = () => {
       case "pharmacy": return "default";
       case "growshop": return "secondary";
       case "seedshop": return "outline";
+      case "doctor": return "destructive";
     }
   };
+
+  // If a partner is selected, show the details view
+  if (selectedPartner) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={backToList}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück zur Partnerliste
+          </Button>
+          <h3 className="text-lg font-medium">Partner: {selectedPartner.name}</h3>
+        </div>
+        <PartnerDetails 
+          partner={selectedPartner} 
+          onUpdate={updatePartner}
+          onBack={backToList}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -195,6 +291,7 @@ const PartnerConfig: React.FC = () => {
                 <option value="pharmacy">Apotheke</option>
                 <option value="growshop">Growshop</option>
                 <option value="seedshop">Seedshop</option>
+                <option value="doctor">Arzt</option>
               </select>
             </div>
             
@@ -241,7 +338,7 @@ const PartnerConfig: React.FC = () => {
                 <TableHead>Typ</TableHead>
                 <TableHead>E-Mail</TableHead>
                 <TableHead>Beitrittsdatum</TableHead>
-                <TableHead>Provision bezahlt</TableHead>
+                <TableHead>Umsatz</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
@@ -255,7 +352,7 @@ const PartnerConfig: React.FC = () => {
                 </TableRow>
               ) : (
                 partners.map(partner => (
-                  <TableRow key={partner.id}>
+                  <TableRow key={partner.id} className="cursor-pointer hover:bg-muted/80" onClick={() => viewPartnerDetails(partner)}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4" />
@@ -270,17 +367,16 @@ const PartnerConfig: React.FC = () => {
                     <TableCell>{partner.email}</TableCell>
                     <TableCell>{partner.joinDate}</TableCell>
                     <TableCell>
-                      {partner.commissionPaid ? (
-                        <span className="text-green-600 font-medium">Ja</span>
-                      ) : (
-                        <span className="text-amber-600 font-medium">Nein</span>
-                      )}
+                      {partner.revenue ? `${partner.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}` : '0,00 €'}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Switch
                           checked={partner.active}
-                          onCheckedChange={() => togglePartnerStatus(partner.id)}
+                          onCheckedChange={(e) => {
+                            e.stopPropagation();
+                            togglePartnerStatus(partner.id);
+                          }}
                         />
                         <span className={partner.active ? "text-green-600" : "text-gray-400"}>
                           {partner.active ? "Aktiv" : "Inaktiv"}
@@ -288,13 +384,28 @@ const PartnerConfig: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => removePartner(partner.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            viewPartnerDetails(partner);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePartner(partner.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
