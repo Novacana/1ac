@@ -5,6 +5,7 @@ import WooCommerceConfig from "@/components/admin/WooCommerceConfig";
 import ShopifyConfig from "@/components/admin/ShopifyConfig";
 import PartnerConfig from "@/components/admin/PartnerConfig";
 import PaymentConfig from "@/components/admin/PaymentConfig";
+import CentralAdminConfig from "@/components/admin/CentralAdminConfig";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
@@ -32,12 +33,17 @@ const AdminConfig: React.FC = () => {
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
             <TabsList className="mb-4">
+              <TabsTrigger value="central">Zentrale Verwaltung</TabsTrigger>
               <TabsTrigger value="partners">Partner</TabsTrigger>
               <TabsTrigger value="payments">Zahlungen</TabsTrigger>
               <TabsTrigger value="woocommerce">WooCommerce</TabsTrigger>
               <TabsTrigger value="shopify">Shopify</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="central">
+              <CentralAdminConfig />
+            </TabsContent>
+
             <TabsContent value="partners">
               <PartnerConfig />
             </TabsContent>
