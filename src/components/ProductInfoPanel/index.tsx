@@ -38,15 +38,15 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Display TerpeneEgg if terpenes are available */}
+      {/* Display TerpeneEgg only if terpenes are available */}
       {product.terpenes && product.terpenes.length > 0 && (
         <div className="mt-4 pt-3 border-t border-border/30">
           <TerpeneEgg product={product} />
         </div>
       )}
       
-      {/* Only show FlavorProfile when there are no terpenes */}
-      {product.flavors && product.flavors.length > 0 && (!product.terpenes || product.terpenes.length === 0) && (
+      {/* Display FlavorProfile when there are flavors available */}
+      {product.flavors && product.flavors.length > 0 && (
         <div className="mt-4 pt-3 border-t border-border/30">
           <FlavorProfile flavors={product.flavors} />
         </div>
