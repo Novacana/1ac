@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
@@ -13,9 +14,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import PharmacyManagement from "./pages/PharmacyManagement";
+import Documentation from "./pages/Documentation";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
+import GDPRCookieConsent from "./components/GDPRCookieConsent";
 
 // Protected Route Component for Doctor
 const DoctorRoute = ({ children }) => {
@@ -64,6 +67,7 @@ function App() {
             <Route path="/admin/config" element={<AdminConfig />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/documentation" element={<Documentation />} />
             <Route 
               path="/doctor/dashboard" 
               element={
@@ -92,6 +96,7 @@ function App() {
           </Routes>
           <Toaster />
           <SonnerToaster position="top-center" />
+          <GDPRCookieConsent />
         </Router>
       </CartProvider>
     </AuthProvider>

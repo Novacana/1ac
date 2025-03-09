@@ -12,13 +12,15 @@ interface LayoutProps {
   noHeader?: boolean;
   className?: string;
   fullWidth?: boolean;
+  noAdvisor?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({
   children,
   noHeader = false,
   className,
-  fullWidth = true, // Default to full width
+  fullWidth = true,
+  noAdvisor = false,
 }) => {
   const location = useLocation();
   
@@ -26,6 +28,9 @@ const Layout: React.FC<LayoutProps> = ({
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  // Determine if we're on the documentation page
+  const isDocumentation = location.pathname === "/documentation";
 
   return (
     <ThemeProvider defaultTheme="light" storageKey="cannabis-shop-theme">
@@ -47,7 +52,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </main>
-        <ProductAdvisor />
+        {!noAdvisor && !isDocumentation && <ProductAdvisor />}
       </div>
     </ThemeProvider>
   );

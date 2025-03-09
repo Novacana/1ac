@@ -1,5 +1,5 @@
 
-import { ShoppingCart, Menu, X, User, Stethoscope, Building } from "lucide-react";
+import { ShoppingCart, Menu, X, User, Stethoscope, Building, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -43,6 +43,7 @@ const Header = () => {
   const navItems = [
     { name: "Showroom", path: "/" },
     { name: "Shop", path: "/products" },
+    { name: "Dokumentation", path: "/documentation" },
   ];
 
   const handleLogout = () => {
@@ -121,6 +122,10 @@ const Header = () => {
                 <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
                   <Building className="h-4 w-4 mr-2" />
                   Apotheken-Management
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/documentation')}>
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Dokumentation
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
