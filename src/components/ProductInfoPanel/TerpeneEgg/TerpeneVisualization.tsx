@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { cn } from "@/lib/utils";
 import TerpeneShape from './TerpeneShape';
@@ -110,7 +111,7 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
         );
       })}
 
-      {/* Add color-coded circles matching the image */}
+      {/* Add color-coded circles matching the image with increased opacity */}
       <div className="absolute top-[50%] left-[40%] w-[60px] h-[60px] rounded-full bg-yellow-400/90" 
            style={{ transform: 'translate(-50%, -50%)' }}></div>
       <div className="absolute top-[40%] right-[35%] w-[15px] h-[15px] rounded-full bg-green-600/90"
