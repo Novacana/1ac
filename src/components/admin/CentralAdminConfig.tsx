@@ -72,6 +72,9 @@ const centralAdminSchema = z.object({
   legalText: z.string().min(10, {
     message: "Der rechtliche Hinweistext sollte mindestens 10 Zeichen lang sein.",
   }),
+  partnerProductsText: z.string().min(10, {
+    message: "Die Datenschutzerklärung für Partner-Produkte sollte mindestens 10 Zeichen lang sein.",
+  }),
 });
 
 type CentralAdminFormValues = z.infer<typeof centralAdminSchema>;
@@ -84,7 +87,8 @@ const defaultValues: Partial<CentralAdminFormValues> = {
   gdprOfficer: "Max Mustermann",
   gdprEmail: "datenschutz@cannabis-platform.de",
   gdprConsent: true,
-  legalText: "Gemäß der Datenschutz-Grundverordnung (DSGVO) werden alle Daten vertraulich behandelt und nur für die Zwecke der Plattform verwendet. Es werden 4,20% Plattformgebühr für jede Bestellung oder vermittelte Rezeptanfrage erhoben."
+  legalText: "Gemäß der Datenschutz-Grundverordnung (DSGVO) werden alle Daten vertraulich behandelt und nur für die Zwecke der Plattform verwendet. Es werden 4,20% Plattformgebühr für jede Bestellung oder vermittelte Rezeptanfrage erhoben.",
+  partnerProductsText: "Unsere Plattform stellt ausschließlich Produkte von verifizierten Partnern bereit. Die Verarbeitung von Produktdaten erfolgt gemäß Art. 6 Abs. 1 lit. b DSGVO zur Vertragserfüllung. Partnerdaten werden nach Art. 13 DSGVO transparent verarbeitet und für maximal 3 Jahre nach Vertragsende aufbewahrt, wie in unserer Datenschutzerklärung erläutert."
 };
 
 const CentralAdminConfig: React.FC = () => {
@@ -119,7 +123,7 @@ const CentralAdminConfig: React.FC = () => {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4 grid grid-cols-3 md:grid-cols-4">
+          <TabsList className="mb-4 grid grid-cols-3">
             <TabsTrigger value="general" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Allgemein</span>
@@ -131,10 +135,6 @@ const CentralAdminConfig: React.FC = () => {
             <TabsTrigger value="gdpr" className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4" />
               <span className="hidden sm:inline">DSGVO</span>
-            </TabsTrigger>
-            <TabsTrigger value="partners" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Partner</span>
             </TabsTrigger>
           </TabsList>
 
@@ -324,10 +324,27 @@ const CentralAdminConfig: React.FC = () => {
                       <FormItem>
                         <FormLabel>Rechtlicher Hinweistext</FormLabel>
                         <FormControl>
-                          <Textarea {...field} rows={6} />
+                          <Textarea {...field} rows={4} />
                         </FormControl>
                         <FormDescription>
                           Dieser Text wird bei Zahlungen und Datenverarbeitung angezeigt.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="partnerProductsText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Partner-Produkte Datenschutzerklärung</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} rows={4} />
+                        </FormControl>
+                        <FormDescription>
+                          DSGVO-konforme Erklärung zur Verarbeitung von Partner-Produktdaten.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -355,48 +372,6 @@ const CentralAdminConfig: React.FC = () => {
                     )}
                   />
                 </div>
-              </TabsContent>
-
-              <TabsContent value="partners" className="space-y-4">
-                <h3 className="text-lg font-medium">Partner-Übersicht</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Alle angeschlossenen Partner und Shop-Betreiber.
-                </p>
-
-                <Card>
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-base">Angeschlossene Partner</CardTitle>
-                    <CardDescription>
-                      Übersicht aller Partner, die an die Plattform angeschlossen sind.
-                    </CardDescription>
-                  </CardHeader>
-                  <ScrollArea className="h-[280px] border-t">
-                    <div className="p-4">
-                      {/* This would typically be a dynamic list from an API */}
-                      {[
-                        { name: "CannaMed Apotheke", type: "Apotheke", active: true },
-                        { name: "GreenGrow Shop", type: "Grow-Shop", active: true },
-                        { name: "SeedFinder", type: "Seed-Shop", active: true },
-                        { name: "CBD Wellness", type: "CBD-Shop", active: false },
-                        { name: "Vape & Chill", type: "Head-Shop", active: true },
-                        { name: "BioMedica Apotheke", type: "Apotheke", active: true },
-                        { name: "CannaFarm Supplies", type: "Grow-Shop", active: false },
-                      ].map((partner, index) => (
-                        <div key={index} className="mb-4 p-3 border rounded-md">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <div className="font-medium">{partner.name}</div>
-                              <div className="text-xs text-muted-foreground mt-1">Typ: {partner.type}</div>
-                            </div>
-                            <Badge variant={partner.active ? "outline" : "secondary"} className={partner.active ? "bg-green-50 text-green-700 border-green-200" : ""}>
-                              {partner.active ? "Aktiv" : "Inaktiv"}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </Card>
               </TabsContent>
 
               <Separator className="my-6" />
