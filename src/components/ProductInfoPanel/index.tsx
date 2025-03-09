@@ -6,7 +6,6 @@ import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
 import FlavorProfile from "./FlavorProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
-import TerpeneProfile from "./TerpeneProfile";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -44,8 +43,6 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
           <FlavorProfile flavors={product.flavors} />
         </div>
       )}
-
-      {/* We're removing the terpene profile from here as it's already shown in ProductDetail */}
     </div>
   );
 };

@@ -10,7 +10,7 @@ import QuantitySelector from "./ProductDetail/QuantitySelector";
 import AddToCartButton from "./ProductDetail/AddToCartButton";
 import ProductInfoPanel from "./ProductInfoPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
-import TerpeneProfile from "./ProductInfoPanel/TerpeneProfile";
+import TerpeneEgg from "./ProductInfoPanel/TerpeneEgg";
 import FlavorProfile from "./ProductInfoPanel/FlavorProfile";
 import { Product } from "@/types/product";
 
@@ -120,7 +120,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Terpene profile for desktop view - below the product image */}
             {!isMobile && terpenes && terpenes.length > 0 && (
               <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-                <TerpeneProfile product={productData} />
+                <TerpeneEgg product={productData} />
               </div>
             )}
           </div>
@@ -169,7 +169,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             {/* Show terpene profile in mobile view */}
             {isMobile && terpenes && terpenes.length > 0 && (
               <div className="mt-4 bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-                <TerpeneProfile product={productData} />
+                <TerpeneEgg product={productData} />
               </div>
             )}
           </div>
