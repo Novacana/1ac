@@ -14,6 +14,7 @@ import {
   IceCream,
   TreePine
 } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface FlavorProfileProps {
   flavors?: string[];
@@ -64,6 +65,9 @@ const getFlavorIcon = (flavor: string) => {
 };
 
 const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
+  
   if (!flavors || flavors.length === 0) return null;
   
   return (
@@ -77,11 +81,13 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
           return (
             <div 
               key={index} 
-              className="flex items-center justify-center rounded-full w-10 h-10 text-foreground dark:text-foreground"
+              className={`flex items-center justify-center rounded-full w-10 h-10 ${isDarkMode ? 'text-white' : 'text-foreground'}`}
               style={{ 
                 backgroundColor: bgColor,
-                // Add a subtle shadow for better visibility in dark mode
-                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)'
+                // Add a more pronounced contrast in dark mode
+                boxShadow: isDarkMode 
+                  ? 'inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 5px rgba(255,255,255,0.1)' 
+                  : 'inset 0 0 0 1px rgba(255,255,255,0.1)'
               }}
               title={flavor}
             >

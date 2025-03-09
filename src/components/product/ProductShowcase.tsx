@@ -6,6 +6,7 @@ import ProductDetailPanel from "../ProductDetailPanel";
 import ProductActionButtons from "./ProductActionButtons";
 import ProductImageCarousel from "./ProductImageCarousel";
 import TerpeneEgg from "../ProductInfoPanel/TerpeneEgg";
+import FlavorProfile from "../ProductInfoPanel/FlavorProfile";
 
 interface ProductShowcaseProps {
   products: Product[];
@@ -83,7 +84,18 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div className="md:col-span-3 order-2 md:order-1">
-            {activeProduct && <ProductInfoPanel product={activeProduct} />}
+            {activeProduct && (
+              <>
+                <ProductInfoPanel product={activeProduct} />
+                
+                {/* Show flavors prominently if available */}
+                {activeProduct.flavors && activeProduct.flavors.length > 0 && (
+                  <div className="mt-4 p-3 bg-background rounded-lg border border-border/20 shadow-sm">
+                    <FlavorProfile flavors={activeProduct.flavors} />
+                  </div>
+                )}
+              </>
+            )}
             
             {/* Add description on desktop view */}
             <div className="hidden md:block mt-4">

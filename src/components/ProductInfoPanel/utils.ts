@@ -156,7 +156,52 @@ export const getFlavorColor = (flavor: string): string => {
     'Fruchtig': '#FFE0E0',
   };
   
+  // Dark mode colors - more saturated and vibrant for better visibility
+  const darkModeColors: Record<string, string> = {
+    'Earthy': '#B07863',      // Richer brown
+    'Pine': '#7AB356',        // Rich green
+    'Sweet': '#DDBB33',       // Rich yellow
+    'Citrus': '#F28C38',      // Rich orange
+    'Tropical': '#F28C38',    // Rich orange
+    'Herbal': '#7AB356',      // Rich green
+    'Nutty': '#B07863',       // Richer brown
+    'Menthol': '#5594E3',     // Rich blue
+    'Eucalyptus': '#5594E3',  // Rich blue
+    'Clean': '#5594E3',       // Rich blue
+    'Mango': '#F28C38',       // Rich orange
+    'Strawberry': '#E86B7E',  // Rich pink
+    'Watermelon': '#E86B7E',  // Rich pink
+    'Blueberry': '#5594E3',   // Rich blue
+    'Natural': '#7AB356',     // Rich green
+    // German flavor names
+    'Erdig': '#B07863',
+    'Kiefer': '#7AB356',
+    'Süß': '#DDBB33',
+    'Zitrus': '#F28C38',
+    'Tropisch': '#F28C38',
+    'Kräuter': '#7AB356',
+    'Nussig': '#B07863',
+    'Würzig': '#B07863',
+    'Holzig': '#9A7D63',      // Rich brown for wood
+    'Trauben': '#9B6CE8',     // Rich purple for grapes
+    'Beere': '#E86B7E',
+    'Haze': '#6BADFF',
+    'Dessert': '#DDBB33',
+    'Haschartig': '#9A7D63',
+    'Kräutrig': '#7AB356',
+    'Fruchtig': '#E86B7E',
+  };
+  
+  // Determine if we're in dark mode based on document class
+  const isDarkMode = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  
+  // Get the appropriate color map based on the theme
+  const colorMap = isDarkMode ? darkModeColors : lightModeColors;
+  
+  // Default colors for dark/light mode
+  const defaultLightColor = '#F2FCE2'; // Default to soft green in light mode
+  const defaultDarkColor = '#7AB356';  // Default to rich green in dark mode
+  
   // Get color or use default
-  const defaultColor = '#F2FCE2'; // Default to soft green
-  return lightModeColors[flavor] || defaultColor;
+  return colorMap[flavor] || (isDarkMode ? defaultDarkColor : defaultLightColor);
 };
