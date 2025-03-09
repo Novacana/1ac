@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import MobileViewToggle from "./MobileViewToggle";
 import { Input } from "@/components/ui/input";
+import SearchAutocomplete from "./SearchAutocomplete";
+import { useProductSuggestions } from "@/hooks/useProductSuggestions";
 
 const MobileNavDots = () => {
   const location = useLocation();
@@ -17,7 +19,7 @@ const MobileNavDots = () => {
   const { theme, setTheme } = useTheme();
   const cartCount = getCartCount();
   const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { suggestions } = useProductSuggestions();
   
   const handleUserClick = () => {
     if (isDoctor) {
@@ -31,12 +33,10 @@ const MobileNavDots = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      navigate(`/products?search=${encodeURIComponent(query.trim())}`);
       setShowSearch(false);
-      setSearchQuery("");
     }
   };
 
@@ -66,29 +66,21 @@ const MobileNavDots = () => {
       {showSearch && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="w-full max-w-md">
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="text"
-                placeholder="Suche nach Sorte..."
-                className="w-full h-12 pl-4 pr-12 rounded-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
-              <button 
-                type="submit" 
-                className="absolute right-12 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <Search size={20} />
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setShowSearch(false)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X size={20} />
-              </button>
-            </form>
+            <SearchAutocomplete
+              suggestions={suggestions}
+              onSearch={handleSearch}
+              placeholder="Suche nach Sorte..."
+              fullWidth
+              autoFocus
+              maxSuggestions={8}
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowSearch(false)}
+              className="absolute right-4 top-4 p-2 rounded-full bg-background/70 text-foreground shadow-sm"
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
       )}

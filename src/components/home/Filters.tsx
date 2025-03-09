@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
+import { useProductSuggestions } from "@/hooks/useProductSuggestions";
 
 export interface FilterOptions {
   thcRange: [number, number];
@@ -55,25 +55,24 @@ const Filters: React.FC<FiltersProps> = ({
     });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const { suggestions } = useProductSuggestions();
+
+  const handleSearch = (query: string) => {
+    onSearchChange(query);
   };
 
   return (
     <div className="bg-background/60 backdrop-blur-sm p-4 rounded-lg mb-6 shadow-sm border border-border">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {/* Search field */}
+        {/* Search field with autocomplete */}
         <div className="col-span-1 md:col-span-2">
-          <form onSubmit={handleSearch} className="relative">
-            <Input
-              type="text"
-              placeholder="Suche nach Sorte..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          </form>
+          <SearchAutocomplete
+            suggestions={suggestions}
+            onSearch={handleSearch}
+            placeholder="Suche nach Sorte..."
+            fullWidth
+            maxSuggestions={5}
+          />
         </div>
 
         {/* Category selector */}
