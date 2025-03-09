@@ -46,6 +46,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Get top terpenes for display
   const topTerpenes = product.terpenes ? product.terpenes.slice(0, 2) : [];
+  
+  // Colors for terpene dots
+  const colors = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#EF4444'];
 
   return (
     <Link key={product.id} to={`/product/${product.id}`}>
@@ -97,14 +100,55 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <h3 className="font-semibold text-sm md:text-base mb-0.5 line-clamp-1">{product.name}</h3>
               <p className="text-xs text-muted-foreground mb-1 line-clamp-1">{product.strain || product.category}</p>
               
-              {/* Terpene info - only visible on desktop */}
-              {topTerpenes.length > 0 && (
-                <div className="hidden md:flex items-center gap-1 flex-wrap my-1.5">
-                  {topTerpenes.map((terpene, index) => (
-                    <span key={index} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-foreground">
-                      {terpene.name} {terpene.percentage}
-                    </span>
-                  ))}
+              {/* Terpene egg visualization - only visible on desktop */}
+              {product.terpenes && product.terpenes.length > 0 && (
+                <div className="hidden md:block relative h-20 w-full my-2">
+                  <div className="absolute h-20 w-20 mx-auto left-0 right-0 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30 border border-border/30">
+                    {/* Egg border with aromatic properties */}
+                    <div className="absolute inset-0 rounded-[50%] border border-dashed border-border/40">
+                      <div className="text-[7px] text-muted-foreground font-light rotate-[30deg] absolute top-1 left-1/4">entspannend</div>
+                      <div className="text-[7px] text-muted-foreground font-light rotate-[120deg] absolute bottom-1/4 right-2">beruhigend</div>
+                    </div>
+                    
+                    {/* Terpene dots */}
+                    {product.terpenes.slice(0, 3).map((terpene, index) => {
+                      const positions = [
+                        { top: '25%', left: '50%' },      // Top center
+                        { bottom: '25%', left: '30%' },   // Bottom left
+                        { bottom: '25%', right: '30%' },  // Bottom right
+                      ];
+                      
+                      const pos = positions[index % positions.length];
+                      const size = parseFloat(terpene.percentage) >= 0.5 ? 'h-3.5 w-3.5' : 'h-3 w-3';
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className={`absolute rounded-full flex items-center justify-center ${size}`}
+                          style={{
+                            backgroundColor: colors[index % colors.length],
+                            ...pos,
+                            transform: 'translate(-50%, -50%)'
+                          }}
+                        >
+                          <span className="text-[6px] font-bold text-white">{terpene.percentage}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Terpene labels */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col justify-center text-xs space-y-1">
+                    {product.terpenes.slice(0, 3).map((terpene, index) => (
+                      <div key={index} className="flex items-center">
+                        <span 
+                          className="w-2 h-2 rounded-full mr-1"
+                          style={{ backgroundColor: colors[index % colors.length] }}
+                        />
+                        <span className="text-[10px]">{terpene.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               
