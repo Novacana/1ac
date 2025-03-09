@@ -6,6 +6,7 @@ import ProductDetailPanel from "../ProductDetailPanel";
 import ProductActionButtons from "./ProductActionButtons";
 import ProductImageCarousel from "./ProductImageCarousel";
 import TerpeneEgg from "../ProductInfoPanel/TerpeneEgg";
+import FlavorProfile from "../ProductInfoPanel/FlavorProfile";
 
 interface ProductShowcaseProps {
   products: Product[];

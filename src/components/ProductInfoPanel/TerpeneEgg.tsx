@@ -1,11 +1,12 @@
 
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, Circle, CircleDot, Droplet, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect } from "./utils";
+import FlavorProfile from "./FlavorProfile";
 
 interface TerpeneEggProps {
   product: Product;
@@ -57,6 +58,14 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     return 'h-3 w-3';
   };
 
+  // Get icon size based on percentage
+  const getIconSize = (percentage: number) => {
+    if (percentage >= 1.0) return 16;
+    if (percentage >= 0.5) return 14;
+    if (percentage >= 0.3) return 12;
+    return 10;
+  };
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
@@ -64,25 +73,22 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <span className="text-sm font-medium">{totalPercentage}%</span>
       </div>
       
-      <div className="flex gap-3 items-start">
+      <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
         {/* The egg visualization */}
-        <div className="relative h-[180px] w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 border border-border/30 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30">
+        <div className="relative h-[150px] w-[150px] md:h-[180px] md:w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 border border-border/30 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30">
           {/* Egg border with aromatic properties */}
           <div className="absolute inset-0 rounded-[50%] border border-dashed border-border/40 flex items-center justify-center">
-            <div className="text-[9px] text-muted-foreground font-light rotate-[30deg] absolute top-2 left-1/4">entspannend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[60deg] absolute top-1/4 right-4">beruhigend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[120deg] absolute bottom-1/4 right-4">entzündungshemmend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[145deg] absolute bottom-2 right-1/4">schmerzlindernd</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-30deg] absolute top-2 right-1/4">stimmungsaufhellend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-60deg] absolute top-1/4 left-4">fokussierend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-120deg] absolute bottom-1/4 left-4">antioxidativ</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-145deg] absolute bottom-2 left-1/4">schlaffördernd</div>
+            <div className="text-[8px] md:text-[9px] text-muted-foreground font-light rotate-[30deg] absolute top-2 left-1/4">entspannend</div>
+            <div className="text-[8px] md:text-[9px] text-muted-foreground font-light rotate-[60deg] absolute top-1/4 right-4">beruhigend</div>
+            <div className="text-[8px] md:text-[9px] text-muted-foreground font-light rotate-[120deg] absolute bottom-1/4 right-4">entzündungshemmend</div>
+            <div className="text-[8px] md:text-[9px] text-muted-foreground font-light rotate-[145deg] absolute bottom-2 right-1/4">schmerzlindernd</div>
           </div>
           
           {/* Terpene dots positioned in the egg */}
           {terpeneData.map((terpene, index) => {
             const position = getTerpenePosition(index, terpeneData.length);
             const dotSize = getDotSize(terpene.value);
+            const iconSize = getIconSize(terpene.value);
             
             return (
               <div 
@@ -100,14 +106,14 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                 onClick={() => handleTerpeneClick(terpene.name)}
                 title={`${terpene.name} ${terpene.value}%`}
               >
-                <span className="text-[8px] font-bold text-white">{terpene.value}%</span>
+                <Droplet className="text-white" size={iconSize} fill="white" strokeWidth={1} />
               </div>
             );
           })}
         </div>
         
         {/* Terpene legends and descriptions */}
-        <div className="flex flex-col flex-1 justify-start">
+        <div className="flex flex-col flex-1 justify-start w-full">
           {terpeneData.map((terpene, index) => (
             <Collapsible 
               key={index}
@@ -116,10 +122,12 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               onOpenChange={() => handleTerpeneClick(terpene.name)}
             >
               <CollapsibleTrigger className="flex items-center w-full text-sm py-1 hover:bg-background/60 rounded px-1 transition-colors">
-                <span 
-                  className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                <div 
+                  className="w-3 h-3 rounded-full mr-2 flex-shrink-0 flex items-center justify-center"
                   style={{ backgroundColor: colors[index % colors.length] }}
-                />
+                >
+                  <Droplet className="text-white" size={8} fill="white" strokeWidth={1} />
+                </div>
                 <span className="mr-1 font-medium flex-grow text-left">{terpene.name}</span>
                 <span className="text-foreground/70 mr-2">{terpene.value}%</span>
                 {expandedTerpene === terpene.name ? (
@@ -137,6 +145,13 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
           ))}
         </div>
       </div>
+      
+      {/* Adding flavor profile section */}
+      {product.flavors && product.flavors.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border/30">
+          <FlavorProfile flavors={product.flavors} />
+        </div>
+      )}
     </div>
   );
 };
