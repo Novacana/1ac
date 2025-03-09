@@ -34,10 +34,10 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <TerpeneTotal totalPercentage={totalPercentage} />
       
-      <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
+      <div className="flex flex-col md:flex-row gap-3 items-center md:items-start mt-2">
         {/* The egg visualization */}
         <TerpeneVisualization 
           terpeneData={terpeneData} 

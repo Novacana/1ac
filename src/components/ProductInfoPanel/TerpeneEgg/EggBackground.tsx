@@ -10,7 +10,7 @@ const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
     <>
       {/* Enhanced gradient background for the egg */}
       <div className="absolute w-[200px] h-[240px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                    border border-border/70"
+                    border border-border/70 -z-0"
            style={{ 
              borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", /* egg shape */
              background: isDark 
