@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "../ProductInfoPanel"; 
@@ -117,7 +118,12 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
           </div>
           
           <div className="md:col-span-3 order-3">
-            {/* Remove the TerpeneEgg from here */}
+            {/* Display TerpeneEgg in the right column if terpenes exist */}
+            {activeProduct && activeProduct.terpenes && activeProduct.terpenes.length > 0 && (
+              <div className="bg-background/60 rounded-lg p-3 border border-border/30 shadow-sm">
+                <ProductInfoPanel product={activeProduct} showOnlyTerpenes={true} />
+              </div>
+            )}
           </div>
         </div>
         

@@ -56,6 +56,13 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({
           <FlavorProfile flavors={product.flavors} />
         </div>
       )}
+      
+      {/* Always render TerpeneEgg here if terpenes are available */}
+      {product.terpenes && product.terpenes.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-border/30">
+          <TerpeneEgg product={product} />
+        </div>
+      )}
     </div>
   );
 };
