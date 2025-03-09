@@ -1,22 +1,11 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Building2, ListPlus, Trash2, Edit, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import PartnerList from "./partner/PartnerList";
+import AddPartnerForm from "./partner/AddPartnerForm";
 import PartnerDetails from "./PartnerDetails";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Partner types, expanded to include doctors
 export type PartnerType = "pharmacy" | "growshop" | "seedshop" | "doctor";
@@ -124,26 +113,19 @@ const PartnerConfig: React.FC = () => {
 
   const [showAddPartner, setShowAddPartner] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-  const [newPartner, setNewPartner] = useState({
-    name: "",
-    type: "pharmacy" as PartnerType,
-    email: "",
-    address: ""
-  });
 
-  const handleAddPartner = () => {
-    // Validate form fields
-    if (!newPartner.name || !newPartner.email || !newPartner.address) {
-      toast.error("Bitte füllen Sie alle Pflichtfelder aus");
-      return;
-    }
-
+  const handleAddPartner = (newPartnerData: Omit<Partner, 'id' | 'active' | 'joinDate' | 'commissionPaid' | 'revenue' | 'payments'>) => {
+    // Create new partner object
     const partner: Partner = {
       id: `p${partners.length + 1}`,
-      name: newPartner.name,
-      type: newPartner.type,
-      email: newPartner.email,
-      address: newPartner.address,
+      name: newPartnerData.name,
+      type: newPartnerData.type,
+      email: newPartnerData.email,
+      address: newPartnerData.address,
+      contactPerson: newPartnerData.contactPerson,
+      phone: newPartnerData.phone,
+      vatId: newPartnerData.vatId,
+      notes: newPartnerData.notes,
       active: true,
       joinDate: new Date().toISOString().split('T')[0],
       commissionPaid: false,
@@ -153,13 +135,6 @@ const PartnerConfig: React.FC = () => {
 
     setPartners([...partners, partner]);
     setShowAddPartner(false);
-    setNewPartner({
-      name: "",
-      type: "pharmacy",
-      email: "",
-      address: ""
-    });
-
     toast.success(`Partner "${partner.name}" erfolgreich hinzugefügt`);
   };
 
@@ -205,24 +180,6 @@ const PartnerConfig: React.FC = () => {
     setSelectedPartner(null);
   };
 
-  const getPartnerTypeLabel = (type: PartnerType) => {
-    switch (type) {
-      case "pharmacy": return "Apotheke";
-      case "growshop": return "Growshop";
-      case "seedshop": return "Seedshop";
-      case "doctor": return "Arzt";
-    }
-  };
-
-  const getPartnerTypeBadgeVariant = (type: PartnerType) => {
-    switch (type) {
-      case "pharmacy": return "default";
-      case "growshop": return "secondary";
-      case "seedshop": return "outline";
-      case "doctor": return "destructive";
-    }
-  };
-
   // If a partner is selected, show the details view
   if (selectedPartner) {
     return (
@@ -245,179 +202,20 @@ const PartnerConfig: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-medium">Shop-Partner</h3>
-          <p className="text-sm text-muted-foreground">
-            Verwalten Sie alle angeschlossenen Partner und deren Status
-          </p>
-        </div>
-        <Button 
-          onClick={() => setShowAddPartner(!showAddPartner)} 
-          className="flex items-center gap-2"
-        >
-          <ListPlus size={16} />
-          Partner hinzufügen
-        </Button>
-      </div>
-
-      {showAddPartner && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Neuen Partner hinzufügen</CardTitle>
-            <CardDescription>
-              Fügen Sie einen neuen Shop-Partner zur Plattform hinzu
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="partner-name">Name</Label>
-              <Input 
-                id="partner-name" 
-                value={newPartner.name}
-                onChange={e => setNewPartner({...newPartner, name: e.target.value})}
-                placeholder="Partner-Name" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="partner-type">Typ</Label>
-              <select 
-                id="partner-type"
-                className="w-full border border-input rounded-md px-3 py-2"
-                value={newPartner.type}
-                onChange={e => setNewPartner({...newPartner, type: e.target.value as PartnerType})}
-              >
-                <option value="pharmacy">Apotheke</option>
-                <option value="growshop">Growshop</option>
-                <option value="seedshop">Seedshop</option>
-                <option value="doctor">Arzt</option>
-              </select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="partner-email">E-Mail</Label>
-              <Input 
-                id="partner-email" 
-                type="email" 
-                value={newPartner.email}
-                onChange={e => setNewPartner({...newPartner, email: e.target.value})}
-                placeholder="partner@example.com" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="partner-address">Adresse</Label>
-              <Input 
-                id="partner-address" 
-                value={newPartner.address}
-                onChange={e => setNewPartner({...newPartner, address: e.target.value})}
-                placeholder="Straße, PLZ Ort" 
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setShowAddPartner(false)}>Abbrechen</Button>
-            <Button onClick={handleAddPartner}>Partner hinzufügen</Button>
-          </CardFooter>
-        </Card>
+      {showAddPartner ? (
+        <AddPartnerForm 
+          onAddPartner={handleAddPartner}
+          onCancel={() => setShowAddPartner(false)}
+        />
+      ) : (
+        <PartnerList
+          partners={partners}
+          onAddPartnerClick={() => setShowAddPartner(true)}
+          onToggleStatus={togglePartnerStatus}
+          onRemovePartner={removePartner}
+          onViewDetails={viewPartnerDetails}
+        />
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Partnerliste</CardTitle>
-          <CardDescription>
-            Alle angeschlossenen Partner und deren aktueller Status
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Typ</TableHead>
-                <TableHead>E-Mail</TableHead>
-                <TableHead>Beitrittsdatum</TableHead>
-                <TableHead>Umsatz</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {partners.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-4">
-                    Keine Partner gefunden. Fügen Sie neue Partner hinzu.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                partners.map(partner => (
-                  <TableRow key={partner.id} className="cursor-pointer hover:bg-muted/80" onClick={() => viewPartnerDetails(partner)}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4" />
-                        {partner.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getPartnerTypeBadgeVariant(partner.type)}>
-                        {getPartnerTypeLabel(partner.type)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{partner.email}</TableCell>
-                    <TableCell>{partner.joinDate}</TableCell>
-                    <TableCell>
-                      {partner.revenue ? `${partner.revenue.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}` : '0,00 €'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={partner.active}
-                          onCheckedChange={() => {
-                            // This event handler was causing the error - fixed by directly calling togglePartnerStatus
-                            togglePartnerStatus(partner.id);
-                          }}
-                          onClick={(e) => {
-                            // Prevent the row click from triggering
-                            e.stopPropagation();
-                          }}
-                        />
-                        <span className={partner.active ? "text-green-600" : "text-gray-400"}>
-                          {partner.active ? "Aktiv" : "Inaktiv"}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            viewPartnerDetails(partner);
-                          }}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePartner(partner.id);
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 };
