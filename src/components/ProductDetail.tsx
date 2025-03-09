@@ -102,8 +102,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           Zurück zu Produkten
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-4">
+        <div className="grid md:grid-cols-12 gap-8 lg:gap-12">
+          {/* Left column - Product images */}
+          <div className="md:col-span-6 space-y-4">
             <ProductImages 
               images={images} 
               name={name} 
@@ -116,7 +117,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             />
           </div>
 
-          <div className="space-y-6">
+          {/* Right column - Terpene egg on desktop (only if terpenes exist) */}
+          {!isMobile && terpenes && terpenes.length > 0 && (
+            <div className="md:col-span-2 space-y-6">
+              <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
+                <ProductInfoPanel 
+                  product={productData} 
+                  showOnlyTerpenes={true}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Product info and actions column */}
+          <div className="md:col-span-4 space-y-6">
             <div className="space-y-4 mb-6">
               <QuantitySelector
                 quantity={quantity}
@@ -139,7 +153,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
 
             <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-              <ProductInfoPanel product={productData} />
+              <ProductInfoPanel 
+                product={productData} 
+                showOnlyTerpenes={false}
+              />
             </div>
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>
@@ -149,6 +166,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <ProductEffects effects={effects} />
 
             <ProductUsage use={use} />
+            
+            {/* Mobile view - Terpene egg */}
+            {isMobile && terpenes && terpenes.length > 0 && (
+              <div className="mt-4 bg-background rounded-lg p-4 border border-border/30 shadow-sm">
+                <ProductInfoPanel 
+                  product={productData} 
+                  showOnlyTerpenes={true}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

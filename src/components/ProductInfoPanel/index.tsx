@@ -10,9 +10,13 @@ import TerpeneEgg from "./TerpeneEgg";
 
 interface ProductInfoPanelProps {
   product: Product | null;
+  showOnlyTerpenes?: boolean;
 }
 
-const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
+const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ 
+  product, 
+  showOnlyTerpenes = false 
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
 
@@ -24,6 +28,14 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
 
   // Early return if no product
   if (!product) return null;
+
+  // If we're only showing terpenes, return just the TerpeneEgg component
+  if (showOnlyTerpenes) {
+    if (product.terpenes && product.terpenes.length > 0) {
+      return <TerpeneEgg product={product} />;
+    }
+    return null;
+  }
 
   return (
     <div 
@@ -37,13 +49,6 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
-      
-      {/* Display TerpeneEgg only if terpenes are available */}
-      {product.terpenes && product.terpenes.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-border/30">
-          <TerpeneEgg product={product} />
-        </div>
-      )}
       
       {/* Display FlavorProfile when there are flavors available */}
       {product.flavors && product.flavors.length > 0 && (
