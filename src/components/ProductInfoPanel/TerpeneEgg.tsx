@@ -63,16 +63,16 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     '#F59E0B'  // Amber
   ];
 
-  // Effect labels to be arranged around the egg
+  // Updated effect labels to match the image, arranged clockwise around the egg
   const effectLabels = [
-    { text: "schmerzlindernd", angle: 60 },
-    { text: "stimmungsaufhellend", angle: 30 },
-    { text: "schlaffördernd", angle: 330 },
-    { text: "fokussierend", angle: 300 },
-    { text: "beruhigend", angle: 240 },
-    { text: "entzündungshemmend", angle: 210 },
-    { text: "antioxidativ", angle: 150 },
-    { text: "entspannend", angle: 120 }
+    { text: "geistig ausgleichend öffnend", angle: 60 },
+    { text: "geistig entspannend", angle: 30 },
+    { text: "ganzheitlich entspannend", angle: 330 },
+    { text: "körperlich entspannend", angle: 300 },
+    { text: "körperlich erdend ausgleichend", angle: 240 },
+    { text: "körperlich ausgleichend", angle: 210 },
+    { text: "ganzheitlich anregend stimulierend", angle: 150 },
+    { text: "ganzheitlich anregend", angle: 120 }
   ];
 
   // Define terpene positions within the egg
@@ -124,11 +124,11 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                style={{ 
                  borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", /* egg shape */
                  background: isDark 
-                   ? "radial-gradient(ellipse at center, rgba(16, 185, 129, 0.2) 0%, rgba(14, 165, 233, 0.07) 70%, transparent 100%)"
-                   : "radial-gradient(ellipse at center, rgba(16, 185, 129, 0.1) 0%, rgba(14, 165, 233, 0.05) 70%, transparent 100%)",
+                   ? "radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, rgba(34, 139, 34, 0.1) 40%, rgba(30, 144, 255, 0.07) 80%, transparent 100%)"
+                   : "radial-gradient(ellipse at center, rgba(255, 255, 0, 0.1) 10%, rgba(50, 205, 50, 0.05) 40%, rgba(30, 144, 255, 0.05) 80%, transparent 100%)",
                  boxShadow: isDark 
-                   ? "0 0 60px rgba(16, 185, 129, 0.15), inset 0 0 30px rgba(14, 165, 233, 0.1)"
-                   : "0 0 40px rgba(34, 197, 94, 0.1), inset 0 0 20px rgba(14, 165, 233, 0.05)"
+                   ? "0 0 60px rgba(255, 215, 0, 0.1), inset 0 0 30px rgba(255, 255, 255, 0.05)"
+                   : "0 0 40px rgba(255, 255, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.03)"
                }}>
           </div>
           
@@ -158,17 +158,17 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                 className={cn(
                   "absolute text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap z-10",
                   isDark 
-                    ? "bg-green-800/80 text-green-50 backdrop-blur-sm"
-                    : "bg-green-700 text-white"
+                    ? "bg-gray-900/90 text-gray-100 backdrop-blur-sm"
+                    : "bg-white/90 text-gray-800 shadow-sm"
                 )}
                 style={{
                   left: `${left}%`,
                   top: `${top}%`,
                   transform: "translate(-50%, -50%)",
-                  textShadow: "0px 0px 4px rgba(0,0,0,0.5)",
+                  textShadow: isDark ? "0px 0px 4px rgba(255,255,255,0.2)" : "none",
                   boxShadow: isDark 
-                    ? "0 2px 10px rgba(16, 185, 129, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                    : "0 2px 8px rgba(0,0,0,0.2)"
+                    ? "0 2px 10px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                    : "0 2px 8px rgba(0,0,0,0.1)"
                 }}
               >
                 {label.text}
@@ -243,6 +243,16 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               </div>
             );
           })}
+
+          {/* Add color-coded circles matching the image */}
+          <div className="absolute top-[50%] left-[40%] w-[60px] h-[60px] rounded-full bg-yellow-400/90" 
+               style={{ transform: 'translate(-50%, -50%)' }}></div>
+          <div className="absolute top-[40%] right-[35%] w-[15px] h-[15px] rounded-full bg-green-600/90"
+               style={{ transform: 'translate(50%, -50%)' }}></div>
+          <div className="absolute bottom-[40%] right-[30%] w-[20px] h-[20px] rounded-full bg-blue-600/90"
+               style={{ transform: 'translate(50%, 50%)' }}></div>
+          <div className="absolute bottom-[35%] left-[35%] w-[10px] h-[10px] rounded-full bg-red-800/90"
+               style={{ transform: 'translate(-50%, 50%)' }}></div>
         </div>
         
         {/* Terpene legends and descriptions - Minimalist style with improved dark mode support */}

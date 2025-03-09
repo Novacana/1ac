@@ -37,7 +37,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Only show FlavorProfile in ProductInfoPanel when it's not displayed in the TerpeneEgg section */}
+      {/* Only show FlavorProfile in ProductInfoPanel when there are no terpenes */}
       {product.flavors && product.flavors.length > 0 && (!product.terpenes || product.terpenes.length === 0) && (
         <div className="mt-4 pt-3 border-t border-border/30">
           <FlavorProfile flavors={product.flavors} />

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Product } from "@/types/product";
 import ProductInfoPanel from "../ProductInfoPanel"; 
@@ -85,17 +84,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div className="md:col-span-3 order-2 md:order-1">
             {activeProduct && (
-              <>
-                <ProductInfoPanel product={activeProduct} />
-                
-                {/* Only show separate FlavorProfile when terpenes are not available */}
-                {activeProduct.flavors && activeProduct.flavors.length > 0 && 
-                 (!activeProduct.terpenes || activeProduct.terpenes.length === 0) && (
-                  <div className="mt-4 p-3 bg-background rounded-lg border border-border/20 shadow-sm">
-                    <FlavorProfile flavors={activeProduct.flavors} />
-                  </div>
-                )}
-              </>
+              <ProductInfoPanel product={activeProduct} />
             )}
             
             {/* Add description on desktop view */}
