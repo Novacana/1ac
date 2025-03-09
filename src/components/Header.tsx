@@ -1,21 +1,19 @@
-import { ShoppingCart, Menu, X, User, Stethoscope, Building, BookOpen } from "lucide-react";
+
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DesktopNav from "./header/DesktopNav";
+import UserMenu from "./header/UserMenu";
+import CartButton from "./header/CartButton";
+import MobileMenu from "./header/MobileMenu";
+import { NavItem } from "./header/types";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,6 +25,7 @@ const Header = () => {
   const cartCount = getCartCount();
   const isMobile = useIsMobile();
 
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -36,11 +35,12 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: "Showroom", path: "/" },
     { name: "Shop", path: "/products" },
     { name: "Dokumentation", path: "/documentation" },
@@ -63,6 +63,7 @@ const Header = () => {
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
+        {/* Logo */}
         <Link
           to="/"
           className="flex items-center transition-all duration-300 hover:opacity-80"
@@ -78,91 +79,21 @@ const Header = () => {
           />
         </Link>
 
-        <nav className="flex items-center space-x-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={cn(
-                "text-foreground/80 hover:text-foreground font-medium transition-all duration-200",
-                location.pathname === item.path && "text-primary font-semibold"
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
+        {/* Desktop Navigation */}
+        <DesktopNav navItems={navItems} />
 
+        {/* Action Buttons */}
         <div className="flex items-center space-x-4">
           <ThemeToggle />
-          
-          {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {user?.name.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {isDoctor ? (
-                  <DropdownMenuItem onClick={() => navigate('/doctor/dashboard')}>
-                    <Stethoscope className="h-4 w-4 mr-2" />
-                    Arzt Dashboard
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                    <User className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
-                  <Building className="h-4 w-4 mr-2" />
-                  Apotheken-Management
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/documentation')}>
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Dokumentation
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Abmelden
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/login')}
-              className="flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Anmelden</span>
-            </Button>
-          )}
+          <UserMenu 
+            user={user} 
+            isAuthenticated={isAuthenticated} 
+            isDoctor={isDoctor} 
+            onLogout={handleLogout} 
+          />
+          <CartButton cartCount={cartCount} />
 
-          <Link to="/cart">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hover:bg-background/10"
-              aria-label="Warenkorb"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center animate-scale-in">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
-          </Link>
-
+          {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -175,52 +106,13 @@ const Header = () => {
         </div>
       </div>
 
-      <div
-        className={cn(
-          "fixed inset-x-0 top-[var(--header-height)] h-screen bg-background/95 backdrop-blur-md md:hidden transition-transform duration-300 ease-in-out transform",
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        <nav className="container flex flex-col space-y-6 py-8 px-4 animate-fade-in">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={cn(
-                "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md",
-                location.pathname === item.path
-                  ? "text-primary font-semibold bg-primary/10"
-                  : "hover:bg-background/10"
-              )}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.name}
-            </Link>
-          ))}
-          
-          {isAuthenticated && (
-            <Link
-              to="/pharmacy/management"
-              className={cn(
-                "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md",
-                location.pathname === '/pharmacy/management'
-                  ? "text-primary font-semibold bg-primary/10"
-                  : "hover:bg-background/10"
-              )}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Apotheken-Management
-            </Link>
-          )}
-          
-          <div className="px-2 py-3 flex items-center justify-between">
-            <span className="text-foreground/80 text-lg font-medium">
-              Dunkles Design
-            </span>
-            <ThemeToggle />
-          </div>
-        </nav>
-      </div>
+      {/* Mobile Menu */}
+      <MobileMenu 
+        navItems={navItems}
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        isAuthenticated={isAuthenticated}
+      />
     </header>
   );
 };
