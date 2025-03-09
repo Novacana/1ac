@@ -63,45 +63,49 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     '#F59E0B'  // Amber
   ];
 
-  // Helper to get the terpene position in the egg visualization
-  const getTerpenePosition = (index: number, total: number) => {
-    // Calculate positions to form an oval/egg shape
-    const angle = (index / total) * 2 * Math.PI;
-    const xRadius = 40; // horizontal radius
-    const yRadius = 50; // vertical radius - larger to make more egg-shaped
+  // Effect labels to be arranged around the egg
+  const effectLabels = [
+    { text: "schmerzlindernd", angle: 60 },
+    { text: "stimmungsaufhellend", angle: 30 },
+    { text: "schlaffördernd", angle: 330 },
+    { text: "fokussierend", angle: 300 },
+    { text: "beruhigend", angle: 240 },
+    { text: "entzündungshemmend", angle: 210 },
+    { text: "antioxidativ", angle: 150 },
+    { text: "entspannend", angle: 120 }
+  ];
+
+  // Define terpene positions within the egg
+  const getTerpenePositionInEgg = (index: number, total: number) => {
+    // Calculate random-looking but fixed positions within the egg shape
+    // These positions are designed to spread out within the egg
+    const positions = [
+      { x: 35, y: 35 }, // top left area
+      { x: 65, y: 35 }, // top right area
+      { x: 50, y: 50 }, // center
+      { x: 35, y: 65 }, // bottom left
+      { x: 65, y: 65 }, // bottom right
+      { x: 50, y: 30 }, // top center
+      { x: 50, y: 70 }, // bottom center
+      { x: 25, y: 50 }, // left middle
+      { x: 75, y: 50 }, // right middle
+    ];
     
-    // Adjust the center point to be slightly higher to create egg shape
-    const xCenter = 50;
-    const yCenter = 45; // Slightly above center
-    
-    // Calculate x and y positions
-    const x = xCenter + xRadius * Math.sin(angle);
-    const y = yCenter + yRadius * Math.cos(angle);
+    // Get a position from our preset positions, wrapped around if needed
+    const pos = positions[index % positions.length];
     
     return {
-      left: `${x}%`,
-      top: `${y}%`
+      left: `${pos.x}%`,
+      top: `${pos.y}%`
     };
   };
 
-  // Effect labels arranged in a circle around the egg
-  const effectLabels = [
-    { text: "beruhigend", angle: 30 },
-    { text: "fokussierend", angle: 60 },
-    { text: "stimmungsaufhellend", angle: 120 },
-    { text: "schlaffördernd", angle: 150 },
-    { text: "schmerzlindernd", angle: 210 },
-    { text: "entzündungshemmend", angle: 240 },
-    { text: "antioxidativ", angle: 300 },
-    { text: "entspannend", angle: 330 }
-  ];
-
   // Determine the size of the dot based on the percentage
   const getDotSize = (percentage: number) => {
-    if (percentage >= 1.0) return 24;
-    if (percentage >= 0.5) return 20;
-    if (percentage >= 0.3) return 16;
-    return 14;
+    if (percentage >= 1.0) return 26;
+    if (percentage >= 0.5) return 22;
+    if (percentage >= 0.3) return 18;
+    return 16;
   };
 
   return (
@@ -112,49 +116,49 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
       </div>
       
       <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
-        {/* The egg visualization - with proper egg shape */}
-        <div className="relative h-[220px] w-[200px] flex-shrink-0 mx-auto mb-4 md:mx-0">
+        {/* The egg visualization - with more pronounced egg shape */}
+        <div className="relative h-[280px] w-[240px] flex-shrink-0 mx-auto mb-4 md:mx-0">
           {/* Gradient background for the egg */}
-          <div className="absolute w-[180px] h-[220px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                        bg-gradient-to-b from-yellow-100/20 to-blue-100/20 dark:from-yellow-400/20 dark:to-blue-500/20
-                        rounded-[50%] border border-border/50"
+          <div className="absolute w-[200px] h-[240px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                        bg-gradient-to-b from-green-500/10 to-blue-500/10 dark:from-green-700/20 dark:to-blue-700/20
+                        border border-border/50"
                style={{ 
-                 borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", /* egg shape */
-                 boxShadow: isDark ? "0 0 30px rgba(255,255,255,0.1)" : "0 0 30px rgba(0,0,0,0.05)"
+                 borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", /* more pronounced egg shape */
+                 boxShadow: isDark ? "0 0 40px rgba(34, 197, 94, 0.2)" : "0 0 40px rgba(34, 197, 94, 0.15)"
                }}>
-            
-            {/* Effect labels arranged in a circle */}
-            {effectLabels.map((label, idx) => {
-              const angle = label.angle;
-              const radian = (angle * Math.PI) / 180;
-              const distance = 110; // Distance from center
-              
-              // Calculate position for each label
-              const left = 50 + 43 * Math.sin(radian);
-              const top = 50 + 48 * Math.cos(radian);
-              
-              return (
-                <div
-                  key={idx}
-                  className="absolute text-[9px] font-medium px-1.5 py-0.5 rounded-full 
-                           bg-primary/40 backdrop-blur-sm shadow-md text-white z-10 whitespace-nowrap"
-                  style={{
-                    left: `${left}%`,
-                    top: `${top}%`,
-                    transform: `rotate(${angle}deg) translate(-50%, -50%)`,
-                    transformOrigin: "center",
-                    textShadow: "0px 0px 4px rgba(0,0,0,0.5)"
-                  }}
-                >
-                  {label.text}
-                </div>
-              );
-            })}
           </div>
           
-          {/* Terpene shapes positioned in the egg */}
+          {/* Effect labels arranged around the egg */}
+          {effectLabels.map((label, idx) => {
+            const angle = label.angle;
+            const radian = (angle * Math.PI) / 180;
+            const distance = 130; // Increased distance from center
+            
+            // Calculate position for each label - outside the egg
+            const left = 50 + 55 * Math.cos(radian);
+            const top = 50 + 60 * Math.sin(radian);
+            
+            return (
+              <div
+                key={idx}
+                className="absolute text-[10px] font-medium px-2 py-0.5 rounded-full 
+                         bg-green-700 text-white z-10 whitespace-nowrap
+                         shadow-lg shadow-green-700/20"
+                style={{
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  transform: "translate(-50%, -50%)",
+                  textShadow: "0px 0px 4px rgba(0,0,0,0.5)"
+                }}
+              >
+                {label.text}
+              </div>
+            );
+          })}
+          
+          {/* Terpene shapes positioned within the egg */}
           {terpeneData.map((terpene, index) => {
-            const position = getTerpenePosition(index, terpeneData.length);
+            const position = getTerpenePositionInEgg(index, terpeneData.length);
             const dotSize = getDotSize(terpene.value);
             const color = colors[index % colors.length];
             
@@ -162,7 +166,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               <div 
                 key={terpene.name} 
                 className={cn(
-                  "absolute flex items-center justify-center transition-all cursor-pointer hover:scale-110 z-20",
+                  "absolute flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-110 z-20",
                   expandedTerpene === terpene.name ? "ring-2 ring-primary ring-offset-1" : ""
                 )}
                 style={{
@@ -171,20 +175,19 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                   transform: 'translate(-50%, -50%)'
                 }}
                 onClick={() => handleTerpeneClick(terpene.name)}
-                title={`${terpene.name} ${terpene.value}%`}
               >
                 {/* Glowing background for the shape */}
                 <div 
-                  className="absolute inset-0 rounded-full blur-[8px] opacity-70"
+                  className="absolute inset-0 rounded-full blur-[10px] opacity-80"
                   style={{ 
                     backgroundColor: color,
-                    width: `${dotSize + 6}px`,
-                    height: `${dotSize + 6}px`
+                    width: `${dotSize + 8}px`,
+                    height: `${dotSize + 8}px`
                   }}
                 ></div>
                 
                 {/* Terpene shape with drop shadow */}
-                <div className="relative drop-shadow-lg" style={{ filter: `drop-shadow(0 0 6px ${color})` }}>
+                <div className="relative drop-shadow-lg" style={{ filter: `drop-shadow(0 0 8px ${color})` }}>
                   {getTerpeneShapeIcon(terpene.name, dotSize)}
                 </div>
                 
@@ -193,20 +196,17 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                   {terpene.value}%
                 </span>
                 
-                {/* Terpene name label with improved visibility */}
+                {/* Terpene name label always visible */}
                 <div 
                   className="absolute whitespace-nowrap px-2 py-0.5 
                             rounded-full bg-background/90 dark:bg-background/80 
-                            text-[10px] font-medium border border-primary/20 shadow-lg
-                            backdrop-blur-sm items-center justify-center"
+                            text-[11px] font-medium border border-primary/20 shadow-lg
+                            backdrop-blur-sm"
                   style={{
                     top: '120%',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     color: color,
-                    opacity: expandedTerpene === terpene.name ? 1 : 0,
-                    visibility: expandedTerpene === terpene.name ? 'visible' : 'hidden',
-                    transition: 'opacity 0.2s, visibility 0.2s',
                   }}
                 >
                   {terpene.name}
