@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EffectLabelProps {
   text: string;
@@ -9,16 +10,20 @@ interface EffectLabelProps {
 }
 
 const EffectLabel: React.FC<EffectLabelProps> = ({ text, angle, isDark }) => {
+  const isMobile = useIsMobile();
   const radian = (angle * Math.PI) / 180;
   
   // Calculate position for each label - outside the egg
+  // Reduce the distance for desktop to make labels closer to the egg
+  const distanceMultiplier = isMobile ? 60 : 50;
   const left = 50 + 55 * Math.cos(radian);
-  const top = 50 + 60 * Math.sin(radian);
+  const top = 50 + distanceMultiplier * Math.sin(radian);
   
   return (
     <div
       className={cn(
-        "absolute text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap z-10",
+        "absolute font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap z-10",
+        "text-[8px] md:text-[7px]",
         isDark 
           ? "bg-gray-900/90 text-gray-100 backdrop-blur-sm"
           : "bg-white/90 text-gray-800 shadow-sm"

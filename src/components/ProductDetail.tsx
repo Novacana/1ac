@@ -102,9 +102,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           Zurück zu Produkten
         </Link>
 
-        <div className="grid md:grid-cols-12 gap-8 lg:gap-12">
+        <div className="grid md:grid-cols-12 gap-4 lg:gap-8">
           {/* Left column - Product images */}
-          <div className="md:col-span-6 space-y-4">
+          <div className="md:col-span-5 space-y-4">
             <ProductImages 
               images={images} 
               name={name} 
@@ -117,10 +117,10 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             />
           </div>
 
-          {/* Right column - Terpene egg on desktop (only if terpenes exist) */}
+          {/* Middle column - Terpene egg on desktop (only if terpenes exist) */}
           {!isMobile && terpenes && terpenes.length > 0 && (
-            <div className="md:col-span-2 space-y-6">
-              <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
+            <div className="md:col-span-3 flex items-start justify-center">
+              <div className="bg-background rounded-lg p-3 border border-border/30 shadow-sm w-full">
                 <ProductInfoPanel 
                   product={productData} 
                   showOnlyTerpenes={true}
@@ -129,8 +129,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
           )}
 
-          {/* Product info and actions column */}
-          <div className="md:col-span-4 space-y-6">
+          {/* Right column - Product info and actions */}
+          <div className="md:col-span-4 space-y-5">
             <div className="space-y-4 mb-6">
               <QuantitySelector
                 quantity={quantity}

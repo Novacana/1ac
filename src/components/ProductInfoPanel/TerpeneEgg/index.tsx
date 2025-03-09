@@ -7,6 +7,7 @@ import TerpeneTotal from "./TerpeneTotal";
 import TerpeneVisualization from "./TerpeneVisualization";
 import TerpeneLegend from "./TerpeneLegend";
 import { getTerpeneEffect, getTerpeneDetailedEffect } from "./terpeneUtils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TerpeneEggProps {
   product: Product;
@@ -16,6 +17,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   const [expandedTerpene, setExpandedTerpene] = useState<string | null>(null);
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isMobile = useIsMobile();
   
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
@@ -37,8 +39,8 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     <div className="w-full">
       <TerpeneTotal totalPercentage={totalPercentage} />
       
-      <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
-        {/* The egg visualization */}
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-col'} gap-2`}>
+        {/* The egg visualization - centered and properly sized */}
         <TerpeneVisualization 
           terpeneData={terpeneData} 
           expandedTerpene={expandedTerpene} 
@@ -46,7 +48,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
           isDark={isDark}
         />
         
-        {/* Terpene legends and descriptions */}
+        {/* Terpene legends and descriptions - sized appropriately */}
         <TerpeneLegend 
           terpeneData={terpeneData} 
           expandedTerpene={expandedTerpene} 
