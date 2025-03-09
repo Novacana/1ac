@@ -24,6 +24,7 @@ const Products = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filtersExpanded, setFiltersExpanded] = useState<boolean>(false);
   
   // Parse search query from URL
   const location = useLocation();
@@ -33,6 +34,8 @@ const Products = () => {
   useEffect(() => {
     if (searchFromUrl) {
       setSearchQuery(searchFromUrl);
+      // Auto-expand filters if there's a search query in URL
+      setFiltersExpanded(true);
     }
   }, [searchFromUrl]);
   
@@ -87,6 +90,11 @@ const Products = () => {
   // Handle category change
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+  };
+
+  // Toggle filters expansion when search field is clicked
+  const toggleFiltersExpansion = () => {
+    setFiltersExpanded(!filtersExpanded);
   };
 
   // Apply filters
@@ -169,6 +177,8 @@ const Products = () => {
               onCategoryChange={handleCategoryChange}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
+              isExpanded={filtersExpanded}
+              onSearchFieldClick={toggleFiltersExpansion}
             />
             
             {filteredProducts.length === 0 ? (

@@ -95,6 +95,9 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
     }
   };
 
+  // Do not stop click propagation so parent components can react to clicks
+  // This allows the filter expansion functionality to work
+
   return (
     <div 
       ref={wrapperRef} 

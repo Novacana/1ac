@@ -9,13 +9,15 @@ interface MobileSearchProps {
   setShowSearch: (show: boolean) => void;
   suggestions: string[];
   handleSearch: (query: string) => void;
+  onSearchFieldClick?: () => void;
 }
 
 const MobileSearch: React.FC<MobileSearchProps> = ({
   showSearch,
   setShowSearch,
   suggestions,
-  handleSearch
+  handleSearch,
+  onSearchFieldClick
 }) => {
   if (!showSearch) {
     return (
@@ -32,9 +34,15 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
     );
   }
 
+  const handleWrapperClick = () => {
+    if (onSearchFieldClick) {
+      onSearchFieldClick();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md" onClick={handleWrapperClick}>
         <SearchAutocomplete
           suggestions={suggestions}
           onSearch={handleSearch}
