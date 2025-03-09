@@ -373,9 +373,13 @@ const PartnerConfig: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         <Switch
                           checked={partner.active}
-                          onCheckedChange={(e) => {
-                            e.stopPropagation();
+                          onCheckedChange={() => {
+                            // This event handler was causing the error - fixed by directly calling togglePartnerStatus
                             togglePartnerStatus(partner.id);
+                          }}
+                          onClick={(e) => {
+                            // Prevent the row click from triggering
+                            e.stopPropagation();
                           }}
                         />
                         <span className={partner.active ? "text-green-600" : "text-gray-400"}>
