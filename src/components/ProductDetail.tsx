@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -10,7 +9,6 @@ import QuantitySelector from "./ProductDetail/QuantitySelector";
 import AddToCartButton from "./ProductDetail/AddToCartButton";
 import ProductInfoPanel from "./ProductInfoPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
-import TerpeneEgg from "./ProductInfoPanel/TerpeneEgg";
 import { Product } from "@/types/product";
 
 export interface ProductDetailProps {
@@ -115,13 +113,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               cbd={cbd}
               packageSize={packageSize}
             />
-            
-            {/* Terpene profile for desktop view - below the product image */}
-            {!isMobile && terpenes && terpenes.length > 0 && (
-              <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-                <TerpeneEgg product={productData} />
-              </div>
-            )}
           </div>
 
           <div className="space-y-6">
@@ -157,13 +148,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <ProductEffects effects={effects} />
 
             <ProductUsage use={use} />
-            
-            {/* Show terpene profile in mobile view */}
-            {isMobile && terpenes && terpenes.length > 0 && (
-              <div className="mt-4 bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-                <TerpeneEgg product={productData} />
-              </div>
-            )}
           </div>
         </div>
       </div>
