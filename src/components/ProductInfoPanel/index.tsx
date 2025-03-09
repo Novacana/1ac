@@ -38,7 +38,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       <ProductTags strain={product.strain} category={product.category} />
       
       {/* Only show flavor profile in mobile view */}
-      {isMobile && (
+      {isMobile && product.flavors && product.flavors.length > 0 && (
         <div className="mt-4">
           <FlavorProfile flavors={product.flavors} />
         </div>

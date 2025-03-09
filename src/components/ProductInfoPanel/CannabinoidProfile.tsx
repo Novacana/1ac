@@ -69,7 +69,7 @@ const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd }) => 
             <Progress 
               value={thcProgress * 4} 
               max={100} 
-              className={`h-1.5 ${isMobile ? 'bg-primary/10' : 'bg-green-100'}`}
+              className={`h-1.5 ${isMobile ? 'bg-primary/10' : 'bg-green-100 dark:bg-green-950/30'}`}
               style={{ 
                 backgroundImage: isMobile ? undefined : 'linear-gradient(to right, rgba(0,0,0,0.03), rgba(0,0,0,0.05))'
               }}
@@ -83,7 +83,7 @@ const CannabinoidProfile: React.FC<CannabinoidProfileProps> = ({ thc, cbd }) => 
             <Progress 
               value={cbdProgress * 6.6} 
               max={100} 
-              className={`h-1.5 ${isMobile ? 'bg-primary/10' : 'bg-blue-100'}`}
+              className={`h-1.5 ${isMobile ? 'bg-primary/10' : 'bg-blue-100 dark:bg-blue-950/30'}`}
               style={{ 
                 backgroundImage: isMobile ? undefined : 'linear-gradient(to right, rgba(0,0,0,0.03), rgba(0,0,0,0.05))'
               }}

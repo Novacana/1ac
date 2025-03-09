@@ -120,7 +120,8 @@ export const parsePercentage = (value: string | undefined) => {
 
 // Function to get appropriate background color for flavor tags
 export const getFlavorColor = (flavor: string): string => {
-  const colorMap: Record<string, string> = {
+  // Light mode colors
+  const lightModeColors: Record<string, string> = {
     'Earthy': '#FDE1D3', // Soft Peach
     'Pine': '#F2FCE2',   // Soft Green
     'Sweet': '#FEF7CD',  // Soft Yellow
@@ -145,14 +146,17 @@ export const getFlavorColor = (flavor: string): string => {
     'Kräuter': '#F2FCE2',
     'Nussig': '#FDE1D3',
     'Würzig': '#FDE1D3',
-    'Holzig': '#A0522D',
-    'Trauben': '#D3E4FD',
+    'Holzig': '#E8D8C9', // Light brown for wood
+    'Trauben': '#E6E0F8', // Light purple for grapes
     'Beere': '#FFDEE2',
-    'Haze': '#F2FCE2',
+    'Haze': '#EFF8FF',
     'Dessert': '#FEF7CD',
-    'Haschartig': '#A0522D',
+    'Haschartig': '#E8D8C9',
     'Kräutrig': '#F2FCE2',
+    'Fruchtig': '#FFE0E0',
   };
   
-  return colorMap[flavor] || '#F2FCE2'; // Default to soft green if no match
+  // Get color or use default
+  const defaultColor = '#F2FCE2'; // Default to soft green
+  return lightModeColors[flavor] || defaultColor;
 };

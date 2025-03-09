@@ -72,11 +72,17 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
       <div className="flex flex-wrap gap-2">
         {flavors.map((flavor, index) => {
           const icon = getFlavorIcon(flavor);
+          const bgColor = getFlavorColor(flavor);
+          
           return (
             <div 
               key={index} 
-              className="flex items-center justify-center rounded-full w-10 h-10"
-              style={{ backgroundColor: getFlavorColor(flavor) }}
+              className="flex items-center justify-center rounded-full w-10 h-10 text-foreground dark:text-foreground"
+              style={{ 
+                backgroundColor: bgColor,
+                // Add a subtle shadow for better visibility in dark mode
+                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)'
+              }}
               title={flavor}
             >
               {icon}
