@@ -2,6 +2,7 @@
 import React from 'react';
 import { Circle, Diamond, Hexagon, Pentagon, Square, Triangle, Octagon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getTerpeneShapeIcon } from './terpeneUtils';
 
 interface TerpeneData {
   name: string;
@@ -19,24 +20,6 @@ interface TerpeneShapeProps {
   onTerpeneClick: () => void;
   isDark: boolean;
 }
-
-// Function to get appropriate shape icon based on terpene name
-const getTerpeneShapeIcon = (terpene: string, size: number) => {
-  const shapes = [
-    { component: Circle, terpenes: ['Myrcen', 'Limonen', 'Limonene'] },
-    { component: Diamond, terpenes: ['Caryophyllen', 'Caryophyllene'] },
-    { component: Hexagon, terpenes: ['Pinen', 'Pinene'] },
-    { component: Pentagon, terpenes: ['Linalool'] },
-    { component: Square, terpenes: ['Terpinolen', 'Terpinolene'] },
-    { component: Triangle, terpenes: ['Ocimen', 'Ocimene'] },
-    { component: Octagon, terpenes: ['Humulen', 'Humulene'] }
-  ];
-  
-  const shape = shapes.find(s => s.terpenes.includes(terpene));
-  const IconComponent = shape ? shape.component : Circle;
-  
-  return <IconComponent size={size} />;
-};
 
 const TerpeneShape: React.FC<TerpeneShapeProps> = ({
   terpene,
@@ -60,22 +43,22 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       }}
       onClick={onTerpeneClick}
     >
-      {/* Improved glow for dark mode */}
+      {/* Enhanced glow effect for better visibility */}
       <div 
-        className="absolute inset-0 rounded-full blur-[8px] opacity-80"
+        className="absolute inset-0 rounded-full blur-[10px] opacity-90"
         style={{ 
-          backgroundColor: isDark ? color : `${color}70`,
-          width: `${dotSize + 8}px`,
-          height: `${dotSize + 8}px`
+          backgroundColor: isDark ? color : `${color}80`,
+          width: `${dotSize + 12}px`,
+          height: `${dotSize + 12}px`
         }}
       ></div>
       
-      {/* Terpene shape with drop shadow */}
+      {/* Terpene shape with enhanced drop shadow */}
       <div 
         className="relative drop-shadow-lg" 
         style={{ 
           filter: isDark 
-            ? `drop-shadow(0 0 10px ${color}) drop-shadow(0 0 5px ${color}80)` 
+            ? `drop-shadow(0 0 12px ${color}) drop-shadow(0 0 5px ${color}80)` 
             : `drop-shadow(0 0 8px ${color}80)`
         }}
       >
@@ -83,23 +66,25 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       </div>
       
       {/* Percentage label with improved contrast */}
-      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-md">
+      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
         {terpene.value}%
       </span>
       
-      {/* Terpene name label always visible */}
+      {/* Improved terpene name label with better visibility */}
       <div 
         className={cn(
-          "absolute whitespace-nowrap px-2 py-0.5 rounded-full text-[11px] font-medium shadow-lg backdrop-blur-sm",
+          "absolute whitespace-nowrap px-2 py-1 rounded-full text-[12px] font-bold shadow-lg",
           isDark 
-            ? "bg-gray-900/80 border border-gray-700/50" 
-            : "bg-background/90 border border-primary/20"
+            ? "bg-gray-900/80 border border-gray-700" 
+            : "bg-white/90 border border-gray-200"
         )}
         style={{
           top: '120%',
           left: '50%',
           transform: 'translateX(-50%)',
           color: color,
+          textShadow: isDark ? '0 0 3px rgba(0,0,0,0.8)' : 'none',
+          zIndex: 30
         }}
       >
         {terpene.name}

@@ -20,6 +20,45 @@ export const getTerpeneShapeIcon = (terpene: string, size: number) => {
   return <IconComponent size={size} />;
 };
 
+// Map terpenes to their effect zones in the egg
+export const getTerpenePosition = (terpene: string) => {
+  // Map terpenes to their effects for positioning
+  const terpeneEffectMap: Record<string, string> = {
+    'Myrcen': 'körperlich entspannend',
+    'Limonen': 'ganzheitlich anregend stimulierend',
+    'Limonene': 'ganzheitlich anregend stimulierend',
+    'Caryophyllen': 'körperlich ausgleichend',
+    'Caryophyllene': 'körperlich ausgleichend',
+    'Pinen': 'geistig ausgleichend öffnend',
+    'Pinene': 'geistig ausgleichend öffnend',
+    'Linalool': 'geistig entspannend',
+    'Terpinolen': 'ganzheitlich entspannend',
+    'Terpinolene': 'ganzheitlich entspannend',
+    'Ocimen': 'ganzheitlich anregend',
+    'Ocimene': 'ganzheitlich anregend',
+    'Humulen': 'körperlich erdend ausgleichend',
+    'Humulene': 'körperlich erdend ausgleichend'
+  };
+
+  // Get the effect zone for this terpene
+  const effectZone = terpeneEffectMap[terpene] || 'ganzheitlich anregend';
+  
+  // Map effect zones to positions in the egg (angle based)
+  const zonePositions: Record<string, number> = {
+    'geistig ausgleichend öffnend': 60,
+    'geistig entspannend': 30,
+    'ganzheitlich entspannend': 330,
+    'körperlich entspannend': 300,
+    'körperlich erdend ausgleichend': 240,
+    'körperlich ausgleichend': 210,
+    'ganzheitlich anregend stimulierend': 150,
+    'ganzheitlich anregend': 120
+  };
+  
+  // Return the angle for the terpene based on its effect
+  return zonePositions[effectZone] || 0;
+};
+
 // Export reused functions that were in the original file
 export const getTerpeneEffect = (terpene: string): string => {
   const effects: Record<string, string> = {

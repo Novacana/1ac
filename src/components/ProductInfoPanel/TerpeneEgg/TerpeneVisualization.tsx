@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { TerpeneShape } from './TerpeneShape';
-import { EffectLabel } from './EffectLabel';
-import { EggBackground } from './EggBackground';
+import TerpeneShape from './TerpeneShape';
+import EffectLabel from './EffectLabel';
+import EggBackground from './EggBackground';
+import { getTerpenePosition } from './terpeneUtils';
 
 interface TerpeneData {
   name: string;
@@ -48,28 +48,22 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     { text: "ganzheitlich anregend", angle: 120 }
   ];
 
-  // Define terpene positions within the egg
-  const getTerpenePositionInEgg = (index: number) => {
-    // Calculate random-looking but fixed positions within the egg shape
-    // These positions are designed to spread out within the egg
-    const positions = [
-      { x: 35, y: 35 }, // top left area
-      { x: 65, y: 35 }, // top right area
-      { x: 50, y: 50 }, // center
-      { x: 35, y: 65 }, // bottom left
-      { x: 65, y: 65 }, // bottom right
-      { x: 50, y: 30 }, // top center
-      { x: 50, y: 70 }, // bottom center
-      { x: 25, y: 50 }, // left middle
-      { x: 75, y: 50 }, // right middle
-    ];
+  // Calculate terpene position based on its effect
+  const getTerpenePositionInEgg = (terpene: string, index: number) => {
+    // Get the angle for this terpene based on its effect
+    const angle = getTerpenePosition(terpene);
+    // Convert angle to radians for positioning
+    const radian = (angle * Math.PI) / 180;
     
-    // Get a position from our preset positions, wrapped around if needed
-    const pos = positions[index % positions.length];
+    // Calculate position using the angle, but keep it inside the egg shape
+    // Distance from center varies slightly to avoid overlaps
+    const distance = 30 + (index % 3) * 8; // 30-46% distance from center
+    const x = 50 + distance * Math.cos(radian);
+    const y = 50 + distance * Math.sin(radian);
     
     return {
-      left: `${pos.x}%`,
-      top: `${pos.y}%`
+      left: `${x}%`,
+      top: `${y}%`
     };
   };
 
@@ -96,9 +90,9 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
         />
       ))}
       
-      {/* Terpene shapes positioned within the egg */}
+      {/* Terpene shapes positioned within the egg based on their effects */}
       {terpeneData.map((terpene, index) => {
-        const position = getTerpenePositionInEgg(index);
+        const position = getTerpenePositionInEgg(terpene.name, index);
         const dotSize = getDotSize(terpene.value);
         const color = colors[index % colors.length];
         
