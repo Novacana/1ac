@@ -30,6 +30,10 @@ interface FiltersProps {
   onSearchChange?: (query: string) => void;
 }
 
+// Constants for filter limits
+const MAX_THC = 30;
+const MAX_PRICE_LIMIT = 500; // Set a reasonable upper price limit
+
 const Filters: React.FC<FiltersProps> = ({
   filters,
   onFilterChange,
@@ -41,6 +45,9 @@ const Filters: React.FC<FiltersProps> = ({
   searchQuery = "",
   onSearchChange = () => {},
 }) => {
+  // Use the smaller of maxPrice from products or MAX_PRICE_LIMIT
+  const effectiveMaxPrice = Math.min(maxPrice || MAX_PRICE_LIMIT, MAX_PRICE_LIMIT);
+
   const updateThcRange = (value: number[]) => {
     onFilterChange({
       ...filters,
@@ -143,9 +150,9 @@ const Filters: React.FC<FiltersProps> = ({
             </span>
           </div>
           <Slider
-            defaultValue={[0, 30]}
+            defaultValue={[0, MAX_THC]}
             value={[filters.thcRange[0], filters.thcRange[1]]}
-            max={30}
+            max={MAX_THC}
             step={1}
             onValueChange={updateThcRange}
             className="mb-4"
@@ -161,9 +168,9 @@ const Filters: React.FC<FiltersProps> = ({
             </span>
           </div>
           <Slider
-            defaultValue={[0, maxPrice]}
+            defaultValue={[0, effectiveMaxPrice]}
             value={[filters.priceRange[0], filters.priceRange[1]]}
-            max={maxPrice}
+            max={effectiveMaxPrice}
             step={1}
             onValueChange={updatePriceRange}
             className="mb-4"

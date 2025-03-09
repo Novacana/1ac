@@ -11,6 +11,10 @@ import { parseThcPercentage } from "@/utils/product-value-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 import { useLocation } from "react-router-dom";
 
+// Constants for filter limits
+const MAX_THC = 30;
+const MAX_PRICE_LIMIT = 500;
+
 const Products = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -32,17 +36,27 @@ const Products = () => {
     }
   }, [searchFromUrl]);
   
-  // Find max price for filter slider
+  // Find max price for filter slider (with a reasonable upper limit)
   const maxPrice = allProducts.length > 0 
-    ? Math.ceil(Math.max(...allProducts.map(p => p.price || 0))) 
-    : 100;
+    ? Math.min(Math.ceil(Math.max(...allProducts.map(p => p.price || 0))), MAX_PRICE_LIMIT)
+    : MAX_PRICE_LIMIT;
   
   // Initialize filters
   const [filters, setFilters] = useState<FilterOptions>({
-    thcRange: [0, 30],
-    priceRange: [0, maxPrice || 100],
+    thcRange: [0, MAX_THC],
+    priceRange: [0, maxPrice],
     sortBy: 'popularity'
   });
+
+  // Update filter price range when maxPrice changes
+  useEffect(() => {
+    if (maxPrice !== filters.priceRange[1]) {
+      setFilters(prev => ({
+        ...prev,
+        priceRange: [prev.priceRange[0], maxPrice]
+      }));
+    }
+  }, [maxPrice]);
 
   // Handle products loaded from ProductDataLoader
   const handleProductsLoaded = (products: Product[], source: "woocommerce" | "combined" | "local") => {
@@ -68,15 +82,6 @@ const Products = () => {
     // Extract unique categories
     const uniqueCategories = [...new Set(products.map(p => p.category))].filter(Boolean) as string[];
     setCategories(uniqueCategories);
-    
-    // Update price range based on new products
-    if (products.length > 0) {
-      const newMaxPrice = Math.ceil(Math.max(...products.map(p => p.price || 0)));
-      setFilters(prev => ({
-        ...prev,
-        priceRange: [prev.priceRange[0], newMaxPrice]
-      }));
-    }
   };
 
   // Handle category change
@@ -139,7 +144,7 @@ const Products = () => {
   // Reset filters to defaults
   const handleResetFilters = () => {
     setFilters({
-      thcRange: [0, 30],
+      thcRange: [0, MAX_THC],
       priceRange: [0, maxPrice],
       sortBy: 'popularity'
     });
