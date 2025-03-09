@@ -22,12 +22,12 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
       <button
         onClick={() => setShowSearch(true)}
         className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
+          "w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
           "bg-background/70 text-foreground shadow-sm"
         )}
         aria-label="Produkte suchen"
       >
-        <Search size={20} />
+        <Search size={18} />
       </button>
     );
   }
@@ -38,7 +38,7 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
         <SearchAutocomplete
           suggestions={suggestions}
           onSearch={handleSearch}
-          placeholder="Suche nach Sorte..."
+          placeholder="Suche..."
           fullWidth
           autoFocus
           maxSuggestions={8}
@@ -49,7 +49,7 @@ const MobileSearch: React.FC<MobileSearchProps> = ({
           onClick={() => setShowSearch(false)}
           className="absolute right-4 top-4 p-2 rounded-full bg-background/70 text-foreground shadow-sm"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
     </div>

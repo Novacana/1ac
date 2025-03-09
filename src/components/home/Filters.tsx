@@ -63,28 +63,28 @@ const Filters: React.FC<FiltersProps> = ({
 
   return (
     <div className="bg-background/60 backdrop-blur-sm p-4 rounded-lg mb-6 shadow-sm border border-border">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {/* Search field with autocomplete */}
-        <div className="col-span-1 md:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        {/* Search field with autocomplete - now more compact */}
+        <div className="col-span-1">
           <SearchAutocomplete
             suggestions={suggestions}
             onSearch={handleSearch}
-            placeholder="Suche nach Sorte..."
+            placeholder="Suche..."
             fullWidth
             maxSuggestions={5}
             compact={true}
+            className="min-w-[150px]"
           />
         </div>
 
         {/* Category selector */}
         <div>
-          <label className="block text-sm font-medium mb-2">Kategorie</label>
           <Select
             value={selectedCategory}
             onValueChange={onCategoryChange}
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Wähle eine Kategorie" />
+            <SelectTrigger className="w-full h-9">
+              <SelectValue placeholder="Kategorie" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">Alle Kategorien</SelectItem>
@@ -99,7 +99,6 @@ const Filters: React.FC<FiltersProps> = ({
 
         {/* Sort selector */}
         <div>
-          <label className="block text-sm font-medium mb-2">Sortieren nach</label>
           <Select
             value={filters.sortBy}
             onValueChange={(value) =>
@@ -109,8 +108,8 @@ const Filters: React.FC<FiltersProps> = ({
               })
             }
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Sortieren nach" />
+            <SelectTrigger className="w-full h-9">
+              <SelectValue placeholder="Sortieren" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="popularity">Beliebtheit</SelectItem>
@@ -119,6 +118,18 @@ const Filters: React.FC<FiltersProps> = ({
               <SelectItem value="thc-desc">THC: Höchster zuerst</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Reset Button */}
+        <div className="flex items-center justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onReset}
+            className="h-9 text-xs px-2"
+          >
+            Filter zurücksetzen
+          </Button>
         </div>
       </div>
 
@@ -158,17 +169,6 @@ const Filters: React.FC<FiltersProps> = ({
             className="mb-4"
           />
         </div>
-      </div>
-
-      <div className="flex justify-end mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onReset}
-          className="text-xs"
-        >
-          Filter zurücksetzen
-        </Button>
       </div>
     </div>
   );

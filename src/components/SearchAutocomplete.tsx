@@ -20,7 +20,7 @@ interface SearchAutocompleteProps {
 const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
   suggestions,
   onSearch,
-  placeholder = "Suche nach Sorte...",
+  placeholder = "Suche...",
   className = "",
   fullWidth = false,
   autoFocus = false,
@@ -76,9 +76,6 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
       
       // Navigate to products page with search query
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      
-      // Optional: clear search after submission if needed
-      // setSearchQuery("");
     }
   };
 
@@ -110,27 +107,28 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           placeholder={placeholder}
           className={`
             ${fullWidth ? 'w-full' : ''}
-            ${compact ? 'h-8 md:h-9 px-8 text-sm' : 'pr-16 pl-10'}
+            ${compact ? 'h-8 md:h-9 pl-7 pr-12 text-sm rounded-full' : 'pr-16 pl-10'}
           `}
           value={searchQuery}
           onChange={handleInputChange}
           autoFocus={autoFocus}
         />
         <Search 
-          className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground ${compact ? 'h-3 w-3' : 'h-4 w-4'}`} 
+          className={`absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground ${compact ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} 
         />
         {searchQuery && (
           <button 
             type="button" 
             onClick={handleClearSearch}
-            className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            aria-label="Suche löschen"
           >
             <X size={compact ? 14 : 16} />
           </button>
         )}
         <button 
           type="submit" 
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           aria-label="Suchen"
         >
           <Search size={compact ? 14 : 16} />
