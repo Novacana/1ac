@@ -6,6 +6,7 @@ import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FlavorProfile from "./FlavorProfile";
+import TerpeneEgg from "./TerpeneEgg";
 
 interface ProductInfoPanelProps {
   product: Product | null;
