@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { Product } from "@/types/product";
 import { useNavigate } from "react-router-dom";
 import { useImageHandling } from "./carousel/useImageHandling";
+import { useSwipeHandling } from "./carousel/useSwipeHandling";
 import { useCarouselNavigation } from "./carousel/useCarouselNavigation";
-import { useRef } from "react";
 
 interface UseProductCarouselProps {
   products: Product[];
@@ -13,7 +13,6 @@ interface UseProductCarouselProps {
 
 export const useProductCarousel = ({ products, selectedCategory }: UseProductCarouselProps) => {
   const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement>(null);
   
   const normalizedCategory = selectedCategory === "Flowers" ? "Blüten" : selectedCategory;
   
@@ -32,6 +31,20 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
   });
 
   const {
+    swipeDistance,
+    isSwiping,
+    hasMoved,
+    containerRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    setHasMoved
+  } = useSwipeHandling();
+
+  const {
     activeIndex,
     isTransitioning,
     direction,
@@ -48,6 +61,22 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
     setImageLoading,
     previousImageRef
   });
+
+  // Handle touch end with navigation logic
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isSwiping) return;
+    
+    const currentX = e.changedTouches[0].clientX;
+    const diffX = currentX - (e.target as any).touchStartX || 0;
+    
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        goToPrevious();
+      } else {
+        goToNext();
+      }
+    }
+  };
 
   // Auto-play functionality
   useEffect(() => {
@@ -97,7 +126,7 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
 
   // Handle product selection
   const handleProductClick = () => {
-    if (filteredProducts.length > 0) {
+    if (!hasMoved && filteredProducts.length > 0) {
       const productId = filteredProducts[activeIndex].id;
       console.log(`Navigating to product detail page for product ID: ${productId}`);
       navigate(`/product/${productId}`);
@@ -111,6 +140,16 @@ export const useProductCarousel = ({ products, selectedCategory }: UseProductCar
     goToPrevious,
     goToIndex,
     handleProductClick,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    isSwiping,
+    hasMoved,
+    swipeDistance,
     isTransitioning,
     direction,
     imageLoading,

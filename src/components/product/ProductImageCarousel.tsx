@@ -13,8 +13,17 @@ interface ProductImageCarouselProps {
   previousImagePath: string | null;
   isTransitioning: boolean;
   direction: 'next' | 'prev' | null;
+  isSwiping: boolean;
+  swipeDistance: number;
   imageLoading: boolean;
   containerRef: React.RefObject<HTMLDivElement>;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: (e: React.TouchEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
+  onMouseUp: (e: React.MouseEvent) => void;
+  onMouseLeave: () => void;
   onClick: () => void;
   onImageLoad: () => void;
   onPrevious: () => void;
@@ -27,8 +36,17 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   previousImagePath,
   isTransitioning,
   direction,
+  isSwiping,
+  swipeDistance,
   imageLoading,
   containerRef,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  onMouseLeave,
   onClick,
   onImageLoad,
   onPrevious,
@@ -38,6 +56,13 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
     <div 
       ref={containerRef}
       className="w-full h-[300px] md:h-[400px] relative overflow-hidden rounded-lg border border-border cursor-pointer"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
       onClick={onClick}
       role="button"
       aria-label={`View details for ${product.name}`}
@@ -53,6 +78,8 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
       <TransitionWrapper
         isTransitioning={isTransitioning}
         direction={direction}
+        isSwiping={isSwiping}
+        swipeDistance={swipeDistance}
       >
         <CarouselImage
           src={imagePath}

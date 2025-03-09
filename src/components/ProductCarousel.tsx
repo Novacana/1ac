@@ -21,6 +21,16 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
     goToPrevious,
     goToIndex,
     handleProductClick,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    isSwiping,
+    hasMoved,
+    swipeDistance,
     isTransitioning,
     direction,
     imageLoading,
@@ -44,6 +54,16 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ products, selectedCat
         onNext={goToNext}
         onGoToIndex={goToIndex}
         onProductClick={handleProductClick}
+        isSwiping={isSwiping}
+        hasMoved={hasMoved}
+        swipeDistance={swipeDistance}
+        handleTouchStart={handleTouchStart}
+        handleTouchMove={handleTouchMove}
+        handleTouchEnd={handleTouchEnd}
+        handleMouseDown={handleMouseDown}
+        handleMouseMove={handleMouseMove}
+        handleMouseUp={handleMouseUp}
+        handleMouseLeave={handleMouseLeave}
         isTransitioning={isTransitioning}
         direction={direction}
         imageLoading={imageLoading}
