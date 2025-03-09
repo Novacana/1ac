@@ -1,10 +1,11 @@
 
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/components/ThemeProvider";
 import MobileViewToggle from "./MobileViewToggle";
 
 const MobileNavDots = () => {
@@ -12,6 +13,7 @@ const MobileNavDots = () => {
   const navigate = useNavigate();
   const { getCartCount } = useCart();
   const { isAuthenticated, isDoctor } = useAuth();
+  const { theme, setTheme } = useTheme();
   const cartCount = getCartCount();
   
   const handleUserClick = () => {
@@ -22,10 +24,32 @@ const MobileNavDots = () => {
     }
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <div className="fixed z-50 top-3 w-full px-4 flex justify-between md:hidden animate-fade-in">
       {/* View toggle dot */}
-      <MobileViewToggle />
+      <div className="flex gap-3">
+        <MobileViewToggle />
+        
+        {/* Theme toggle dot */}
+        <button
+          onClick={toggleTheme}
+          className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all",
+            "bg-background/70 text-foreground shadow-sm"
+          )}
+          aria-label={theme === "dark" ? "Zum hellen Modus wechseln" : "Zum dunklen Modus wechseln"}
+        >
+          {theme === "dark" ? (
+            <Sun size={20} />
+          ) : (
+            <Moon size={20} />
+          )}
+        </button>
+      </div>
       
       <div className="flex gap-3">
         {/* User dot - only show when authenticated */}
