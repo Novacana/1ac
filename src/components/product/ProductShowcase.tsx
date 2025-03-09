@@ -88,7 +88,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
               <>
                 <ProductInfoPanel product={activeProduct} />
                 
-                {/* Show flavors prominently if available */}
+                {/* Always show flavors in a separate card if available */}
                 {activeProduct.flavors && activeProduct.flavors.length > 0 && (
                   <div className="mt-4 p-3 bg-background rounded-lg border border-border/20 shadow-sm">
                     <FlavorProfile flavors={activeProduct.flavors} />
@@ -129,7 +129,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
           </div>
           
           <div className="md:col-span-3 order-3">
-            {activeProduct && (
+            {activeProduct && activeProduct.terpenes && activeProduct.terpenes.length > 0 && (
               <div className="rounded-lg p-4 h-full border border-border/20 bg-background shadow-sm">
                 <TerpeneEgg product={activeProduct} />
               </div>

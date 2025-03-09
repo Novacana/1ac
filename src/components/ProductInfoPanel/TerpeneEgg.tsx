@@ -1,15 +1,33 @@
 
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, Circle, Diamond, Hexagon, Pentagon, Square, Triangle, Octagon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect } from "./utils";
+import { parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect, getTerpeneColor } from "./utils";
 
 interface TerpeneEggProps {
   product: Product;
 }
+
+// Function to get appropriate shape icon based on terpene name
+const getTerpeneShapeIcon = (terpene: string, size: number) => {
+  const shapes = [
+    { component: Circle, terpenes: ['Myrcen', 'Limonen', 'Limonene'] },
+    { component: Diamond, terpenes: ['Caryophyllen', 'Caryophyllene'] },
+    { component: Hexagon, terpenes: ['Pinen', 'Pinene'] },
+    { component: Pentagon, terpenes: ['Linalool'] },
+    { component: Square, terpenes: ['Terpinolen', 'Terpinolene'] },
+    { component: Triangle, terpenes: ['Ocimen', 'Ocimene'] },
+    { component: Octagon, terpenes: ['Humulen', 'Humulene'] }
+  ];
+  
+  const shape = shapes.find(s => s.terpenes.includes(terpene));
+  const IconComponent = shape ? shape.component : Circle;
+  
+  return <IconComponent size={size} />;
+};
 
 const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   const isMobile = useIsMobile();
@@ -51,10 +69,10 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
 
   // Determine the size of the dot based on the percentage
   const getDotSize = (percentage: number) => {
-    if (percentage >= 1.0) return 'h-6 w-6';
-    if (percentage >= 0.5) return 'h-5 w-5';
-    if (percentage >= 0.3) return 'h-4 w-4';
-    return 'h-3 w-3';
+    if (percentage >= 1.0) return 24;
+    if (percentage >= 0.5) return 20;
+    if (percentage >= 0.3) return 16;
+    return 14;
   };
 
   return (
@@ -64,7 +82,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <span className="text-sm font-medium">{totalPercentage}%</span>
       </div>
       
-      <div className="flex gap-3 items-start">
+      <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
         {/* The egg visualization */}
         <div className="relative h-[180px] w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 border border-border/30 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30">
           {/* Egg border with aromatic properties */}
@@ -79,35 +97,53 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
             <div className="text-[9px] text-muted-foreground font-light rotate-[-145deg] absolute bottom-2 left-1/4">schlaffördernd</div>
           </div>
           
-          {/* Terpene dots positioned in the egg */}
+          {/* Terpene shapes positioned in the egg */}
           {terpeneData.map((terpene, index) => {
             const position = getTerpenePosition(index, terpeneData.length);
             const dotSize = getDotSize(terpene.value);
+            const color = colors[index % colors.length];
             
             return (
               <div 
                 key={terpene.name} 
                 className={cn(
-                  "absolute rounded-full shadow-sm flex items-center justify-center transition-all cursor-pointer hover:scale-110",
-                  dotSize,
+                  "absolute flex items-center justify-center transition-all cursor-pointer hover:scale-110",
                   expandedTerpene === terpene.name ? "ring-2 ring-primary ring-offset-1" : ""
                 )}
                 style={{
-                  backgroundColor: colors[index % colors.length],
+                  color: color,
                   ...position,
                   transform: 'translate(-50%, -50%)'
                 }}
                 onClick={() => handleTerpeneClick(terpene.name)}
                 title={`${terpene.name} ${terpene.value}%`}
               >
-                <span className="text-[8px] font-bold text-white">{terpene.value}%</span>
+                {getTerpeneShapeIcon(terpene.name, dotSize)}
+                
+                {/* Percentage label */}
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">
+                  {terpene.value}%
+                </span>
+                
+                {/* Terpene name label for desktop */}
+                <span 
+                  className="hidden md:block absolute whitespace-nowrap px-1 py-0.5 text-[10px] rounded-md bg-background/80 text-foreground"
+                  style={{
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginTop: '2px'
+                  }}
+                >
+                  {terpene.name}
+                </span>
               </div>
             );
           })}
         </div>
         
-        {/* Terpene legends and descriptions */}
-        <div className="flex flex-col flex-1 justify-start">
+        {/* Terpene legends and descriptions - Mobile and Desktop */}
+        <div className="flex flex-col flex-1 w-full md:w-auto justify-start">
           {terpeneData.map((terpene, index) => (
             <Collapsible 
               key={index}
@@ -116,10 +152,12 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
               onOpenChange={() => handleTerpeneClick(terpene.name)}
             >
               <CollapsibleTrigger className="flex items-center w-full text-sm py-1 hover:bg-background/60 rounded px-1 transition-colors">
-                <span 
-                  className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                  style={{ backgroundColor: colors[index % colors.length] }}
-                />
+                <div
+                  className="w-4 h-4 mr-2 flex-shrink-0 flex items-center justify-center"
+                  style={{ color: colors[index % colors.length] }}
+                >
+                  {getTerpeneShapeIcon(terpene.name, 16)}
+                </div>
                 <span className="mr-1 font-medium flex-grow text-left">{terpene.name}</span>
                 <span className="text-foreground/70 mr-2">{terpene.value}%</span>
                 {expandedTerpene === terpene.name ? (

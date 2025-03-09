@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
-import FlavorProfile from "./FlavorProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProductInfoPanelProps {
@@ -37,12 +36,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* Only show flavor profile in mobile view */}
-      {isMobile && product.flavors && product.flavors.length > 0 && (
-        <div className="mt-4">
-          <FlavorProfile flavors={product.flavors} />
-        </div>
-      )}
+      {/* We're removing flavor profile display from here to avoid duplication in mobile view */}
     </div>
   );
 };

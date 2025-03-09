@@ -81,17 +81,28 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
           return (
             <div 
               key={index} 
-              className={`flex items-center justify-center rounded-full w-10 h-10 ${isDarkMode ? 'text-white' : 'text-foreground'}`}
-              style={{ 
-                backgroundColor: bgColor,
-                // Add a more pronounced contrast in dark mode
-                boxShadow: isDarkMode 
-                  ? 'inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 5px rgba(255,255,255,0.1)' 
-                  : 'inset 0 0 0 1px rgba(255,255,255,0.1)'
-              }}
-              title={flavor}
+              className="relative group"
             >
-              {icon}
+              <div
+                className={`flex items-center justify-center rounded-full w-10 h-10 ${isDarkMode ? 'text-white' : 'text-foreground'}`}
+                style={{ 
+                  backgroundColor: bgColor,
+                  boxShadow: isDarkMode 
+                    ? 'inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 5px rgba(255,255,255,0.1)' 
+                    : 'inset 0 0 0 1px rgba(255,255,255,0.1)'
+                }}
+              >
+                {icon}
+              </div>
+              
+              {/* Tooltip with flavor name */}
+              <span 
+                className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-1 
+                  px-2 py-1 bg-popover text-popover-foreground text-xs rounded opacity-0 group-hover:opacity-100 
+                  pointer-events-none transition-opacity whitespace-nowrap z-10"
+              >
+                {flavor}
+              </span>
             </div>
           );
         })}
