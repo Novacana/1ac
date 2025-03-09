@@ -6,8 +6,6 @@ interface TransitionWrapperProps {
   children: React.ReactNode;
   isTransitioning: boolean;
   direction: 'next' | 'prev' | null;
-  isSwiping: boolean;
-  swipeDistance: number;
   className?: string;
 }
 
@@ -15,8 +13,6 @@ const TransitionWrapper: React.FC<TransitionWrapperProps> = ({
   children,
   isTransitioning,
   direction,
-  isSwiping,
-  swipeDistance,
   className
 }) => {
   return (
@@ -28,11 +24,6 @@ const TransitionWrapper: React.FC<TransitionWrapperProps> = ({
           : 'translate-x-0',
         className
       )}
-      style={{ 
-        transform: isSwiping 
-          ? `translateX(${swipeDistance}px)` 
-          : undefined 
-      }}
     >
       {children}
     </div>

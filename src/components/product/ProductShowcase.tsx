@@ -15,16 +15,6 @@ interface ProductShowcaseProps {
   onNext: () => void;
   onGoToIndex: (index: number) => void;
   onProductClick: () => void;
-  isSwiping: boolean;
-  hasMoved: boolean;
-  swipeDistance: number;
-  handleTouchStart: (e: React.TouchEvent) => void;
-  handleTouchMove: (e: React.TouchEvent) => void;
-  handleTouchEnd: (e: React.TouchEvent) => void;
-  handleMouseDown: (e: React.MouseEvent) => void;
-  handleMouseMove: (e: React.MouseEvent) => void;
-  handleMouseUp: (e: React.MouseEvent) => void;
-  handleMouseLeave: () => void;
   isTransitioning: boolean;
   direction: 'next' | 'prev' | null;
   imageLoading: boolean;
@@ -42,16 +32,6 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
   onNext,
   onGoToIndex,
   onProductClick,
-  isSwiping,
-  hasMoved,
-  swipeDistance,
-  handleTouchStart,
-  handleTouchMove,
-  handleTouchEnd,
-  handleMouseDown,
-  handleMouseMove,
-  handleMouseUp,
-  handleMouseLeave,
   isTransitioning,
   direction,
   imageLoading,
@@ -100,17 +80,8 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
               previousImagePath={previousImageRef.current}
               isTransitioning={isTransitioning}
               direction={direction}
-              isSwiping={isSwiping}
-              swipeDistance={swipeDistance}
               imageLoading={imageLoading}
               containerRef={containerRef}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
               onClick={onProductClick}
               onImageLoad={updateImageLoadingState}
               onPrevious={onPrevious}
