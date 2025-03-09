@@ -17,7 +17,7 @@ export const getTerpeneShapeIcon = (terpene: string, size: number) => {
   const shape = shapes.find(s => s.terpenes.includes(terpene));
   const IconComponent = shape ? shape.component : Circle;
   
-  return <IconComponent size={size} />;
+  return React.createElement(IconComponent, { size });
 };
 
 // Map terpenes to their effect zones in the egg
