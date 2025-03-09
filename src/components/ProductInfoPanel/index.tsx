@@ -5,6 +5,7 @@ import { Product } from "@/types/product";
 import CannabinoidProfile from "./CannabinoidProfile";
 import ProductTags from "./ProductTags";
 import { useIsMobile } from "@/hooks/use-mobile";
+import FlavorProfile from "./FlavorProfile";
 
 interface ProductInfoPanelProps {
   product: Product | null;
@@ -26,7 +27,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
   return (
     <div 
       className={cn(
-        "rounded-lg p-2 transition-all duration-500 w-full",
+        "rounded-lg p-3 transition-all duration-500 w-full",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       )}
     >
@@ -36,7 +37,12 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ product }) => {
       {/* Quick info tags */}
       <ProductTags strain={product.strain} category={product.category} />
       
-      {/* We're removing flavor profile display from here to avoid duplication in mobile view */}
+      {/* Add FlavorProfile to this component if we want it to always be visible */}
+      {product.flavors && product.flavors.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-border/30">
+          <FlavorProfile flavors={product.flavors} />
+        </div>
+      )}
     </div>
   );
 };

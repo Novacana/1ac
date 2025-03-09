@@ -72,8 +72,8 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
   
   return (
     <div>
-      <h4 className="text-xs font-medium mb-1.5">Geschmack</h4>
-      <div className="flex flex-wrap gap-2">
+      <h4 className="text-xs font-medium mb-2">Geschmack</h4>
+      <div className="flex flex-wrap gap-2.5">
         {flavors.map((flavor, index) => {
           const icon = getFlavorIcon(flavor);
           const bgColor = getFlavorColor(flavor);
@@ -84,12 +84,14 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
               className="relative group"
             >
               <div
-                className={`flex items-center justify-center rounded-full w-10 h-10 ${isDarkMode ? 'text-white' : 'text-foreground'}`}
+                className={`flex items-center justify-center rounded-full w-11 h-11 shadow-md
+                          transition-transform hover:scale-110
+                          ${isDarkMode ? 'text-white border border-white/10' : 'text-foreground'}`}
                 style={{ 
                   backgroundColor: bgColor,
                   boxShadow: isDarkMode 
-                    ? 'inset 0 0 0 1px rgba(255,255,255,0.2), 0 0 5px rgba(255,255,255,0.1)' 
-                    : 'inset 0 0 0 1px rgba(255,255,255,0.1)'
+                    ? `0 0 10px ${bgColor}80, inset 0 0 0 1px rgba(255,255,255,0.2)` 
+                    : 'inset 0 0 0 1px rgba(255,255,255,0.5)'
                 }}
               >
                 {icon}
@@ -98,8 +100,12 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
               {/* Tooltip with flavor name */}
               <span 
                 className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-1 
-                  px-2 py-1 bg-popover text-popover-foreground text-xs rounded opacity-0 group-hover:opacity-100 
-                  pointer-events-none transition-opacity whitespace-nowrap z-10"
+                  px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 
+                  pointer-events-none transition-opacity whitespace-nowrap z-10 font-medium border border-border/50"
+                style={{ 
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+                }}
               >
                 {flavor}
               </span>

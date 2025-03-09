@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "@/components/ThemeProvider";
 import { parsePercentage, getTerpeneEffect, getTerpeneDetailedEffect, getTerpeneColor } from "./utils";
 
 interface TerpeneEggProps {
@@ -32,6 +33,8 @@ const getTerpeneShapeIcon = (terpene: string, size: number) => {
 const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   const isMobile = useIsMobile();
   const [expandedTerpene, setExpandedTerpene] = useState<string | null>(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
@@ -50,7 +53,15 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   };
 
   // Vibrant color palette for better visibility
-  const colors = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#EF4444'];
+  const colors = [
+    '#9333EA', // Vivid purple
+    '#EC4899', // Pink
+    '#F97316', // Orange
+    '#0EA5E9', // Sky blue
+    '#10B981', // Emerald
+    '#EF4444', // Red
+    '#F59E0B'  // Amber
+  ];
 
   // Helper to get the terpene position in the egg visualization
   const getTerpenePosition = (index: number, total: number) => {
@@ -84,17 +95,45 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
       
       <div className="flex flex-col md:flex-row gap-3 items-center md:items-start">
         {/* The egg visualization */}
-        <div className="relative h-[180px] w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 border border-border/30 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30">
-          {/* Egg border with aromatic properties */}
-          <div className="absolute inset-0 rounded-[50%] border border-dashed border-border/40 flex items-center justify-center">
-            <div className="text-[9px] text-muted-foreground font-light rotate-[30deg] absolute top-2 left-1/4">entspannend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[60deg] absolute top-1/4 right-4">beruhigend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[120deg] absolute bottom-1/4 right-4">entzündungshemmend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[145deg] absolute bottom-2 right-1/4">schmerzlindernd</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-30deg] absolute top-2 right-1/4">stimmungsaufhellend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-60deg] absolute top-1/4 left-4">fokussierend</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-120deg] absolute bottom-1/4 left-4">antioxidativ</div>
-            <div className="text-[9px] text-muted-foreground font-light rotate-[-145deg] absolute bottom-2 left-1/4">schlaffördernd</div>
+        <div className="relative h-[180px] w-[180px] flex-shrink-0 mx-auto mb-4 md:mx-0 
+                      border border-border/50 rounded-[50%] 
+                      bg-gradient-to-b from-primary/5 to-secondary/10 
+                      dark:from-primary/10 dark:to-secondary/20">
+          {/* Egg property text with improved visibility */}
+          <div className="absolute inset-0 rounded-[50%] border border-dashed border-primary/30 flex items-center justify-center">
+            {/* Property texts with better contrast */}
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[30deg] absolute top-3 left-1/4 shadow-md">
+              entspannend
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[60deg] absolute top-1/4 right-4 shadow-md">
+              beruhigend
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[120deg] absolute bottom-1/4 right-6 shadow-md">
+              entzündungshemmend
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[145deg] absolute bottom-3 right-1/4 shadow-md">
+              schmerzlindernd
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[-30deg] absolute top-3 right-1/4 shadow-md">
+              stimmungsaufhellend
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[-60deg] absolute top-1/4 left-4 shadow-md">
+              fokussierend
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[-120deg] absolute bottom-1/4 left-6 shadow-md">
+              antioxidativ
+            </div>
+            <div className="text-[9px] font-medium text-white px-1.5 py-0.5 rounded-full bg-primary/40 backdrop-blur-sm 
+                          rotate-[-145deg] absolute bottom-3 left-1/4 shadow-md">
+              schlaffördernd
+            </div>
           </div>
           
           {/* Terpene shapes positioned in the egg */}
@@ -118,25 +157,41 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                 onClick={() => handleTerpeneClick(terpene.name)}
                 title={`${terpene.name} ${terpene.value}%`}
               >
-                {getTerpeneShapeIcon(terpene.name, dotSize)}
+                {/* Glowing background for the shape */}
+                <div 
+                  className="absolute inset-0 rounded-full blur-[8px] opacity-40"
+                  style={{ 
+                    backgroundColor: color,
+                    width: `${dotSize + 4}px`,
+                    height: `${dotSize + 4}px`
+                  }}
+                ></div>
                 
-                {/* Percentage label */}
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">
+                {/* Terpene shape with drop shadow */}
+                <div className="relative drop-shadow-lg" style={{ filter: `drop-shadow(0 0 6px ${color})` }}>
+                  {getTerpeneShapeIcon(terpene.name, dotSize)}
+                </div>
+                
+                {/* Percentage label with improved contrast */}
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-md">
                   {terpene.value}%
                 </span>
                 
-                {/* Terpene name label for desktop */}
-                <span 
-                  className="hidden md:block absolute whitespace-nowrap px-1 py-0.5 text-[10px] rounded-md bg-background/80 text-foreground"
+                {/* Terpene name label with improved visibility */}
+                <div 
+                  className="hidden md:flex absolute whitespace-nowrap px-2 py-1 
+                            rounded-full bg-background/90 dark:bg-background/80 
+                            text-[10px] font-medium border border-primary/20 shadow-lg
+                            backdrop-blur-sm items-center justify-center"
                   style={{
-                    top: '100%',
+                    top: '120%',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    marginTop: '2px'
+                    color: color,
                   }}
                 >
                   {terpene.name}
-                </span>
+                </div>
               </div>
             );
           })}
@@ -147,16 +202,16 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
           {terpeneData.map((terpene, index) => (
             <Collapsible 
               key={index}
-              className="mb-1 last:mb-0"
+              className="mb-1.5 last:mb-0"
               open={expandedTerpene === terpene.name}
               onOpenChange={() => handleTerpeneClick(terpene.name)}
             >
-              <CollapsibleTrigger className="flex items-center w-full text-sm py-1 hover:bg-background/60 rounded px-1 transition-colors">
+              <CollapsibleTrigger className="flex items-center w-full text-sm py-1.5 hover:bg-background/60 rounded px-2 transition-colors">
                 <div
-                  className="w-4 h-4 mr-2 flex-shrink-0 flex items-center justify-center"
+                  className="w-5 h-5 mr-2 flex-shrink-0 flex items-center justify-center"
                   style={{ color: colors[index % colors.length] }}
                 >
-                  {getTerpeneShapeIcon(terpene.name, 16)}
+                  {getTerpeneShapeIcon(terpene.name, 18)}
                 </div>
                 <span className="mr-1 font-medium flex-grow text-left">{terpene.name}</span>
                 <span className="text-foreground/70 mr-2">{terpene.value}%</span>
@@ -167,8 +222,10 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
                 )}
               </CollapsibleTrigger>
               
-              <CollapsibleContent className="pl-5 pr-1 pt-1 pb-2 text-sm text-foreground/80 border-l-2 ml-1.5" 
-                style={{ borderColor: colors[index % colors.length] }}>
+              <CollapsibleContent 
+                className="pl-6 pr-2 pt-1 pb-2.5 text-sm text-foreground/80 ml-1.5 border-l-[3px] rounded-r" 
+                style={{ borderColor: colors[index % colors.length], backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}
+              >
                 {terpene.effect}
               </CollapsibleContent>
             </Collapsible>

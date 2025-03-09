@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -150,10 +149,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="bg-background rounded-lg p-4 border border-border/30 shadow-sm">
               <ProductInfoPanel product={productData} />
               
-              {/* Always show flavor profile - it won't be duplicate anymore */}
-              <div className="mt-4 border-t border-border/30 pt-4">
-                <FlavorProfile flavors={flavors} />
-              </div>
+              {/* Only show flavor profile if not already shown in ProductInfoPanel */}
+              {!productData.flavors && (
+                <div className="mt-4 border-t border-border/30 pt-4">
+                  <FlavorProfile flavors={flavors} />
+                </div>
+              )}
             </div>
 
             <p className="text-foreground/80 leading-relaxed">{description}</p>
