@@ -29,7 +29,13 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <ThemeProvider defaultTheme="light" storageKey="cannabis-shop-theme">
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground relative">
+        {/* Dark mode decoration elements */}
+        <div className="dark:block hidden">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl opacity-20 -z-10"></div>
+          <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl opacity-20 -z-10"></div>
+        </div>
+        
         {!noHeader && <Header />}
         <MobileNavDots />
         <main
