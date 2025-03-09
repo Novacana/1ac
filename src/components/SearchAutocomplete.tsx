@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
@@ -107,33 +107,23 @@ const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           placeholder={placeholder}
           className={`
             ${fullWidth ? 'w-full' : ''}
-            ${compact ? 'h-8 md:h-9 pl-7 pr-12 text-sm rounded-full' : 'pr-16 pl-10'}
+            ${compact ? 'h-8 md:h-9 pl-4 pr-12 text-sm rounded-full' : 'pr-12 pl-4'}
             transition-all bg-background/20 backdrop-blur-sm border-transparent focus:border-primary/20 focus:bg-background/40
           `}
           value={searchQuery}
           onChange={handleInputChange}
           autoFocus={autoFocus}
         />
-        <Search 
-          className={`absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground ${compact ? 'h-3.5 w-3.5' : 'h-4 w-4'}`} 
-        />
         {searchQuery && (
           <button 
             type="button" 
             onClick={handleClearSearch}
-            className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             aria-label="Suche löschen"
           >
             <X size={compact ? 14 : 16} />
           </button>
         )}
-        <button 
-          type="submit" 
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          aria-label="Suchen"
-        >
-          <Search size={compact ? 14 : 16} />
-        </button>
       </form>
 
       {showSuggestions && filteredSuggestions.length > 0 && (

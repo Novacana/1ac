@@ -44,6 +44,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // Generate a random delivery time (in a real app, this would be calculated based on logistics)
   const deliveryDays = Math.floor(Math.random() * 3) + 1;
 
+  // Get top terpenes for display
+  const topTerpenes = product.terpenes ? product.terpenes.slice(0, 2) : [];
+
   return (
     <Link key={product.id} to={`/product/${product.id}`}>
       <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02] bg-card/80 backdrop-blur-sm border-border/40">
@@ -94,10 +97,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <h3 className="font-semibold text-sm md:text-base mb-0.5 line-clamp-1">{product.name}</h3>
               <p className="text-xs text-muted-foreground mb-1 line-clamp-1">{product.strain || product.category}</p>
               
-              {/* Description - only visible on desktop */}
-              <p className="text-xs text-muted-foreground mb-2 line-clamp-2 hidden md:block">
-                {product.description.substring(0, 100)}{product.description.length > 100 ? '...' : ''}
-              </p>
+              {/* Terpene info - only visible on desktop */}
+              {topTerpenes.length > 0 && (
+                <div className="hidden md:flex items-center gap-1 flex-wrap my-1.5">
+                  {topTerpenes.map((terpene, index) => (
+                    <span key={index} className="text-xs px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-foreground">
+                      {terpene.name} {terpene.percentage}
+                    </span>
+                  ))}
+                </div>
+              )}
               
               {/* Rating - only visible on desktop */}
               <div className="flex items-center gap-1 text-amber-400 my-1 hidden md:flex">
