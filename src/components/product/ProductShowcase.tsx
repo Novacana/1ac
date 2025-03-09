@@ -4,7 +4,6 @@ import ProductInfoPanel from "../ProductInfoPanel";
 import ProductDetailPanel from "../ProductDetailPanel";
 import ProductActionButtons from "./ProductActionButtons";
 import ProductImageCarousel from "./ProductImageCarousel";
-import FlavorProfile from "../ProductInfoPanel/FlavorProfile";
 
 interface ProductShowcaseProps {
   products: Product[];
