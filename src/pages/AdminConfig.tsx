@@ -3,18 +3,20 @@ import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import WooCommerceConfig from "@/components/admin/WooCommerceConfig";
 import ShopifyConfig from "@/components/admin/ShopifyConfig";
+import PartnerConfig from "@/components/admin/PartnerConfig";
+import PaymentConfig from "@/components/admin/PaymentConfig";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AdminConfig: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("woocommerce");
+  const [activeTab, setActiveTab] = useState("partners");
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <Link to="/">
               <Button variant="outline" size="sm" className="mb-4">
@@ -24,15 +26,25 @@ const AdminConfig: React.FC = () => {
             </Link>
             <h1 className="text-3xl font-bold">Shop-Konfiguration</h1>
             <p className="text-muted-foreground mt-2">
-              Konfigurieren Sie Ihre Shop-Integrationen und Einstellungen.
+              Konfigurieren Sie Ihre Shop-Integrationen, Partner und Zahlungseinstellungen.
             </p>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
             <TabsList className="mb-4">
+              <TabsTrigger value="partners">Partner</TabsTrigger>
+              <TabsTrigger value="payments">Zahlungen</TabsTrigger>
               <TabsTrigger value="woocommerce">WooCommerce</TabsTrigger>
               <TabsTrigger value="shopify">Shopify</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="partners">
+              <PartnerConfig />
+            </TabsContent>
+
+            <TabsContent value="payments">
+              <PaymentConfig />
+            </TabsContent>
             
             <TabsContent value="woocommerce">
               <WooCommerceConfig />
