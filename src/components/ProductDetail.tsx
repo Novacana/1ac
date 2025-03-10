@@ -115,22 +115,20 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               cbd={cbd}
               packageSize={packageSize}
             />
-          </div>
-
-          {/* Middle column - Terpene egg on desktop (only if terpenes exist) */}
-          {!isMobile && terpenes && terpenes.length > 0 && (
-            <div className="md:col-span-3 flex items-start justify-center">
+            
+            {/* Terpene Egg moved below product images */}
+            {terpenes && terpenes.length > 0 && (
               <div className="bg-background rounded-lg p-3 border border-border/30 shadow-sm w-full">
                 <ProductInfoPanel 
                   product={productData} 
                   showOnlyTerpenes={true}
                 />
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Right column - Product info and actions */}
-          <div className="md:col-span-4 space-y-5">
+          <div className="md:col-span-7 space-y-5">
             <div className="space-y-4 mb-6">
               <QuantitySelector
                 quantity={quantity}
@@ -166,16 +164,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             <ProductEffects effects={effects} />
 
             <ProductUsage use={use} />
-            
-            {/* Mobile view - Terpene egg */}
-            {isMobile && terpenes && terpenes.length > 0 && (
-              <div className="mt-4 bg-background rounded-lg p-4 border border-border/30 shadow-sm">
-                <ProductInfoPanel 
-                  product={productData} 
-                  showOnlyTerpenes={true}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>

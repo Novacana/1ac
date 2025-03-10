@@ -39,22 +39,26 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     <div className="w-full">
       <TerpeneTotal totalPercentage={totalPercentage} />
       
-      <div className={`flex ${isMobile ? 'flex-col' : 'flex-col'} gap-2`}>
-        {/* The egg visualization - centered and properly sized */}
-        <TerpeneVisualization 
-          terpeneData={terpeneData} 
-          expandedTerpene={expandedTerpene} 
-          onTerpeneClick={handleTerpeneClick}
-          isDark={isDark}
-        />
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
+        {/* The egg visualization - properly sized */}
+        <div className="flex-1">
+          <TerpeneVisualization 
+            terpeneData={terpeneData} 
+            expandedTerpene={expandedTerpene} 
+            onTerpeneClick={handleTerpeneClick}
+            isDark={isDark}
+          />
+        </div>
         
-        {/* Terpene legends and descriptions - sized appropriately */}
-        <TerpeneLegend 
-          terpeneData={terpeneData} 
-          expandedTerpene={expandedTerpene} 
-          onTerpeneClick={handleTerpeneClick}
-          isDark={isDark}
-        />
+        {/* Terpene legends and descriptions */}
+        <div className="flex-1">
+          <TerpeneLegend 
+            terpeneData={terpeneData} 
+            expandedTerpene={expandedTerpene} 
+            onTerpeneClick={handleTerpeneClick}
+            isDark={isDark}
+          />
+        </div>
       </div>
     </div>
   );

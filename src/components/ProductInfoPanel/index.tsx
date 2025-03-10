@@ -59,12 +59,7 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({
         </div>
       )}
       
-      {/* Only render TerpeneEgg here if terpenes are available AND hideEgg is false (for mobile only) */}
-      {!hideEgg && isMobile && product.terpenes && product.terpenes.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-border/30 md:hidden">
-          <TerpeneEgg product={product} />
-        </div>
-      )}
+      {/* Removed the mobile TerpeneEgg rendering since it's now below the images */}
     </div>
   );
 };
