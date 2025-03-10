@@ -14,7 +14,7 @@ export const useAdvisor = (advisorState: AdvisorState) => {
   const { gdprNotice } = useAdvisorGdpr(advisorState);
   const { handleSpeakResponse, toggleVoice, toggleListening, stopSpeaking } = useAdvisorVoiceHandling(advisorState);
   const { processUserQuery } = useAdvisorQueryProcessing(advisorState, handleSpeakResponse);
-  const { toggleAdvisor, handleSendMessage, handleKeyPress, handleNavigate } = 
+  const { toggleAdvisor, handleSendMessage, handleKeyPress, handleNavigate, toggleVoiceMode } = 
     useAdvisorInteractions(advisorState, handleSpeakResponse);
   
   // Make sure processUserQuery is available in tools
@@ -57,6 +57,7 @@ export const useAdvisor = (advisorState: AdvisorState) => {
     toggleListening,
     stopSpeaking,
     handleNavigate,
+    toggleVoiceMode,
     gdprNotice
   };
 };
