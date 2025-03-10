@@ -48,7 +48,7 @@ const PharmacyHeader: React.FC<PharmacyHeaderProps> = ({ onImport, onAddProduct 
         </p>
       </div>
       
-      <div className="flex gap-2 mt-4 md:mt-0">
+      <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
         <Button 
           variant="outline" 
           className="flex items-center gap-2"

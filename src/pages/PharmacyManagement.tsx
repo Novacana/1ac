@@ -45,10 +45,18 @@ const PharmacyManagement: React.FC = () => {
     setShowNewProductDialog(true);
   };
 
+  // Function to handle dashboard card clicks
+  const handleCardClick = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   // Dashboard overview card components
   const DashboardOverview = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card>
+      <Card 
+        className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50" 
+        onClick={() => handleCardClick("inventory")}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <ShoppingCart className="h-4 w-4 text-blue-500" />
@@ -62,7 +70,10 @@ const PharmacyManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50" 
+        onClick={() => handleCardClick("prescriptions")}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <FileText className="h-4 w-4 text-amber-500" />
@@ -76,7 +87,10 @@ const PharmacyManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50" 
+        onClick={() => handleCardClick("orders")}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <Clipboard className="h-4 w-4 text-green-500" />
@@ -90,7 +104,10 @@ const PharmacyManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50" 
+        onClick={() => handleCardClick("customers")}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <Users className="h-4 w-4 text-purple-500" />
@@ -167,6 +184,23 @@ const PharmacyManagement: React.FC = () => {
               
               <TabsContent value="integrations">
                 <IntegrationsTab />
+              </TabsContent>
+
+              <TabsContent value="customers">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Kundenverwaltung</CardTitle>
+                    <CardDescription>
+                      Verwalten Sie Ihre Kunden und deren Daten
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="py-8 text-center text-muted-foreground">
+                      <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                      <p>Kundenverwaltung ist derzeit in Entwicklung</p>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </div>
           </Tabs>

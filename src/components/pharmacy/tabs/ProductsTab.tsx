@@ -28,7 +28,7 @@ const ProductsTab: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Apothekeninventar</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="bg-blue-100 text-blue-800">
               {inventoryStats.total} Produkte gesamt
             </Badge>
