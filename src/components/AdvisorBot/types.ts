@@ -1,6 +1,6 @@
 
 import { ProductDetailProps } from "@/components/ProductDetail";
-import { ToastAction } from "@/components/ui/toast";
+import { ToastActionElement } from "@/components/ui/toast";
 import { NavigateFunction } from "react-router-dom";
 import { useConversation } from "@11labs/react";
 import { Toast, ToasterToast } from "@/hooks/use-toast";
@@ -30,7 +30,7 @@ export type N8nResponse = {
 
 // Define a consistent toast function type that matches the actual toast implementation
 export type ToastFunction = {
-  (props: { title: string; description?: string; action?: ToastAction; variant?: "default" | "destructive" }): { id: string; dismiss: () => void; update: (props: ToasterToast) => void; };
+  (props: { title: string; description?: string; action?: ToastActionElement; variant?: "default" | "destructive" }): { id: string; dismiss: () => void; update: (props: ToasterToast) => void; };
   error: (message: string) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; };
 };
 
