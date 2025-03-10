@@ -2,7 +2,7 @@
 import { ProductDetailProps } from "@/components/ProductDetail";
 import { ToastAction } from "@/components/ui/toast";
 import { NavigateFunction } from "react-router-dom";
-import { ConversationManager } from "@11labs/react";
+import { Conversation } from "@11labs/react";
 
 export type Message = {
   role: 'user' | 'assistant';
@@ -67,12 +67,12 @@ export type AdvisorState = {
     recognitionRef: React.MutableRefObject<SpeechRecognition | null>;
     bottomRef: React.MutableRefObject<HTMLDivElement | null>;
     messagesRef: React.MutableRefObject<HTMLDivElement | null>;
-    conversation: ConversationManager;
+    conversation: Conversation;
   };
   tools: {
     webTools: WebTools;
     toast: {
-      (props: { title: string; description?: string; action?: ToastAction; variant?: "default" | "destructive" }): void;
+      (props: { title: string; description?: string; action?: React.ReactNode; variant?: "default" | "destructive" }): void;
       error: (message: string) => void;
     };
     navigate: NavigateFunction;

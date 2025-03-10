@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
-import { AdvisorState } from "../types";
+import { AdvisorState, Message } from "../types";
 import { createWebTools } from "../toolUtils";
 
 export const useAdvisorCore = (
@@ -19,7 +19,7 @@ export const useAdvisorCore = (
   const [isPlaying, setIsPlaying] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [showProducts, setShowProducts] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState([
+  const [conversationHistory, setConversationHistory] = useState<Message[]>([
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
   const [webhookUrl, setWebhookUrl] = useState("");

@@ -7,7 +7,8 @@ import {
   executeN8nActions,
   sendToN8nWebhook
 } from "../toolUtils";
-import { AdvisorState } from "../types";
+import { AdvisorState, Message } from "../types";
+import { Toast } from "@/hooks/use-toast";
 
 export const useAdvisorProcessing = (advisorState: AdvisorState) => {
   const { 
