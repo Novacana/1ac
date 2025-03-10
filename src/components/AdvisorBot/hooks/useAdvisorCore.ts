@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { AdvisorState, Message } from "../types";
-import { createWebTools } from "../toolUtils";
+import { createWebTools } from "../utils/webTools";
 
 export const useAdvisorCore = (
   navigate: any,

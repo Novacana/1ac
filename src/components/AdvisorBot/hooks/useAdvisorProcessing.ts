@@ -2,10 +2,10 @@
 import {
   processQuery,
   detectToolIntent,
-  createWebTools,
   executeN8nActions,
   sendToN8nWebhook
-} from "../toolUtils";
+} from "../utils";
+import { createWebTools } from "../utils/webTools";
 import { AdvisorState, Message } from "../types";
 import { useToast } from "@/hooks/use-toast";
 

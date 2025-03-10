@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useConversation } from "@11labs/react";
 import { Message, ToastFunction, AdvisorState } from "../types";
-import { createWebTools } from "../toolUtils";
+import { createWebTools } from "../utils/webTools";
 import { ELEVENLABS_API_KEY } from "../voiceUtils";
 
 // Constants
