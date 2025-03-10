@@ -62,12 +62,65 @@ const Login = () => {
     }
   };
 
+  // Set demo credentials based on initial tab
+  const getDemoContent = () => {
+    switch(userType) {
+      case 'user':
+        return (
+          <div className="mt-1">
+            <p>Email: user@example.com</p>
+            <p>Passwort: password</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2" 
+              onClick={() => handleDemoLogin('user')}
+            >
+              Als Patient anmelden
+            </Button>
+          </div>
+        );
+      case 'doctor':
+        return (
+          <div className="mt-1">
+            <p>Email: doctor@example.com</p>
+            <p>Passwort: password</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2" 
+              onClick={() => handleDemoLogin('doctor')}
+            >
+              Als Arzt anmelden
+            </Button>
+          </div>
+        );
+      case 'pharmacy':
+        return (
+          <div className="mt-1">
+            <p>Email: pharmacy@example.com</p>
+            <p>Passwort: password</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2" 
+              onClick={() => handleDemoLogin('pharmacy')}
+            >
+              Als Apotheke anmelden
+            </Button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Layout>
       <div className="container px-4 pt-8 pb-16 max-w-md mx-auto">
         <Card className="shadow-lg">
           <CardHeader className="space-y-1">
-            <Tabs defaultValue={userType} onValueChange={setUserType} className="w-full">
+            <Tabs value={userType} onValueChange={setUserType} className="w-full">
               <TabsList className="grid grid-cols-3 mb-4">
                 <TabsTrigger value="user" className="flex items-center gap-1">
                   <User className="h-4 w-4" />
@@ -83,6 +136,7 @@ const Login = () => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
+            
             <CardTitle className="text-2xl font-bold text-center">Anmelden</CardTitle>
             <CardDescription className="text-center">
               {userType === 'user' && 'Als Patient anmelden, um Ihre Bestellungen zu verfolgen'}
@@ -147,42 +201,7 @@ const Login = () => {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm text-muted-foreground">
               <p>Demo Zugangsdaten:</p>
-              <TabsContent value="user" className="mt-1">
-                <p>Email: user@example.com</p>
-                <p>Passwort: password</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2" 
-                  onClick={() => handleDemoLogin('user')}
-                >
-                  Als Patient anmelden
-                </Button>
-              </TabsContent>
-              <TabsContent value="doctor" className="mt-1">
-                <p>Email: doctor@example.com</p>
-                <p>Passwort: password</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2" 
-                  onClick={() => handleDemoLogin('doctor')}
-                >
-                  Als Arzt anmelden
-                </Button>
-              </TabsContent>
-              <TabsContent value="pharmacy" className="mt-1">
-                <p>Email: pharmacy@example.com</p>
-                <p>Passwort: password</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2" 
-                  onClick={() => handleDemoLogin('pharmacy')}
-                >
-                  Als Apotheke anmelden
-                </Button>
-              </TabsContent>
+              {getDemoContent()}
             </div>
             <div className="w-full text-center">
               <p className="text-sm text-muted-foreground">
