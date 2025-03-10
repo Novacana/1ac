@@ -1,4 +1,3 @@
-
 import React from "react";
 import { getFlavorColor } from "./utils";
 import { 
@@ -84,14 +83,14 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
               className="relative group"
             >
               <div
-                className={`flex items-center justify-center rounded-full w-11 h-11 shadow-md
+                className={`flex items-center justify-center rounded-full w-11 h-11
                           transition-transform hover:scale-110
                           ${isDarkMode ? 'text-white border border-white/10' : 'text-foreground'}`}
                 style={{ 
                   backgroundColor: bgColor,
-                  boxShadow: isDarkMode 
-                    ? `0 0 10px ${bgColor}80, inset 0 0 0 1px rgba(255,255,255,0.2)` 
-                    : 'inset 0 0 0 1px rgba(255,255,255,0.5)'
+                  border: isDarkMode 
+                    ? '1px solid rgba(255,255,255,0.2)' 
+                    : '1px solid rgba(255,255,255,0.5)'
                 }}
               >
                 {icon}
@@ -103,8 +102,7 @@ const FlavorProfile: React.FC<FlavorProfileProps> = ({ flavors }) => {
                   px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 
                   pointer-events-none transition-opacity whitespace-nowrap z-10 font-medium border border-border/50"
                 style={{ 
-                  backdropFilter: 'blur(8px)',
-                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+                  backdropFilter: 'blur(8px)'
                 }}
               >
                 {flavor}
