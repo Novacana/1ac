@@ -2,7 +2,7 @@
 import { ProductDetailProps } from "@/components/ProductDetail";
 import { ToastAction } from "@/components/ui/toast";
 import { NavigateFunction } from "react-router-dom";
-import { Conversation } from "@11labs/react";
+import { useConversation } from "@11labs/react";
 
 export type Message = {
   role: 'user' | 'assistant';
@@ -67,7 +67,7 @@ export type AdvisorState = {
     recognitionRef: React.MutableRefObject<SpeechRecognition | null>;
     bottomRef: React.MutableRefObject<HTMLDivElement | null>;
     messagesRef: React.MutableRefObject<HTMLDivElement | null>;
-    conversation: Conversation;
+    conversation: ReturnType<typeof useConversation>;
   };
   tools: {
     webTools: WebTools;

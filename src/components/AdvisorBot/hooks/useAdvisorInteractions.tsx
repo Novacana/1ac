@@ -3,114 +3,101 @@ import { useEffect } from 'react';
 import { useAdvisorCore } from './useAdvisorCore';
 import { useAdvisorProcessing } from './useAdvisorProcessing';
 import { useAdvisorVoice } from './useAdvisorVoice';
-import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import { useConversation } from '@11labs/react';
 
 export const useAdvisorInteractions = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
-  const conversation = useConversation({
-    onError: (error) => {
-      console.error("ElevenLabs error:", error);
-      toast({
-        title: "Fehler bei der Sprachausgabe",
-        description: "Es gab ein Problem mit der ElevenLabs Sprachausgabe.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Create the advisor core state and utilities
-  const advisorState = useAdvisorCore(toast, navigate, conversation);
+  // Initialize the core state and utilities
+  const advisorState = useAdvisorCore(navigate, toast, useConversation);
   
-  // Get processing functions
-  const { processUserQuery, fallbackProcessing } = useAdvisorProcessing(advisorState);
+  // Get processing utilities (for handling user queries)
+  const { processUserQuery } = useAdvisorProcessing(advisorState);
   
-  // Get voice handling functions
-  const {
-    toggleVoice,
-    toggleListening,
-    handleConsentChange,
-    handleDismissGdprNotice,
-    handleSpeakResponse
-  } = useAdvisorVoice(advisorState);
+  // Get voice interaction utilities
+  const { toggleVoice, toggleListening, speakBotResponse } = useAdvisorVoice(advisorState);
   
-  // Setup the processQuery function in the voice handler
-  const startListeningWithProcessing = () => {
-    if (!advisorState.state.gdprConsent) {
-      advisorState.setters.setShowGdprNotice(true);
-      return;
-    }
-    
-    // Update the startListening function to use our processUserQuery
-    if (advisorState.state.isListening) {
-      // Import and use stopListening directly to avoid circular dependencies
-      const { stopListening } = require('../speechRecognition');
-      stopListening(advisorState.refs.recognitionRef, advisorState.setters.setIsListening);
-    } else {
-      // Import and use startListening directly to avoid circular dependencies
-      const { startListening } = require('../speechRecognition');
-      startListening(
-        advisorState.setters.setIsListening,
-        advisorState.setters.setTranscript,
-        processUserQuery,
-        advisorState.refs.recognitionRef,
-        toast
-      );
-    }
-  };
+  // Add processUserQuery to the tools
+  advisorState.tools.processUserQuery = processUserQuery;
   
-  // Handle sending a message
+  // Handle sending messages
   const handleSendMessage = () => {
     if (advisorState.state.userInput.trim()) {
       processUserQuery(advisorState.state.userInput);
       advisorState.setters.setUserInput("");
     }
   };
-
+  
+  // Handle keyboard input (Enter to send)
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-
-  // Scroll to bottom when messages update
-  useEffect(() => {
-    if (advisorState.refs.messagesRef.current && advisorState.refs.bottomRef.current && advisorState.state.isOpen) {
-      advisorState.refs.bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+  
+  // Handle GDPR consent
+  const handleConsentChange = () => {
+    advisorState.setters.setGdprConsent(true);
+    localStorage.setItem('advisorBotGdprConsent', 'true');
+    advisorState.setters.setShowGdprNotice(false);
+    
+    advisorState.tools.toast({
+      title: "DSGVO-Zustimmung erteilt",
+      description: "Vielen Dank für Ihre Zustimmung. Sie können jetzt die Spracherkennung nutzen.",
+    });
+  };
+  
+  // Handle closing the GDPR notice
+  const handleDismissGdprNotice = () => {
+    advisorState.setters.setShowGdprNotice(false);
+  };
+  
+  // Handle navigation
+  const handleNavigate = (path: string) => {
+    const response = advisorState.tools.webTools.navigateToPage(path);
+    advisorState.setters.setBotResponse(response);
+    advisorState.setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
+    
+    if (advisorState.state.isVoiceEnabled && advisorState.state.gdprConsent) {
+      speakBotResponse();
     }
-  }, [advisorState.state.conversationHistory, advisorState.state.isOpen]);
-
-  // Cleanup effect
+  };
+  
+  // Speak the response when it changes
   useEffect(() => {
-    return () => {
-      if (advisorState.refs.recognitionRef.current) {
-        // Import and use stopListening directly to avoid circular dependencies
-        const { stopListening } = require('../speechRecognition');
-        stopListening(advisorState.refs.recognitionRef, advisorState.setters.setIsListening);
+    if (advisorState.state.botResponse && advisorState.state.isVoiceEnabled && 
+        advisorState.state.gdprConsent && !advisorState.state.isLoading) {
+      speakBotResponse();
+    }
+  }, [advisorState.state.botResponse, advisorState.state.isLoading]);
+  
+  // Toggle the advisor panel
+  const toggleAdvisor = () => {
+    advisorState.setters.setIsOpen(!advisorState.state.isOpen);
+    if (advisorState.state.isOpen) {
+      if (advisorState.refs.conversation.status === "connected") {
+        advisorState.refs.conversation.endSession();
+        advisorState.setters.setIsPlaying(false);
       }
-      
-      if (conversation.status === "connected") {
-        conversation.endSession();
+      if (advisorState.state.isListening) {
+        toggleListening();
       }
-    };
-  }, []);
-
+    }
+  };
+  
   return {
-    state: advisorState.state,
-    setters: advisorState.setters,
-    refs: advisorState.refs,
-    processUserQuery,
-    fallbackProcessing,
-    toggleVoice,
-    toggleListening: startListeningWithProcessing,
-    handleConsentChange,
-    handleDismissGdprNotice,
+    ...advisorState,
     handleSendMessage,
     handleKeyPress,
-    handleSpeakResponse
+    handleConsentChange,
+    handleDismissGdprNotice,
+    handleNavigate,
+    toggleAdvisor,
+    toggleVoice,
+    toggleListening
   };
 };

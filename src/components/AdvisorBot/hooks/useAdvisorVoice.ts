@@ -1,78 +1,80 @@
 
-import { startListening, stopListening } from "../speechRecognition";
-import { AdvisorState } from "../types";
 import { speakResponse } from "../voiceUtils";
+import { AdvisorState, Message } from "../types";
+import { startListening, stopListening } from "../speechRecognition";
 
 export const useAdvisorVoice = (advisorState: AdvisorState) => {
-  const { state, setters, refs, tools } = advisorState;
-  const { toast } = tools;
+  const { 
+    state: { 
+      isVoiceEnabled, 
+      isListening, 
+      gdprConsent, 
+      isApiKeySet,
+      isPlaying,
+      botResponse 
+    },
+    setters: { 
+      setIsListening, 
+      setIsVoiceEnabled,
+      setTranscript,
+      setShowGdprNotice,
+      setIsPlaying
+    },
+    refs: { 
+      recognitionRef,
+      conversation 
+    },
+    tools: { toast }
+  } = advisorState;
 
   const toggleVoice = () => {
-    // Wenn Sprachausgabe deaktiviert wird
-    if (state.isVoiceEnabled) {
-      // Aktuellen Ton stoppen, wenn er läuft
-      if (state.isPlaying && refs.conversation.status === "connected") {
-        refs.conversation.endSession();
-        setters.setIsPlaying(false);
+    // Stop current audio if playing
+    if (isVoiceEnabled) {
+      if (isPlaying && conversation.status === "connected") {
+        conversation.endSession();
+        setIsPlaying(false);
       }
     }
-    setters.setIsVoiceEnabled(!state.isVoiceEnabled);
+    setIsVoiceEnabled(!isVoiceEnabled);
   };
 
   const toggleListening = () => {
-    // DSGVO-Zustimmung prüfen
-    if (!state.gdprConsent) {
-      setters.setShowGdprNotice(true);
+    // Check GDPR consent
+    if (!gdprConsent) {
+      setShowGdprNotice(true);
       return;
     }
     
-    if (state.isListening) {
-      stopListening(refs.recognitionRef, setters.setIsListening);
+    if (isListening) {
+      stopListening(recognitionRef, setIsListening);
     } else {
       startListening(
-        setters.setIsListening,
-        setters.setTranscript,
-        (query) => {}, // This will be set in useAdvisorInteractions
-        refs.recognitionRef,
+        setIsListening,
+        setTranscript,
+        advisorState.tools.processUserQuery,
+        recognitionRef,
         toast
       );
     }
   };
 
-  const handleConsentChange = () => {
-    setters.setGdprConsent(true);
-    localStorage.setItem('advisorBotGdprConsent', 'true');
-    setters.setShowGdprNotice(false);
+  const speakBotResponse = async () => {
+    if (!isVoiceEnabled || !gdprConsent || !isApiKeySet || !botResponse) return;
     
-    toast({
-      title: "DSGVO-Zustimmung erteilt",
-      description: "Vielen Dank für Ihre Zustimmung. Sie können jetzt die Spracherkennung nutzen.",
-    });
-  };
-
-  const handleDismissGdprNotice = () => {
-    setters.setShowGdprNotice(false);
-  };
-
-  const handleSpeakResponse = (text: string) => {
-    if (state.isVoiceEnabled && state.gdprConsent) {
-      speakResponse(
-        text,
-        state.isVoiceEnabled,
-        state.isApiKeySet,
-        refs.conversation,
-        setters.setIsPlaying,
-        state.isPlaying,
-        toast
-      );
-    }
+    await speakResponse(
+      botResponse,
+      isVoiceEnabled,
+      isApiKeySet,
+      conversation,
+      setIsPlaying,
+      isPlaying,
+      toast
+    );
   };
 
   return {
     toggleVoice,
     toggleListening,
-    handleConsentChange,
-    handleDismissGdprNotice,
-    handleSpeakResponse
+    speakBotResponse
   };
 };

@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Bot, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,8 +24,8 @@ import { Message } from "./types";
 import { ELEVENLABS_API_KEY } from "./voiceUtils";
 
 // Constants
-const N8N_WEBHOOK_URL = ""; // Hier deine n8n Webhook URL eintragen
-const USE_N8N_AGENT = false; // Auf true setzen, um den n8n Agenten zu aktivieren
+const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157"; // User provided webhook URL
+const USE_N8N_AGENT = true; // Enable n8n agent by default
 
 // DSGVO-Hinweis für die Spracherkennung und Sprachausgabe
 const gdprNotice = `
@@ -128,7 +127,6 @@ const ProductAdvisor = () => {
     };
   }, [conversation]);
 
-  // Prüfen, ob der Benutzer beim Scrollen das Ende der Nachrichtenliste erreicht hat
   useEffect(() => {
     if (messagesRef.current && bottomRef.current && isOpen) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -163,9 +161,7 @@ const ProductAdvisor = () => {
   };
 
   const toggleVoice = () => {
-    // Wenn Sprachausgabe deaktiviert wird
     if (isVoiceEnabled) {
-      // Aktuellen Ton stoppen, wenn er läuft
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
@@ -175,7 +171,6 @@ const ProductAdvisor = () => {
   };
 
   const toggleListening = () => {
-    // DSGVO-Zustimmung prüfen
     if (!gdprConsent) {
       setShowGdprNotice(true);
       return;
@@ -254,13 +249,11 @@ const ProductAdvisor = () => {
     setTranscript(userQuery);
     
     try {
-      // Stoppe laufende Sprachausgabe
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
 
-      // Füge Benutzeranfrage zur Konversationshistorie hinzu
       setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
       if (useN8nAgent && webhookUrl) {
@@ -319,7 +312,6 @@ const ProductAdvisor = () => {
         fallbackProcessing(userQuery);
       }
       
-      // Zurücksetzen des Transkripts nach kurzer Verzögerung
       setTimeout(() => {
         setTranscript("");
       }, 2000);
@@ -361,7 +353,6 @@ const ProductAdvisor = () => {
           />
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
-            {/* DSGVO Meldung als schwebende Benachrichtigung */}
             {showGdprNotice && (
               <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
                 <Card className="max-w-md w-full shadow-lg border-2 border-primary">
