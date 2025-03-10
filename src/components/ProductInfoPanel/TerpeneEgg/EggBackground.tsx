@@ -8,11 +8,11 @@ interface EggBackgroundProps {
 const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
   return (
     <>
-      {/* Streng ovales Ei mit Farbverlauf für unterschiedliche Wirkungsbereiche */}
-      <div className="absolute w-[200px] h-[260px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+      {/* Oval egg with gradient for different effect zones */}
+      <div className="absolute w-[200px] h-[250px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                     border border-border/70"
            style={{ 
-             borderRadius: "50% / 60%", /* Streng ovale Form */
+             borderRadius: "50% / 60%", /* Oval form */
              background: isDark 
                ? `
                  radial-gradient(ellipse at 30% 30%, rgba(134, 239, 172, 0.4) 0%, rgba(59, 130, 246, 0.01) 70%),
@@ -27,17 +27,17 @@ const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
                  radial-gradient(ellipse at 70% 70%, rgba(248, 113, 113, 0.5) 0%, rgba(255, 255, 255, 0.01) 70%)
                `
            }}>
-        {/* Beschriftungen für die Quadranten */}
-        <div className="absolute text-[9px] font-medium text-foreground/70 top-[15%] left-[30%] -translate-x-1/2 -translate-y-1/2">
+        {/* Small labels for the quadrants inside the egg */}
+        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[30%] -translate-x-1/2 -translate-y-1/2">
           körperlich anregend
         </div>
-        <div className="absolute text-[9px] font-medium text-foreground/70 top-[15%] left-[70%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[70%] -translate-x-1/2 -translate-y-1/2">
           geistig anregend
         </div>
-        <div className="absolute text-[9px] font-medium text-foreground/70 top-[85%] left-[30%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[30%] -translate-x-1/2 -translate-y-1/2">
           körperlich entspannend
         </div>
-        <div className="absolute text-[9px] font-medium text-foreground/70 top-[85%] left-[70%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[70%] -translate-x-1/2 -translate-y-1/2">
           geistig entspannend
         </div>
       </div>

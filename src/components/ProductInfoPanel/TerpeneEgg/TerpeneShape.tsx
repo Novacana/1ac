@@ -55,10 +55,10 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
         {/* Leave dot empty - percentage will be in the label */}
       </div>
       
-      {/* Show name and percentage label for all terpenes */}
+      {/* Label for terpene name and percentage */}
       <div 
         className={cn(
-          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 z-20",
+          "absolute whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all duration-300 z-20",
           isDark 
             ? "bg-gray-800/95 text-white border border-white/30" 
             : "bg-background/95 text-foreground border border-primary/30 shadow-sm",
