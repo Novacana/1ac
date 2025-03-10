@@ -26,7 +26,9 @@ export const useAdvisorInteractions = () => {
   // Handle sending messages
   const handleSendMessage = () => {
     if (advisorState.state.userInput.trim()) {
-      processUserQuery(advisorState.state.userInput);
+      if (advisorState.tools.processUserQuery) {
+        advisorState.tools.processUserQuery(advisorState.state.userInput);
+      }
       advisorState.setters.setUserInput("");
     }
   };
