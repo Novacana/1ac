@@ -3,7 +3,12 @@ import { useEffect } from "react";
 import { AdvisorState } from "../types";
 import { speakResponse } from "../voiceUtils";
 import { startListening, stopListening } from "../speechRecognition";
-import { detectToolIntent, processQuery, executeN8nActions, sendToN8nWebhook } from "../toolUtils";
+import { 
+  detectToolIntent, 
+  processQuery, 
+  executeN8nActions, 
+  sendToN8nWebhook 
+} from "../utils";
 import { products } from "@/data/products";
 
 // DSGVO-Hinweis für die Spracherkennung und Sprachausgabe
