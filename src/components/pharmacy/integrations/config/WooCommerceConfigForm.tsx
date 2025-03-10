@@ -1,20 +1,23 @@
 
 import React from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface WooCommerceConfigProps {
+interface WooCommerceConfigFormProps {
   shopUrl: string;
-  setShopUrl: (value: string) => void;
+  setShopUrl: (url: string) => void;
   apiKey: string;
-  setApiKey: (value: string) => void;
+  setApiKey: (key: string) => void;
   apiSecret: string;
-  setApiSecret: (value: string) => void;
+  setApiSecret: (secret: string) => void;
   apiVersion: string;
-  setApiVersion: (value: string) => void;
+  setApiVersion: (version: string) => void;
+  partnerName?: string;
+  setPartnerName?: (name: string) => void;
 }
 
-const WooCommerceConfigForm: React.FC<WooCommerceConfigProps> = ({
+const WooCommerceConfigForm: React.FC<WooCommerceConfigFormProps> = ({
   shopUrl,
   setShopUrl,
   apiKey,
@@ -23,61 +26,77 @@ const WooCommerceConfigForm: React.FC<WooCommerceConfigProps> = ({
   setApiSecret,
   apiVersion,
   setApiVersion,
+  partnerName,
+  setPartnerName
 }) => {
   return (
     <>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="shop-url" className="text-right">
-          Shop URL
-        </Label>
+      <div className="space-y-2">
+        <Label htmlFor="shop-url">WooCommerce Shop URL</Label>
         <Input
           id="shop-url"
+          placeholder="https://yourshop.com"
           value={shopUrl}
           onChange={(e) => setShopUrl(e.target.value)}
-          placeholder="https://mein-shop.de"
-          className="col-span-3 rounded-lg"
         />
+        <p className="text-xs text-muted-foreground">
+          Die vollständige URL zu Ihrem WooCommerce-Shop.
+        </p>
       </div>
       
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="consumer-key" className="text-right">
-          Consumer Key
-        </Label>
+      {setPartnerName && (
+        <div className="space-y-2">
+          <Label htmlFor="partner-name">Partner Name</Label>
+          <Input
+            id="partner-name"
+            placeholder="Apotheke Name"
+            value={partnerName || ""}
+            onChange={(e) => setPartnerName(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Der Name des Partners, der in Benachrichtigungen angezeigt wird.
+          </p>
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <Label htmlFor="consumer-key">Consumer Key</Label>
         <Input
           id="consumer-key"
-          type="password"
+          placeholder="ck_xxxxxxxxxxxxxxxxxxxxxxxx"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="ck_xxxxxxxxxxxx"
-          className="col-span-3 rounded-lg"
         />
       </div>
       
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="consumer-secret" className="text-right">
-          Consumer Secret
-        </Label>
+      <div className="space-y-2">
+        <Label htmlFor="consumer-secret">Consumer Secret</Label>
         <Input
           id="consumer-secret"
+          placeholder="cs_xxxxxxxxxxxxxxxxxxxxxxxx"
           type="password"
           value={apiSecret}
           onChange={(e) => setApiSecret(e.target.value)}
-          placeholder="cs_xxxxxxxxxxxx"
-          className="col-span-3 rounded-lg"
         />
       </div>
       
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="api-version" className="text-right">
-          API Version
-        </Label>
-        <Input
-          id="api-version"
+      <div className="space-y-2">
+        <Label htmlFor="api-version">API Version</Label>
+        <Select
           value={apiVersion}
-          onChange={(e) => setApiVersion(e.target.value)}
-          placeholder="wc/v3"
-          className="col-span-3 rounded-lg"
-        />
+          onValueChange={setApiVersion}
+        >
+          <SelectTrigger id="api-version">
+            <SelectValue placeholder="API Version wählen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="wc/v3">WooCommerce v3 (Standard)</SelectItem>
+            <SelectItem value="wc/v2">WooCommerce v2</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Die zu verwendende WooCommerce API-Version.
+        </p>
       </div>
     </>
   );

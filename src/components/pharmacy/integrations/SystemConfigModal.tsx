@@ -46,6 +46,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
   const [webhookUrl, setWebhookUrl] = useState("");
   const [shopUrl, setShopUrl] = useState("");
   const [apiVersion, setApiVersion] = useState("");
+  const [partnerName, setPartnerName] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notes, setNotes] = useState("");
   const [dataProcessingConsent, setDataProcessingConsent] = useState(false);
@@ -70,12 +71,14 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
           setApiKey(config.consumerKey || "");
           setApiSecret(config.consumerSecret || "");
           setApiVersion(config.version || "wc/v3");
+          setPartnerName(config.partnerName || "");
           setDataProcessingConsent(true); // Bereits konfiguriert, also Zustimmung gegeben
         } else {
           setShopUrl("");
           setApiKey("");
           setApiSecret("");
           setApiVersion("wc/v3");
+          setPartnerName("");
         }
       } else if (system.id === "shopify") {
         const config = loadShopifyConfig();
@@ -83,11 +86,13 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
           setShopUrl(config.shopUrl || "");
           setApiKey(config.accessToken || "");
           setApiVersion(config.apiVersion || "2023-10");
+          setPartnerName(config.partnerName || "");
           setDataProcessingConsent(true); // Bereits konfiguriert, also Zustimmung gegeben
         } else {
           setShopUrl("");
           setApiKey("");
           setApiVersion("2023-10");
+          setPartnerName("");
         }
       } else {
         // Andere Integrationen
@@ -96,6 +101,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
         setWebhookUrl("");
         setShopUrl("");
         setApiVersion("");
+        setPartnerName("");
       }
     }
   }, [open, system]);
@@ -126,7 +132,8 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
         url: shopUrl,
         consumerKey: apiKey,
         consumerSecret: apiSecret,
-        version: apiVersion || "wc/v3"
+        version: apiVersion || "wc/v3",
+        partnerName: partnerName || "Partner"
       });
       
       toast.success(`WooCommerce-Konfiguration für ${shopUrl} gespeichert`);
@@ -139,7 +146,8 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
       configureShopify({
         shopUrl: shopUrl,
         accessToken: apiKey,
-        apiVersion: apiVersion || "2023-10"
+        apiVersion: apiVersion || "2023-10",
+        partnerName: partnerName || "Partner"
       });
       
       toast.success(`Shopify-Konfiguration für ${shopUrl} gespeichert`);
@@ -173,6 +181,8 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
               setApiSecret={setApiSecret}
               apiVersion={apiVersion}
               setApiVersion={setApiVersion}
+              partnerName={partnerName}
+              setPartnerName={setPartnerName}
             />
           )}
           
@@ -184,6 +194,8 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
               setApiKey={setApiKey}
               apiVersion={apiVersion}
               setApiVersion={setApiVersion}
+              partnerName={partnerName}
+              setPartnerName={setPartnerName}
             />
           )}
           

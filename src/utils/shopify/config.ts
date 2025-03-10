@@ -1,57 +1,61 @@
-
 import { ShopifyConfig } from "@/types/shopify";
 
-// Default Shopify API configuration
-let shopifyConfig: ShopifyConfig = {
-  shopUrl: '',
-  accessToken: '',
-  apiVersion: '2023-10'
-};
+let shopifyConfig: {
+  shopUrl: string;
+  accessToken: string;
+  apiVersion: string;
+  partnerName?: string;
+} | null = null;
 
 /**
- * Configure the Shopify API connection
+ * Configure Shopify integration
  */
-export const configureShopify = (config: ShopifyConfig) => {
+export const configureShopify = (config: {
+  shopUrl: string;
+  accessToken: string;
+  apiVersion: string;
+  partnerName?: string;
+}) => {
   shopifyConfig = config;
+  
   // Save to localStorage for persistence
-  localStorage.setItem('shopify_config', JSON.stringify(config));
-  console.log('Shopify API configured:', config.shopUrl);
-  return true;
+  localStorage.setItem('shopifyConfig', JSON.stringify(config));
 };
 
 /**
  * Load Shopify configuration from localStorage
  */
-export const loadShopifyConfig = (): ShopifyConfig | null => {
-  const savedConfig = localStorage.getItem('shopify_config');
+export const loadShopifyConfig = () => {
+  if (shopifyConfig) return shopifyConfig;
+  
+  const savedConfig = localStorage.getItem('shopifyConfig');
   if (savedConfig) {
     try {
-      const config = JSON.parse(savedConfig);
-      shopifyConfig = config;
-      return config;
+      shopifyConfig = JSON.parse(savedConfig);
     } catch (e) {
-      console.error('Failed to parse Shopify config:', e);
+      console.error('Error parsing saved Shopify config:', e);
       return null;
     }
   }
-  return null;
+  
+  return shopifyConfig;
 };
 
 /**
  * Check if Shopify is configured
  */
-export const isShopifyConfigured = (): boolean => {
-  // Load config from localStorage if not already loaded
-  if (!shopifyConfig.shopUrl) {
-    loadShopifyConfig();
-  }
-  
-  return !!(shopifyConfig.shopUrl && shopifyConfig.accessToken);
+export const isShopifyConfigured = () => {
+  const config = loadShopifyConfig();
+  return !!(config?.shopUrl && config?.accessToken);
 };
 
 /**
- * Get the current Shopify configuration
+ * Get Shopify configuration
  */
-export const getShopifyConfig = (): ShopifyConfig => {
-  return shopifyConfig;
+export const getShopifyConfig = () => {
+  const config = loadShopifyConfig();
+  if (!config) {
+    throw new Error('Shopify is not configured');
+  }
+  return config;
 };

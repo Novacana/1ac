@@ -1,17 +1,22 @@
-
 import { Product } from "@/types/product";
 import { 
   fetchWooCommerceProducts, 
-  isWooCommerceConfigured 
+  isWooCommerceConfigured,
+  getWooCommerceConfig 
 } from "@/utils/woocommerce";
 import {
   fetchShopifyProducts,
-  isShopifyConfigured
+  isShopifyConfigured,
+  getShopifyConfig
 } from "@/utils/shopify";
 import { convertLocalProducts } from "@/utils/product-image-utils";
 import { toast } from "sonner";
 
 export type DataSource = "woocommerce" | "shopify" | "combined" | "local";
+
+// Store the timestamp of the last notification to avoid repeated messages
+let lastNotificationTime: number = 0;
+const NOTIFICATION_COOLDOWN = 30000; // 30 seconds cooldown
 
 /**
  * Load products from all available sources (local, WooCommerce, and Shopify)
@@ -59,15 +64,21 @@ export const loadProductsFromAllSources = async (
     console.error("Error importing local products:", importError);
   }
   
+  // Get current time to check notification throttling
+  const currentTime = Date.now();
+  const shouldShowNotification = !alreadyLoaded || (currentTime - lastNotificationTime > NOTIFICATION_COOLDOWN);
+  
   // Try to fetch products from WooCommerce if configured
   if (isWooCommerceConfigured()) {
     console.log("Fetching products from WooCommerce integration");
     
     try {
+      const wooConfig = getWooCommerceConfig();
+      const partnerName = wooConfig.partnerName || "Partner";
       const wooProducts = await fetchWooCommerceProducts();
       
       if (wooProducts && wooProducts.length > 0) {
-        console.log(`Fetched ${wooProducts.length} products from WooCommerce`);
+        console.log(`Fetched ${wooProducts.length} products from ${partnerName} (WooCommerce)`);
         
         // Add source information to each product
         const wooProductsWithSource = wooProducts.map(product => ({
@@ -82,17 +93,19 @@ export const loadProductsFromAllSources = async (
         // Update data source indicator
         dataSource = updateDataSource(dataSource, "woocommerce", allProducts.length, wooCommerceProductCount);
         
-        // Show toast notification on successful load
-        if (!alreadyLoaded) {
-          toast.success(`${wooProducts.length} Produkte aus WooCommerce geladen`);
+        // Show toast notification on successful load with partner name, but not too frequently
+        if (shouldShowNotification) {
+          toast.success(`${wooProducts.length} Produkte von ${partnerName} geladen`);
+          lastNotificationTime = currentTime;
         }
       } else {
-        console.log("No products found in WooCommerce");
+        console.log(`No products found from ${partnerName} (WooCommerce)`);
       }
     } catch (wooError) {
       console.error("Error fetching WooCommerce products:", wooError);
-      if (!alreadyLoaded) {
-        toast.error("Fehler beim Laden der WooCommerce-Produkte");
+      if (shouldShowNotification) {
+        toast.error("Fehler beim Laden der Partner-Produkte");
+        lastNotificationTime = currentTime;
       }
     }
   } else {
@@ -104,10 +117,12 @@ export const loadProductsFromAllSources = async (
     console.log("Fetching products from Shopify integration");
     
     try {
+      const shopifyConfig = getShopifyConfig();
+      const partnerName = shopifyConfig.partnerName || "Partner";
       const shopifyProducts = await fetchShopifyProducts();
       
       if (shopifyProducts && shopifyProducts.length > 0) {
-        console.log(`Fetched ${shopifyProducts.length} products from Shopify`);
+        console.log(`Fetched ${shopifyProducts.length} products from ${partnerName} (Shopify)`);
         
         // Add source information to each product
         const shopifyProductsWithSource = shopifyProducts.map(product => ({
@@ -122,17 +137,19 @@ export const loadProductsFromAllSources = async (
         // Update data source indicator
         dataSource = updateDataSource(dataSource, "shopify", allProducts.length, shopifyProductCount);
         
-        // Show toast notification on successful load
-        if (!alreadyLoaded) {
-          toast.success(`${shopifyProducts.length} Produkte aus Shopify geladen`);
+        // Show toast notification on successful load but not too frequently
+        if (shouldShowNotification && (currentTime - lastNotificationTime > NOTIFICATION_COOLDOWN)) {
+          toast.success(`${shopifyProducts.length} Produkte von ${partnerName} geladen`);
+          lastNotificationTime = currentTime;
         }
       } else {
-        console.log("No products found in Shopify");
+        console.log(`No products found from ${partnerName} (Shopify)`);
       }
     } catch (shopifyError) {
       console.error("Error fetching Shopify products:", shopifyError);
-      if (!alreadyLoaded) {
-        toast.error("Fehler beim Laden der Shopify-Produkte");
+      if (shouldShowNotification && (currentTime - lastNotificationTime > NOTIFICATION_COOLDOWN)) {
+        toast.error("Fehler beim Laden der Partner-Produkte");
+        lastNotificationTime = currentTime;
       }
     }
   } else {

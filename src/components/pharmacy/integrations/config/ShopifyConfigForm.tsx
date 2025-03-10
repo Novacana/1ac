@@ -1,65 +1,92 @@
 
 import React from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface ShopifyConfigProps {
+interface ShopifyConfigFormProps {
   shopUrl: string;
-  setShopUrl: (value: string) => void;
+  setShopUrl: (url: string) => void;
   apiKey: string;
-  setApiKey: (value: string) => void;
+  setApiKey: (key: string) => void;
   apiVersion: string;
-  setApiVersion: (value: string) => void;
+  setApiVersion: (version: string) => void;
+  partnerName?: string;
+  setPartnerName?: (name: string) => void;
 }
 
-const ShopifyConfigForm: React.FC<ShopifyConfigProps> = ({
+const ShopifyConfigForm: React.FC<ShopifyConfigFormProps> = ({
   shopUrl,
   setShopUrl,
   apiKey,
   setApiKey,
   apiVersion,
   setApiVersion,
+  partnerName,
+  setPartnerName
 }) => {
   return (
     <>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="shop-url" className="text-right">
-          Shop URL
-        </Label>
+      <div className="space-y-2">
+        <Label htmlFor="shop-url">Shopify Shop URL</Label>
         <Input
           id="shop-url"
+          placeholder="your-shop.myshopify.com"
           value={shopUrl}
           onChange={(e) => setShopUrl(e.target.value)}
-          placeholder="mein-shop.myshopify.com"
-          className="col-span-3 rounded-lg"
         />
+        <p className="text-xs text-muted-foreground">
+          Die Shop-URL ohne https:// (z.B. your-shop.myshopify.com).
+        </p>
       </div>
       
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="access-token" className="text-right">
-          Access Token
-        </Label>
+      {setPartnerName && (
+        <div className="space-y-2">
+          <Label htmlFor="partner-name">Partner Name</Label>
+          <Input
+            id="partner-name"
+            placeholder="Apotheke Name"
+            value={partnerName || ""}
+            onChange={(e) => setPartnerName(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Der Name des Partners, der in Benachrichtigungen angezeigt wird.
+          </p>
+        </div>
+      )}
+      
+      <div className="space-y-2">
+        <Label htmlFor="access-token">Access Token</Label>
         <Input
           id="access-token"
+          placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxx"
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="shpat_xxxxxxxxxxxx"
-          className="col-span-3 rounded-lg"
         />
+        <p className="text-xs text-muted-foreground">
+          Ihr Shopify Admin API Access Token.
+        </p>
       </div>
       
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="api-version" className="text-right">
-          API Version
-        </Label>
-        <Input
-          id="api-version"
+      <div className="space-y-2">
+        <Label htmlFor="api-version">API Version</Label>
+        <Select
           value={apiVersion}
-          onChange={(e) => setApiVersion(e.target.value)}
-          placeholder="2023-10"
-          className="col-span-3 rounded-lg"
-        />
+          onValueChange={setApiVersion}
+        >
+          <SelectTrigger id="api-version">
+            <SelectValue placeholder="API Version wählen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2023-10">2023-10 (aktuell)</SelectItem>
+            <SelectItem value="2023-07">2023-07</SelectItem>
+            <SelectItem value="2023-04">2023-04</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Die zu verwendende Shopify API-Version.
+        </p>
       </div>
     </>
   );

@@ -1,58 +1,63 @@
-
 import { WooCommerceConfig } from "@/types/woocommerce";
 
-// Default WooCommerce API configuration
-let wooConfig: WooCommerceConfig = {
-  url: '',
-  consumerKey: '',
-  consumerSecret: '',
-  version: 'wc/v3'
-};
+let wooCommerceConfig: {
+  url: string;
+  consumerKey: string;
+  consumerSecret: string;
+  version: string;
+  partnerName?: string;
+} | null = null;
 
 /**
- * Configure the WooCommerce API connection
+ * Configure WooCommerce integration
  */
-export const configureWooCommerce = (config: WooCommerceConfig) => {
-  wooConfig = config;
+export const configureWooCommerce = (config: {
+  url: string;
+  consumerKey: string;
+  consumerSecret: string;
+  version: string;
+  partnerName?: string;
+}) => {
+  wooCommerceConfig = config;
+  
   // Save to localStorage for persistence
-  localStorage.setItem('woocommerce_config', JSON.stringify(config));
-  console.log('WooCommerce API configured:', config.url);
-  return true;
+  localStorage.setItem('woocommerceConfig', JSON.stringify(config));
 };
 
 /**
  * Load WooCommerce configuration from localStorage
  */
-export const loadWooCommerceConfig = (): WooCommerceConfig | null => {
-  const savedConfig = localStorage.getItem('woocommerce_config');
+export const loadWooCommerceConfig = () => {
+  if (wooCommerceConfig) return wooCommerceConfig;
+  
+  const savedConfig = localStorage.getItem('woocommerceConfig');
   if (savedConfig) {
     try {
-      const config = JSON.parse(savedConfig);
-      wooConfig = config;
-      return config;
+      wooCommerceConfig = JSON.parse(savedConfig);
     } catch (e) {
-      console.error('Failed to parse WooCommerce config:', e);
+      console.error('Error parsing saved WooCommerce config:', e);
       return null;
     }
   }
-  return null;
+  
+  return wooCommerceConfig;
 };
 
 /**
  * Check if WooCommerce is configured
  */
-export const isWooCommerceConfigured = (): boolean => {
-  // Load config from localStorage if not already loaded
-  if (!wooConfig.url) {
-    loadWooCommerceConfig();
-  }
-  
-  return !!(wooConfig.url && wooConfig.consumerKey && wooConfig.consumerSecret);
+export const isWooCommerceConfigured = () => {
+  const config = loadWooCommerceConfig();
+  return !!(config?.url && config?.consumerKey && config?.consumerSecret);
 };
 
 /**
- * Get the current WooCommerce configuration
+ * Get WooCommerce configuration
  */
-export const getWooCommerceConfig = (): WooCommerceConfig => {
-  return wooConfig;
+export const getWooCommerceConfig = () => {
+  const config = loadWooCommerceConfig();
+  if (!config) {
+    throw new Error('WooCommerce is not configured');
+  }
+  return config;
 };
