@@ -166,3 +166,8 @@ export const useAdvisorProcessing = (advisorState: AdvisorState) => {
     fallbackProcessing
   };
 };
+
+// Export these for other modules
+export const stopListening = require('../speechRecognition').stopListening;
+export const speakResponse = require('../voiceUtils').speakResponse;
+export const processUserQuery = (userQuery: string) => {}; // Will be properly set in useAdvisorInteractions
