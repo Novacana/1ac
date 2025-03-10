@@ -8,13 +8,6 @@ import {
   DialogDescription, 
   DialogFooter 
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Info, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { IntegrationSystem } from "./IntegrationSystemCard";
 import { 
@@ -27,6 +20,15 @@ import {
   isShopifyConfigured, 
   loadShopifyConfig 
 } from "@/utils/shopify";
+
+// Import the extracted components
+import WooCommerceConfigForm from "./config/WooCommerceConfigForm";
+import ShopifyConfigForm from "./config/ShopifyConfigForm";
+import GenericConfigForm from "./config/GenericConfigForm";
+import NotificationsToggle from "./config/NotificationsToggle";
+import NotesField from "./config/NotesField";
+import GDPRConsent from "./config/GDPRConsent";
+import DialogActions from "./config/DialogActions";
 
 interface SystemConfigModalProps {
   open: boolean;
@@ -160,210 +162,66 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          {/* WooCommerce-spezifische Felder */}
+          {/* System specific configuration forms */}
           {system.id === "woocommerce" && (
-            <>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="shop-url" className="text-right">
-                  Shop URL
-                </Label>
-                <Input
-                  id="shop-url"
-                  value={shopUrl}
-                  onChange={(e) => setShopUrl(e.target.value)}
-                  placeholder="https://mein-shop.de"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="consumer-key" className="text-right">
-                  Consumer Key
-                </Label>
-                <Input
-                  id="consumer-key"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="ck_xxxxxxxxxxxx"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="consumer-secret" className="text-right">
-                  Consumer Secret
-                </Label>
-                <Input
-                  id="consumer-secret"
-                  type="password"
-                  value={apiSecret}
-                  onChange={(e) => setApiSecret(e.target.value)}
-                  placeholder="cs_xxxxxxxxxxxx"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="api-version" className="text-right">
-                  API Version
-                </Label>
-                <Input
-                  id="api-version"
-                  value={apiVersion}
-                  onChange={(e) => setApiVersion(e.target.value)}
-                  placeholder="wc/v3"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-            </>
+            <WooCommerceConfigForm
+              shopUrl={shopUrl}
+              setShopUrl={setShopUrl}
+              apiKey={apiKey}
+              setApiKey={setApiKey}
+              apiSecret={apiSecret}
+              setApiSecret={setApiSecret}
+              apiVersion={apiVersion}
+              setApiVersion={setApiVersion}
+            />
           )}
           
-          {/* Shopify-spezifische Felder */}
           {system.id === "shopify" && (
-            <>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="shop-url" className="text-right">
-                  Shop URL
-                </Label>
-                <Input
-                  id="shop-url"
-                  value={shopUrl}
-                  onChange={(e) => setShopUrl(e.target.value)}
-                  placeholder="mein-shop.myshopify.com"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="access-token" className="text-right">
-                  Access Token
-                </Label>
-                <Input
-                  id="access-token"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="shpat_xxxxxxxxxxxx"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="api-version" className="text-right">
-                  API Version
-                </Label>
-                <Input
-                  id="api-version"
-                  value={apiVersion}
-                  onChange={(e) => setApiVersion(e.target.value)}
-                  placeholder="2023-10"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-            </>
+            <ShopifyConfigForm
+              shopUrl={shopUrl}
+              setShopUrl={setShopUrl}
+              apiKey={apiKey}
+              setApiKey={setApiKey}
+              apiVersion={apiVersion}
+              setApiVersion={setApiVersion}
+            />
           )}
           
-          {/* Generische Felder für andere Systeme */}
           {system.id !== "woocommerce" && system.id !== "shopify" && (
-            <>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="api-key" className="text-right">
-                  API-Schlüssel
-                </Label>
-                <Input
-                  id="api-key"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="sk_live_xxxxx"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="webhook" className="text-right">
-                  Webhook URL
-                </Label>
-                <Input
-                  id="webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  placeholder="https://example.com/webhook"
-                  className="col-span-3 rounded-lg"
-                />
-              </div>
-            </>
+            <GenericConfigForm
+              apiKey={apiKey}
+              setApiKey={setApiKey}
+              webhookUrl={webhookUrl}
+              setWebhookUrl={setWebhookUrl}
+            />
           )}
           
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="notifications" className="text-right">
-              Benachrichtigungen
-            </Label>
-            <div className="flex items-center space-x-2 col-span-3">
-              <Switch
-                id="notifications"
-                checked={notificationsEnabled}
-                onCheckedChange={setNotificationsEnabled}
-                className="data-[state=checked]:bg-green-500"
-              />
-              <Label htmlFor="notifications" className="text-sm">
-                {notificationsEnabled ? "Aktiviert" : "Deaktiviert"}
-              </Label>
-            </div>
-          </div>
+          {/* Notifications toggle */}
+          <NotificationsToggle
+            notificationsEnabled={notificationsEnabled}
+            setNotificationsEnabled={setNotificationsEnabled}
+          />
           
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="notes" className="text-right pt-2">
-              Notizen
-            </Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Zusätzliche Informationen zur Integration..."
-              className="col-span-3 rounded-lg resize-none"
-              rows={3}
-            />
-          </div>
+          {/* Notes field */}
+          <NotesField
+            notes={notes}
+            setNotes={setNotes}
+          />
           
-          {/* DSGVO-Hinweis */}
-          <Alert className="mt-2 bg-primary/5 border-primary/20 rounded-lg">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-            <AlertDescription className="text-xs">
-              {getPrivacyNotice()}
-            </AlertDescription>
-          </Alert>
-          
-          {/* DSGVO-Zustimmung */}
-          <div className="flex items-center space-x-2 mt-2">
-            <Switch
-              id="gdpr-consent"
-              checked={dataProcessingConsent}
-              onCheckedChange={setDataProcessingConsent}
-              className="data-[state=checked]:bg-green-500"
-            />
-            <Label htmlFor="gdpr-consent" className="text-sm">
-              Ich stimme der Verarbeitung der Daten gemäß der Datenschutzrichtlinie zu
-            </Label>
-          </div>
+          {/* GDPR consent */}
+          <GDPRConsent
+            dataProcessingConsent={dataProcessingConsent}
+            setDataProcessingConsent={setDataProcessingConsent}
+            privacyNotice={getPrivacyNotice()}
+          />
         </div>
         
-        <DialogFooter className="gap-3 flex flex-col sm:flex-row-reverse">
-          <Button 
-            onClick={handleSave} 
-            disabled={!dataProcessingConsent}
-            className="rounded-xl bg-green-500 hover:bg-green-600 transition-colors"
-          >
-            Speichern
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-            className="rounded-xl"
-          >
-            Abbrechen
-          </Button>
+        <DialogFooter>
+          <DialogActions
+            onSave={handleSave}
+            onCancel={() => onOpenChange(false)}
+            isSaveDisabled={!dataProcessingConsent}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>
