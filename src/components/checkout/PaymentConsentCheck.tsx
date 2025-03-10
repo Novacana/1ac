@@ -3,6 +3,7 @@ import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Info } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
@@ -36,7 +37,11 @@ const PaymentConsentCheck: React.FC<PaymentConsentCheckProps> = ({
             htmlFor="payment-consent" 
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Ich stimme der Verarbeitung meiner Zahlungsdaten gemäß der Datenschutzerklärung zu
+            Ich stimme der Verarbeitung meiner Zahlungsdaten gemäß der{' '}
+            <Link to="/datenschutz" className="text-primary hover:underline">
+              Datenschutzrichtlinie
+            </Link>{' '}
+            zu
           </Label>
           <TooltipProvider>
             <Tooltip>

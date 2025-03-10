@@ -3,6 +3,7 @@ import React from "react";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ConsentFooterProps {
   onAccept: () => void;
@@ -12,15 +13,14 @@ interface ConsentFooterProps {
 const ConsentFooter: React.FC<ConsentFooterProps> = ({ onAccept, onDecline }) => {
   return (
     <DialogFooter className="sm:justify-between flex flex-col sm:flex-row gap-3 pt-2">
-      <Button
-        variant="outline"
-        size="sm"
-        className="gap-1.5 text-xs rounded-xl sm:w-auto w-full"
-        onClick={() => window.open("/datenschutz", "_blank")}
+      <Link
+        to="/datenschutz"
+        target="_blank"
+        className="inline-flex h-9 items-center justify-center rounded-xl border border-input bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring"
       >
         Datenschutzrichtlinie
-        <ExternalLink className="h-3 w-3" />
-      </Button>
+        <ExternalLink className="h-3 w-3 ml-1.5" />
+      </Link>
       <div className="flex gap-3 sm:flex-row flex-col w-full sm:w-auto">
         <Button 
           variant="outline" 

@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import PharmacyManagement from "./pages/PharmacyManagement";
 import Documentation from "./pages/Documentation";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
@@ -68,6 +69,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/documentation" element={<Documentation />} />
+            <Route path="/datenschutz" element={<PrivacyPolicy />} />
             <Route 
               path="/doctor/dashboard" 
               element={

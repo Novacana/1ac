@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const GDPRCookieConsent = () => {
   const [showConsent, setShowConsent] = useState(false);
@@ -47,13 +48,19 @@ export const GDPRCookieConsent = () => {
                 Diese Website verwendet Cookies und ähnliche Technologien, um Ihr Browsing-Erlebnis zu verbessern und 
                 personalisierte Inhalte anzubieten. Gemäß der DSGVO benötigen wir Ihre Einwilligung.
               </p>
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-sm mt-2"
-                onClick={() => setShowPrivacyPolicy(true)}
-              >
-                Datenschutzerklärung anzeigen
-              </Button>
+              <div className="flex gap-2 mt-2">
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto text-sm"
+                  onClick={() => setShowPrivacyPolicy(true)}
+                >
+                  Datenschutzerklärung anzeigen
+                </Button>
+                <span className="text-muted-foreground">oder</span>
+                <Link to="/datenschutz" className="text-primary hover:underline text-sm">
+                  vollständige Datenschutzrichtlinie
+                </Link>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
               <Button variant="outline" onClick={handleDecline}>
@@ -101,6 +108,11 @@ export const GDPRCookieConsent = () => {
                 Max Mustermann<br />
                 E-Mail: dsb@1a-cannabis.de
               </p>
+              <div className="mt-4">
+                <Link to="/datenschutz" className="text-primary hover:underline">
+                  Zur vollständigen Datenschutzrichtlinie
+                </Link>
+              </div>
             </TabsContent>
             
             <TabsContent value="cookies" className="space-y-4 mt-4 text-sm">
@@ -115,6 +127,11 @@ export const GDPRCookieConsent = () => {
                 <li><strong>Statistik-Cookies:</strong> Diese Cookies helfen uns zu verstehen, wie Besucher mit unserer Website interagieren.</li>
                 <li><strong>Marketing-Cookies:</strong> Diese Cookies werden verwendet, um Besucher auf Websites zu verfolgen und relevante Werbung anzuzeigen.</li>
               </ul>
+              <div className="mt-4">
+                <Link to="/datenschutz" className="text-primary hover:underline">
+                  Zur vollständigen Datenschutzrichtlinie
+                </Link>
+              </div>
             </TabsContent>
             
             <TabsContent value="rights" className="space-y-4 mt-4 text-sm">
@@ -133,13 +150,23 @@ export const GDPRCookieConsent = () => {
               <p className="mt-3">
                 Sie haben außerdem das Recht, eine Beschwerde bei einer Aufsichtsbehörde einzureichen, wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer Daten gegen die DSGVO verstößt.
               </p>
+              <div className="mt-4">
+                <Link to="/datenschutz" className="text-primary hover:underline">
+                  Zur vollständigen Datenschutzrichtlinie
+                </Link>
+              </div>
             </TabsContent>
           </Tabs>
           
           <DialogFooter className="mt-4">
-            <Button onClick={() => setShowPrivacyPolicy(false)}>
-              Schließen
-            </Button>
+            <div className="flex items-center justify-between w-full">
+              <Link to="/datenschutz" className="text-primary hover:underline text-sm">
+                Vollständige Datenschutzrichtlinie öffnen
+              </Link>
+              <Button onClick={() => setShowPrivacyPolicy(false)}>
+                Schließen
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

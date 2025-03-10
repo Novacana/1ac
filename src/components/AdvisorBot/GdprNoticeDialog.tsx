@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { ShieldCheck, AlertTriangle, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface GdprNoticeDialogProps {
   isOpen: boolean;
@@ -58,6 +59,13 @@ const GdprNoticeDialog: React.FC<GdprNoticeDialogProps> = ({
             <p className="text-sm mt-1 text-amber-700 dark:text-amber-400">
               Sie können den Berater auch ohne Einwilligung zur Datenverarbeitung nutzen, allerdings stehen dann bestimmte Funktionen wie Spracherkennung nicht zur Verfügung.
             </p>
+          </div>
+
+          <div className="text-sm flex items-center gap-1.5 pt-2">
+            <Link to="/datenschutz" target="_blank" className="text-primary hover:underline flex items-center">
+              Vollständige Datenschutzrichtlinie lesen
+              <ExternalLink className="h-3.5 w-3.5 ml-1" />
+            </Link>
           </div>
         </div>
 
