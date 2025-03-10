@@ -36,7 +36,7 @@ export const startListening = (
     setTranscript("");
     toast({
       title: "Spracherkennung aktiv",
-      description: "Du kannst jetzt sprechen.",
+      description: "Du kannst jetzt sprechen. Die Daten werden gemäß DSGVO verarbeitet.",
     });
   };
   

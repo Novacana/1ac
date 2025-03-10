@@ -33,23 +33,6 @@ export const speakResponse = async (
       return;
     }
 
-    // Set up ElevenLabs direct TTS API call with the appropriate voice
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'xi-api-key': ELEVENLABS_API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: text,
-        model_id: "eleven_multilingual_v2",
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75
-        }
-      })
-    };
-
     try {
       // First check if our API key is valid by making a small request
       const testResponse = await fetch(`https://api.elevenlabs.io/v1/user`, {
