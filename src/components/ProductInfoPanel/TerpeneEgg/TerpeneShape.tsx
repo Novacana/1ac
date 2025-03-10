@@ -60,8 +60,8 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
         )}
       </div>
       
-      {/* Always show name label for larger terpenes */}
-      {(terpene.relativeValue > 20 || isExpanded) && (
+      {/* Only show name label for the largest terpenes or when expanded */}
+      {(terpene.relativeValue > 25 || isExpanded) && (
         <div 
           className={cn(
             "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",

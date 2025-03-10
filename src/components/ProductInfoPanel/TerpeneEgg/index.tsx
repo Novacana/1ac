@@ -45,8 +45,8 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     <div className="w-full">
       <TerpeneTotal totalPercentage={totalPercentage.toFixed(1)} />
       
-      <div className="flex justify-center">
-        {/* Only show the egg visualization - centered */}
+      <div className="flex justify-center my-2">
+        {/* Only show the egg visualization - centered with more space */}
         <div className="w-full max-w-[300px]">
           <TerpeneVisualization 
             terpeneData={terpeneDataWithRelative} 
