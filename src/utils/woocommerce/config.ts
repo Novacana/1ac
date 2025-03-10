@@ -10,6 +10,7 @@ let wooCommerceConfig: {
 
 /**
  * Configure WooCommerce integration
+ * @returns {boolean} true if configuration was successful
  */
 export const configureWooCommerce = (config: {
   url: string;
@@ -17,11 +18,17 @@ export const configureWooCommerce = (config: {
   consumerSecret: string;
   version: string;
   partnerName?: string;
-}) => {
-  wooCommerceConfig = config;
-  
-  // Save to localStorage for persistence
-  localStorage.setItem('woocommerceConfig', JSON.stringify(config));
+}): boolean => {
+  try {
+    wooCommerceConfig = config;
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('woocommerceConfig', JSON.stringify(config));
+    return true;
+  } catch (error) {
+    console.error('Error saving WooCommerce config:', error);
+    return false;
+  }
 };
 
 /**

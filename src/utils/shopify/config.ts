@@ -9,17 +9,24 @@ let shopifyConfig: {
 
 /**
  * Configure Shopify integration
+ * @returns {boolean} true if configuration was successful
  */
 export const configureShopify = (config: {
   shopUrl: string;
   accessToken: string;
   apiVersion: string;
   partnerName?: string;
-}) => {
-  shopifyConfig = config;
-  
-  // Save to localStorage for persistence
-  localStorage.setItem('shopifyConfig', JSON.stringify(config));
+}): boolean => {
+  try {
+    shopifyConfig = config;
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('shopifyConfig', JSON.stringify(config));
+    return true;
+  } catch (error) {
+    console.error('Error saving Shopify config:', error);
+    return false;
+  }
 };
 
 /**
