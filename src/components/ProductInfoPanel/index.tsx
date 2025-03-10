@@ -11,11 +11,13 @@ import TerpeneEgg from "./TerpeneEgg";
 interface ProductInfoPanelProps {
   product: Product | null;
   showOnlyTerpenes?: boolean;
+  hideEgg?: boolean;
 }
 
 const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({ 
   product, 
-  showOnlyTerpenes = false 
+  showOnlyTerpenes = false,
+  hideEgg = false
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useIsMobile();
@@ -57,9 +59,9 @@ const ProductInfoPanel: React.FC<ProductInfoPanelProps> = ({
         </div>
       )}
       
-      {/* Always render TerpeneEgg here if terpenes are available */}
-      {product.terpenes && product.terpenes.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-border/30">
+      {/* Only render TerpeneEgg here if terpenes are available AND hideEgg is false (for mobile only) */}
+      {!hideEgg && isMobile && product.terpenes && product.terpenes.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-border/30 md:hidden">
           <TerpeneEgg product={product} />
         </div>
       )}

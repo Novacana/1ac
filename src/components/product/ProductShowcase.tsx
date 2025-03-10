@@ -83,7 +83,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div className="md:col-span-3 order-2 md:order-1">
             {activeProduct && (
-              <ProductInfoPanel product={activeProduct} />
+              <ProductInfoPanel product={activeProduct} hideEgg={true} />
             )}
             
             {/* Add description on desktop view */}
