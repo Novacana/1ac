@@ -20,7 +20,9 @@ const categoryMapping: Record<string, string> = {
   "Edibles": "Esswaren",
   "Topicals": "Topische Mittel",
   "Vapes": "Vaporisatoren",
-  "Accessories": "Zubehör"
+  "Accessories": "Zubehör",
+  "Pharmacy": "Apotheke",
+  "Prescription": "Verschreibungspflichtig"
 };
 
 // Helper function to get products by category
@@ -42,4 +44,27 @@ export const getProductsByCategory = (category: string): ProductDetailProps[] =>
 // Helper function to get product by ID
 export const getProductById = (id: string): ProductDetailProps | undefined => {
   return products.find(product => product.id === id);
+};
+
+// Helper function to get products by source
+export const getProductsBySource = (source: string): ProductDetailProps[] => {
+  return products.filter(product => product.source === source);
+};
+
+// Helper function to get pharmacy products
+export const getPharmacyProducts = (): ProductDetailProps[] => {
+  return products.filter(product => 
+    product.source === "pharmacy" || 
+    product.category === "Apotheke" || 
+    product.category === "Pharmacy"
+  );
+};
+
+// Helper function to get prescription products
+export const getPrescriptionProducts = (): ProductDetailProps[] => {
+  return products.filter(product => 
+    product.requiresPrescription || 
+    product.category === "Verschreibungspflichtig" || 
+    product.category === "Prescription"
+  );
 };

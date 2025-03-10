@@ -16,14 +16,7 @@ import {
 import { Product } from "@/types/product";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { DataSource } from "@/hooks/useProductSources";
 
 const PharmacyProductsList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +26,7 @@ const PharmacyProductsList: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Record<string, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
   const [offeredInShop, setOfferedInShop] = useState<Record<string, boolean>>({});
+  const [inventoryLevels, setInventoryLevels] = useState<Record<string, number>>({});
 
   // Load pharmacy products from integrations only
   useEffect(() => {
@@ -41,22 +35,27 @@ const PharmacyProductsList: React.FC = () => {
         setIsLoading(true);
         // This would be replaced with a dedicated pharmacy products API endpoint
         const { loadProductsFromAllSources } = await import("@/hooks/useProductSources");
-        const { allProducts, dataSource } = await loadProductsFromAllSources("All", false);
+        const { allProducts } = await loadProductsFromAllSources("All", false);
         
-        // Only keep products from integrations (WooCommerce, Shopify)
-        const integrationProducts = allProducts.filter(product => 
-          product.source === "woocommerce" || product.source === "shopify"
+        // Only keep products from integrations (WooCommerce, Shopify) or local pharmacy inventory
+        const pharmacyProducts = allProducts.filter(product => 
+          product.source === "woocommerce" || 
+          product.source === "shopify" || 
+          product.source === "pharmacy"
         );
         
-        console.log(`Loaded ${integrationProducts.length} products from integrations`);
-        setProducts(integrationProducts);
+        console.log(`Loaded ${pharmacyProducts.length} pharmacy products`);
+        setProducts(pharmacyProducts);
         
-        // Initialize offered in shop state
+        // Initialize offered in shop state and inventory levels
         const initialOfferedState = {};
-        integrationProducts.forEach(product => {
-          initialOfferedState[product.id] = false;
+        const initialInventoryLevels = {};
+        pharmacyProducts.forEach(product => {
+          initialOfferedState[product.id] = product.source === "pharmacy";
+          initialInventoryLevels[product.id] = product.stock || 0;
         });
         setOfferedInShop(initialOfferedState);
+        setInventoryLevels(initialInventoryLevels);
         
         setIsLoading(false);
       } catch (error) {
@@ -100,6 +99,19 @@ const PharmacyProductsList: React.FC = () => {
     );
   };
 
+  // Update inventory level
+  const updateInventoryLevel = (productId: string, newLevel: number) => {
+    setInventoryLevels(prev => ({
+      ...prev,
+      [productId]: newLevel
+    }));
+    
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      toast.success(`Bestand für ${product.name} aktualisiert: ${newLevel} verfügbar`);
+    }
+  };
+
   // Handle select all toggle
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
@@ -141,8 +153,18 @@ const PharmacyProductsList: React.FC = () => {
     });
   };
 
-  const handleFilter = () => {
-    toast.info("Filter-Optionen werden geöffnet");
+  const handleUpdateStock = (product: Product) => {
+    const currentLevel = inventoryLevels[product.id] || 0;
+    const newLevel = prompt(`Neuen Bestand für ${product.name} eingeben:`, currentLevel.toString());
+    
+    if (newLevel !== null) {
+      const parsedLevel = parseInt(newLevel);
+      if (!isNaN(parsedLevel) && parsedLevel >= 0) {
+        updateInventoryLevel(product.id, parsedLevel);
+      } else {
+        toast.error("Bitte geben Sie eine gültige Zahl ein");
+      }
+    }
   };
 
   const isAnyProductSelected = Object.values(selectedProducts).some(isSelected => isSelected);
@@ -151,6 +173,7 @@ const PharmacyProductsList: React.FC = () => {
   const getSourceLabel = (product: Product): string => {
     if (product.source === "woocommerce") return "WooCommerce";
     if (product.source === "shopify") return "Shopify";
+    if (product.source === "pharmacy") return "Apotheke";
     return "Extern";
   };
 
@@ -171,10 +194,19 @@ const PharmacyProductsList: React.FC = () => {
             variant="outline"
             size="sm"
             className="flex items-center gap-2"
-            onClick={handleFilter}
+            onClick={() => toast.info("Filter-Optionen werden geöffnet")}
           >
             <Filter className="h-4 w-4" />
             Filter
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex items-center gap-2"
+            onClick={() => toast.info("Bestand aktualisieren")}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Bestand
           </Button>
           {isAnyProductSelected && (
             <Button
@@ -230,6 +262,7 @@ const PharmacyProductsList: React.FC = () => {
                 <TableHead>Produkt</TableHead>
                 <TableHead>Kategorie</TableHead>
                 <TableHead>Preis</TableHead>
+                <TableHead>Bestand</TableHead>
                 <TableHead>Quelle</TableHead>
                 <TableHead>Im Shop</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
@@ -238,7 +271,7 @@ const PharmacyProductsList: React.FC = () => {
             <TableBody>
               {filteredProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center">
+                  <TableCell colSpan={8} className="h-32 text-center">
                     {searchQuery ? "Keine Produkte gefunden für diesen Suchbegriff." : "Keine Produkte vorhanden."}
                   </TableCell>
                 </TableRow>
@@ -274,6 +307,21 @@ const PharmacyProductsList: React.FC = () => {
                       <Badge variant="outline">{product.category}</Badge>
                     </TableCell>
                     <TableCell>{product.price.toFixed(2)} €</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <span 
+                          className={`font-medium ${inventoryLevels[product.id] <= 5 ? 'text-red-500' : ''}`}
+                          onClick={() => handleUpdateStock(product)}
+                        >
+                          {inventoryLevels[product.id] || 0}
+                        </span>
+                        {inventoryLevels[product.id] <= 5 && (
+                          <Badge variant="outline" className="ml-2 bg-red-100 text-red-800 text-xs">
+                            Niedrig
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="text-xs">
                         {getSourceLabel(product)}

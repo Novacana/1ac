@@ -25,7 +25,7 @@ const ImportProductsDialog: React.FC<ImportProductsDialogProps> = ({
 }) => {
   const handleImportSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    toast.success("Produkte wurden erfolgreich importiert");
+    toast.success("Inventardaten wurden erfolgreich importiert");
     onOpenChange(false);
   };
 
@@ -33,9 +33,9 @@ const ImportProductsDialog: React.FC<ImportProductsDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Produkte importieren</DialogTitle>
+          <DialogTitle>Inventardaten importieren</DialogTitle>
           <DialogDescription>
-            Laden Sie eine CSV- oder Excel-Datei mit Ihren Produktdaten hoch
+            Laden Sie eine CSV- oder Excel-Datei mit Ihren Apothekeninventardaten hoch
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleImportSubmit}>
@@ -60,7 +60,10 @@ const ImportProductsDialog: React.FC<ImportProductsDialogProps> = ({
             </div>
             <div className="text-xs text-muted-foreground">
               <p>Unterstützte Dateiformate: CSV, Excel (.xlsx, .xls)</p>
-              <p>Die Datei sollte folgende Spalten enthalten: Name, Kategorie, Preis, Bestand</p>
+              <p>Die Datei sollte folgende Spalten enthalten: Name, Kategorie, Preis, Bestand, PZN</p>
+              <p className="mt-2 text-amber-600 font-medium">
+                Hinweis: Entsprechend der DSGVO werden alle Daten nur lokal in Ihrem Browser verarbeitet.
+              </p>
             </div>
           </div>
           <DialogFooter>

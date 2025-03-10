@@ -5,13 +5,21 @@ import { Badge } from "@/components/ui/badge";
 import PharmacyProductsList from "@/components/pharmacy/PharmacyProductsList";
 
 const ProductsTab: React.FC = () => {
-  const [partnerProductCount, setPartnerProductCount] = useState<number | null>(null);
+  const [inventoryStats, setInventoryStats] = useState({
+    total: 0,
+    lowStock: 0,
+    outOfStock: 0,
+  });
 
   useEffect(() => {
-    // Simulate loading partner products count
-    // In a real implementation, this would fetch from a partner products API
+    // Simulate loading inventory statistics
+    // In a real implementation, this would fetch from a pharmacy API
     setTimeout(() => {
-      setPartnerProductCount(12); // Example count
+      setInventoryStats({
+        total: 42,
+        lowStock: 8,
+        outOfStock: 3,
+      });
     }, 1000);
   }, []);
 
@@ -19,16 +27,21 @@ const ProductsTab: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>Produkte von Partnern</span>
-          <Badge variant="outline" className="ml-2">
-            {partnerProductCount !== null 
-              ? `${partnerProductCount} Produkte` 
-              : "Laden..."
-            }
-          </Badge>
+          <span>Apothekeninventar</span>
+          <div className="flex gap-2">
+            <Badge variant="outline" className="bg-blue-100 text-blue-800">
+              {inventoryStats.total} Produkte gesamt
+            </Badge>
+            <Badge variant="outline" className="bg-amber-100 text-amber-800">
+              {inventoryStats.lowStock} niedriger Bestand
+            </Badge>
+            <Badge variant="outline" className="bg-red-100 text-red-800">
+              {inventoryStats.outOfStock} nicht vorrätig
+            </Badge>
+          </div>
         </CardTitle>
         <CardDescription>
-          Verwalten Sie Produkte Ihrer Partner und deren Verfügbarkeit im Shop.
+          Verwalten Sie Ihr Apothekeninventar und Produktverfügbarkeit
         </CardDescription>
       </CardHeader>
       <CardContent>
