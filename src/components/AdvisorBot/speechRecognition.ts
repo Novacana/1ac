@@ -9,7 +9,6 @@ export const startListening = (
   toast: ToastFunction,
   isFullConversationMode: boolean = false
 ) => {
-  // Check if speech recognition is supported
   if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
     toast({
       title: "Spracherkennung nicht unterstützt",
@@ -19,56 +18,49 @@ export const startListening = (
     return;
   }
 
-  // Initialize speech recognition
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognitionRef.current = new SpeechRecognition();
   
   const recognition = recognitionRef.current;
-  
   recognition.lang = 'de-DE';
-  recognition.continuous = isFullConversationMode; // Enable continuous mode for full conversations
+  recognition.continuous = isFullConversationMode;
   recognition.interimResults = true;
   
+  let finalTranscript = '';
+  
   recognition.onstart = () => {
+    console.log("Speech recognition started");
     setIsListening(true);
-    console.log("Spracherkennung gestartet", isFullConversationMode ? "(Vollgesprächsmodus)" : "");
+    finalTranscript = '';
   };
   
   recognition.onresult = (event: SpeechRecognitionEvent) => {
-    const transcript = Array.from(event.results)
-      .map(result => result[0])
-      .map(result => result.transcript)
-      .join('');
+    let interimTranscript = '';
     
-    setTranscript(transcript);
-    
-    // In full conversation mode, only process when there's a significant pause
-    if (isFullConversationMode) {
-      // Check if this is a final result from the latest recognition
-      const currentResult = event.results[event.results.length - 1];
-      if (currentResult.isFinal && typeof processUserQuery === 'function') {
-        // Process just this latest segment
-        const latestTranscript = currentResult[0].transcript;
-        if (latestTranscript.trim().length > 0) {
-          console.log("Processing in full conversation mode:", latestTranscript);
-          processUserQuery(latestTranscript);
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+        console.log("Final transcript:", finalTranscript);
+        
+        if (typeof processUserQuery === 'function') {
+          console.log("Processing final transcript with n8n agent");
+          processUserQuery(finalTranscript.trim());
         }
-      }
-    } else {
-      // For single-utterance mode, process the full transcript when final
-      if (event.results[0].isFinal && typeof processUserQuery === 'function') {
-        console.log("Final transcript in single utterance mode:", transcript);
-        recognition.stop();
-        if (transcript.trim().length > 0) {
-          console.log("Sending to n8n agent:", transcript);
-          processUserQuery(transcript);
+        
+        if (!isFullConversationMode) {
+          recognition.stop();
         }
+      } else {
+        interimTranscript += transcript;
       }
     }
+    
+    setTranscript(finalTranscript || interimTranscript);
   };
   
   recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-    console.error("Speech recognition error", event.error);
+    console.error("Speech recognition error:", event.error);
     setIsListening(false);
     
     toast({
@@ -79,20 +71,17 @@ export const startListening = (
   };
   
   recognition.onend = () => {
+    console.log("Speech recognition ended");
     setIsListening(false);
-    console.log("Spracherkennung beendet");
     
-    // In full conversation mode, restart recognition automatically
     if (isFullConversationMode && recognitionRef.current) {
-      console.log("Restart recognition in full conversation mode");
+      console.log("Restarting recognition in full conversation mode");
       recognitionRef.current.start();
     }
   };
   
-  // Start listening
   try {
     recognition.start();
-    console.log("Speech recognition started successfully");
   } catch (error) {
     console.error("Failed to start speech recognition:", error);
     toast({
