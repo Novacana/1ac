@@ -45,6 +45,7 @@ export type AdvisorState = {
     useN8nAgent: boolean;
     gdprConsent: boolean;
     isApiKeySet: boolean;
+    showGdprNotice?: boolean;
   };
   setters: {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;

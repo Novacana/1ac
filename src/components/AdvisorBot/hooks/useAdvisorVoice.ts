@@ -50,22 +50,13 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
     if (isListening) {
       stopListening(recognitionRef, setIsListening);
     } else {
-      // Only start listening if processUserQuery is available
-      if (typeof processUserQuery === 'function') {
-        startListening(
-          setIsListening,
-          advisorState.setters.setTranscript,
-          processUserQuery,
-          recognitionRef,
-          toast
-        );
-      } else {
-        toast({
-          title: "Fehler bei der Spracherkennung",
-          description: "Die Sprachverarbeitung ist derzeit nicht verfügbar.",
-          variant: "destructive"
-        });
-      }
+      startListening(
+        setIsListening,
+        advisorState.setters.setTranscript,
+        processUserQuery,
+        recognitionRef,
+        toast
+      );
     }
   };
   

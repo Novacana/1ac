@@ -4,7 +4,7 @@ import { toast as toastFunction } from "@/hooks/use-toast";
 export const startListening = (
   setIsListening: (isListening: boolean) => void,
   setTranscript: (transcript: string) => void,
-  processUserQuery: (transcript: string) => void,
+  processUserQuery: ((transcript: string) => void) | undefined,
   recognitionRef: React.MutableRefObject<SpeechRecognition | null>,
   toast = toastFunction
 ) => {
