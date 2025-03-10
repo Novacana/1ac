@@ -6,6 +6,20 @@ import { Product } from "@/types/product";
 import { CheckCircle, XCircle, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { getFlavorColor } from "@/components/ProductInfoPanel/utils";
+import { 
+  Cherry, 
+  Grape, 
+  Citrus, 
+  Apple, 
+  Cookie, 
+  Leaf, 
+  Coffee, 
+  Wheat,
+  Candy,
+  IceCream,
+  TreePine
+} from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +27,50 @@ interface ProductCardProps {
   imagesLoaded: {[key: string]: boolean};
   setImagesLoaded: React.Dispatch<React.SetStateAction<{[key: string]: boolean}>>;
 }
+
+// Function to get appropriate icon for each flavor
+const getFlavorIcon = (flavor: string) => {
+  switch (flavor) {
+    case "Süß":
+    case "Sweet":
+      return <Candy className="h-3 w-3" />;
+    case "Beere":
+    case "Berry":
+      return <Cherry className="h-3 w-3" />;
+    case "Zitrus":
+    case "Citrus":
+      return <Citrus className="h-3 w-3" />;
+    case "Trauben":
+    case "Grape":
+      return <Grape className="h-3 w-3" />;
+    case "Erdig":
+    case "Earthy":
+      return <Wheat className="h-3 w-3" />;
+    case "Kiefer":
+    case "Pine":
+      return <TreePine className="h-3 w-3" />;
+    case "Würzig":
+    case "Spicy":
+      return <Coffee className="h-3 w-3" />;
+    case "Dessert":
+      return <IceCream className="h-3 w-3" />;
+    case "Fruchtig":
+    case "Fruity":
+      return <Apple className="h-3 w-3" />;
+    case "Kräuter":
+    case "Herbal":
+      return <Leaf className="h-3 w-3" />;
+    case "Haze":
+    case "Holzig":
+    case "Woody":
+      return <Wheat className="h-3 w-3" />;
+    case "Haschartig":
+    case "Hashy":
+      return <Cookie className="h-3 w-3" />;
+    default:
+      return <Leaf className="h-3 w-3" />; // Default icon
+  }
+};
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
@@ -43,11 +101,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Generate a random delivery time (in a real app, this would be calculated based on logistics)
   const deliveryDays = Math.floor(Math.random() * 3) + 1;
-
-  // Get top terpenes for display
-  const topTerpenes = product.terpenes ? product.terpenes.slice(0, 2) : [];
   
-  // Colors for terpene dots
+  // Colors for flavor icons
   const colors = ['#8B5CF6', '#D946EF', '#F97316', '#0EA5E9', '#10B981', '#EF4444'];
 
   return (
@@ -100,55 +155,39 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <h3 className="font-semibold text-sm md:text-base mb-0.5 line-clamp-1">{product.name}</h3>
               <p className="text-xs text-muted-foreground mb-1 line-clamp-1">{product.strain || product.category}</p>
               
-              {/* Terpene egg visualization - only visible on desktop */}
-              {product.terpenes && product.terpenes.length > 0 && (
-                <div className="hidden md:block relative h-20 w-full my-2">
-                  <div className="absolute h-20 w-20 mx-auto left-0 right-0 rounded-[50%] bg-gradient-to-b from-yellow-50 to-blue-50 dark:from-yellow-950/30 dark:to-blue-950/30 border border-border/30">
-                    {/* Egg border with aromatic properties */}
-                    <div className="absolute inset-0 rounded-[50%] border border-dashed border-border/40">
-                      <div className="text-[7px] text-muted-foreground font-light rotate-[30deg] absolute top-1 left-1/4">entspannend</div>
-                      <div className="text-[7px] text-muted-foreground font-light rotate-[120deg] absolute bottom-1/4 right-2">beruhigend</div>
-                    </div>
+              {/* Flavor visualization - show on both mobile and desktop */}
+              {product.flavors && product.flavors.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 my-2">
+                  {product.flavors.slice(0, 3).map((flavor, index) => {
+                    const bgColor = getFlavorColor(flavor);
+                    const icon = getFlavorIcon(flavor);
                     
-                    {/* Terpene dots */}
-                    {product.terpenes.slice(0, 3).map((terpene, index) => {
-                      const positions = [
-                        { top: '25%', left: '50%' },      // Top center
-                        { bottom: '25%', left: '30%' },   // Bottom left
-                        { bottom: '25%', right: '30%' },  // Bottom right
-                      ];
-                      
-                      const pos = positions[index % positions.length];
-                      const size = parseFloat(terpene.percentage) >= 0.5 ? 'h-3.5 w-3.5' : 'h-3 w-3';
-                      
-                      return (
-                        <div 
-                          key={index}
-                          className={`absolute rounded-full flex items-center justify-center ${size}`}
-                          style={{
-                            backgroundColor: colors[index % colors.length],
-                            ...pos,
-                            transform: 'translate(-50%, -50%)'
-                          }}
+                    return (
+                      <div 
+                        key={index} 
+                        className="relative group"
+                      >
+                        <div
+                          className="flex items-center justify-center rounded-full w-6 h-6 
+                                    transition-transform hover:scale-110
+                                    border border-white/30 dark:border-white/10"
+                          style={{ backgroundColor: bgColor }}
                         >
-                          <span className="text-[6px] font-bold text-white">{terpene.percentage}</span>
+                          {icon}
                         </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Terpene labels */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col justify-center text-xs space-y-1">
-                    {product.terpenes.slice(0, 3).map((terpene, index) => (
-                      <div key={index} className="flex items-center">
+                        
+                        {/* Tooltip with flavor name */}
                         <span 
-                          className="w-2 h-2 rounded-full mr-1"
-                          style={{ backgroundColor: colors[index % colors.length] }}
-                        />
-                        <span className="text-[10px]">{terpene.name}</span>
+                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-1 
+                                   px-1.5 py-0.5 bg-popover text-popover-foreground text-[10px] rounded-sm opacity-0 group-hover:opacity-100 
+                                   pointer-events-none transition-opacity whitespace-nowrap z-10 border border-border/50"
+                          style={{ backdropFilter: 'blur(8px)' }}
+                        >
+                          {flavor}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               )}
               
