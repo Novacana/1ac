@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { CheckCircle, Settings } from "lucide-react";
 import { toast } from "sonner";
 import GDPRConsentModal from "./GDPRConsentModal";
+import SystemConfigModal from "./SystemConfigModal";
 
 export interface IntegrationSystem {
   id: string;
@@ -26,6 +27,7 @@ const IntegrationSystemCard: React.FC<IntegrationSystemCardProps> = ({
   onToggleConnection,
 }) => {
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const [pendingIntegrationId, setPendingIntegrationId] = useState<string | null>(null);
 
   const handleTestConnection = (systemName: string) => {
@@ -33,7 +35,7 @@ const IntegrationSystemCard: React.FC<IntegrationSystemCardProps> = ({
   };
 
   const handleConfigure = (systemName: string) => {
-    toast.info(`Konfiguration für ${systemName} wird geöffnet`);
+    setShowConfigModal(true);
   };
 
   const handleToggleRequest = (systemId: string) => {
@@ -122,6 +124,12 @@ const IntegrationSystemCard: React.FC<IntegrationSystemCardProps> = ({
         onOpenChange={setShowConsentModal}
         onAccept={handleConsentAccept}
         onDecline={handleConsentDecline}
+      />
+
+      <SystemConfigModal
+        open={showConfigModal}
+        onOpenChange={setShowConfigModal}
+        system={showConfigModal ? system : null}
       />
     </>
   );

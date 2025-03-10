@@ -64,6 +64,12 @@ const EcommerceTab: React.FC = () => {
     setEcomSystems(updatedSystems);
   };
 
+  // Navigate to admin config
+  const handleNavigateToConfig = () => {
+    navigate("/admin/config");
+    toast.info("Konfigurationsbereich geöffnet");
+  };
+
   // Get count of connected systems
   const connectedEcomCount = ecomSystems.filter(system => system.connected).length;
 
@@ -85,15 +91,14 @@ const EcommerceTab: React.FC = () => {
                   }
                 </p>
               </div>
-              <Link to="/admin/config">
-                <Button 
-                  size="sm" 
-                  className="flex items-center gap-2"
-                >
-                  Konfiguration öffnen
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                className="flex items-center gap-2"
+                onClick={handleNavigateToConfig}
+              >
+                Konfiguration öffnen
+                <ExternalLink className="h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
