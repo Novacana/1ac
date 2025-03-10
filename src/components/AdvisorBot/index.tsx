@@ -28,6 +28,14 @@ import { ELEVENLABS_API_KEY } from "./voiceUtils";
 const N8N_WEBHOOK_URL = ""; // Hier deine n8n Webhook URL eintragen
 const USE_N8N_AGENT = false; // Auf true setzen, um den n8n Agenten zu aktivieren
 
+// DSGVO-Hinweis für die Spracherkennung und Sprachausgabe
+const gdprNotice = `
+Dieser Bot nutzt Spracherkennung und Sprachausgabe. 
+Ihre Sprachdaten werden für die Dauer der Konversation gespeichert und verwendet, 
+um Ihre Anfragen zu bearbeiten. Die Daten werden nicht für andere Zwecke verwendet 
+und nach Beendigung der Sitzung gelöscht.
+`;
+
 const productKnowledgeBase = products.map(p => ({
   id: p.id,
   name: p.name,
@@ -81,9 +89,10 @@ const ProductAdvisor = () => {
   ]);
   const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
   const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
+  const [gdprConsent, setGdprConsent] = useState(false);
   
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
-  const isApiKeySet = true;
+  const isApiKeySet = !!elevenLabsApiKey;
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -101,9 +110,15 @@ const ProductAdvisor = () => {
   });
 
   useEffect(() => {
+    // Consent-Status aus dem localStorage laden
+    const savedConsent = localStorage.getItem('advisorBotGdprConsent');
+    if (savedConsent === 'true') {
+      setGdprConsent(true);
+    }
+    
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        stopListening(recognitionRef, setIsListening);
       }
       
       if (conversation.status === "connected") {
@@ -111,6 +126,13 @@ const ProductAdvisor = () => {
       }
     };
   }, [conversation]);
+
+  // Prüfen, ob der Benutzer beim Scrollen das Ende der Nachrichtenliste erreicht hat
+  useEffect(() => {
+    if (messagesRef.current && bottomRef.current && isOpen) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [conversationHistory, isOpen]);
 
   const toggleAdvisor = () => {
     setIsOpen(!isOpen);
@@ -140,16 +162,28 @@ const ProductAdvisor = () => {
   };
 
   const toggleVoice = () => {
-    setIsVoiceEnabled(!isVoiceEnabled);
-    if (isPlaying) {
-      if (conversation.status === "connected") {
+    // Wenn Sprachausgabe deaktiviert wird
+    if (isVoiceEnabled) {
+      // Aktuellen Ton stoppen, wenn er läuft
+      if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
+        setIsPlaying(false);
       }
-      setIsPlaying(false);
     }
+    setIsVoiceEnabled(!isVoiceEnabled);
   };
 
   const toggleListening = () => {
+    // DSGVO-Zustimmung prüfen
+    if (!gdprConsent) {
+      toast({
+        title: "DSGVO-Zustimmung erforderlich",
+        description: "Bitte stimme der Verarbeitung deiner Sprachdaten zu, bevor du die Spracherkennung nutzt.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (isListening) {
       stopListening(recognitionRef, setIsListening);
     } else {
@@ -163,6 +197,12 @@ const ProductAdvisor = () => {
     }
   };
 
+  const handleConsentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newConsent = e.target.checked;
+    setGdprConsent(newConsent);
+    localStorage.setItem('advisorBotGdprConsent', newConsent.toString());
+  };
+
   const webTools = createWebTools(navigate, toast);
 
   const handleNavigate = (path: string) => {
@@ -170,7 +210,7 @@ const ProductAdvisor = () => {
     setBotResponse(response);
     setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
     
-    if (isVoiceEnabled) {
+    if (isVoiceEnabled && gdprConsent) {
       speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
     }
   };
@@ -186,7 +226,7 @@ const ProductAdvisor = () => {
       setBotResponse(botResponseText);
       setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
       
-      if (isVoiceEnabled) {
+      if (isVoiceEnabled && gdprConsent) {
         speakResponse(botResponseText, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
       }
     } else {
@@ -195,7 +235,7 @@ const ProductAdvisor = () => {
       setBotResponse(response);
       setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
       
-      if (isVoiceEnabled) {
+      if (isVoiceEnabled && gdprConsent) {
         speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
       }
     }
@@ -208,64 +248,72 @@ const ProductAdvisor = () => {
     setTranscript(userQuery);
     
     try {
+      // Stoppe laufende Sprachausgabe
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
 
+      // Füge Benutzeranfrage zur Konversationshistorie hinzu
       setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
       if (useN8nAgent && webhookUrl) {
-        const n8nResponse = await sendToN8nWebhook(
-          userQuery, 
-          webhookUrl, 
-          useN8nAgent, 
-          conversationHistory, 
-          productKnowledgeBase, 
-          setIsLoading, 
-          toast
-        );
-        
-        if (n8nResponse) {
-          const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
+        try {
+          const n8nResponse = await sendToN8nWebhook(
+            userQuery, 
+            webhookUrl, 
+            useN8nAgent, 
+            conversationHistory, 
+            productKnowledgeBase,
+            setIsLoading,
+            toast
+          );
           
-          setBotResponse(n8nMessage);
-          setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
-          
-          if (n8nProducts && n8nProducts.length > 0) {
-            const formattedProducts = n8nProducts.map((p: any) => {
-              const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
-              
-              if (localProduct) return localProduct;
-              
-              return {
-                id: p.id || "unknown",
-                name: p.name || "Unbekanntes Produkt",
-                price: p.price || 0,
-                images: p.images || ["/placeholder.svg"],
-                category: p.category || "Sonstiges"
-              };
-            });
+          if (n8nResponse) {
+            const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
             
-            setRecommendedProducts(formattedProducts);
-            setShowProducts(formattedProducts.length > 0);
+            setBotResponse(n8nMessage);
+            setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
+            
+            if (n8nProducts && n8nProducts.length > 0) {
+              const formattedProducts = n8nProducts.map((p: any) => {
+                const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
+                
+                if (localProduct) return localProduct;
+                
+                return {
+                  id: p.id || "unknown",
+                  name: p.name || "Unbekanntes Produkt",
+                  price: p.price || 0,
+                  images: p.images || ["/placeholder.svg"],
+                  category: p.category || "Sonstiges"
+                };
+              });
+              
+              setRecommendedProducts(formattedProducts);
+              setShowProducts(formattedProducts.length > 0);
+            } else {
+              setShowProducts(false);
+              setRecommendedProducts([]);
+            }
+            
+            executeN8nActions(actions, navigate, toast, setIsOpen);
+            
+            if (isVoiceEnabled && gdprConsent) {
+              speakResponse(n8nMessage, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+            }
           } else {
-            setShowProducts(false);
-            setRecommendedProducts([]);
+            fallbackProcessing(userQuery);
           }
-          
-          executeN8nActions(actions, navigate, toast, setIsOpen);
-          
-          if (isVoiceEnabled) {
-            speakResponse(n8nMessage, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
-          }
-        } else {
+        } catch (n8nError) {
+          console.error("N8n webhook error:", n8nError);
           fallbackProcessing(userQuery);
         }
       } else {
         fallbackProcessing(userQuery);
       }
       
+      // Zurücksetzen des Transkripts nach kurzer Verzögerung
       setTimeout(() => {
         setTranscript("");
       }, 2000);
@@ -307,6 +355,24 @@ const ProductAdvisor = () => {
           />
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
+            {!gdprConsent && (
+              <div className="border rounded-md p-3 bg-primary/10 text-sm">
+                <h4 className="font-medium mb-2">DSGVO-Hinweis</h4>
+                <p className="text-xs mb-3">{gdprNotice}</p>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="gdprConsent" 
+                    checked={gdprConsent} 
+                    onChange={handleConsentChange}
+                  />
+                  <label htmlFor="gdprConsent" className="text-xs">
+                    Ich stimme der Verarbeitung meiner Sprachdaten zu
+                  </label>
+                </div>
+              </div>
+            )}
+
             <ConfigPanel 
               webhookUrl={webhookUrl}
               setWebhookUrl={setWebhookUrl}
@@ -330,6 +396,8 @@ const ProductAdvisor = () => {
               showProducts={showProducts}
               onProductClick={() => setIsOpen(false)}
             />
+
+            <div ref={bottomRef} />
           </div>
 
           <InputArea 

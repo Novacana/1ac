@@ -1,6 +1,13 @@
 
 import { useToast } from "@/hooks/use-toast";
 
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+
 export const startListening = (
   setIsListening: (listening: boolean) => void,
   setTranscript: (transcript: string) => void,
@@ -60,14 +67,27 @@ export const startListening = (
   };
   
   recognition.onend = () => {
-    if (recognitionRef.current) {
+    if (recognitionRef.current === recognition) {
       // Restart if it ends unexpectedly while still in listening mode
       recognition.start();
+    } else {
+      setIsListening(false);
     }
   };
   
   recognitionRef.current = recognition;
-  recognition.start();
+  
+  try {
+    recognition.start();
+  } catch (error) {
+    console.error('Error starting speech recognition:', error);
+    toast({
+      title: "Fehler beim Starten der Spracherkennung",
+      description: "Bitte versuche es später erneut.",
+      variant: "destructive",
+    });
+    setIsListening(false);
+  }
 };
 
 export const stopListening = (
@@ -75,7 +95,12 @@ export const stopListening = (
   setIsListening: (listening: boolean) => void
 ) => {
   if (recognitionRef.current) {
-    recognitionRef.current.stop();
+    try {
+      recognitionRef.current.stop();
+    } catch (error) {
+      console.error('Error stopping speech recognition:', error);
+    }
+    recognitionRef.current = null;
     setIsListening(false);
   }
 };
