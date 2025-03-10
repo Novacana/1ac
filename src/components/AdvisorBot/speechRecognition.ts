@@ -1,12 +1,12 @@
 
-import { toast as toastFunction } from "@/hooks/use-toast";
+import { ToastFunction } from "./types";
 
 export const startListening = (
   setIsListening: (isListening: boolean) => void,
   setTranscript: (transcript: string) => void,
   processUserQuery: ((transcript: string) => void) | undefined,
   recognitionRef: React.MutableRefObject<SpeechRecognition | null>,
-  toast = toastFunction
+  toast: ToastFunction
 ) => {
   // Check if speech recognition is supported
   if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {

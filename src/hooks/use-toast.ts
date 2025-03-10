@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -168,6 +169,15 @@ function toast({ ...props }: Toast) {
   }
 }
 
+// Add an error method to the toast function to match the expected interface
+toast.error = (message: string) => {
+  return toast({
+    title: "Error",
+    description: message,
+    variant: "destructive"
+  })
+}
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -189,3 +199,4 @@ function useToast() {
 }
 
 export { useToast, toast }
+export type { Toast, ToasterToast }

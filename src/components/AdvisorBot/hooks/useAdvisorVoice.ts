@@ -1,7 +1,7 @@
 
 import { startListening, stopListening } from "../speechRecognition";
 import { speakResponse } from "../voiceUtils";
-import { AdvisorState } from "../types";
+import { AdvisorState, ToastFunction } from "../types";
 
 export const useAdvisorVoice = (advisorState: AdvisorState) => {
   const { 
@@ -55,7 +55,7 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
         advisorState.setters.setTranscript,
         processUserQuery,
         recognitionRef,
-        toast
+        toast as ToastFunction
       );
     }
   };
@@ -70,7 +70,7 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
         conversation,
         setIsPlaying,
         isPlaying,
-        toast
+        toast as ToastFunction
       );
     }
   };

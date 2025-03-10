@@ -3,6 +3,7 @@ import { ProductDetailProps } from "@/components/ProductDetail";
 import { ToastAction } from "@/components/ui/toast";
 import { NavigateFunction } from "react-router-dom";
 import { useConversation } from "@11labs/react";
+import { Toast, ToasterToast } from "@/hooks/use-toast";
 
 export type Message = {
   role: 'user' | 'assistant';
@@ -27,6 +28,12 @@ export type N8nResponse = {
   actions: any;
 };
 
+// Define a consistent toast function type
+export type ToastFunction = {
+  (props: { title: string; description?: string; action?: React.ReactNode; variant?: "default" | "destructive" }): void;
+  error: (message: string) => void;
+};
+
 // Define the AdvisorState type for use in hooks
 export type AdvisorState = {
   state: {
@@ -45,7 +52,7 @@ export type AdvisorState = {
     useN8nAgent: boolean;
     gdprConsent: boolean;
     isApiKeySet: boolean;
-    showGdprNotice?: boolean;
+    showGdprNotice: boolean;
   };
   setters: {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -72,10 +79,7 @@ export type AdvisorState = {
   };
   tools: {
     webTools: WebTools;
-    toast: {
-      (props: { title: string; description?: string; action?: React.ReactNode; variant?: "default" | "destructive" }): void;
-      error: (message: string) => void;
-    };
+    toast: ToastFunction;
     navigate: NavigateFunction;
     processUserQuery?: (userQuery: string) => Promise<void>;
   };
