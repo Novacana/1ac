@@ -49,31 +49,34 @@ export const sendToN8nWebhook = async (
   products: ProductDetailProps[];
   actions: any;
 } | null> => {
-  if (!webhookUrl || !useN8nAgent) return null;
+  if (!webhookUrl || !useN8nAgent) {
+    console.log("N8n integration is disabled or webhook URL is missing");
+    return null;
+  }
   
   try {
     setIsLoading(true);
     console.log("Sending request to n8n webhook:", webhookUrl);
-    console.log("Request payload:", {
+    
+    // Debug what we're sending
+    const requestPayload = {
       message: userMessage,
       conversation_history: conversationHistory,
-      products_count: productKnowledgeBase.length
-    });
+      user_info: {
+        page: window.location.pathname,
+        timestamp: new Date().toISOString()
+      },
+      available_products: productKnowledgeBase,
+    };
+    
+    console.log("Request payload:", requestPayload);
     
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        message: userMessage,
-        conversation_history: conversationHistory,
-        user_info: {
-          page: window.location.pathname,
-          timestamp: new Date().toISOString()
-        },
-        available_products: productKnowledgeBase,
-      }),
+      body: JSON.stringify(requestPayload),
     });
     
     console.log("n8n webhook response status:", response.status);
@@ -115,7 +118,7 @@ export const sendToN8nWebhook = async (
     console.error("Error communicating with n8n:", error);
     toast({
       title: "Fehler bei der n8n-Kommunikation",
-      description: "Es gab ein Problem mit dem n8n Webhook.",
+      description: `Es gab ein Problem mit dem n8n Webhook: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
       variant: "destructive",
     });
     return null;

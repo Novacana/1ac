@@ -1,6 +1,8 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ConfigPanelProps {
   webhookUrl: string;
@@ -15,9 +17,19 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   useN8nAgent,
   setUseN8nAgent
 }) => {
+  // Only show in development mode
   if (process.env.NODE_ENV !== 'development') {
     return null;
   }
+  
+  const handleWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWebhookUrl(e.target.value);
+  };
+  
+  const handleAgentToggle = (checked: boolean) => {
+    console.log("Toggling n8n agent:", checked);
+    setUseN8nAgent(checked);
+  };
   
   return (
     <div className="border rounded-md p-3 bg-accent/10 text-xs">
@@ -28,22 +40,24 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             type="text" 
             placeholder="N8N Webhook URL" 
             value={webhookUrl} 
-            onChange={(e) => setWebhookUrl(e.target.value)}
+            onChange={handleWebhookChange}
             className="text-xs h-8 mb-1"
           />
         </div>
         <div className="flex items-center gap-2">
-          <input 
-            type="checkbox" 
+          <Switch 
             id="useN8nAgent" 
             checked={useN8nAgent} 
-            onChange={(e) => setUseN8nAgent(e.target.checked)}
+            onCheckedChange={handleAgentToggle}
+            className="data-[state=checked]:bg-green-500"
           />
-          <label htmlFor="useN8nAgent" className="text-xs">N8N Agent aktivieren</label>
+          <Label htmlFor="useN8nAgent" className="text-xs">
+            N8N Agent aktivieren {useN8nAgent ? '(aktiv)' : '(inaktiv)'}
+          </Label>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default ConfigPanel;

@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import { Message, ToastFunction, AdvisorState } from "../types";
 import { createWebTools } from "../utils/webTools";
 import { ELEVENLABS_API_KEY } from "../voiceUtils";
 
-// Constants
+// Constants - Fixed default webhook URL
 const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook-test/50aea9a1-9064-49c7-aea6-3a8714b26157";
 const USE_N8N_AGENT = true;
 
@@ -14,6 +15,17 @@ export const useAdvisorState = (): AdvisorState => {
   const { toast } = useToast();
   const toastFn = toast as unknown as ToastFunction;
   const navigate = useNavigate();
+  
+  // Try to load saved configuration from localStorage first
+  const getSavedValue = (key: string, defaultValue: any) => {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : defaultValue;
+    } catch (e) {
+      console.error("Error loading saved config:", e);
+      return defaultValue;
+    }
+  };
   
   // State
   const [isOpen, setIsOpen] = useState(false);
@@ -29,10 +41,30 @@ export const useAdvisorState = (): AdvisorState => {
   const [conversationHistory, setConversationHistory] = useState<Message[]>([
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
-  const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
-  const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
-  const [gdprConsent, setGdprConsent] = useState(false);
-  const [showGdprNotice, setShowGdprNotice] = useState(false);
+  
+  // Load n8n configuration from localStorage or use defaults
+  const [webhookUrl, setWebhookUrl] = useState(getSavedValue('n8nWebhookUrl', N8N_WEBHOOK_URL));
+  const [useN8nAgent, setUseN8nAgent] = useState(getSavedValue('useN8nAgent', USE_N8N_AGENT));
+  
+  // Save n8n config changes to localStorage
+  const updateWebhookUrl = (url: string) => {
+    setWebhookUrl(url);
+    localStorage.setItem('n8nWebhookUrl', JSON.stringify(url));
+  };
+  
+  const updateUseN8nAgent = (use: boolean) => {
+    setUseN8nAgent(use);
+    localStorage.setItem('useN8nAgent', JSON.stringify(use));
+  };
+  
+  const [gdprConsent, setGdprConsent] = useState(getSavedValue('gdprConsent', false));
+  const [showGdprNotice, setShowGdprNotice] = useState(!getSavedValue('gdprConsent', false));
+  
+  // Save GDPR consent to localStorage
+  const updateGdprConsent = (consent: boolean) => {
+    setGdprConsent(consent);
+    localStorage.setItem('gdprConsent', JSON.stringify(consent));
+  };
   
   // API Key
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
@@ -94,9 +126,9 @@ export const useAdvisorState = (): AdvisorState => {
       setRecommendedProducts,
       setShowProducts,
       setConversationHistory,
-      setWebhookUrl,
-      setUseN8nAgent,
-      setGdprConsent,
+      setWebhookUrl: updateWebhookUrl,
+      setUseN8nAgent: updateUseN8nAgent,
+      setGdprConsent: updateGdprConsent,
       setShowGdprNotice,
     },
     refs: {

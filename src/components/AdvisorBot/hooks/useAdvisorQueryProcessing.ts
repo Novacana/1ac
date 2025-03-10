@@ -58,20 +58,19 @@ export const useAdvisorQueryProcessing = (
         setters.setIsPlaying(false);
       }
 
+      // Add user message to conversation history first
       setters.setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
-      // Log all parameters being sent to n8n webhook
-      console.log("Sending query to n8n:", {
-        userQuery,
-        webhookUrl: state.webhookUrl,
+      // Check if n8n integration is enabled and configured
+      console.log("N8n configuration:", {
         useN8nAgent: state.useN8nAgent,
-        conversationHistoryLength: state.conversationHistory.length
+        webhookUrl: state.webhookUrl
       });
       
       if (state.useN8nAgent && state.webhookUrl) {
+        console.log("Using n8n agent for processing query");
+        
         try {
-          console.log("Attempting to communicate with n8n webhook at:", state.webhookUrl);
-          
           const n8nResponse = await sendToN8nWebhook(
             userQuery, 
             state.webhookUrl, 
@@ -82,15 +81,20 @@ export const useAdvisorQueryProcessing = (
             tools.toast
           );
           
+          // If we got a response from n8n, use it
           if (n8nResponse) {
-            console.log("Received n8n response:", n8nResponse);
+            console.log("Successfully received n8n response:", n8nResponse);
             
             const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
             
+            // Set the bot response
             setters.setBotResponse(n8nMessage);
             setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: n8nMessage }]);
             
+            // Process any product recommendations
             if (n8nProducts && n8nProducts.length > 0) {
+              console.log("Displaying product recommendations from n8n:", n8nProducts);
+              
               const formattedProducts = n8nProducts.map((p: any) => {
                 const localProduct = products.find(lp => lp.id === p.id || lp.name === p.name);
                 
@@ -112,27 +116,32 @@ export const useAdvisorQueryProcessing = (
               setters.setRecommendedProducts([]);
             }
             
+            // Execute any actions returned by n8n
             executeN8nActions(actions, tools.navigate, tools.toast, setters.setIsOpen);
             
+            // Speak the response if voice is enabled
             handleSpeakResponse(n8nMessage);
+            
+            console.log("n8n processing complete");
           } else {
-            console.log("No response from n8n, using fallback processing");
+            console.log("No valid response from n8n, falling back to local processing");
             fallbackProcessing(userQuery);
           }
         } catch (n8nError) {
-          console.error("N8n webhook error:", n8nError);
+          console.error("Error processing with n8n:", n8nError);
           tools.toast({
-            title: "N8N Webhook Fehler",
-            description: "Die Verbindung zum N8N Webhook konnte nicht hergestellt werden.",
+            title: "N8N Fehler",
+            description: "Es gab ein Problem mit der N8N-Integration. Verwende lokale Verarbeitung.",
             variant: "destructive",
           });
           fallbackProcessing(userQuery);
         }
       } else {
-        console.log("N8n agent not used, using fallback processing");
+        console.log("N8n agent not enabled, using local processing");
         fallbackProcessing(userQuery);
       }
       
+      // Clear transcript after processing
       setTimeout(() => {
         setters.setTranscript("");
       }, 2000);
@@ -142,6 +151,7 @@ export const useAdvisorQueryProcessing = (
       const errorMessage = "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.";
       setters.setBotResponse(errorMessage);
       setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: errorMessage }]);
+      setters.setIsLoading(false);
     } finally {
       setters.setIsLoading(false);
     }
