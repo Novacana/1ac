@@ -52,35 +52,27 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           border: `1px solid ${isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}`,
         }}
       >
-        {/* Show percentage inside large dots */}
-        {dotSize >= 32 && (
-          <span className="text-xs font-bold text-white drop-shadow-md">
-            {terpene.relativeValue}%
-          </span>
-        )}
+        {/* Leave dot empty - percentage will be in the label */}
       </div>
       
-      {/* Only show name label for the largest terpenes or when expanded */}
-      {(terpene.relativeValue > 25 || isExpanded) && (
-        <div 
-          className={cn(
-            "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
-            isDark 
-              ? "bg-background/85 text-white border border-white/40" 
-              : "bg-background/95 text-foreground border border-primary/40 shadow-md",
-            "opacity-100 scale-100"
-          )}
-          style={{
-            top: `${dotSize + 4}px`,
-            left: `50%`,
-            transform: `translateX(-50%)`,
-            backdropFilter: "blur(3px)",
-            zIndex: isExpanded ? 30 : 20,
-          }}
-        >
-          {terpene.name} {dotSize < 32 && <span className="font-bold text-primary">{terpene.relativeValue}%</span>}
-        </div>
-      )}
+      {/* Show name and percentage label for all terpenes */}
+      <div 
+        className={cn(
+          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 z-20",
+          isDark 
+            ? "bg-gray-800/95 text-white border border-white/30" 
+            : "bg-background/95 text-foreground border border-primary/30 shadow-sm",
+          isExpanded ? "scale-105" : "scale-100"
+        )}
+        style={{
+          top: `${dotSize + 4}px`,
+          left: `50%`,
+          transform: `translateX(-50%)`,
+          backdropFilter: "blur(3px)",
+        }}
+      >
+        {terpene.name} <span className="text-primary">{terpene.value.toFixed(1)}%</span>
+      </div>
 
       {/* Expanded Info - Only show when expanded */}
       {isExpanded && (

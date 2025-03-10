@@ -79,10 +79,45 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     return 18;
   };
 
+  // Effect labels that should be displayed around the egg
+  const effectLabels = [
+    { text: "körperlich erdend ausgleichend", position: { top: '0%', left: '50%' } },
+    { text: "körperlich entspannend", position: { top: '0%', left: '80%' } },
+    { text: "körperlich ausgleichend", position: { top: '30%', left: '0%' } },
+    { text: "ganzheitlich entspannend", position: { top: '30%', left: '100%' } },
+    { text: "ganzheitlich anregend stimulierend", position: { top: '70%', left: '0%' } },
+    { text: "geistig entspannend", position: { top: '70%', left: '100%' } },
+    { text: "ganzheitlich anregend", position: { top: '100%', left: '30%' } },
+    { text: "geistig ausgleichend öffnend", position: { top: '100%', left: '70%' } },
+  ];
+
   return (
     <div className="relative w-full h-[280px] flex-shrink-0 mx-auto">
       {/* Egg background with gradient */}
       <EggBackground isDark={isDark} />
+      
+      {/* Effect labels around the egg */}
+      {effectLabels.map((label, index) => (
+        <div 
+          key={`effect-${index}`}
+          className={cn(
+            "absolute transform -translate-x-1/2 text-xs px-3 py-1 rounded-full",
+            isDark 
+              ? "bg-gray-800/90 text-white" 
+              : "bg-gray-100/90 text-gray-800",
+            "border border-gray-500/20"
+          )}
+          style={{
+            top: label.position.top,
+            left: label.position.left,
+            maxWidth: '160px',
+            textAlign: 'center',
+            zIndex: 5
+          }}
+        >
+          {label.text}
+        </div>
+      ))}
       
       {/* Terpene shapes positioned within the egg based on their effects */}
       {sortedTerpenes.map((terpene, index) => {
