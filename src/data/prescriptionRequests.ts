@@ -49,6 +49,7 @@ export const prescriptionRequests: PrescriptionRequest[] = [
     },
     status: "approved",
     doctorNotes: "Patientin hat bereits mehrere Behandlungsoptionen versucht. Cannabis könnte eine gute Alternative sein.",
+    assignedDoctorId: "d1",
     cartItems: [
       {
         id: "prod-003",
@@ -86,7 +87,8 @@ export const prescriptionRequests: PrescriptionRequest[] = [
       previous_treatment: "yes"
     },
     status: "needs_more_info",
-    doctorNotes: "Bitte detailliertere Informationen zu bisherigen Behandlungen und Nebenwirkungen anfordern."
+    doctorNotes: "Bitte detailliertere Informationen zu bisherigen Behandlungen und Nebenwirkungen anfordern.",
+    assignedDoctorId: "d1"
   },
   {
     id: "req-004",
@@ -102,7 +104,8 @@ export const prescriptionRequests: PrescriptionRequest[] = [
       previous_treatment: "yes"
     },
     status: "rejected",
-    doctorNotes: "Aktuelle Medikation sollte weitergeführt werden. Alternative Behandlungsoptionen wurden in der Sprechstunde besprochen."
+    doctorNotes: "Aktuelle Medikation sollte weitergeführt werden. Alternative Behandlungsoptionen wurden in der Sprechstunde besprochen.",
+    assignedDoctorId: "d1"
   },
   {
     id: "req-005",
@@ -115,6 +118,36 @@ export const prescriptionRequests: PrescriptionRequest[] = [
       pain: "yes",
       sleep: "yes",
       anxiety: "no",
+      previous_treatment: "yes"
+    },
+    status: "pending"
+  },
+  {
+    id: "req-006",
+    patientName: "Julia König",
+    patientEmail: "julia.koenig@example.com",
+    patientPhone: "+49 777 123987",
+    dateSubmitted: "2023-07-09T14:25:00Z",
+    symptoms: "Chronische Schlaflosigkeit seit über einem Jahr. Herkömmliche Schlafmittel führen zu starker Benommenheit am nächsten Tag.",
+    questionnaire: {
+      pain: "no",
+      sleep: "yes",
+      anxiety: "yes",
+      previous_treatment: "yes"
+    },
+    status: "pending"
+  },
+  {
+    id: "req-007",
+    patientName: "Markus Bauer",
+    patientEmail: "markus.bauer@example.com",
+    patientPhone: "+49 666 987654",
+    dateSubmitted: "2023-07-08T09:15:00Z",
+    symptoms: "ADHS-Symptome im Erwachsenenalter. Bisherige Stimulanzien verursachen Appetitlosigkeit und Gewichtsverlust.",
+    questionnaire: {
+      pain: "no",
+      sleep: "yes",
+      anxiety: "yes",
       previous_treatment: "yes"
     },
     status: "pending"
@@ -161,5 +194,27 @@ export function updatePrescriptionRequest(
       
       resolve(prescriptionRequests[index]);
     }, 400);
+  });
+}
+
+export function assignDoctorToRequest(
+  requestId: string,
+  doctorId: string
+): Promise<PrescriptionRequest> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const index = prescriptionRequests.findIndex(req => req.id === requestId);
+      if (index === -1) {
+        reject(new Error("Rezeptanfrage nicht gefunden"));
+        return;
+      }
+      
+      prescriptionRequests[index] = {
+        ...prescriptionRequests[index],
+        assignedDoctorId: doctorId
+      };
+      
+      resolve(prescriptionRequests[index]);
+    }, 300);
   });
 }

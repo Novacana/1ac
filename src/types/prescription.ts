@@ -15,6 +15,7 @@ export interface PrescriptionRequest {
   status: 'pending' | 'approved' | 'rejected' | 'needs_more_info';
   doctorNotes?: string;
   cartItems?: PrescriptionCartItem[];
+  assignedDoctorId?: string;
   prescription?: {
     id: string;
     product: string;

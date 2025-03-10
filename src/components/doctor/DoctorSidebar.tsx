@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, LogOut, Stethoscope, FileText, Users } from 'lucide-react';
+import { User, LogOut, Stethoscope, FileText, Users, InboxIcon } from 'lucide-react';
 
 interface DoctorSidebarProps {
   user: {
@@ -12,8 +12,8 @@ interface DoctorSidebarProps {
     email: string;
     role: string;
   } | null;
-  onNavChange: (section: 'prescriptions' | 'patients') => void;
-  activeSection: 'prescriptions' | 'patients';
+  onNavChange: (section: 'prescriptions' | 'patients' | 'open_requests') => void;
+  activeSection: 'prescriptions' | 'patients' | 'open_requests';
 }
 
 const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ user, onNavChange, activeSection }) => {
@@ -64,6 +64,15 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ user, onNavChange, active
         </div>
 
         <div className="mt-6 space-y-2">
+          <Button 
+            variant={activeSection === 'open_requests' ? "default" : "outline"} 
+            className="w-full flex items-center gap-2 justify-start"
+            onClick={() => onNavChange('open_requests')}
+          >
+            <InboxIcon className="h-4 w-4" />
+            Offene Anfragen
+          </Button>
+
           <Button 
             variant={activeSection === 'prescriptions' ? "default" : "outline"} 
             className="w-full flex items-center gap-2 justify-start"

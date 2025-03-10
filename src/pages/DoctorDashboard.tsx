@@ -8,6 +8,7 @@ import DoctorSidebar from '@/components/doctor/DoctorSidebar';
 import PrescriptionRequestsList from '@/components/doctor/PrescriptionRequestsList';
 import PrescriptionRequestDetail from '@/components/doctor/PrescriptionRequestDetail';
 import PatientManagement from '@/components/doctor/PatientManagement';
+import OpenRequestsPanel from '@/components/doctor/OpenRequestsPanel';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
@@ -19,7 +20,7 @@ const DoctorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
-  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients'>('prescriptions');
+  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests'>('prescriptions');
 
   // Überprüfen, ob der Benutzer ein Arzt ist
   useEffect(() => {
@@ -48,11 +49,15 @@ const DoctorDashboard = () => {
 
   // Nach Status gefilterte Anfragen
   const filteredRequests = requests.filter(req => {
-    if (activeTab === 'pending') return req.status === 'pending';
-    if (activeTab === 'approved') return req.status === 'approved';
-    if (activeTab === 'needs_info') return req.status === 'needs_more_info';
-    if (activeTab === 'rejected') return req.status === 'rejected';
-    return true; // 'all' tab
+    if (mainSection === 'open_requests') {
+      return req.status === 'pending' && !req.assignedDoctorId;
+    }
+    
+    if (activeTab === 'pending') return req.status === 'pending' && req.assignedDoctorId === user?.id;
+    if (activeTab === 'approved') return req.status === 'approved' && req.assignedDoctorId === user?.id;
+    if (activeTab === 'needs_info') return req.status === 'needs_more_info' && req.assignedDoctorId === user?.id;
+    if (activeTab === 'rejected') return req.status === 'rejected' && req.assignedDoctorId === user?.id;
+    return req.assignedDoctorId === user?.id; // 'all' tab
   });
 
   const selectedRequest = requests.find(req => req.id === selectedRequestId);
@@ -65,6 +70,27 @@ const DoctorDashboard = () => {
       )
     );
     toast.success('Rezeptanfrage aktualisiert');
+  };
+
+  // Arzt übernimmt eine Anfrage
+  const handleAssignDoctor = (requestId: string) => {
+    if (!user?.id) {
+      toast.error('Fehler: Kein Arzt angemeldet');
+      return;
+    }
+    
+    setRequests(prevRequests => 
+      prevRequests.map(req => 
+        req.id === requestId 
+          ? { ...req, assignedDoctorId: user.id } 
+          : req
+      )
+    );
+    
+    setSelectedRequestId(requestId);
+    setMainSection('prescriptions');
+    setActiveTab('pending');
+    toast.success('Patient übernommen');
   };
 
   return (
@@ -124,8 +150,16 @@ const DoctorDashboard = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            ) : (
+            ) : mainSection === 'patients' ? (
               <PatientManagement />
+            ) : (
+              <OpenRequestsPanel 
+                requests={filteredRequests}
+                loading={loading}
+                onAssignDoctor={handleAssignDoctor}
+                selectedRequestId={selectedRequestId}
+                onSelectRequest={setSelectedRequestId}
+              />
             )}
           </div>
         </div>
