@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +8,7 @@ import PrescriptionRequestsList from '@/components/doctor/PrescriptionRequestsLi
 import PrescriptionRequestDetail from '@/components/doctor/PrescriptionRequestDetail';
 import PatientManagement from '@/components/doctor/PatientManagement';
 import OpenRequestsPanel from '@/components/doctor/OpenRequestsPanel';
+import VideoConsultation from '@/components/doctor/VideoConsultation';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
@@ -20,9 +20,8 @@ const DoctorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
-  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests'>('prescriptions');
+  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video'>('prescriptions');
 
-  // Überprüfen, ob der Benutzer ein Arzt ist
   useEffect(() => {
     if (!isDoctor) {
       navigate('/login');
@@ -30,7 +29,6 @@ const DoctorDashboard = () => {
     }
   }, [isDoctor, navigate]);
 
-  // Daten laden
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -47,7 +45,6 @@ const DoctorDashboard = () => {
     loadData();
   }, []);
 
-  // Nach Status gefilterte Anfragen
   const filteredRequests = requests.filter(req => {
     if (mainSection === 'open_requests') {
       return req.status === 'pending' && !req.assignedDoctorId;
@@ -62,7 +59,6 @@ const DoctorDashboard = () => {
 
   const selectedRequest = requests.find(req => req.id === selectedRequestId);
   
-  // Request nach Aktualisierung aktualisieren
   const handleRequestUpdate = (updatedRequest: PrescriptionRequest) => {
     setRequests(prevRequests => 
       prevRequests.map(req => 
@@ -72,7 +68,6 @@ const DoctorDashboard = () => {
     toast.success('Rezeptanfrage aktualisiert');
   };
 
-  // Arzt übernimmt eine Anfrage
   const handleAssignDoctor = (requestId: string) => {
     if (!user?.id) {
       toast.error('Fehler: Kein Arzt angemeldet');
@@ -99,7 +94,6 @@ const DoctorDashboard = () => {
         <h1 className="text-2xl font-bold mb-6">Arzt Dashboard</h1>
         
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar mit Arztinformationen */}
           <div className="md:w-1/4">
             <DoctorSidebar 
               user={user} 
@@ -108,7 +102,6 @@ const DoctorDashboard = () => {
             />
           </div>
           
-          {/* Hauptbereich */}
           <div className="md:w-3/4">
             {mainSection === 'prescriptions' ? (
               <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -122,7 +115,6 @@ const DoctorDashboard = () => {
                 
                 <TabsContent value={activeTab} className="mt-0">
                   <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Liste der Anfragen */}
                     <div className="lg:w-1/2">
                       <PrescriptionRequestsList 
                         requests={filteredRequests}
@@ -132,7 +124,6 @@ const DoctorDashboard = () => {
                       />
                     </div>
                     
-                    {/* Detailansicht */}
                     <div className="lg:w-1/2">
                       {selectedRequest ? (
                         <PrescriptionRequestDetail 
@@ -152,6 +143,8 @@ const DoctorDashboard = () => {
               </Tabs>
             ) : mainSection === 'patients' ? (
               <PatientManagement />
+            ) : mainSection === 'video' ? (
+              <VideoConsultation />
             ) : (
               <OpenRequestsPanel 
                 requests={filteredRequests}
