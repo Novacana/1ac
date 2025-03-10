@@ -42,7 +42,7 @@ export const startListening = (
     setTranscript(transcript);
     
     // If this is a final result, process the query
-    if (event.results[0].isFinal) {
+    if (event.results[0].isFinal && typeof processUserQuery === 'function') {
       recognition.stop();
       processUserQuery(transcript);
     }

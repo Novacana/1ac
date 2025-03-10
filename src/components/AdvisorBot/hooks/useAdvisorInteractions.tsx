@@ -17,7 +17,7 @@ export const useAdvisorInteractions = () => {
   // Get processing utilities (for handling user queries)
   const { processUserQuery } = useAdvisorProcessing(advisorState);
   
-  // Add processUserQuery to the tools BEFORE creating voice interactions
+  // Add processUserQuery to the tools object
   advisorState.tools.processUserQuery = processUserQuery;
   
   // Get voice interaction utilities
@@ -28,6 +28,12 @@ export const useAdvisorInteractions = () => {
     if (advisorState.state.userInput.trim()) {
       if (advisorState.tools.processUserQuery) {
         advisorState.tools.processUserQuery(advisorState.state.userInput);
+      } else {
+        advisorState.tools.toast({
+          title: "Fehler",
+          description: "Die Verarbeitung von Nachrichten ist derzeit nicht verfügbar.",
+          variant: "destructive"
+        });
       }
       advisorState.setters.setUserInput("");
     }
