@@ -102,7 +102,7 @@ const EcommerceTab: React.FC = () => {
   return (
     <>
       <div className="mb-6">
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-primary/5 border-primary/20 rounded-xl overflow-hidden shadow-sm">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
@@ -119,7 +119,7 @@ const EcommerceTab: React.FC = () => {
               </div>
               <Button 
                 size="sm" 
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-xl bg-primary/90 hover:bg-primary transition-colors shadow-sm"
                 onClick={handleNavigateToConfig}
               >
                 Konfiguration öffnen

@@ -151,10 +151,10 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] rounded-xl">
         <DialogHeader>
-          <DialogTitle>{system.name} konfigurieren</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl">{system.name} konfigurieren</DialogTitle>
+          <DialogDescription className="text-sm pt-1">
             Passen Sie die Einstellungen für diese Integration an Ihre Bedürfnisse an.
           </DialogDescription>
         </DialogHeader>
@@ -172,7 +172,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={shopUrl}
                   onChange={(e) => setShopUrl(e.target.value)}
                   placeholder="https://mein-shop.de"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -186,7 +186,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="ck_xxxxxxxxxxxx"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -200,7 +200,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiSecret}
                   onChange={(e) => setApiSecret(e.target.value)}
                   placeholder="cs_xxxxxxxxxxxx"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -213,7 +213,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiVersion}
                   onChange={(e) => setApiVersion(e.target.value)}
                   placeholder="wc/v3"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
             </>
@@ -231,7 +231,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={shopUrl}
                   onChange={(e) => setShopUrl(e.target.value)}
                   placeholder="mein-shop.myshopify.com"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -245,7 +245,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="shpat_xxxxxxxxxxxx"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -258,7 +258,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiVersion}
                   onChange={(e) => setApiVersion(e.target.value)}
                   placeholder="2023-10"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
             </>
@@ -277,7 +277,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="sk_live_xxxxx"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
               
@@ -290,7 +290,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://example.com/webhook"
-                  className="col-span-3"
+                  className="col-span-3 rounded-lg"
                 />
               </div>
             </>
@@ -305,8 +305,9 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
                 id="notifications"
                 checked={notificationsEnabled}
                 onCheckedChange={setNotificationsEnabled}
+                className="data-[state=checked]:bg-green-500"
               />
-              <Label htmlFor="notifications">
+              <Label htmlFor="notifications" className="text-sm">
                 {notificationsEnabled ? "Aktiviert" : "Deaktiviert"}
               </Label>
             </div>
@@ -321,14 +322,14 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Zusätzliche Informationen zur Integration..."
-              className="col-span-3"
+              className="col-span-3 rounded-lg resize-none"
               rows={3}
             />
           </div>
           
           {/* DSGVO-Hinweis */}
-          <Alert className="mt-2">
-            <ShieldCheck className="h-4 w-4" />
+          <Alert className="mt-2 bg-primary/5 border-primary/20 rounded-lg">
+            <ShieldCheck className="h-4 w-4 text-primary" />
             <AlertDescription className="text-xs">
               {getPrivacyNotice()}
             </AlertDescription>
@@ -340,6 +341,7 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
               id="gdpr-consent"
               checked={dataProcessingConsent}
               onCheckedChange={setDataProcessingConsent}
+              className="data-[state=checked]:bg-green-500"
             />
             <Label htmlFor="gdpr-consent" className="text-sm">
               Ich stimme der Verarbeitung der Daten gemäß der Datenschutzrichtlinie zu
@@ -347,12 +349,20 @@ const SystemConfigModal: React.FC<SystemConfigModalProps> = ({
           </div>
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
-          </Button>
-          <Button onClick={handleSave} disabled={!dataProcessingConsent}>
+        <DialogFooter className="gap-3 flex flex-col sm:flex-row-reverse">
+          <Button 
+            onClick={handleSave} 
+            disabled={!dataProcessingConsent}
+            className="rounded-xl bg-green-500 hover:bg-green-600 transition-colors"
+          >
             Speichern
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl"
+          >
+            Abbrechen
           </Button>
         </DialogFooter>
       </DialogContent>
