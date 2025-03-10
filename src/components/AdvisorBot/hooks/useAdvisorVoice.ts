@@ -1,7 +1,8 @@
 
-import { stopListening, startListening } from "../speechRecognition";
-import { speakResponse } from "../voiceUtils";
 import { AdvisorState } from "../types";
+
+// Using require to avoid circular dependencies
+const speechRecognition = require("../speechRecognition");
 
 export const useAdvisorVoice = (advisorState: AdvisorState) => {
   const { 
@@ -37,9 +38,9 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
     }
     
     if (state.isListening) {
-      stopListening(refs.recognitionRef, setters.setIsListening);
+      speechRecognition.stopListening(refs.recognitionRef, setters.setIsListening);
     } else {
-      startListening(
+      speechRecognition.startListening(
         setters.setIsListening,
         setters.setTranscript,
         processUserQuery,

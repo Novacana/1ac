@@ -6,10 +6,11 @@ import { useAdvisorProcessing } from './useAdvisorProcessing';
 export const useAdvisorInteractions = (advisorState: any) => {
   const core = useAdvisorCore(advisorState);
   const voice = useAdvisorVoice(advisorState);
-  const { processUserQuery } = useAdvisorProcessing(advisorState);
-
+  const processing = useAdvisorProcessing(advisorState);
+  
   // Create a reference to the processUserQuery function for other modules to use
-  (require('./useAdvisorProcessing')).processUserQuery = processUserQuery;
+  // This resolves the circular dependency issue
+  (require('./useAdvisorProcessing')).processUserQuery = processing.processUserQuery;
   
   return {
     // Core interactions
@@ -24,6 +25,6 @@ export const useAdvisorInteractions = (advisorState: any) => {
     handleConsentChange: voice.handleConsentChange,
     
     // Query processing
-    processUserQuery
+    processUserQuery: processing.processUserQuery
   };
 };

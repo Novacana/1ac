@@ -1,7 +1,5 @@
 
 import { products } from "@/data/products";
-import { speakResponse } from "../voiceUtils";
-import { stopListening } from "../speechRecognition";
 import { 
   detectToolIntent, 
   processQuery,
@@ -9,6 +7,10 @@ import {
   sendToN8nWebhook
 } from "../toolUtils";
 import { AdvisorState } from "../types";
+
+// Use require for these to avoid circular dependency issues
+const voiceUtils = require("../voiceUtils");
+const speechRecognition = require("../speechRecognition");
 
 export const useAdvisorProcessing = (advisorState: AdvisorState) => {
   const { 
@@ -32,7 +34,7 @@ export const useAdvisorProcessing = (advisorState: AdvisorState) => {
       setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
       
       if (state.isVoiceEnabled && state.gdprConsent) {
-        speakResponse(
+        voiceUtils.speakResponse(
           botResponseText, 
           state.isVoiceEnabled, 
           state.isApiKeySet, 
@@ -53,7 +55,7 @@ export const useAdvisorProcessing = (advisorState: AdvisorState) => {
       setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
       
       if (state.isVoiceEnabled && state.gdprConsent) {
-        speakResponse(
+        voiceUtils.speakResponse(
           response, 
           state.isVoiceEnabled, 
           state.isApiKeySet, 
@@ -125,7 +127,7 @@ export const useAdvisorProcessing = (advisorState: AdvisorState) => {
             executeN8nActions(actions, navigate, toast, setters.setIsOpen);
             
             if (state.isVoiceEnabled && state.gdprConsent) {
-              speakResponse(
+              voiceUtils.speakResponse(
                 n8nMessage, 
                 state.isVoiceEnabled, 
                 state.isApiKeySet, 
@@ -167,7 +169,9 @@ export const useAdvisorProcessing = (advisorState: AdvisorState) => {
   };
 };
 
-// Export these for other modules
-export const stopListening = require('../speechRecognition').stopListening;
-export const speakResponse = require('../voiceUtils').speakResponse;
-export const processUserQuery = (userQuery: string) => {}; // Will be properly set in useAdvisorInteractions
+// We'll export references to the original functions instead of redefining them
+export const stopListening = speechRecognition.stopListening;
+export const speakResponse = voiceUtils.speakResponse;
+export const processUserQuery = (userQuery: string) => {
+  console.warn('This is a placeholder. The actual implementation will be set by useAdvisorInteractions.tsx');
+};
