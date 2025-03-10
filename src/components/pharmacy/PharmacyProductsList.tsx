@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -41,6 +42,7 @@ const PharmacyProductsList: React.FC = () => {
         const pharmacyProducts = allProducts.filter(product => 
           product.source === "woocommerce" || 
           product.source === "shopify" || 
+          product.source === "local" ||
           product.source === "pharmacy"
         );
         
@@ -51,7 +53,7 @@ const PharmacyProductsList: React.FC = () => {
         const initialOfferedState = {};
         const initialInventoryLevels = {};
         pharmacyProducts.forEach(product => {
-          initialOfferedState[product.id] = product.source === "pharmacy";
+          initialOfferedState[product.id] = product.source === "local" || product.source === "pharmacy";
           initialInventoryLevels[product.id] = product.stock || 0;
         });
         setOfferedInShop(initialOfferedState);
@@ -174,6 +176,7 @@ const PharmacyProductsList: React.FC = () => {
     if (product.source === "woocommerce") return "WooCommerce";
     if (product.source === "shopify") return "Shopify";
     if (product.source === "pharmacy") return "Apotheke";
+    if (product.source === "local") return "Lokal";
     return "Extern";
   };
 

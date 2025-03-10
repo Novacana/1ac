@@ -19,5 +19,7 @@ export interface Product {
   product_type?: string;
   weight?: string;
   potency?: string;
-  source?: "woocommerce" | "shopify" | "local";  // Added source property
+  source?: "woocommerce" | "shopify" | "local" | "pharmacy";  // Updated to include "pharmacy"
+  stock?: number;  // Added stock property
+  requiresPrescription?: boolean;  // Added requiresPrescription property
 }

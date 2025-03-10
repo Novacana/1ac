@@ -48,13 +48,15 @@ export const getProductById = (id: string): ProductDetailProps | undefined => {
 
 // Helper function to get products by source
 export const getProductsBySource = (source: string): ProductDetailProps[] => {
-  return products.filter(product => product.source === source);
+  return products.filter(product => 
+    (product as any).source === source
+  );
 };
 
 // Helper function to get pharmacy products
 export const getPharmacyProducts = (): ProductDetailProps[] => {
   return products.filter(product => 
-    product.source === "pharmacy" || 
+    (product as any).source === "pharmacy" || 
     product.category === "Apotheke" || 
     product.category === "Pharmacy"
   );
@@ -63,7 +65,7 @@ export const getPharmacyProducts = (): ProductDetailProps[] => {
 // Helper function to get prescription products
 export const getPrescriptionProducts = (): ProductDetailProps[] => {
   return products.filter(product => 
-    product.requiresPrescription || 
+    (product as any).requiresPrescription || 
     product.category === "Verschreibungspflichtig" || 
     product.category === "Prescription"
   );
