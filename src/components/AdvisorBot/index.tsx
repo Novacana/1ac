@@ -14,6 +14,7 @@ import ConversationView from "./ConversationView";
 import InputArea from "./InputArea";
 import GdprNoticeDialog from "./GdprNoticeDialog";
 import GdprConsentBanner from "./GdprConsentBanner";
+import VoiceChat from "./VoiceChat";
 
 // Import hooks
 import { useAdvisorState } from "./hooks/useAdvisorState";
@@ -78,9 +79,27 @@ const ProductAdvisor = () => {
 
             <BotIntroduction />
 
-            <QuickActions 
-              onActionClick={advisor.processUserQuery}
-              onNavigate={advisor.handleNavigate}
+            {!state.isSpeechInputActive && (
+              <QuickActions 
+                onActionClick={advisor.processUserQuery}
+                onNavigate={advisor.handleNavigate}
+              />
+            )}
+
+            <VoiceChat
+              isListening={state.isListening}
+              toggleListening={advisor.toggleListening}
+              isPlaying={state.isPlaying}
+              stopSpeaking={advisor.stopSpeaking}
+              transcript={state.transcript}
+              isLoading={state.isLoading}
+              gdprConsent={state.gdprConsent}
+              isVoiceEnabled={state.isVoiceEnabled}
+              toggleVoice={advisor.toggleVoice}
+              isSpeechInputActive={state.isSpeechInputActive}
+              setIsSpeechInputActive={setters.setIsSpeechInputActive}
+              isFullConversationMode={state.isFullConversationMode}
+              setIsFullConversationMode={setters.setIsFullConversationMode}
             />
 
             <ConversationView 
@@ -96,17 +115,19 @@ const ProductAdvisor = () => {
             <div ref={refs.bottomRef} />
           </div>
 
-          <InputArea 
-            userInput={state.userInput}
-            setUserInput={setters.setUserInput}
-            handleSendMessage={advisor.handleSendMessage}
-            handleKeyPress={advisor.handleKeyPress}
-            isLoading={state.isLoading}
-            isListening={state.isListening}
-            toggleListening={advisor.toggleListening}
-            isVoiceEnabled={state.isVoiceEnabled}
-            toggleVoice={advisor.toggleVoice}
-          />
+          {!state.isSpeechInputActive && (
+            <InputArea 
+              userInput={state.userInput}
+              setUserInput={setters.setUserInput}
+              handleSendMessage={advisor.handleSendMessage}
+              handleKeyPress={advisor.handleKeyPress}
+              isLoading={state.isLoading}
+              isListening={state.isListening}
+              toggleListening={advisor.toggleListening}
+              isVoiceEnabled={state.isVoiceEnabled}
+              toggleVoice={advisor.toggleVoice}
+            />
+          )}
         </Card>
       </div>
     </>

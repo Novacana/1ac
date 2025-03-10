@@ -53,6 +53,8 @@ export type AdvisorState = {
     gdprConsent: boolean;
     isApiKeySet: boolean;
     showGdprNotice: boolean;
+    isSpeechInputActive: boolean;
+    isFullConversationMode: boolean;
   };
   setters: {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -70,6 +72,8 @@ export type AdvisorState = {
     setUseN8nAgent: React.Dispatch<React.SetStateAction<boolean>>;
     setGdprConsent: React.Dispatch<React.SetStateAction<boolean>>;
     setShowGdprNotice: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsSpeechInputActive: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsFullConversationMode: React.Dispatch<React.SetStateAction<boolean>>;
   };
   refs: {
     recognitionRef: React.MutableRefObject<SpeechRecognition | null>;

@@ -48,6 +48,10 @@ export const useAdvisorState = (): AdvisorState => {
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
   
+  // Voice chat specific state
+  const [isSpeechInputActive, setIsSpeechInputActive] = useState(false);
+  const [isFullConversationMode, setIsFullConversationMode] = useState(true);
+  
   // Load n8n configuration from localStorage with defaults if not found
   const [webhookUrl, setWebhookUrl] = useState(getSavedValue('n8nWebhookUrl', N8N_WEBHOOK_URL));
   const [useN8nAgent, setUseN8nAgent] = useState(getSavedValue('useN8nAgent', USE_N8N_AGENT));
@@ -132,6 +136,8 @@ export const useAdvisorState = (): AdvisorState => {
       gdprConsent,
       isApiKeySet,
       showGdprNotice,
+      isSpeechInputActive,
+      isFullConversationMode,
     },
     setters: {
       setIsOpen,
@@ -149,6 +155,8 @@ export const useAdvisorState = (): AdvisorState => {
       setUseN8nAgent: updateUseN8nAgent,
       setGdprConsent: updateGdprConsent,
       setShowGdprNotice,
+      setIsSpeechInputActive,
+      setIsFullConversationMode,
     },
     refs: {
       recognitionRef,

@@ -31,8 +31,16 @@ export const useAdvisorVoiceHandling = (advisorState: AdvisorState) => {
         setters.setTranscript,
         tools.processUserQuery,
         refs.recognitionRef,
-        tools.toast
+        tools.toast,
+        state.isFullConversationMode
       );
+    }
+  };
+
+  const stopSpeaking = () => {
+    if (state.isPlaying && refs.conversation.status === "connected") {
+      refs.conversation.endSession();
+      setters.setIsPlaying(false);
     }
   };
 
@@ -53,6 +61,7 @@ export const useAdvisorVoiceHandling = (advisorState: AdvisorState) => {
   return {
     toggleVoice,
     toggleListening,
+    stopSpeaking,
     handleSpeakResponse
   };
 };

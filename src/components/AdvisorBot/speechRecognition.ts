@@ -6,7 +6,8 @@ export const startListening = (
   setTranscript: (transcript: string) => void,
   processUserQuery: ((transcript: string) => void) | undefined,
   recognitionRef: React.MutableRefObject<SpeechRecognition | null>,
-  toast: ToastFunction
+  toast: ToastFunction,
+  isFullConversationMode: boolean = false
 ) => {
   // Check if speech recognition is supported
   if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
@@ -25,12 +26,12 @@ export const startListening = (
   const recognition = recognitionRef.current;
   
   recognition.lang = 'de-DE';
-  recognition.continuous = false;
+  recognition.continuous = isFullConversationMode; // Enable continuous mode for full conversations
   recognition.interimResults = true;
   
   recognition.onstart = () => {
     setIsListening(true);
-    console.log("Spracherkennung gestartet");
+    console.log("Spracherkennung gestartet", isFullConversationMode ? "(Vollgesprächsmodus)" : "");
   };
   
   recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -41,10 +42,27 @@ export const startListening = (
     
     setTranscript(transcript);
     
-    // If this is a final result, process the query
-    if (event.results[0].isFinal && typeof processUserQuery === 'function') {
-      recognition.stop();
-      processUserQuery(transcript);
+    // In full conversation mode, only process when there's a significant pause
+    if (isFullConversationMode) {
+      // Check if this is a final result from the latest recognition
+      const currentResult = event.results[event.results.length - 1];
+      if (currentResult.isFinal && typeof processUserQuery === 'function') {
+        // Process just this latest segment
+        const latestTranscript = currentResult[0].transcript;
+        if (latestTranscript.trim().length > 0) {
+          console.log("Processing in full conversation mode:", latestTranscript);
+          processUserQuery(latestTranscript);
+        }
+      }
+    } else {
+      // For single-utterance mode, process the full transcript when final
+      if (event.results[0].isFinal && typeof processUserQuery === 'function') {
+        recognition.stop();
+        if (transcript.trim().length > 0) {
+          console.log("Processing in single utterance mode:", transcript);
+          processUserQuery(transcript);
+        }
+      }
     }
   };
   
@@ -62,6 +80,12 @@ export const startListening = (
   recognition.onend = () => {
     setIsListening(false);
     console.log("Spracherkennung beendet");
+    
+    // In full conversation mode, restart recognition automatically
+    if (isFullConversationMode && recognitionRef.current) {
+      console.log("Restart recognition in full conversation mode");
+      recognitionRef.current.start();
+    }
   };
   
   // Start listening

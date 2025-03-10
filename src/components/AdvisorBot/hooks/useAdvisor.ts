@@ -12,7 +12,7 @@ export const useAdvisor = (advisorState: AdvisorState) => {
   
   // Initialize sub-hooks
   const { gdprNotice } = useAdvisorGdpr(advisorState);
-  const { handleSpeakResponse, toggleVoice, toggleListening } = useAdvisorVoiceHandling(advisorState);
+  const { handleSpeakResponse, toggleVoice, toggleListening, stopSpeaking } = useAdvisorVoiceHandling(advisorState);
   const { processUserQuery } = useAdvisorQueryProcessing(advisorState, handleSpeakResponse);
   const { toggleAdvisor, handleSendMessage, handleKeyPress, handleNavigate } = 
     useAdvisorInteractions(advisorState, handleSpeakResponse);
@@ -47,6 +47,7 @@ export const useAdvisor = (advisorState: AdvisorState) => {
     handleKeyPress,
     toggleVoice,
     toggleListening,
+    stopSpeaking,
     handleNavigate,
     gdprNotice
   };
