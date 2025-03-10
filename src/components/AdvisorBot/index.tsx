@@ -20,7 +20,7 @@ import InputArea from "./InputArea";
 import { createWebTools, detectToolIntent, processQuery, executeN8nActions, sendToN8nWebhook } from "./toolUtils";
 import { speakResponse } from "./voiceUtils";
 import { startListening, stopListening } from "./speechRecognition";
-import { Message } from "./types";
+import { Message, ToastFunction } from "./types";
 import { ELEVENLABS_API_KEY } from "./voiceUtils";
 
 // Constants
@@ -72,7 +72,9 @@ ${JSON.stringify(productKnowledgeBase).substring(0, 1000)}...
 
 const ProductAdvisor = () => {
   const { toast } = useToast();
+  const toastFn = toast as unknown as ToastFunction;
   const navigate = useNavigate();
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isListening, setIsListening] = useState(false);
@@ -101,7 +103,7 @@ const ProductAdvisor = () => {
   const conversation = useConversation({
     onError: (error) => {
       console.error("ElevenLabs error:", error);
-      toast({
+      toastFn({
         title: "Fehler bei der Sprachausgabe",
         description: "Es gab ein Problem mit der ElevenLabs Sprachausgabe.",
         variant: "destructive",
@@ -110,7 +112,6 @@ const ProductAdvisor = () => {
   });
 
   useEffect(() => {
-    // Consent-Status aus dem localStorage laden
     const savedConsent = localStorage.getItem('advisorBotGdprConsent');
     if (savedConsent === 'true') {
       setGdprConsent(true);
@@ -184,7 +185,7 @@ const ProductAdvisor = () => {
         setTranscript,
         processUserQuery,
         recognitionRef,
-        toast
+        toastFn
       );
     }
   };
@@ -194,7 +195,7 @@ const ProductAdvisor = () => {
     localStorage.setItem('advisorBotGdprConsent', 'true');
     setShowGdprNotice(false);
     
-    toast({
+    toastFn({
       title: "DSGVO-Zustimmung erteilt",
       description: "Vielen Dank für Ihre Zustimmung. Sie können jetzt die Spracherkennung nutzen.",
     });
@@ -204,7 +205,7 @@ const ProductAdvisor = () => {
     setShowGdprNotice(false);
   };
 
-  const webTools = createWebTools(navigate, toast);
+  const webTools = createWebTools(navigate, toastFn);
 
   const handleNavigate = (path: string) => {
     const response = webTools.navigateToPage(path);
@@ -212,7 +213,7 @@ const ProductAdvisor = () => {
     setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
     
     if (isVoiceEnabled && gdprConsent) {
-      speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+      speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toastFn);
     }
   };
 
@@ -228,7 +229,7 @@ const ProductAdvisor = () => {
       setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
       
       if (isVoiceEnabled && gdprConsent) {
-        speakResponse(botResponseText, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+        speakResponse(botResponseText, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toastFn);
       }
     } else {
       const response = processQuery(userQuery, setRecommendedProducts, setShowProducts);
@@ -237,7 +238,7 @@ const ProductAdvisor = () => {
       setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
       
       if (isVoiceEnabled && gdprConsent) {
-        speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+        speakResponse(response, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toastFn);
       }
     }
   };
@@ -265,7 +266,7 @@ const ProductAdvisor = () => {
             conversationHistory, 
             productKnowledgeBase,
             setIsLoading,
-            toast
+            toastFn
           );
           
           if (n8nResponse) {
@@ -296,10 +297,10 @@ const ProductAdvisor = () => {
               setRecommendedProducts([]);
             }
             
-            executeN8nActions(actions, navigate, toast, setIsOpen);
+            executeN8nActions(actions, navigate, toastFn, setIsOpen);
             
             if (isVoiceEnabled && gdprConsent) {
-              speakResponse(n8nMessage, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toast);
+              speakResponse(n8nMessage, isVoiceEnabled, isApiKeySet, conversation, setIsPlaying, isPlaying, toastFn);
             }
           } else {
             fallbackProcessing(userQuery);

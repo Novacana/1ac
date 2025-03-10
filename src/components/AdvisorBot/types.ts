@@ -28,10 +28,10 @@ export type N8nResponse = {
   actions: any;
 };
 
-// Define a consistent toast function type
+// Define a consistent toast function type that matches the actual toast implementation
 export type ToastFunction = {
-  (props: { title: string; description?: string; action?: React.ReactNode; variant?: "default" | "destructive" }): void;
-  error: (message: string) => void;
+  (props: { title: string; description?: string; action?: ToastAction; variant?: "default" | "destructive" }): { id: string; dismiss: () => void; update: (props: ToasterToast) => void; };
+  error: (message: string) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; };
 };
 
 // Define the AdvisorState type for use in hooks

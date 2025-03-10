@@ -6,14 +6,30 @@ import { useAdvisorVoice } from './useAdvisorVoice';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useConversation } from '@11labs/react';
-import { AdvisorState } from '../types';
+import { AdvisorState, ToastFunction } from '../types';
 
 export const useAdvisorInteractions = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
   // Initialize the core state and utilities
-  const advisorState = useAdvisorCore(navigate, toast, useConversation);
+  const coreState = useAdvisorCore(navigate, toast, useConversation);
+  
+  // Add showGdprNotice to the state if it's missing
+  const [showGdprNotice, setShowGdprNotice] = useState(false);
+  
+  // Create a complete advisorState that matches the AdvisorState type
+  const advisorState: AdvisorState = {
+    ...coreState,
+    state: {
+      ...coreState.state,
+      showGdprNotice
+    },
+    setters: {
+      ...coreState.setters,
+      setShowGdprNotice
+    }
+  };
   
   // Get processing utilities (for handling user queries)
   const { processUserQuery } = useAdvisorProcessing(advisorState);

@@ -1,13 +1,12 @@
-
 import { NavigateFunction } from "react-router-dom";
 import { products } from "@/data/products";
 import { ProductDetailProps } from "@/components/ProductDetail";
-import { ToolIntent, WebTools } from "./types";
+import { ToolIntent, WebTools, ToastFunction } from "./types";
 import { ToastAction } from "@/components/ui/toast";
 
 export const createWebTools = (
   navigate: NavigateFunction,
-  toast: any
+  toast: ToastFunction
 ): WebTools => {
   return {
     navigateToPage: (page: string) => {
@@ -297,7 +296,7 @@ export const sendToN8nWebhook = async (
   conversationHistory: { role: 'user' | 'assistant', content: string }[],
   productKnowledgeBase: any[],
   setIsLoading: (loading: boolean) => void,
-  toast: any
+  toast: ToastFunction
 ): Promise<{
   botResponse: string;
   products: ProductDetailProps[];
