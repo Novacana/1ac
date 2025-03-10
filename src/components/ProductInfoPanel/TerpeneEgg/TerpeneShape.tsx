@@ -6,9 +6,9 @@ interface TerpeneShapeProps {
   terpene: {
     name: string;
     value: number;
-    relativeValue: number; // Neu: relativer Anteil in Prozent
+    relativeValue: number;
     effect: string;
-    detailedEffect?: string; // Optional
+    detailedEffect?: string;
   };
   position: {
     left: string;
@@ -51,10 +51,17 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           backgroundColor: color,
           border: `1px solid ${isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}`,
         }}
-      ></div>
+      >
+        {/* Show percentage inside large dots */}
+        {dotSize >= 32 && (
+          <span className="text-xs font-bold text-white drop-shadow-md">
+            {terpene.relativeValue}%
+          </span>
+        )}
+      </div>
       
-      {/* Terpene Name Label - nur anzeigen, wenn expandiert oder sehr großes Terpen */}
-      {(isExpanded || terpene.relativeValue > 20) && (
+      {/* Always show name label for larger terpenes */}
+      {(terpene.relativeValue > 20 || isExpanded) && (
         <div 
           className={cn(
             "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
@@ -71,7 +78,7 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
             zIndex: isExpanded ? 30 : 20,
           }}
         >
-          <span className="font-bold">{terpene.name}</span> <span className="font-bold text-primary">{terpene.relativeValue}%</span>
+          {terpene.name} {dotSize < 32 && <span className="font-bold text-primary">{terpene.relativeValue}%</span>}
         </div>
       )}
 

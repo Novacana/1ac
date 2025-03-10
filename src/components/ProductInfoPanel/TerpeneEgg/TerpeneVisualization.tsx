@@ -2,16 +2,15 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
 import TerpeneShape from './TerpeneShape';
-import EffectLabel from './EffectLabel';
 import EggBackground from './EggBackground';
 import { getTerpenePosition } from './terpeneUtils';
 
 interface TerpeneData {
   name: string;
   value: number;
-  relativeValue: number; // Neu: relativer Anteil in Prozent
+  relativeValue: number;
   effect: string;
-  detailedEffect?: string; // Optional
+  detailedEffect?: string;
 }
 
 interface TerpeneVisualizationProps {
@@ -70,16 +69,16 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
   // Determine the size of the dot based on the relative percentage
   const getDotSize = (relativePercentage: number) => {
     // Größere Unterschiede in der Darstellung
-    if (relativePercentage >= 50) return 40;
-    if (relativePercentage >= 30) return 34;
-    if (relativePercentage >= 20) return 28;
-    if (relativePercentage >= 10) return 24;
-    if (relativePercentage >= 5) return 20;
-    return 16;
+    if (relativePercentage >= 50) return 44;
+    if (relativePercentage >= 30) return 38;
+    if (relativePercentage >= 20) return 32;
+    if (relativePercentage >= 10) return 26;
+    if (relativePercentage >= 5) return 22;
+    return 18;
   };
 
   return (
-    <div className="relative w-full h-[280px] flex-shrink-0 mx-auto mb-4 md:mx-0 md:mb-0">
+    <div className="relative w-full h-[280px] flex-shrink-0 mx-auto">
       {/* Egg background with gradient */}
       <EggBackground isDark={isDark} />
       

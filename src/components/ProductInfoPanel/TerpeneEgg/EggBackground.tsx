@@ -28,16 +28,16 @@ const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
                `
            }}>
         {/* Beschriftungen für die Quadranten */}
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[30%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[9px] font-medium text-foreground/70 top-[15%] left-[30%] -translate-x-1/2 -translate-y-1/2">
           körperlich anregend
         </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[70%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[9px] font-medium text-foreground/70 top-[15%] left-[70%] -translate-x-1/2 -translate-y-1/2">
           geistig anregend
         </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[30%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[9px] font-medium text-foreground/70 top-[85%] left-[30%] -translate-x-1/2 -translate-y-1/2">
           körperlich entspannend
         </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[70%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute text-[9px] font-medium text-foreground/70 top-[85%] left-[70%] -translate-x-1/2 -translate-y-1/2">
           geistig entspannend
         </div>
       </div>
