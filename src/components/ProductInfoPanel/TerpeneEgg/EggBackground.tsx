@@ -27,19 +27,7 @@ const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
                  radial-gradient(ellipse at 70% 70%, rgba(248, 113, 113, 0.5) 0%, rgba(255, 255, 255, 0.01) 70%)
                `
            }}>
-        {/* Small labels for the quadrants inside the egg */}
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[30%] -translate-x-1/2 -translate-y-1/2">
-          körperlich anregend
-        </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[15%] left-[70%] -translate-x-1/2 -translate-y-1/2">
-          geistig anregend
-        </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[30%] -translate-x-1/2 -translate-y-1/2">
-          körperlich entspannend
-        </div>
-        <div className="absolute text-[8px] font-medium text-foreground/70 top-[85%] left-[70%] -translate-x-1/2 -translate-y-1/2">
-          geistig entspannend
-        </div>
+        {/* Internal labels removed as requested */}
       </div>
     </>
   );

@@ -81,31 +81,31 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     return 16;
   };
 
-  // Effect labels that should be displayed around the egg
+  // Effect labels with better spacing to prevent overlapping
   const effectLabels = [
-    { text: "körperlich erdend ausgleichend", position: { top: '-5%', left: '50%' } },
-    { text: "körperlich entspannend", position: { top: '-5%', left: '85%' } },
-    { text: "körperlich ausgleichend", position: { top: '25%', left: '-5%' } },
-    { text: "ganzheitlich entspannend", position: { top: '25%', left: '105%' } },
-    { text: "ganzheitlich anregend stimulierend", position: { top: '75%', left: '-5%' } },
-    { text: "geistig entspannend", position: { top: '75%', left: '105%' } },
-    { text: "ganzheitlich anregend", position: { top: '105%', left: '30%' } },
-    { text: "geistig ausgleichend öffnend", position: { top: '105%', left: '70%' } },
+    { text: "körperlich erdend ausgleichend", position: { top: '-12%', left: '50%' } },
+    { text: "körperlich entspannend", position: { top: '10%', left: '105%' } }, 
+    { text: "körperlich ausgleichend", position: { top: '30%', left: '-10%' } },
+    { text: "ganzheitlich entspannend", position: { top: '50%', left: '112%' } },
+    { text: "ganzheitlich anregend stimulierend", position: { top: '70%', left: '-12%' } },
+    { text: "geistig entspannend", position: { top: '90%', left: '105%' } },
+    { text: "ganzheitlich anregend", position: { top: '112%', left: '30%' } },
+    { text: "geistig ausgleichend öffnend", position: { top: '112%', left: '70%' } },
   ];
 
   return (
-    <div className="relative w-full h-[340px] flex-shrink-0 mx-auto">
-      {/* Increased height for better spacing */}
+    <div className="relative w-full h-[420px] flex-shrink-0 mx-auto">
+      {/* Increased height for better spacing of labels */}
       
       {/* Egg background with gradient */}
       <EggBackground isDark={isDark} />
       
-      {/* Effect labels around the egg - positioned farther away from the egg */}
+      {/* Effect labels around the egg - positioned with better spacing */}
       {effectLabels.map((label, index) => (
         <div 
           key={`effect-${index}`}
           className={cn(
-            "absolute transform -translate-x-1/2 text-xs px-2 py-0.5 rounded-full",
+            "absolute transform -translate-x-1/2 text-xs px-2 py-1 rounded-full",
             isDark 
               ? "bg-gray-800/90 text-white" 
               : "bg-gray-100/90 text-gray-800",
