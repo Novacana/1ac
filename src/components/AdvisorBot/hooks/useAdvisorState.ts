@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useConversation } from "@11labs/react";
@@ -20,7 +20,13 @@ export const useAdvisorState = (): AdvisorState => {
   const getSavedValue = (key: string, defaultValue: any) => {
     try {
       const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : defaultValue;
+      if (saved) {
+        const parsedValue = JSON.parse(saved);
+        console.log(`Loaded ${key} from localStorage:`, parsedValue);
+        return parsedValue;
+      }
+      console.log(`No saved value for ${key}, using default:`, defaultValue);
+      return defaultValue;
     } catch (e) {
       console.error("Error loading saved config:", e);
       return defaultValue;
@@ -42,17 +48,30 @@ export const useAdvisorState = (): AdvisorState => {
     {role: 'assistant', content: "Hallo! Ich bin dein persönlicher Berater für medizinisches Cannabis. Wie kann ich dir heute helfen?"}
   ]);
   
-  // Load n8n configuration from localStorage or use defaults
+  // Load n8n configuration from localStorage with defaults if not found
   const [webhookUrl, setWebhookUrl] = useState(getSavedValue('n8nWebhookUrl', N8N_WEBHOOK_URL));
   const [useN8nAgent, setUseN8nAgent] = useState(getSavedValue('useN8nAgent', USE_N8N_AGENT));
   
+  // Ensure the settings are also saved when they change
+  useEffect(() => {
+    localStorage.setItem('n8nWebhookUrl', JSON.stringify(webhookUrl));
+    console.log("Saved webhookUrl to localStorage:", webhookUrl);
+  }, [webhookUrl]);
+  
+  useEffect(() => {
+    localStorage.setItem('useN8nAgent', JSON.stringify(useN8nAgent));
+    console.log("Saved useN8nAgent to localStorage:", useN8nAgent);
+  }, [useN8nAgent]);
+  
   // Save n8n config changes to localStorage
   const updateWebhookUrl = (url: string) => {
+    console.log("Updating webhook URL to:", url);
     setWebhookUrl(url);
     localStorage.setItem('n8nWebhookUrl', JSON.stringify(url));
   };
   
   const updateUseN8nAgent = (use: boolean) => {
+    console.log("Updating useN8nAgent to:", use);
     setUseN8nAgent(use);
     localStorage.setItem('useN8nAgent', JSON.stringify(use));
   };

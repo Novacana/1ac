@@ -25,6 +25,8 @@ export const useAdvisorQueryProcessing = (
 
   // Fallback processing logic
   const fallbackProcessing = (userQuery: string) => {
+    console.log("Using fallback processing for query:", userQuery);
+    
     const toolIntent = detectToolIntent(userQuery);
     
     if (toolIntent) {
@@ -62,7 +64,7 @@ export const useAdvisorQueryProcessing = (
       setters.setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
       // Check if n8n integration is enabled and configured
-      console.log("N8n configuration:", {
+      console.log("N8n configuration status:", {
         useN8nAgent: state.useN8nAgent,
         webhookUrl: state.webhookUrl
       });
@@ -137,7 +139,8 @@ export const useAdvisorQueryProcessing = (
           fallbackProcessing(userQuery);
         }
       } else {
-        console.log("N8n agent not enabled, using local processing");
+        console.log("N8n agent not enabled or webhook URL not set, using local processing");
+        console.log("n8n config:", { useN8nAgent: state.useN8nAgent, webhookUrl: state.webhookUrl });
         fallbackProcessing(userQuery);
       }
       
