@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import DoctorLanding from "./pages/DoctorLanding";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
@@ -70,6 +71,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/datenschutz" element={<PrivacyPolicy />} />
+            <Route path="/doctor/landing" element={<DoctorLanding />} />
             <Route 
               path="/doctor/dashboard" 
               element={
