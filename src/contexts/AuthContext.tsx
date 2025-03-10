@@ -122,11 +122,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const login = async (email: string, password: string) => {
     if (email === 'doctor@example.com' && password === 'password') {
-      const demoUser = {
+      const demoUser: User = {
         id: '1',
         name: 'Dr. Schmidt',
         email: 'doctor@example.com',
-        role: 'doctor' as const,
+        role: 'doctor',
         addresses: [
           {
             id: '1',
@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         paymentMethods: [
           {
             id: '1',
-            type: 'credit_card' as const,
+            type: 'credit_card',
             cardNumber: '4321',
             expiryDate: '12/25',
             cardHolder: 'Dr. Schmidt',
@@ -149,8 +149,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         ],
         phone: '+49 123 456789',
-        identificationStatus: 'verified',
-        verificationStatus: 'verified',
+        identificationStatus: 'verified' as const,
+        verificationStatus: 'verified' as const,
         medicalLicenseNumber: 'ARZTNR-12345',
         verificationDocuments: [
           {
@@ -164,11 +164,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
     } else if (email === 'pharmacy@example.com' && password === 'password') {
-      const demoUser = {
+      const demoUser: User = {
         id: '3',
         name: 'Muster Apotheke',
         email: 'pharmacy@example.com',
-        role: 'pharmacy' as const,
+        role: 'pharmacy',
         addresses: [
           {
             id: '1',
@@ -182,8 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ],
         paymentMethods: [],
         phone: '+49 123 987654',
-        identificationStatus: 'verified',
-        verificationStatus: 'verified',
+        identificationStatus: 'verified' as const,
+        verificationStatus: 'verified' as const,
         pharmacyLicenseNumber: 'APO-987654',
         verificationDocuments: [
           {
@@ -197,11 +197,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
     } else if (email === 'user@example.com' && password === 'password') {
-      const demoUser = {
+      const demoUser: User = {
         id: '2',
         name: 'Max Mustermann',
         email: 'user@example.com',
-        role: 'user' as const,
+        role: 'user',
         addresses: [
           {
             id: '1',
@@ -217,7 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         paymentMethods: [
           {
             id: '1',
-            type: 'credit_card' as const,
+            type: 'credit_card',
             cardNumber: '1234',
             expiryDate: '06/24',
             cardHolder: 'Max Mustermann',
@@ -225,7 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         ],
         phone: '+49 987 654321',
-        identificationStatus: 'not_verified'
+        identificationStatus: 'not_verified' as const
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -235,15 +235,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string, role: 'user' | 'doctor' | 'pharmacy' = 'user') => {
-    const newUser = {
+    const newUser: User = {
       id: Math.random().toString(36).substring(2, 9),
       name,
       email,
-      role: role as 'user' | 'doctor' | 'pharmacy' | 'admin',
+      role,
       addresses: [],
       paymentMethods: [],
-      identificationStatus: 'not_verified',
-      verificationStatus: role === 'user' ? undefined : 'not_verified',
+      identificationStatus: 'not_verified' as const,
+      verificationStatus: role === 'user' ? undefined : 'not_verified' as const,
       verificationDocuments: []
     };
     
@@ -394,7 +394,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updatedUser = { 
       ...user,
       verificationDocuments: [...(user.verificationDocuments || []), newDocument],
-      verificationStatus: 'pending_review'
+      verificationStatus: 'pending_review' as const
     };
     
     setUser(updatedUser);
@@ -433,4 +433,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
-
