@@ -38,28 +38,27 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       }}
       onClick={onTerpeneClick}
     >
-      {/* Terpene Dot with enhanced glow effect */}
+      {/* Terpene Dot without glow effect */}
       <div 
         className={cn(
-          "rounded-full flex items-center justify-center shadow-lg transition-all duration-300",
+          "rounded-full flex items-center justify-center shadow-md transition-all duration-300",
           isExpanded ? "ring-2 ring-white/80" : ""
         )}
         style={{
           width: `${dotSize}px`,
           height: `${dotSize}px`,
           backgroundColor: color,
-          boxShadow: `0 0 15px ${color}`,
           border: `1px solid ${isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}`,
         }}
       ></div>
       
-      {/* Terpene Name Label - Enhanced visibility */}
+      {/* Terpene Name Label */}
       <div 
         className={cn(
           "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
           isDark 
-            ? "bg-background/85 text-white border border-white/40 shadow-[0_0_8px_rgba(255,255,255,0.4)]" 
-            : "bg-background/95 text-foreground border border-primary/40 shadow-lg",
+            ? "bg-background/85 text-white border border-white/40" 
+            : "bg-background/95 text-foreground border border-primary/40 shadow-md",
           isExpanded ? "opacity-100 scale-100" : "opacity-100 scale-100"
         )}
         style={{
@@ -76,7 +75,7 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       {isExpanded && (
         <div 
           className={cn(
-            "absolute -translate-x-1/2 p-2 rounded-lg shadow-lg z-20 w-44 text-xs transition-all duration-300",
+            "absolute -translate-x-1/2 p-2 rounded-lg shadow-md z-20 w-44 text-xs transition-all duration-300",
             isDark 
               ? "bg-background/95 backdrop-blur-sm border border-white/40 text-white" 
               : "bg-background/95 backdrop-blur-sm border border-primary/40 text-foreground"
@@ -84,9 +83,6 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           style={{
             top: `${dotSize + 30}px`,
             left: '50%',
-            boxShadow: isDark 
-              ? "0 0 15px rgba(255,255,255,0.3)" 
-              : "0 0 15px rgba(0,0,0,0.15)",
           }}
         >
           <p className="font-semibold text-center">{terpene.name}</p>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from "@/lib/utils";
 import TerpeneShape from './TerpeneShape';
@@ -81,7 +80,7 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
       {/* Egg background with gradient */}
       <EggBackground isDark={isDark} />
       
-      {/* Effect labels arranged around the egg - make them smaller on desktop */}
+      {/* Effect labels arranged around the egg */}
       {effectLabels.map((label, idx) => (
         <EffectLabel 
           key={idx} 
@@ -90,16 +89,6 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
           isDark={isDark} 
         />
       ))}
-      
-      {/* Add enhanced color-coded circles matching the image with increased opacity */}
-      <div className="absolute top-[50%] left-[40%] w-[50px] h-[50px] rounded-full bg-yellow-400/80 blur-md" 
-           style={{ transform: 'translate(-50%, -50%)', filter: 'blur(10px)' }}></div>
-      <div className="absolute top-[40%] right-[35%] w-[18px] h-[18px] rounded-full bg-green-600/80 blur-md"
-           style={{ transform: 'translate(50%, -50%)', filter: 'blur(6px)' }}></div>
-      <div className="absolute bottom-[40%] right-[30%] w-[22px] h-[22px] rounded-full bg-blue-600/80 blur-md"
-           style={{ transform: 'translate(50%, 50%)', filter: 'blur(8px)' }}></div>
-      <div className="absolute bottom-[35%] left-[35%] w-[14px] h-[14px] rounded-full bg-red-600/80 blur-md"
-           style={{ transform: 'translate(-50%, 50%)', filter: 'blur(5px)' }}></div>
       
       {/* Terpene shapes positioned within the egg based on their effects */}
       {terpeneData.map((terpene, index) => {
