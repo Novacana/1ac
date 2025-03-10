@@ -7,7 +7,7 @@ interface TerpeneData {
   name: string;
   value: number;
   effect: string;
-  detailedEffect: string;
+  detailedEffect?: string;  // Made optional to match visualization component
 }
 
 interface TerpeneLegendProps {

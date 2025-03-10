@@ -9,6 +9,7 @@ interface TerpeneData {
   name: string;
   value: number;
   effect: string;
+  detailedEffect?: string;  // Made optional to match existing data structure
 }
 
 interface TerpeneVisualizationProps {
@@ -55,10 +56,10 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
       ))}
       
       {/* Effect zone labels - static labels around the egg */}
-      <EffectLabel position="top" label="Geist" isDark={isDark} />
-      <EffectLabel position="right" label="Energie" isDark={isDark} />
-      <EffectLabel position="bottom" label="Körper" isDark={isDark} />
-      <EffectLabel position="left" label="Ruhe" isDark={isDark} />
+      <EffectLabel angle={0} text="Geist" isDark={isDark} />
+      <EffectLabel angle={90} text="Energie" isDark={isDark} />
+      <EffectLabel angle={180} text="Körper" isDark={isDark} />
+      <EffectLabel angle={270} text="Ruhe" isDark={isDark} />
     </div>
   );
 };
