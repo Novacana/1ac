@@ -14,10 +14,10 @@ interface TerpeneEggProps {
 }
 
 const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
+  const [expandedTerpene, setExpandedTerpene] = useState<string | null>(null);
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isMobile = useIsMobile();
-  const [expandedTerpene, setExpandedTerpene] = useState<string | null>(null);
   
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
@@ -32,8 +32,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
 
   const handleTerpeneClick = (terpeneName: string) => {
-    // Toggle expanded terpene
-    setExpandedTerpene((prev) => prev === terpeneName ? null : terpeneName);
+    setExpandedTerpene(expandedTerpene === terpeneName ? null : terpeneName);
   };
 
   return (
@@ -45,7 +44,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <div className="flex-1">
           <TerpeneVisualization 
             terpeneData={terpeneData} 
-            expandedTerpene={expandedTerpene}
+            expandedTerpene={expandedTerpene} 
             onTerpeneClick={handleTerpeneClick}
             isDark={isDark}
           />
@@ -55,7 +54,8 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <div className="flex-1">
           <TerpeneLegend 
             terpeneData={terpeneData} 
-            expandedTerpene={expandedTerpene}
+            expandedTerpene={expandedTerpene} 
+            onTerpeneClick={handleTerpeneClick}
             isDark={isDark}
           />
         </div>
