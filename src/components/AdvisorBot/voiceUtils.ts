@@ -17,7 +17,7 @@ export const speakResponse = async (
   if (!isVoiceEnabled) return;
   
   // Wenn kein API-Key gesetzt ist, benachrichtige den Benutzer
-  if (!ELEVENLABS_API_KEY) {
+  if (!ELEVENLABS_API_KEY || ELEVENLABS_API_KEY.trim() === '') {
     toast({
       title: "API-Key fehlt",
       description: "Bitte geben Sie einen gültigen ElevenLabs API-Key ein.",
@@ -46,6 +46,7 @@ export const speakResponse = async (
 
     try {
       // Test API key
+      console.log("Testing ElevenLabs API key...");
       const testResponse = await fetch(`https://api.elevenlabs.io/v1/user`, {
         headers: { 'xi-api-key': ELEVENLABS_API_KEY }
       });
@@ -62,6 +63,10 @@ export const speakResponse = async (
       }
       
       console.log("API key valid, starting TTS session");
+      
+      // Debugging: Log the URL and headers we're using
+      console.log("Using TTS URL:", `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa/stream`);
+      console.log("Using API key:", ELEVENLABS_API_KEY.substring(0, 5) + "..." + ELEVENLABS_API_KEY.substring(ELEVENLABS_API_KEY.length - 5));
       
       await conversation.startSession({
         url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa/stream`,

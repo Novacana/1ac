@@ -137,7 +137,8 @@ export const useAdvisorState = (): AdvisorState => {
 
   console.log("AdvisorState initialized with n8n config:", {
     webhookUrl,
-    useN8nAgent
+    useN8nAgent,
+    isApiKeySet
   });
 
   return {

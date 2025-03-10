@@ -75,10 +75,13 @@ export const sendToN8nWebhook = async (
       available_products: productKnowledgeBase,
     };
     
+    console.log("Full request payload:", JSON.stringify(requestPayload));
+    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     
     try {
+      console.log("Starting fetch to webhook URL");
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: {
@@ -94,23 +97,30 @@ export const sendToN8nWebhook = async (
       });
       
       clearTimeout(timeoutId);
+      console.log("Received response from webhook:", response.status);
       
       if (!response.ok) {
-        throw new Error(`Webhook error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`Webhook error: ${response.status}`, errorText);
+        throw new Error(`Webhook error: ${response.status} - ${errorText}`);
       }
       
       let responseText = await response.text();
+      console.log("Raw response:", responseText);
+      
       let data;
       
       try {
         data = JSON.parse(responseText);
+        console.log("Parsed response data:", data);
       } catch (e) {
-        console.log("Response is not JSON, using as plain text");
+        console.log("Response is not JSON, using as plain text:", e);
         data = { message: responseText };
       }
       
       // In case of successful response but no message, provide a fallback
       if (!data.message && !data.response && !data.content) {
+        console.warn("No message, response, or content field in the response");
         data.message = "Ich habe deine Anfrage erhalten, aber keine Antwort erhalten. Bitte versuche es noch einmal.";
       }
       

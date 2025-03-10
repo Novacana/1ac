@@ -87,13 +87,16 @@ export const useAdvisorQueryProcessing = (
         isVoice: state.isSpeechInputActive
       });
       
-      if (state.useN8nAgent && state.webhookUrl) {
+      if (state.useN8nAgent && state.webhookUrl && state.webhookUrl.trim() !== '') {
         console.log("Using n8n agent for processing query");
         
         try {
           // Force debugging output to help troubleshoot
           console.log(`Attempting to send request to webhook: ${state.webhookUrl}`);
           console.log(`useN8nAgent setting: ${state.useN8nAgent}`);
+          
+          // Debugging - log the full conversation history we're sending
+          console.log("Sending conversation history:", JSON.stringify(state.conversationHistory.slice(-5)));
           
           const n8nResponse = await sendToN8nWebhook(
             userQuery, 
