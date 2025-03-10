@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { gdprNotice } from "./hooks/useAdvisor";
+import { gdprNotice } from "./hooks/useAdvisorGdpr";
 
 interface GdprConsentBannerProps {
   onConsent: () => void;
