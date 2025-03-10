@@ -7,14 +7,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { UserPlus, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, AlertCircle, Stethoscope, Building, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<'user' | 'doctor' | 'pharmacy'>('user');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
@@ -33,9 +37,18 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      await register(name, email, password);
+      await register(name, email, password, role);
       toast.success('Registrierung erfolgreich');
-      navigate('/dashboard');
+      
+      if (role === 'doctor') {
+        navigate('/settings');
+        toast.info('Bitte vervollständigen Sie Ihre Arzt-Verifizierung in den Einstellungen');
+      } else if (role === 'pharmacy') {
+        navigate('/settings');
+        toast.info('Bitte vervollständigen Sie Ihre Apotheken-Verifizierung in den Einstellungen');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError('Registrierung fehlgeschlagen');
       toast.error('Registrierungsfehler');
@@ -51,7 +64,7 @@ const Register = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Konto erstellen</CardTitle>
             <CardDescription className="text-center">
-              Registrieren Sie sich, um Ihre Bestellungen zu verfolgen
+              Registrieren Sie sich für Zugang zu unserer Plattform
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,7 +77,50 @@ const Register = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="accountType">Kontotyp</Label>
+                <RadioGroup 
+                  value={role} 
+                  onValueChange={(value) => setRole(value as 'user' | 'doctor' | 'pharmacy')} 
+                  className="flex flex-col space-y-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="user" id="user" />
+                    <Label htmlFor="user" className="flex items-center gap-2 cursor-pointer">
+                      <User className="h-4 w-4" />
+                      Patient
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="doctor" id="doctor" />
+                    <Label htmlFor="doctor" className="flex items-center gap-2 cursor-pointer">
+                      <Stethoscope className="h-4 w-4" />
+                      Arzt
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pharmacy" id="pharmacy" />
+                    <Label htmlFor="pharmacy" className="flex items-center gap-2 cursor-pointer">
+                      <Building className="h-4 w-4" />
+                      Apotheke
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              {(role === 'doctor' || role === 'pharmacy') && (
+                <Alert variant="warning">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Verifizierung erforderlich</AlertTitle>
+                  <AlertDescription>
+                    {role === 'doctor' 
+                      ? 'Sie müssen Ihre Approbationsurkunde hochladen, um als Arzt verifiziert zu werden.'
+                      : 'Sie müssen Ihre Betriebserlaubnis hochladen, um als Apotheke verifiziert zu werden.'}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="name">Name{role === 'pharmacy' ? ' der Apotheke' : ''}</Label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                     <User className="h-4 w-4" />
@@ -72,7 +128,7 @@ const Register = () => {
                   <Input 
                     id="name" 
                     type="text" 
-                    placeholder="Max Mustermann" 
+                    placeholder={role === 'pharmacy' ? "Muster Apotheke" : "Max Mustermann"} 
                     className="pl-10"
                     value={name}
                     onChange={(e) => setName(e.target.value)}

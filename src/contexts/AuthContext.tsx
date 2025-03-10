@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Address {
@@ -25,10 +24,20 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'doctor' | 'admin' | 'user';
+  role: 'doctor' | 'pharmacy' | 'admin' | 'user';
   addresses: Address[];
   paymentMethods: PaymentMethod[];
   phone?: string;
+  identificationStatus?: 'not_verified' | 'pending_review' | 'verified' | 'failed';
+  verificationStatus?: 'not_verified' | 'pending_review' | 'verified' | 'failed';
+  verificationDocuments?: {
+    id: string;
+    type: 'approbation' | 'pharmacy_license' | 'id_document';
+    status: 'pending' | 'approved' | 'rejected';
+    uploadDate: string;
+  }[];
+  medicalLicenseNumber?: string;
+  pharmacyLicenseNumber?: string;
 }
 
 interface AuthContextType {
@@ -36,9 +45,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isDoctor: boolean;
   isAdmin: boolean;
+  isPharmacy: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role?: 'user' | 'doctor' | 'pharmacy') => Promise<void>;
   updateUserProfile: (userData: Partial<User>) => void;
   addAddress: (address: Omit<Address, 'id'>) => void;
   updateAddress: (address: Address) => void;
@@ -48,6 +58,7 @@ interface AuthContextType {
   updatePaymentMethod: (paymentMethod: PaymentMethod) => void;
   removePaymentMethod: (paymentMethodId: string) => void;
   setDefaultPaymentMethod: (paymentMethodId: string) => void;
+  uploadVerificationDocument: (documentType: 'approbation' | 'pharmacy_license' | 'id_document', file: File) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,14 +74,11 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   
-  // Simulated authentication - replace with real authentication in production
   useEffect(() => {
-    // Check for existing session in localStorage
     const storedUser = localStorage.getItem('doctor_user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       
-      // Convert old user data format to new format if needed
       if (parsedUser.address && !parsedUser.addresses) {
         parsedUser.addresses = [
           {
@@ -90,18 +98,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         parsedUser.paymentMethods = [];
       }
       
+      if (!parsedUser.identificationStatus) {
+        parsedUser.identificationStatus = 'not_verified';
+      }
+      
+      if (!parsedUser.verificationStatus && 
+          (parsedUser.role === 'doctor' || parsedUser.role === 'pharmacy')) {
+        parsedUser.verificationStatus = 'not_verified';
+      }
+      
+      if (!parsedUser.verificationDocuments) {
+        parsedUser.verificationDocuments = [];
+      }
+      
       setUser(parsedUser);
     }
   }, []);
   
-  // Determine user roles
   const isAuthenticated = user !== null;
   const isDoctor = isAuthenticated && user.role === 'doctor';
   const isAdmin = isAuthenticated && user.role === 'admin';
+  const isPharmacy = isAuthenticated && user.role === 'pharmacy';
   
   const login = async (email: string, password: string) => {
-    // Simulation - in production, this would be a real API call
-    // Demo user for development - in production, validate credentials on server
     if (email === 'doctor@example.com' && password === 'password') {
       const demoUser = {
         id: '1',
@@ -129,7 +148,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isDefault: true
           }
         ],
-        phone: '+49 123 456789'
+        phone: '+49 123 456789',
+        identificationStatus: 'verified',
+        verificationStatus: 'verified',
+        medicalLicenseNumber: 'ARZTNR-12345',
+        verificationDocuments: [
+          {
+            id: '1',
+            type: 'approbation',
+            status: 'approved',
+            uploadDate: '2023-10-15'
+          }
+        ]
+      };
+      setUser(demoUser);
+      localStorage.setItem('doctor_user', JSON.stringify(demoUser));
+    } else if (email === 'pharmacy@example.com' && password === 'password') {
+      const demoUser = {
+        id: '3',
+        name: 'Muster Apotheke',
+        email: 'pharmacy@example.com',
+        role: 'pharmacy' as const,
+        addresses: [
+          {
+            id: '1',
+            street: 'Apothekenstraße 10',
+            city: 'München',
+            state: 'Bayern',
+            zip: '80331',
+            country: 'Deutschland',
+            isDefault: true
+          }
+        ],
+        paymentMethods: [],
+        phone: '+49 123 987654',
+        identificationStatus: 'verified',
+        verificationStatus: 'verified',
+        pharmacyLicenseNumber: 'APO-987654',
+        verificationDocuments: [
+          {
+            id: '1',
+            type: 'pharmacy_license',
+            status: 'approved',
+            uploadDate: '2023-09-20'
+          }
+        ]
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -161,7 +224,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isDefault: true
           }
         ],
-        phone: '+49 987 654321'
+        phone: '+49 987 654321',
+        identificationStatus: 'not_verified'
       };
       setUser(demoUser);
       localStorage.setItem('doctor_user', JSON.stringify(demoUser));
@@ -170,15 +234,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    // Simulation - in production, this would be a real API call
+  const register = async (name: string, email: string, password: string, role: 'user' | 'doctor' | 'pharmacy' = 'user') => {
     const newUser = {
-      id: Math.random().toString(36).substring(2, 9), // Generate random ID
+      id: Math.random().toString(36).substring(2, 9),
       name,
       email,
-      role: 'user' as const,
+      role: role as 'user' | 'doctor' | 'pharmacy' | 'admin',
       addresses: [],
-      paymentMethods: []
+      paymentMethods: [],
+      identificationStatus: 'not_verified',
+      verificationStatus: role === 'user' ? undefined : 'not_verified',
+      verificationDocuments: []
     };
     
     setUser(newUser);
@@ -200,7 +266,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: Math.random().toString(36).substring(2, 9)
       };
       
-      // If this is the first address or set as default, make sure it's the only default
       const updatedAddresses = address.isDefault 
         ? user.addresses.map(addr => ({ ...addr, isDefault: false }))
         : [...user.addresses];
@@ -215,7 +280,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const updateAddress = (address: Address) => {
     if (user) {
-      // If setting as default, update all other addresses
       let updatedAddresses = user.addresses.map(addr => 
         addr.id === address.id 
           ? address 
@@ -232,7 +296,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const updatedAddresses = user.addresses.filter(addr => addr.id !== addressId);
       
-      // If we removed the default address and have other addresses, set a new default
       if (user.addresses.find(addr => addr.id === addressId)?.isDefault && updatedAddresses.length > 0) {
         updatedAddresses[0].isDefault = true;
       }
@@ -263,7 +326,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: Math.random().toString(36).substring(2, 9)
       };
       
-      // If this is the first payment method or set as default, make sure it's the only default
       const updatedPaymentMethods = paymentMethod.isDefault 
         ? user.paymentMethods.map(pm => ({ ...pm, isDefault: false }))
         : [...user.paymentMethods];
@@ -278,7 +340,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const updatePaymentMethod = (paymentMethod: PaymentMethod) => {
     if (user) {
-      // If setting as default, update all other payment methods
       let updatedPaymentMethods = user.paymentMethods.map(pm => 
         pm.id === paymentMethod.id 
           ? paymentMethod 
@@ -295,7 +356,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const updatedPaymentMethods = user.paymentMethods.filter(pm => pm.id !== paymentMethodId);
       
-      // If we removed the default payment method and have others, set a new default
       if (user.paymentMethods.find(pm => pm.id === paymentMethodId)?.isDefault && updatedPaymentMethods.length > 0) {
         updatedPaymentMethods[0].isDefault = true;
       }
@@ -319,6 +379,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
+  const uploadVerificationDocument = async (documentType: 'approbation' | 'pharmacy_license' | 'id_document', file: File) => {
+    if (!user) return;
+    
+    console.log(`Uploading ${documentType} document: ${file.name}`);
+    
+    const newDocument = {
+      id: Math.random().toString(36).substring(2, 9),
+      type: documentType,
+      status: 'pending' as const,
+      uploadDate: new Date().toISOString().split('T')[0]
+    };
+    
+    const updatedUser = { 
+      ...user,
+      verificationDocuments: [...(user.verificationDocuments || []), newDocument],
+      verificationStatus: 'pending_review'
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem('doctor_user', JSON.stringify(updatedUser));
+    
+    return Promise.resolve();
+  };
+  
   const logout = () => {
     setUser(null);
     localStorage.removeItem('doctor_user');
@@ -329,7 +413,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user, 
       isAuthenticated, 
       isDoctor, 
-      isAdmin, 
+      isAdmin,
+      isPharmacy,
       login, 
       logout,
       register,
@@ -341,9 +426,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       addPaymentMethod,
       updatePaymentMethod,
       removePaymentMethod,
-      setDefaultPaymentMethod
+      setDefaultPaymentMethod,
+      uploadVerificationDocument
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
+

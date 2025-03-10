@@ -1,5 +1,5 @@
 
-import { User, Stethoscope, Building, BookOpen } from "lucide-react";
+import { User, Stethoscope, Building, BookOpen, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +69,10 @@ const UserMenu: React.FC<UserMenuProps> = ({
         <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
           <Building className="h-4 w-4 mr-2" />
           Apotheken-Management
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/settings')}>
+          <Settings className="h-4 w-4 mr-2" />
+          Einstellungen
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/documentation')}>
           <BookOpen className="h-4 w-4 mr-2" />

@@ -13,6 +13,7 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorLanding from "./pages/DoctorLanding";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Settings from "./pages/Settings";
 import UserDashboard from "./pages/UserDashboard";
 import PharmacyManagement from "./pages/PharmacyManagement";
 import Documentation from "./pages/Documentation";
@@ -46,9 +47,9 @@ const ProtectedRoute = ({ children }) => {
 
 // Protected Route Component for Pharmacy Users
 const PharmacyRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isPharmacy } = useAuth();
   
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isPharmacy) {
     return <Navigate to="/login" replace />;
   }
   
@@ -72,6 +73,14 @@ function App() {
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/datenschutz" element={<PrivacyPolicy />} />
             <Route path="/doctor/landing" element={<DoctorLanding />} />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/doctor/dashboard" 
               element={
