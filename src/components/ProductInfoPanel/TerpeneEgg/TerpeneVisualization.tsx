@@ -9,7 +9,7 @@ interface TerpeneData {
   name: string;
   value: number;
   effect: string;
-  detailedEffect?: string;  // Made optional to match existing data structure
+  detailedEffect?: string;  // Optional to match existing data structure
 }
 
 interface TerpeneVisualizationProps {

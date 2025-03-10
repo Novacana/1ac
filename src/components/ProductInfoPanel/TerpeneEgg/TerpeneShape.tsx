@@ -1,34 +1,50 @@
 
 import React from 'react';
 import { cn } from "@/lib/utils";
+import { getTerpeneShapeIcon } from './terpeneUtils';
 
 interface TerpeneShapeProps {
   terpene: {
     name: string;
     value: number;
     effect: string;
-    detailedEffect: string;
+    detailedEffect?: string; // Make this optional to match TerpeneData
   };
-  position: {
-    left: string;
-    top: string;
-  };
-  dotSize: number;
+  terpeneName: string;
   color: string;
-  isExpanded: boolean;
-  onTerpeneClick: () => void;
   isDark: boolean;
+  isHighlighted: boolean;
+  onTerpeneClick: () => void;
 }
 
 const TerpeneShape: React.FC<TerpeneShapeProps> = ({ 
   terpene, 
-  position, 
-  dotSize, 
+  terpeneName, 
   color, 
-  isExpanded, 
-  onTerpeneClick,
-  isDark
+  isDark,
+  isHighlighted,
+  onTerpeneClick
 }) => {
+  // Calculate position based on terpene type
+  const getPosition = (name: string) => {
+    const positions: Record<string, { top: string, left: string, size: number }> = {
+      "Myrcen": { top: '30%', left: '25%', size: 22 },
+      "Limonen": { top: '40%', left: '75%', size: 20 },
+      "Pinen": { top: '75%', left: '65%', size: 20 },
+      "Caryophyllen": { top: '60%', left: '35%', size: 18 },
+      "Linalool": { top: '25%', left: '50%', size: 16 },
+      "Terpinolen": { top: '50%', left: '15%', size: 18 },
+      "Humulen": { top: '70%', left: '20%', size: 16 },
+      "Ocimen": { top: '15%', left: '70%', size: 14 }
+    };
+    
+    // Default position if terpene name not in mapping
+    return positions[name] || { top: '50%', left: '50%', size: 18 };
+  };
+  
+  const position = getPosition(terpeneName);
+  const dotSize = position.size || 18;
+  
   return (
     <div 
       className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all duration-300"
@@ -38,11 +54,11 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       }}
       onClick={onTerpeneClick}
     >
-      {/* Terpene Dot without glow effect */}
+      {/* Terpene Dot with shape icon */}
       <div 
         className={cn(
           "rounded-full flex items-center justify-center shadow-md transition-all duration-300",
-          isExpanded ? "ring-2 ring-white/80" : ""
+          isHighlighted ? "ring-2 ring-white/80" : ""
         )}
         style={{
           width: `${dotSize}px`,
@@ -50,16 +66,19 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           backgroundColor: color,
           border: `1px solid ${isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}`,
         }}
-      ></div>
+      >
+        <div className="flex items-center justify-center text-white/90" style={{ transform: 'scale(0.7)' }}>
+          {getTerpeneShapeIcon(terpeneName, dotSize * 0.8)}
+        </div>
+      </div>
       
       {/* Terpene Name Label */}
       <div 
         className={cn(
-          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
+          "absolute whitespace-nowrap px-1 py-0.5 rounded-full text-[10px] font-semibold transition-all duration-300",
           isDark 
             ? "bg-background/85 text-white border border-white/40" 
-            : "bg-background/95 text-foreground border border-primary/40 shadow-md",
-          isExpanded ? "opacity-100 scale-100" : "opacity-100 scale-100"
+            : "bg-background/95 text-foreground border border-primary/40 shadow-sm",
         )}
         style={{
           top: `${dotSize + 4}px`,
@@ -68,31 +87,8 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           backdropFilter: "blur(3px)",
         }}
       >
-        <span className="font-bold">{terpene.name}</span> <span className="font-bold text-primary">{terpene.value.toFixed(1)}%</span>
+        <span>{terpeneName}</span>
       </div>
-
-      {/* Expanded Info - Only show when expanded */}
-      {isExpanded && (
-        <div 
-          className={cn(
-            "absolute -translate-x-1/2 p-2 rounded-lg shadow-md z-20 w-44 text-xs transition-all duration-300",
-            isDark 
-              ? "bg-background/95 backdrop-blur-sm border border-white/40 text-white" 
-              : "bg-background/95 backdrop-blur-sm border border-primary/40 text-foreground"
-          )}
-          style={{
-            top: `${dotSize + 30}px`,
-            left: '50%',
-          }}
-        >
-          <p className="font-semibold text-center">{terpene.name}</p>
-          <p className="text-center text-primary font-bold">{terpene.value.toFixed(1)}%</p>
-          <div className="border-t border-border/30 my-1 pt-1">
-            <p className="font-medium">Wirkung: <span className="font-normal">{terpene.effect}</span></p>
-            <p className="mt-1 text-[10px] text-muted-foreground">{terpene.detailedEffect}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
