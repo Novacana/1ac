@@ -79,28 +79,28 @@ const ProductAdvisor = () => {
 
             <BotIntroduction />
 
-            {!state.isSpeechInputActive && (
+            {state.isSpeechInputActive ? (
+              <VoiceChat
+                isListening={state.isListening}
+                toggleListening={advisor.toggleListening}
+                isPlaying={state.isPlaying}
+                stopSpeaking={advisor.stopSpeaking}
+                transcript={state.transcript}
+                isLoading={state.isLoading}
+                gdprConsent={state.gdprConsent}
+                isVoiceEnabled={state.isVoiceEnabled}
+                toggleVoice={advisor.toggleVoice}
+                isSpeechInputActive={state.isSpeechInputActive}
+                setIsSpeechInputActive={setters.setIsSpeechInputActive}
+                isFullConversationMode={state.isFullConversationMode}
+                setIsFullConversationMode={setters.setIsFullConversationMode}
+              />
+            ) : (
               <QuickActions 
                 onActionClick={advisor.processUserQuery}
                 onNavigate={advisor.handleNavigate}
               />
             )}
-
-            <VoiceChat
-              isListening={state.isListening}
-              toggleListening={advisor.toggleListening}
-              isPlaying={state.isPlaying}
-              stopSpeaking={advisor.stopSpeaking}
-              transcript={state.transcript}
-              isLoading={state.isLoading}
-              gdprConsent={state.gdprConsent}
-              isVoiceEnabled={state.isVoiceEnabled}
-              toggleVoice={advisor.toggleVoice}
-              isSpeechInputActive={state.isSpeechInputActive}
-              setIsSpeechInputActive={setters.setIsSpeechInputActive}
-              isFullConversationMode={state.isFullConversationMode}
-              setIsFullConversationMode={setters.setIsFullConversationMode}
-            />
 
             <ConversationView 
               conversationHistory={state.conversationHistory}
@@ -122,10 +122,6 @@ const ProductAdvisor = () => {
               handleSendMessage={advisor.handleSendMessage}
               handleKeyPress={advisor.handleKeyPress}
               isLoading={state.isLoading}
-              isListening={state.isListening}
-              toggleListening={advisor.toggleListening}
-              isVoiceEnabled={state.isVoiceEnabled}
-              toggleVoice={advisor.toggleVoice}
             />
           )}
         </Card>
