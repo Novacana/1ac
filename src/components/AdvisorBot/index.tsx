@@ -90,6 +90,7 @@ const ProductAdvisor = () => {
   const [webhookUrl, setWebhookUrl] = useState(N8N_WEBHOOK_URL);
   const [useN8nAgent, setUseN8nAgent] = useState(USE_N8N_AGENT);
   const [gdprConsent, setGdprConsent] = useState(false);
+  const [showGdprNotice, setShowGdprNotice] = useState(false);
   
   const elevenLabsApiKey = ELEVENLABS_API_KEY;
   const isApiKeySet = !!elevenLabsApiKey;
@@ -176,11 +177,7 @@ const ProductAdvisor = () => {
   const toggleListening = () => {
     // DSGVO-Zustimmung prüfen
     if (!gdprConsent) {
-      toast({
-        title: "DSGVO-Zustimmung erforderlich",
-        description: "Bitte stimme der Verarbeitung deiner Sprachdaten zu, bevor du die Spracherkennung nutzt.",
-        variant: "destructive",
-      });
+      setShowGdprNotice(true);
       return;
     }
     
@@ -197,10 +194,19 @@ const ProductAdvisor = () => {
     }
   };
 
-  const handleConsentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newConsent = e.target.checked;
-    setGdprConsent(newConsent);
-    localStorage.setItem('advisorBotGdprConsent', newConsent.toString());
+  const handleConsentChange = () => {
+    setGdprConsent(true);
+    localStorage.setItem('advisorBotGdprConsent', 'true');
+    setShowGdprNotice(false);
+    
+    toast({
+      title: "DSGVO-Zustimmung erteilt",
+      description: "Vielen Dank für Ihre Zustimmung. Sie können jetzt die Spracherkennung nutzen.",
+    });
+  };
+
+  const handleDismissGdprNotice = () => {
+    setShowGdprNotice(false);
   };
 
   const webTools = createWebTools(navigate, toast);
@@ -355,21 +361,49 @@ const ProductAdvisor = () => {
           />
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
+            {/* DSGVO Meldung als schwebende Benachrichtigung */}
+            {showGdprNotice && (
+              <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                <Card className="max-w-md w-full shadow-lg border-2 border-primary">
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-xl font-bold text-red-600 dark:text-red-400">
+                      DSGVO-Zustimmung erforderlich
+                    </h3>
+                    <p className="text-sm">
+                      {gdprNotice}
+                    </p>
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleDismissGdprNotice}
+                      >
+                        Ablehnen
+                      </Button>
+                      <Button 
+                        variant="default"
+                        onClick={handleConsentChange}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Zustimmen
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
             {!gdprConsent && (
               <div className="border rounded-md p-3 bg-primary/10 text-sm">
                 <h4 className="font-medium mb-2">DSGVO-Hinweis</h4>
                 <p className="text-xs mb-3">{gdprNotice}</p>
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="checkbox" 
-                    id="gdprConsent" 
-                    checked={gdprConsent} 
-                    onChange={handleConsentChange}
-                  />
-                  <label htmlFor="gdprConsent" className="text-xs">
-                    Ich stimme der Verarbeitung meiner Sprachdaten zu
-                  </label>
-                </div>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="w-full"
+                  onClick={handleConsentChange}
+                >
+                  Ich stimme der Verarbeitung meiner Sprachdaten zu
+                </Button>
               </div>
             )}
 
