@@ -29,7 +29,14 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
     detailedEffect: getTerpeneDetailedEffect(terpene.name)
   }));
 
-  const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
+  // Calculate total percentage for relative values
+  const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0);
+  
+  // Add relative percentage
+  const terpeneDataWithRelative = terpeneData.map(terpene => ({
+    ...terpene,
+    relativeValue: Math.round((terpene.value / totalPercentage) * 100)
+  }));
 
   const handleTerpeneClick = (terpeneName: string) => {
     setExpandedTerpene(expandedTerpene === terpeneName ? null : terpeneName);
@@ -37,13 +44,13 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
 
   return (
     <div className="w-full">
-      <TerpeneTotal totalPercentage={totalPercentage} />
+      <TerpeneTotal totalPercentage={totalPercentage.toFixed(1)} />
       
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-3`}>
         {/* The egg visualization - properly sized */}
         <div className="flex-1">
           <TerpeneVisualization 
-            terpeneData={terpeneData} 
+            terpeneData={terpeneDataWithRelative} 
             expandedTerpene={expandedTerpene} 
             onTerpeneClick={handleTerpeneClick}
             isDark={isDark}
@@ -53,7 +60,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         {/* Terpene legends and descriptions */}
         <div className="flex-1">
           <TerpeneLegend 
-            terpeneData={terpeneData} 
+            terpeneData={terpeneDataWithRelative} 
             expandedTerpene={expandedTerpene} 
             onTerpeneClick={handleTerpeneClick}
             isDark={isDark}

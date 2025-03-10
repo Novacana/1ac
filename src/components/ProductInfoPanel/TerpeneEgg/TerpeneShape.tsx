@@ -6,8 +6,9 @@ interface TerpeneShapeProps {
   terpene: {
     name: string;
     value: number;
+    relativeValue: number; // Neu: relativer Anteil in Prozent
     effect: string;
-    detailedEffect: string;
+    detailedEffect?: string; // Optional
   };
   position: {
     left: string;
@@ -38,7 +39,7 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       }}
       onClick={onTerpeneClick}
     >
-      {/* Terpene Dot without glow effect */}
+      {/* Terpene Dot with relative size */}
       <div 
         className={cn(
           "rounded-full flex items-center justify-center shadow-md transition-all duration-300",
@@ -52,30 +53,33 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
         }}
       ></div>
       
-      {/* Terpene Name Label */}
-      <div 
-        className={cn(
-          "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
-          isDark 
-            ? "bg-background/85 text-white border border-white/40" 
-            : "bg-background/95 text-foreground border border-primary/40 shadow-md",
-          isExpanded ? "opacity-100 scale-100" : "opacity-100 scale-100"
-        )}
-        style={{
-          top: `${dotSize + 4}px`,
-          left: `50%`,
-          transform: `translateX(-50%)`,
-          backdropFilter: "blur(3px)",
-        }}
-      >
-        <span className="font-bold">{terpene.name}</span> <span className="font-bold text-primary">{terpene.value.toFixed(1)}%</span>
-      </div>
+      {/* Terpene Name Label - nur anzeigen, wenn expandiert oder sehr großes Terpen */}
+      {(isExpanded || terpene.relativeValue > 20) && (
+        <div 
+          className={cn(
+            "absolute whitespace-nowrap px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300",
+            isDark 
+              ? "bg-background/85 text-white border border-white/40" 
+              : "bg-background/95 text-foreground border border-primary/40 shadow-md",
+            "opacity-100 scale-100"
+          )}
+          style={{
+            top: `${dotSize + 4}px`,
+            left: `50%`,
+            transform: `translateX(-50%)`,
+            backdropFilter: "blur(3px)",
+            zIndex: isExpanded ? 30 : 20,
+          }}
+        >
+          <span className="font-bold">{terpene.name}</span> <span className="font-bold text-primary">{terpene.relativeValue}%</span>
+        </div>
+      )}
 
       {/* Expanded Info - Only show when expanded */}
       {isExpanded && (
         <div 
           className={cn(
-            "absolute -translate-x-1/2 p-2 rounded-lg shadow-md z-20 w-44 text-xs transition-all duration-300",
+            "absolute -translate-x-1/2 p-2 rounded-lg shadow-md z-30 w-44 text-xs transition-all duration-300",
             isDark 
               ? "bg-background/95 backdrop-blur-sm border border-white/40 text-white" 
               : "bg-background/95 backdrop-blur-sm border border-primary/40 text-foreground"
@@ -86,10 +90,15 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           }}
         >
           <p className="font-semibold text-center">{terpene.name}</p>
-          <p className="text-center text-primary font-bold">{terpene.value.toFixed(1)}%</p>
+          <div className="flex justify-center gap-2 items-center">
+            <p className="text-center text-primary font-bold">{terpene.value.toFixed(1)}%</p>
+            <p className="text-center text-foreground/70 font-medium">({terpene.relativeValue}% Anteil)</p>
+          </div>
           <div className="border-t border-border/30 my-1 pt-1">
             <p className="font-medium">Wirkung: <span className="font-normal">{terpene.effect}</span></p>
-            <p className="mt-1 text-[10px] text-muted-foreground">{terpene.detailedEffect}</p>
+            {terpene.detailedEffect && (
+              <p className="mt-1 text-[10px] text-muted-foreground">{terpene.detailedEffect}</p>
+            )}
           </div>
         </div>
       )}

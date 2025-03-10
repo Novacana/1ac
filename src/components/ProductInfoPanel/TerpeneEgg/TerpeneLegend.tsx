@@ -8,8 +8,9 @@ import { getTerpeneShapeIcon } from './terpeneUtils';
 interface TerpeneData {
   name: string;
   value: number;
+  relativeValue: number;
   effect: string;
-  detailedEffect: string;
+  detailedEffect?: string;
 }
 
 interface TerpeneLegendProps {
@@ -36,9 +37,12 @@ const TerpeneLegend: React.FC<TerpeneLegendProps> = ({
     '#F59E0B'  // Amber
   ];
 
+  // Sortiere Terpene nach relativem Anteil absteigend
+  const sortedTerpenes = [...terpeneData].sort((a, b) => b.relativeValue - a.relativeValue);
+
   return (
     <div className="flex flex-col flex-1 w-full md:w-auto justify-start">
-      {terpeneData.map((terpene, index) => (
+      {sortedTerpenes.map((terpene, index) => (
         <Collapsible 
           key={index}
           className="mb-1.5 last:mb-0"
@@ -58,7 +62,10 @@ const TerpeneLegend: React.FC<TerpeneLegendProps> = ({
               {getTerpeneShapeIcon(terpene.name, 18)}
             </div>
             <span className="mr-1 font-medium flex-grow text-left">{terpene.name}</span>
-            <span className="text-foreground/70 mr-2">{terpene.value}%</span>
+            <div className="flex flex-col items-end">
+              <span className="text-foreground/70 mr-2">{terpene.value.toFixed(1)}%</span>
+              <span className="text-xs text-foreground/50 mr-2">{terpene.relativeValue}% Anteil</span>
+            </div>
             {expandedTerpene === terpene.name ? (
               <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
@@ -76,6 +83,9 @@ const TerpeneLegend: React.FC<TerpeneLegendProps> = ({
             }}
           >
             {terpene.effect}
+            {terpene.detailedEffect && (
+              <p className="mt-1 text-xs text-muted-foreground">{terpene.detailedEffect}</p>
+            )}
           </CollapsibleContent>
         </Collapsible>
       ))}
