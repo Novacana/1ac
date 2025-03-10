@@ -1,3 +1,4 @@
+
 import { NavigateFunction } from "react-router-dom";
 import { ProductDetailProps } from "@/components/ProductDetail";
 import { products } from "@/data/products";
@@ -77,39 +78,66 @@ export const sendToN8nWebhook = async (
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(requestPayload),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      throw new Error(`Webhook error: ${response.status}`);
-    }
-    
-    let responseText = await response.text();
-    let data;
-    
     try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      console.log("Response is not JSON, using as plain text");
-      data = { message: responseText };
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Cache-Control": "no-cache"
+        },
+        body: JSON.stringify(requestPayload),
+        signal: controller.signal,
+        // Add these to avoid CORS issues
+        mode: "cors",
+        credentials: "omit"
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`Webhook error: ${response.status}`);
+      }
+      
+      let responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.log("Response is not JSON, using as plain text");
+        data = { message: responseText };
+      }
+      
+      // In case of successful response but no message, provide a fallback
+      if (!data.message && !data.response && !data.content) {
+        data.message = "Ich habe deine Anfrage erhalten, aber keine Antwort erhalten. Bitte versuche es noch einmal.";
+      }
+      
+      // Always return a properly structured response
+      return {
+        botResponse: data.message || data.response || data.content || responseText,
+        products: data.products || [],
+        actions: data.actions || {}
+      };
+    } catch (fetchError) {
+      console.error("Fetch error in n8n webhook call:", fetchError);
+      
+      // Provide a fallback response for offline cases or server errors
+      const fallbackResponse = {
+        botResponse: "Entschuldigung, ich konnte keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung oder versuche es später erneut.",
+        products: [],
+        actions: {}
+      };
+      
+      toast({
+        title: "Verbindungsproblem",
+        description: "Konnte keine Verbindung zum N8N-Webhook herstellen. Prüfe die URL und Netzwerkeinstellungen.",
+        variant: "destructive",
+      });
+      
+      return fallbackResponse;
     }
-    
-    // Always return a properly structured response
-    return {
-      botResponse: data.message || data.response || data.content || responseText,
-      products: data.products || [],
-      actions: data.actions || {}
-    };
-    
   } catch (error) {
     console.error("Error in n8n webhook call:", error);
     throw error;

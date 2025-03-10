@@ -1,7 +1,9 @@
 
 import { ToastFunction } from "./types";
 
-export const ELEVENLABS_API_KEY = "e9d69bd26aaea5fc0e626febff0e5c6f";
+// WICHTIG: Der ElevenLabs API-Key muss ein gültiger API-Key sein
+// Ein ungültiger Key verursacht einen 401 Fehler
+export const ELEVENLABS_API_KEY = ""; // API-Key entfernt, sollte vom Benutzer eingegeben werden
 
 export const speakResponse = async (
   text: string, 
@@ -12,7 +14,17 @@ export const speakResponse = async (
   isPlaying: boolean,
   toast: ToastFunction
 ) => {
-  if (!isVoiceEnabled || !isApiKeySet) return;
+  if (!isVoiceEnabled) return;
+  
+  // Wenn kein API-Key gesetzt ist, benachrichtige den Benutzer
+  if (!isApiKeySet) {
+    toast({
+      title: "API-Key fehlt",
+      description: "Bitte geben Sie einen gültigen ElevenLabs API-Key ein.",
+      variant: "destructive",
+    });
+    return;
+  }
   
   try {
     if (isPlaying) {
@@ -39,7 +51,14 @@ export const speakResponse = async (
       });
       
       if (!testResponse.ok) {
-        throw new Error('ElevenLabs API key invalid');
+        console.error('ElevenLabs API key invalid');
+        toast({
+          title: "Ungültiger API-Key",
+          description: "Der ElevenLabs API-Key ist ungültig. Bitte überprüfen Sie den API-Key.",
+          variant: "destructive",
+        });
+        setIsPlaying(false);
+        return;
       }
       
       await conversation.startSession({
@@ -58,9 +77,13 @@ export const speakResponse = async (
         })
       });
       
+      // Berechne die ungefähre Dauer basierend auf der Textlänge (80ms pro Zeichen)
+      const estimatedDuration = Math.max(2000, text.length * 80);
+      console.log(`Estimated TTS duration: ${estimatedDuration}ms for ${text.length} characters`);
+      
       setTimeout(() => {
         setIsPlaying(false);
-      }, Math.max(2000, text.length * 80));
+      }, estimatedDuration);
       
     } catch (error) {
       console.error("ElevenLabs API error:", error);

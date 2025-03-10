@@ -1,51 +1,67 @@
+
 import { AdvisorState } from "../types";
-import { stopListening } from "../speechRecognition";
 
 export const useAdvisorInteractions = (
   advisorState: AdvisorState,
   handleSpeakResponse: (response: string) => void
 ) => {
-  const { state, setters, refs, tools } = advisorState;
+  const { state, setters, tools } = advisorState;
 
   const toggleAdvisor = () => {
     setters.setIsOpen(!state.isOpen);
-    if (state.isOpen) {
-      if (refs.conversation.status === "connected") {
-        refs.conversation.endSession();
-        setters.setIsPlaying(false);
-      }
-      if (state.isListening) {
-        stopListening(refs.recognitionRef, setters.setIsListening);
-      }
-    }
   };
 
-  const handleSendMessage = () => {
-    if (state.userInput.trim()) {
-      tools.processUserQuery?.(state.userInput);
-      setters.setUserInput("");
+  const handleSendMessage = async () => {
+    if (!state.userInput.trim() || state.isLoading) return;
+
+    const userMessage = state.userInput.trim();
+    setters.setUserInput("");
+    
+    // Make sure processUserQuery exists before calling it
+    if (typeof tools.processUserQuery === 'function') {
+      await tools.processUserQuery(userMessage);
+    } else {
+      console.error("processUserQuery is not defined");
+      tools.toast({
+        title: "Fehler",
+        description: "Die Anfrage konnte nicht verarbeitet werden.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
   const handleNavigate = (path: string) => {
-    const response = tools.webTools.navigateToPage(path);
-    setters.setBotResponse(response);
-    setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: response }]);
+    tools.navigate(path);
+    setters.setIsOpen(false);
+  };
+
+  // Helper function to toggle voice mode
+  const toggleVoiceMode = () => {
+    // If no GDPR consent, show notice and return
+    if (!state.gdprConsent) {
+      setters.setShowGdprNotice(true);
+      return;
+    }
     
-    handleSpeakResponse(response);
+    const newMode = !state.isSpeechInputActive;
+    console.log("Toggling voice mode to:", newMode);
+    setters.setIsSpeechInputActive(newMode);
   };
 
   return {
     toggleAdvisor,
     handleSendMessage,
     handleKeyPress,
-    handleNavigate
+    handleNavigate,
+    toggleVoiceMode
   };
 };
+
+export default useAdvisorInteractions;

@@ -122,6 +122,9 @@ const ProductAdvisor = () => {
               handleSendMessage={advisor.handleSendMessage}
               handleKeyPress={advisor.handleKeyPress}
               isLoading={state.isLoading}
+              isVoiceEnabled={state.isVoiceEnabled}
+              gdprConsent={state.gdprConsent}
+              toggleVoiceMode={advisor.toggleVoiceMode}
             />
           )}
         </Card>

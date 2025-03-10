@@ -31,13 +31,21 @@ export const useAdvisorQueryProcessing = (
     
     if (toolIntent) {
       const { tool, params } = toolIntent;
-      const toolResponse = tools.webTools[tool](params);
-      
-      const botResponseText = `${toolResponse}`;
-      setters.setBotResponse(botResponseText);
-      setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
-      
-      handleSpeakResponse(botResponseText);
+      if (tools.webTools[tool]) {
+        const toolResponse = tools.webTools[tool](params);
+        
+        const botResponseText = `${toolResponse}`;
+        setters.setBotResponse(botResponseText);
+        setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: botResponseText }]);
+        
+        handleSpeakResponse(botResponseText);
+      } else {
+        console.error(`Tool ${tool} not found`);
+        const errorResponse = "Entschuldigung, ich konnte diese Aktion nicht ausführen.";
+        setters.setBotResponse(errorResponse);
+        setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: errorResponse }]);
+        handleSpeakResponse(errorResponse);
+      }
     } else {
       const response = processQuery(userQuery, setters.setRecommendedProducts, setters.setShowProducts);
       
@@ -49,8 +57,17 @@ export const useAdvisorQueryProcessing = (
   };
 
   const processUserQuery = async (userQuery: string) => {
-    if (userQuery.trim() === "" || state.isLoading) return;
+    if (userQuery.trim() === "") {
+      console.log("Empty query, ignoring");
+      return;
+    }
     
+    if (state.isLoading) {
+      console.log("Already processing a query, ignoring");
+      return;
+    }
+    
+    console.log("Processing user query:", userQuery);
     setters.setIsLoading(true);
     setters.setTranscript(userQuery);
     
@@ -165,7 +182,6 @@ export const useAdvisorQueryProcessing = (
       const errorMessage = "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.";
       setters.setBotResponse(errorMessage);
       setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: errorMessage }]);
-      setters.setIsLoading(false);
     } finally {
       setters.setIsLoading(false);
     }

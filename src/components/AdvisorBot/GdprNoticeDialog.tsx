@@ -1,50 +1,83 @@
 
 import React from "react";
-import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { gdprNotice } from "./hooks/useAdvisorGdpr";
+import { ShieldCheck, AlertTriangle } from "lucide-react";
 
 interface GdprNoticeDialogProps {
   isOpen: boolean;
-  onConsent: () => void;
+  onConsent: (hasConsent: boolean) => void;
   onDismiss: () => void;
 }
 
 const GdprNoticeDialog: React.FC<GdprNoticeDialogProps> = ({
   isOpen,
   onConsent,
-  onDismiss
+  onDismiss,
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-      <Card className="max-w-md w-full shadow-lg border-2 border-primary">
-        <div className="p-6 space-y-4">
-          <h3 className="text-xl font-bold text-red-600 dark:text-red-400">
-            DSGVO-Zustimmung erforderlich
-          </h3>
-          <p className="text-sm">
-            {gdprNotice}
-          </p>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button 
-              variant="outline" 
-              onClick={onDismiss}
-            >
-              Ablehnen
-            </Button>
-            <Button 
-              variant="default"
-              onClick={onConsent}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Zustimmen
-            </Button>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onDismiss()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            Datenschutzhinweis gemäß DSGVO
+          </DialogTitle>
+          <DialogDescription>
+            Für eine personalisierte Beratung und Spracherkennung benötigen wir Ihre Einwilligung.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium">Datenverarbeitung für Spracherkennung</h4>
+            <p className="text-sm text-muted-foreground">
+              Wenn Sie der Spracherkennung zustimmen, werden Ihre Sprachdaten über Ihren Browser aufgezeichnet und zur Analyse verwendet. Diese Daten werden gemäß Art. 6 Abs. 1 lit. a DSGVO verarbeitet.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-medium">Chat-Verlauf und Beratung</h4>
+            <p className="text-sm text-muted-foreground">
+              Ihre Nachrichten im Chat werden gespeichert, um Ihnen eine personalisierte Beratung zu ermöglichen. Diese Daten werden nach Beendigung der Beratungssitzung für einen Zeitraum von 30 Tagen aufbewahrt.
+            </p>
+          </div>
+
+          <div className="border rounded-md p-3 bg-amber-50 dark:bg-amber-950">
+            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="h-5 w-5" />
+              <h4 className="font-medium">Wichtiger Hinweis:</h4>
+            </div>
+            <p className="text-sm mt-1 text-amber-700 dark:text-amber-400">
+              Sie können den Berater auch ohne Einwilligung zur Datenverarbeitung nutzen, allerdings stehen dann bestimmte Funktionen wie Spracherkennung nicht zur Verfügung.
+            </p>
           </div>
         </div>
-      </Card>
-    </div>
+
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={onDismiss}
+            className="sm:w-full"
+          >
+            Ablehnen
+          </Button>
+          <Button
+            onClick={() => onConsent(true)}
+            className="sm:w-full"
+          >
+            Einwilligen gemäß DSGVO
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
