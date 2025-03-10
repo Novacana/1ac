@@ -3,7 +3,7 @@ import { ToastFunction } from "./types";
 
 // WICHTIG: Der ElevenLabs API-Key muss ein gültiger API-Key sein
 // Ein ungültiger Key verursacht einen 401 Fehler
-export const ELEVENLABS_API_KEY = ""; // API-Key entfernt, sollte vom Benutzer eingegeben werden
+export const ELEVENLABS_API_KEY = "sk_e9e49493c9d6e58c3b7e9313d1adf81d35ccb00bcb06767a"; // API-Key vom Benutzer zur Verfügung gestellt
 
 export const speakResponse = async (
   text: string, 
@@ -104,3 +104,4 @@ export const speakResponse = async (
     });
   }
 };
+
