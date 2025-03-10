@@ -11,45 +11,45 @@ import { IntegrationSystem } from "../IntegrationSystemCard";
 // Definition of available e-commerce systems for partners
 const initialEcommerceSystems: IntegrationSystem[] = [
   {
-    id: "partner-api",
-    name: "Partner API",
-    description: "Direkte Anbindung der Partner-Inventarsysteme an unsere Plattform.",
-    logo: "/placeholder.svg",
-    connected: true,
-  },
-  {
-    id: "csv-import",
-    name: "CSV-Import",
-    description: "Import von Produkten per CSV-Datei für Partner ohne API-Anbindung.",
-    logo: "/placeholder.svg",
-    connected: false,
-  },
-  {
-    id: "manual-entry",
-    name: "Manuelle Eingabe",
-    description: "Partner können Produkte manuell in unserem System anlegen.",
-    logo: "/placeholder.svg",
-    connected: true,
-  },
-  {
-    id: "inventory-sync",
-    name: "Bestandssynchronisierung",
-    description: "Automatische Bestandssynchronisierung zwischen Partnern und Plattform.",
-    logo: "/placeholder.svg",
-    connected: false,
-  },
-  {
     id: "woocommerce",
     name: "WooCommerce",
     description: "Verbinden Sie Ihren WooCommerce-Shop mit unserer Plattform.",
-    logo: "/placeholder.svg",
+    logo: "/logos/woocommerce-logo.svg",
     connected: false,
   },
   {
     id: "shopify",
     name: "Shopify",
     description: "Verbinden Sie Ihren Shopify-Shop mit unserer Plattform.",
-    logo: "/placeholder.svg",
+    logo: "/logos/shopify-logo.svg",
+    connected: false,
+  },
+  {
+    id: "partner-api",
+    name: "Partner API",
+    description: "Direkte Anbindung der Partner-Inventarsysteme an unsere Plattform.",
+    logo: "/logos/api-logo.svg",
+    connected: true,
+  },
+  {
+    id: "csv-import",
+    name: "CSV-Import",
+    description: "Import von Produkten per CSV-Datei für Partner ohne API-Anbindung.",
+    logo: "/logos/csv-logo.svg",
+    connected: false,
+  },
+  {
+    id: "manual-entry",
+    name: "Manuelle Eingabe",
+    description: "Partner können Produkte manuell in unserem System anlegen.",
+    logo: "/logos/manual-logo.svg",
+    connected: true,
+  },
+  {
+    id: "inventory-sync",
+    name: "Bestandssynchronisierung",
+    description: "Automatische Bestandssynchronisierung zwischen Partnern und Plattform.",
+    logo: "/logos/sync-logo.svg",
     connected: false,
   }
 ];

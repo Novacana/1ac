@@ -1,31 +1,36 @@
 
 import React from "react";
-import { Lock } from "lucide-react";
 
 const ConsentContent: React.FC = () => {
   return (
-    <div className="space-y-4 py-4">
-      <div className="rounded-xl bg-primary/5 border border-primary/10 p-5 text-sm">
-        <h3 className="mb-3 font-medium text-base">Durch das Verbinden mit externen Diensten:</h3>
-        <ul className="space-y-3 pl-1">
-          <li className="flex items-start gap-2">
-            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-medium">•</span>
-            <span>Werden Ihre Daten mit Drittanbietern geteilt</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-medium">•</span>
-            <span>Können Produktdaten synchronisiert werden</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-medium">•</span>
-            <span>Können Bestandsdaten übertragen werden</span>
-          </li>
+    <div className="space-y-4 my-4 text-sm">
+      <p>
+        Gemäß der Datenschutz-Grundverordnung (DSGVO) benötigen wir Ihre ausdrückliche Einwilligung, bevor wir Daten mit externen Diensten austauschen.
+      </p>
+      
+      <div className="space-y-2">
+        <h4 className="font-medium">Diese Integration wird:</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Produktdaten zwischen unserem System und dem externen Dienst synchronisieren</li>
+          <li>Bestandsinformationen in Echtzeit abgleichen</li>
+          <li>Preisänderungen automatisch aktualisieren</li>
+          <li>Produktbeschreibungen und Bilder synchronisieren</li>
         </ul>
-        <div className="mt-4 flex items-center text-xs text-muted-foreground">
-          <Lock className="h-3 w-3 mr-1" />
-          Ihre Daten werden gemäß unserer Datenschutzrichtlinie verarbeitet
-        </div>
       </div>
+      
+      <div className="space-y-2">
+        <h4 className="font-medium">Datenverarbeitung:</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Alle Daten werden in Übereinstimmung mit der DSGVO verarbeitet</li>
+          <li>Sie haben jederzeit das Recht, Ihre Einwilligung zu widerrufen</li>
+          <li>Bei Widerruf werden keine weiteren Daten übertragen</li>
+          <li>Bereits übertragene Daten müssen separat beim Drittanbieter gelöscht werden</li>
+        </ul>
+      </div>
+      
+      <p className="text-xs text-muted-foreground">
+        Sie können diese Einwilligung jederzeit in den Einstellungen widerrufen. Bitte lesen Sie unsere vollständige Datenschutzerklärung für weitere Informationen.
+      </p>
     </div>
   );
 };
