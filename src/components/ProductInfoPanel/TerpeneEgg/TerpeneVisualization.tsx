@@ -21,6 +21,8 @@ interface TerpeneVisualizationProps {
 
 const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
   terpeneData,
+  expandedTerpene,
+  onTerpeneClick,
   isDark
 }) => {
   // Vibrant color palette for better visibility
@@ -50,8 +52,8 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
           terpeneName={terpene.name}
           color={colors[index % colors.length]}
           isDark={isDark}
-          isHighlighted={false} // No longer highlighting expanded terpenes
-          onTerpeneClick={() => {}} // Empty function since we removed click functionality
+          isHighlighted={expandedTerpene === terpene.name}
+          onTerpeneClick={() => onTerpeneClick(terpene.name)}
         />
       ))}
       

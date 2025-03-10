@@ -47,7 +47,10 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
   
   return (
     <div 
-      className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all duration-300"
+      className={cn(
+        "absolute transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all duration-300",
+        isHighlighted ? "scale-125" : ""
+      )}
       style={{
         left: position.left,
         top: position.top,
@@ -79,6 +82,7 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           isDark 
             ? "bg-background/85 text-white border border-white/40" 
             : "bg-background/95 text-foreground border border-primary/40 shadow-sm",
+          isHighlighted ? "opacity-100" : "opacity-90"
         )}
         style={{
           top: `${dotSize + 4}px`,

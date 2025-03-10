@@ -8,7 +8,7 @@ interface EggBackgroundProps {
 const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
   return (
     <>
-      {/* Egg background without glow effect */}
+      {/* Egg background */}
       <div className="absolute w-[200px] h-[240px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                     border border-border/70"
            style={{ 

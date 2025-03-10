@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Product } from "@/types/product";
 import { useTheme } from "@/components/ThemeProvider";
 import { parsePercentage } from "../utils";
@@ -17,6 +17,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isMobile = useIsMobile();
+  const [expandedTerpene, setExpandedTerpene] = useState<string | null>(null);
   
   if (!product.terpenes || product.terpenes.length === 0) return null;
 
@@ -30,6 +31,11 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
 
   const totalPercentage = terpeneData.reduce((total, terpene) => total + terpene.value, 0).toFixed(1);
 
+  const handleTerpeneClick = (terpeneName: string) => {
+    // Toggle expanded terpene
+    setExpandedTerpene((prev) => prev === terpeneName ? null : terpeneName);
+  };
+
   return (
     <div className="w-full">
       <TerpeneTotal totalPercentage={totalPercentage} />
@@ -39,8 +45,8 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <div className="flex-1">
           <TerpeneVisualization 
             terpeneData={terpeneData} 
-            expandedTerpene={null} // Always pass null since we don't expand anymore
-            onTerpeneClick={() => {}} // Empty function since we removed click functionality
+            expandedTerpene={expandedTerpene}
+            onTerpeneClick={handleTerpeneClick}
             isDark={isDark}
           />
         </div>
@@ -49,8 +55,7 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
         <div className="flex-1">
           <TerpeneLegend 
             terpeneData={terpeneData} 
-            expandedTerpene={null} // Always pass null since we don't expand anymore
-            onTerpeneClick={() => {}} // Empty function since we removed click functionality
+            expandedTerpene={expandedTerpene}
             isDark={isDark}
           />
         </div>
