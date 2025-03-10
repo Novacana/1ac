@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface Address {
+export interface Address {
   id: string;
   street?: string;
   additionalInfo?: string;
@@ -11,7 +12,7 @@ interface Address {
   isDefault: boolean;
 }
 
-interface PaymentMethod {
+export interface PaymentMethod {
   id: string;
   type: 'credit_card';
   cardNumber: string; // Last 4 digits only
@@ -20,7 +21,7 @@ interface PaymentMethod {
   isDefault: boolean;
 }
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;

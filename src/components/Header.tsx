@@ -1,4 +1,3 @@
-
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -21,11 +20,10 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { getCartCount } = useCart();
-  const { user, isAuthenticated, isDoctor, logout } = useAuth();
+  const { user, isAuthenticated, isDoctor, isPharmacy, logout } = useAuth();
   const cartCount = getCartCount();
   const isMobile = useIsMobile();
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -35,7 +33,6 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -63,7 +60,6 @@ const Header = () => {
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo */}
         <Link
           to="/"
           className="flex items-center transition-all duration-300 hover:opacity-80"
@@ -79,21 +75,19 @@ const Header = () => {
           />
         </Link>
 
-        {/* Desktop Navigation */}
         <DesktopNav navItems={navItems} />
 
-        {/* Action Buttons */}
         <div className="flex items-center space-x-4">
           <ThemeToggle />
           <UserMenu 
             user={user} 
             isAuthenticated={isAuthenticated} 
             isDoctor={isDoctor} 
+            isPharmacy={isPharmacy} 
             onLogout={handleLogout} 
           />
           <CartButton cartCount={cartCount} />
 
-          {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -106,7 +100,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <MobileMenu 
         navItems={navItems}
         isMenuOpen={isMenuOpen}
