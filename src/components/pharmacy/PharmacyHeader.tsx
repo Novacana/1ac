@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Upload, Download, BarChart3, Clipboard, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Plus, Upload, Download, BarChart3, UserCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -36,12 +36,20 @@ const PharmacyHeader: React.FC<PharmacyHeaderProps> = ({ onImport, onAddProduct 
   return (
     <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
-        <Link to="/">
-          <Button variant="outline" size="sm" className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück zum Shop
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3 mb-4">
+          <Link to="/">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Zurück zum Shop
+            </Button>
+          </Link>
+          <Link to="/pharmacy/profile">
+            <Button variant="outline" size="sm">
+              <UserCircle className="h-4 w-4 mr-2" />
+              Zum Profil
+            </Button>
+          </Link>
+        </div>
         <h1 className="text-3xl font-bold">Apotheken-Dashboard</h1>
         <p className="text-muted-foreground mt-2">
           Verwalten Sie Ihr Inventar, Bestellungen und Rezeptanfragen

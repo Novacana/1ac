@@ -1,5 +1,5 @@
 
-import { User, Stethoscope, Building, BookOpen, Settings } from "lucide-react";
+import { User, Stethoscope, Building, BookOpen, Settings, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface UserMenuProps {
-  user: { name: string } | null;
+  user: { name: string; role?: string } | null;
   isAuthenticated: boolean;
   isDoctor: boolean;
+  isPharmacy: boolean;
   onLogout: () => void;
 }
 
@@ -23,6 +24,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   user,
   isAuthenticated,
   isDoctor,
+  isPharmacy,
   onLogout,
 }) => {
   const navigate = useNavigate();
@@ -66,10 +68,18 @@ const UserMenu: React.FC<UserMenuProps> = ({
             Dashboard
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
-          <Building className="h-4 w-4 mr-2" />
-          Apotheken-Management
-        </DropdownMenuItem>
+        {isPharmacy && (
+          <>
+            <DropdownMenuItem onClick={() => navigate('/pharmacy/management')}>
+              <Building className="h-4 w-4 mr-2" />
+              Apotheken-Management
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/pharmacy/profile')}>
+              <UserCircle className="h-4 w-4 mr-2" />
+              Apotheken-Profil
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuItem onClick={() => navigate('/settings')}>
           <Settings className="h-4 w-4 mr-2" />
           Einstellungen

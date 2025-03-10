@@ -16,6 +16,7 @@ import Register from "./pages/Register";
 import Settings from "./pages/Settings";
 import UserDashboard from "./pages/UserDashboard";
 import PharmacyManagement from "./pages/PharmacyManagement";
+import PharmacyProfile from "./pages/PharmacyProfile";
 import Documentation from "./pages/Documentation";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { CartProvider } from "./contexts/CartContext";
@@ -94,6 +95,14 @@ function App() {
               element={
                 <PharmacyRoute>
                   <PharmacyManagement />
+                </PharmacyRoute>
+              } 
+            />
+            <Route 
+              path="/pharmacy/profile" 
+              element={
+                <PharmacyRoute>
+                  <PharmacyProfile />
                 </PharmacyRoute>
               } 
             />
