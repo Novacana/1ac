@@ -79,11 +79,32 @@ export const sendToN8nWebhook = async (
     console.log("n8n webhook response status:", response.status);
     
     if (!response.ok) {
+      console.error("Webhook error with status:", response.status);
+      const errorText = await response.text();
+      console.error("Error details:", errorText);
       throw new Error(`Webhook responded with status: ${response.status}`);
     }
     
     const data = await response.json();
     console.log("Response from n8n webhook:", data);
+    
+    // Ensure we have a message property in the response
+    if (!data.message && typeof data === 'string') {
+      // If data is a string itself, use it as the message
+      return {
+        botResponse: data,
+        products: [],
+        actions: {}
+      };
+    } else if (!data.message && typeof data === 'object') {
+      // Try to extract a message from the object if possible
+      const possibleMessage = data.text || data.response || data.content || JSON.stringify(data);
+      return {
+        botResponse: possibleMessage,
+        products: data.products || [],
+        actions: data.actions || {}
+      };
+    }
     
     return {
       botResponse: data.message || "Ich konnte keine Antwort vom n8n-Agenten erhalten.",

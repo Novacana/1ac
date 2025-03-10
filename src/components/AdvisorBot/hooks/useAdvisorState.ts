@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +7,7 @@ import { createWebTools } from "../utils/webTools";
 import { ELEVENLABS_API_KEY } from "../voiceUtils";
 
 // Constants
-const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157";
+const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook-test/50aea9a1-9064-49c7-aea6-3a8714b26157";
 const USE_N8N_AGENT = true;
 
 export const useAdvisorState = (): AdvisorState => {
