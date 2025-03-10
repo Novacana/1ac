@@ -1,14 +1,30 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { CheckCircle2, Euro, Shield, Clock, Calendar, EuroIcon, Users, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { CheckCircle2, Euro, Shield, Clock, Calendar, EuroIcon, Users, ArrowRight, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Layout from "@/components/Layout";
 
 const DoctorLanding: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleRegister = () => {
+    navigate("/register");
+  };
+
+  const handleLearnMore = () => {
+    document.getElementById("benefits")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleScheduleDemo = () => {
+    // This would typically open a calendar or a form to schedule a demo
+    window.open("mailto:aerzte@medcann.de?subject=Demo-Anfrage&body=Ich möchte gerne eine Demo der Plattform vereinbaren.");
+  };
+
   return (
     <Layout noAdvisor fullWidth className="bg-background">
       {/* Hero Section */}
@@ -21,10 +37,10 @@ const DoctorLanding: React.FC = () => {
               Verbessern Sie die Patientenversorgung und steigern Sie Ihr Einkommen durch sichere und einfache digitale Rezeptverwaltung.
             </p>
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="gap-2">
+              <Button size="lg" className="gap-2" onClick={handleRegister}>
                 Jetzt registrieren <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" onClick={handleLearnMore}>
                 Mehr erfahren
               </Button>
             </div>
@@ -40,8 +56,21 @@ const DoctorLanding: React.FC = () => {
         </div>
       </section>
 
+      {/* Platform Fee Alert */}
+      <section className="container mb-16">
+        <Alert variant="warning" className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
+          <Percent className="h-5 w-5 text-amber-600 dark:text-amber-500" />
+          <AlertTitle className="text-amber-800 dark:text-amber-400">Plattformgebühr Information</AlertTitle>
+          <AlertDescription className="text-amber-700 dark:text-amber-300">
+            Für jedes über unsere Plattform verarbeitete Rezept erheben wir eine kleine Plattformgebühr von 4,20%. 
+            Diese wird automatisch von Ihrer Vergütung (14,20€ pro Rezept) abgezogen. 
+            Die Gebühr deckt alle technischen Kosten, Support und kontinuierliche Verbesserungen der Plattform.
+          </AlertDescription>
+        </Alert>
+      </section>
+
       {/* Benefits Section */}
-      <section className="bg-muted/50 py-16">
+      <section id="benefits" className="bg-muted/50 py-16">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl font-bold mb-4">Warum Ärzte unsere Plattform wählen</h2>
@@ -198,9 +227,10 @@ const DoctorLanding: React.FC = () => {
 
                   <div className="pt-4 text-center">
                     <p className="text-sm text-muted-foreground mb-4">
-                      Bei durchschnittlich 50 Rezepten pro Woche erreichen Sie ein zusätzliches monatliches Einkommen von ca. 2.840€.
+                      Bei durchschnittlich 50 Rezepten pro Woche erreichen Sie ein zusätzliches monatliches Einkommen von ca. 2.840€. 
+                      Nach Abzug der Plattformgebühr (4,20%) verbleiben Ihnen effektiv 2.721€.
                     </p>
-                    <Button className="gap-2">
+                    <Button className="gap-2" onClick={handleRegister}>
                       Jetzt starten und verdienen <EuroIcon className="h-4 w-4" />
                     </Button>
                   </div>
@@ -270,10 +300,10 @@ const DoctorLanding: React.FC = () => {
             Treten Sie unserem Netzwerk bei und profitieren Sie von digitalen Lösungen für die Verschreibung von Medizinalcannabis.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="secondary" size="lg" className="gap-2">
+            <Button variant="secondary" size="lg" className="gap-2" onClick={handleScheduleDemo}>
               <Calendar className="h-4 w-4" /> Demo vereinbaren
             </Button>
-            <Button variant="outline" size="lg" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10 gap-2">
+            <Button variant="outline" size="lg" className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10 gap-2" onClick={handleRegister}>
               <Users className="h-4 w-4" /> Jetzt registrieren
             </Button>
           </div>
@@ -299,7 +329,7 @@ const DoctorLanding: React.FC = () => {
                 Dokumentation
               </Link>
               <span className="text-muted-foreground">•</span>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground">
+              <a href="mailto:aerzte@medcann.de" className="text-sm text-muted-foreground hover:text-foreground">
                 Kontakt
               </a>
             </div>
