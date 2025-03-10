@@ -111,9 +111,9 @@ export const useAdvisorState = (): AdvisorState => {
     localStorage.setItem('gdprConsent', JSON.stringify(consent));
   };
   
-  // API Key
-  const elevenLabsApiKey = ELEVENLABS_API_KEY;
-  const isApiKeySet = !!elevenLabsApiKey;
+  // API Key prüfen
+  const isApiKeySet = !!ELEVENLABS_API_KEY && ELEVENLABS_API_KEY.trim() !== '';
+  console.log("ElevenLabs API key status:", isApiKeySet ? "Set" : "Not set");
   
   // Refs
   const recognitionRef = useRef<SpeechRecognition | null>(null);

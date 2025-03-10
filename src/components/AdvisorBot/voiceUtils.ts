@@ -17,7 +17,7 @@ export const speakResponse = async (
   if (!isVoiceEnabled) return;
   
   // Wenn kein API-Key gesetzt ist, benachrichtige den Benutzer
-  if (!isApiKeySet) {
+  if (!ELEVENLABS_API_KEY) {
     toast({
       title: "API-Key fehlt",
       description: "Bitte geben Sie einen gültigen ElevenLabs API-Key ein.",
@@ -51,7 +51,7 @@ export const speakResponse = async (
       });
       
       if (!testResponse.ok) {
-        console.error('ElevenLabs API key invalid');
+        console.error('ElevenLabs API key invalid', await testResponse.text());
         toast({
           title: "Ungültiger API-Key",
           description: "Der ElevenLabs API-Key ist ungültig. Bitte überprüfen Sie den API-Key.",
@@ -60,6 +60,8 @@ export const speakResponse = async (
         setIsPlaying(false);
         return;
       }
+      
+      console.log("API key valid, starting TTS session");
       
       await conversation.startSession({
         url: `https://api.elevenlabs.io/v1/text-to-speech/XB0fDUnXU5powFXDhCwa/stream`,
@@ -104,4 +106,3 @@ export const speakResponse = async (
     });
   }
 };
-
