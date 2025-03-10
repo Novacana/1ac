@@ -53,7 +53,12 @@ export const sendToN8nWebhook = async (
   
   try {
     setIsLoading(true);
-    console.log("Sende Anfrage an n8n Webhook:", webhookUrl);
+    console.log("Sending request to n8n webhook:", webhookUrl);
+    console.log("Request payload:", {
+      message: userMessage,
+      conversation_history: conversationHistory,
+      products_count: productKnowledgeBase.length
+    });
     
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -71,12 +76,14 @@ export const sendToN8nWebhook = async (
       }),
     });
     
+    console.log("n8n webhook response status:", response.status);
+    
     if (!response.ok) {
       throw new Error(`Webhook responded with status: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log("Antwort vom n8n Webhook:", data);
+    console.log("Response from n8n webhook:", data);
     
     return {
       botResponse: data.message || "Ich konnte keine Antwort vom n8n-Agenten erhalten.",
@@ -84,7 +91,7 @@ export const sendToN8nWebhook = async (
       actions: data.actions || {}
     };
   } catch (error) {
-    console.error("Fehler bei der Kommunikation mit n8n:", error);
+    console.error("Error communicating with n8n:", error);
     toast({
       title: "Fehler bei der n8n-Kommunikation",
       description: "Es gab ein Problem mit dem n8n Webhook.",

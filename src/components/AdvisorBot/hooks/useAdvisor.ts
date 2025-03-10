@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { AdvisorState } from "../types";
 import { speakResponse } from "../voiceUtils";
@@ -50,8 +49,18 @@ export const useAdvisor = (advisorState: AdvisorState) => {
 
       setters.setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
+      // Log all parameters being sent to n8n webhook
+      console.log("Sending query to n8n:", {
+        userQuery,
+        webhookUrl: state.webhookUrl,
+        useN8nAgent: state.useN8nAgent,
+        conversationHistoryLength: state.conversationHistory.length
+      });
+      
       if (state.useN8nAgent && state.webhookUrl) {
         try {
+          console.log("Attempting to communicate with n8n webhook at:", state.webhookUrl);
+          
           const n8nResponse = await sendToN8nWebhook(
             userQuery, 
             state.webhookUrl, 
@@ -63,6 +72,8 @@ export const useAdvisor = (advisorState: AdvisorState) => {
           );
           
           if (n8nResponse) {
+            console.log("Received n8n response:", n8nResponse);
+            
             const { botResponse: n8nMessage, products: n8nProducts, actions } = n8nResponse;
             
             setters.setBotResponse(n8nMessage);
@@ -96,13 +107,20 @@ export const useAdvisor = (advisorState: AdvisorState) => {
               speakResponse(n8nMessage, state.isVoiceEnabled, state.isApiKeySet, refs.conversation, setters.setIsPlaying, state.isPlaying, tools.toast);
             }
           } else {
+            console.log("No response from n8n, using fallback processing");
             fallbackProcessing(userQuery);
           }
         } catch (n8nError) {
           console.error("N8n webhook error:", n8nError);
+          tools.toast({
+            title: "N8N Webhook Fehler",
+            description: "Die Verbindung zum N8N Webhook konnte nicht hergestellt werden.",
+            variant: "destructive",
+          });
           fallbackProcessing(userQuery);
         }
       } else {
+        console.log("N8n agent not used, using fallback processing");
         fallbackProcessing(userQuery);
       }
       

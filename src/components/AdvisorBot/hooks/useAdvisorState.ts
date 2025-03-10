@@ -59,6 +59,11 @@ export const useAdvisorState = (): AdvisorState => {
   // Tools
   const webTools = createWebTools(navigate, toastFn);
 
+  console.log("AdvisorState initialized with n8n config:", {
+    webhookUrl,
+    useN8nAgent
+  });
+
   return {
     state: {
       isOpen,
