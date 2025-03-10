@@ -2,54 +2,45 @@
 import { startListening, stopListening } from "../speechRecognition";
 import { speakResponse } from "../voiceUtils";
 import { AdvisorState } from "../types";
-import { toast as toastFunction } from "@/hooks/use-toast";
 
 export const useAdvisorVoice = (advisorState: AdvisorState) => {
-  const {
-    state: {
-      isVoiceEnabled,
-      isListening,
-      isPlaying,
-      botResponse,
-      gdprConsent,
-      isApiKeySet
+  const { 
+    state: { 
+      isVoiceEnabled, 
+      isListening, 
+      gdprConsent, 
+      botResponse, 
+      isPlaying, 
+      isApiKeySet 
     },
-    setters: {
-      setIsVoiceEnabled,
-      setIsListening,
-      setIsPlaying,
-      setShowGdprNotice
+    setters: { 
+      setIsVoiceEnabled, 
+      setIsListening, 
+      setShowGdprNotice, 
+      setIsPlaying 
     },
-    refs: {
-      recognitionRef,
-      conversation
+    refs: { 
+      recognitionRef, 
+      conversation 
     },
-    tools: {
-      toast
+    tools: { 
+      toast, 
+      processUserQuery 
     }
   } = advisorState;
-
-  // Toggle voice functionality
+  
+  // Toggle voice enabled/disabled
   const toggleVoice = () => {
     if (isVoiceEnabled) {
       if (isPlaying && conversation.status === "connected") {
         conversation.endSession();
         setIsPlaying(false);
       }
-      toast({
-        title: "Sprachausgabe deaktiviert",
-        description: "Die Sprachausgabe wurde deaktiviert.",
-      });
-    } else {
-      toast({
-        title: "Sprachausgabe aktiviert",
-        description: "Die Sprachausgabe wurde aktiviert.",
-      });
     }
     setIsVoiceEnabled(!isVoiceEnabled);
   };
-
-  // Toggle listening functionality
+  
+  // Toggle listening state (speech recognition)
   const toggleListening = () => {
     if (!gdprConsent) {
       setShowGdprNotice(true);
@@ -59,37 +50,40 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
     if (isListening) {
       stopListening(recognitionRef, setIsListening);
     } else {
-      if (advisorState.tools.processUserQuery) {
+      // Only start listening if processUserQuery is available
+      if (typeof processUserQuery === 'function') {
         startListening(
           setIsListening,
           advisorState.setters.setTranscript,
-          advisorState.tools.processUserQuery,
+          processUserQuery,
           recognitionRef,
-          toastFunction
+          toast
         );
       } else {
         toast({
-          title: "Spracherkennung nicht verfügbar",
+          title: "Fehler bei der Spracherkennung",
           description: "Die Sprachverarbeitung ist derzeit nicht verfügbar.",
           variant: "destructive"
         });
       }
     }
   };
-
-  // Speak the bot's response
+  
+  // Speak the current bot response
   const speakBotResponse = () => {
-    speakResponse(
-      botResponse,
-      isVoiceEnabled,
-      isApiKeySet,
-      conversation,
-      setIsPlaying,
-      isPlaying,
-      toastFunction
-    );
+    if (isVoiceEnabled && gdprConsent && botResponse) {
+      speakResponse(
+        botResponse,
+        isVoiceEnabled,
+        isApiKeySet,
+        conversation,
+        setIsPlaying,
+        isPlaying,
+        toast
+      );
+    }
   };
-
+  
   return {
     toggleVoice,
     toggleListening,

@@ -18,7 +18,10 @@ export const useAdvisorInteractions = () => {
   const { processUserQuery } = useAdvisorProcessing(advisorState);
   
   // Add processUserQuery to the tools object
-  advisorState.tools.processUserQuery = processUserQuery;
+  advisorState.tools = {
+    ...advisorState.tools,
+    processUserQuery
+  };
   
   // Get voice interaction utilities
   const { toggleVoice, toggleListening, speakBotResponse } = useAdvisorVoice(advisorState);
