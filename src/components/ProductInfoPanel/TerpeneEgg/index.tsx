@@ -46,8 +46,8 @@ const TerpeneEgg: React.FC<TerpeneEggProps> = ({ product }) => {
       <TerpeneTotal totalPercentage={totalPercentage.toFixed(1)} />
       
       <div className="flex justify-center my-4">
-        {/* Visualization container with proper sizing */}
-        <div className="w-full max-w-[360px]">
+        {/* Container for egg visualization, slightly larger for dots to stay inside egg */}
+        <div className="w-full max-w-[380px]">
           <TerpeneVisualization 
             terpeneData={terpeneDataWithRelative} 
             expandedTerpene={expandedTerpene} 

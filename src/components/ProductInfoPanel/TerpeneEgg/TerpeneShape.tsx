@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from "@/lib/utils";
 
@@ -30,6 +29,28 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
   onTerpeneClick,
   isDark
 }) => {
+  const getExpandedBoxPosition = () => {
+    const topPercent = parseInt(position.top);
+    const leftPercent = parseInt(position.left);
+    
+    let topPos = `${dotSize + 30}px`;
+    
+    let leftPos = '50%';
+    let xTransform = '-50%';
+    
+    if (topPercent > 60) {
+      topPos = `-${dotSize + 70}px`;
+    }
+    
+    return {
+      top: topPos,
+      left: leftPos,
+      transform: `translateX(${xTransform})`
+    };
+  };
+  
+  const expandedBoxPosition = getExpandedBoxPosition();
+  
   return (
     <div 
       className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all duration-300"
@@ -39,7 +60,6 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
       }}
       onClick={onTerpeneClick}
     >
-      {/* Terpene Dot with relative size */}
       <div 
         className={cn(
           "rounded-full flex items-center justify-center shadow-md transition-all duration-300",
@@ -52,10 +72,8 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
           border: `1px solid ${isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'}`,
         }}
       >
-        {/* Leave dot empty */}
       </div>
       
-      {/* Label for terpene name and percentage */}
       <div 
         className={cn(
           "absolute whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all duration-300 z-20",
@@ -74,18 +92,18 @@ const TerpeneShape: React.FC<TerpeneShapeProps> = ({
         {terpene.name} <span className="text-primary">{terpene.value.toFixed(1)}%</span>
       </div>
 
-      {/* Expanded Info - Only show when expanded */}
       {isExpanded && (
         <div 
           className={cn(
-            "absolute -translate-x-1/2 p-2 rounded-lg shadow-md z-30 w-44 text-xs transition-all duration-300",
+            "absolute p-2 rounded-lg shadow-md z-30 w-44 text-xs transition-all duration-300",
             isDark 
               ? "bg-background/95 backdrop-blur-sm border border-white/40 text-white" 
               : "bg-background/95 backdrop-blur-sm border border-primary/40 text-foreground"
           )}
           style={{
-            top: `${dotSize + 30}px`,
-            left: '50%',
+            top: expandedBoxPosition.top,
+            left: expandedBoxPosition.left,
+            transform: expandedBoxPosition.transform,
           }}
         >
           <p className="font-semibold text-center">{terpene.name}</p>

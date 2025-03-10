@@ -8,8 +8,8 @@ interface EggBackgroundProps {
 const EggBackground: React.FC<EggBackgroundProps> = ({ isDark }) => {
   return (
     <>
-      {/* Oval egg with gradient for different effect zones */}
-      <div className="absolute w-[200px] h-[250px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+      {/* Oval egg with gradient for different effect zones - slightly larger to better contain dots */}
+      <div className="absolute w-[220px] h-[260px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
                     border border-border/70"
            style={{ 
              borderRadius: "50% / 60%", /* Oval form */

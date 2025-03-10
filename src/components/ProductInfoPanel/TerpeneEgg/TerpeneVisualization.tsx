@@ -42,8 +42,8 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     // Get the angle for this terpene based on its effect
     const angle = getTerpenePosition(terpene);
     
-    // Add a larger offset based on index to prevent overlapping
-    const offsetAngle = angle + (index % 3 - 1) * 15;
+    // Add a smaller offset based on index to ensure dots stay within the egg
+    const offsetAngle = angle + (index % 3 - 1) * 10;
     
     // Convert angle to radians for positioning
     const radian = (offsetAngle * Math.PI) / 180;
@@ -51,10 +51,10 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     // Radius varies based on quadrant to simulate an oval egg
     const ovalFactor = Math.abs(Math.sin(2 * radian)) * 0.2 + 0.8;
     
-    // Calculate distance from center
-    // Adjust distance based on terpene count to avoid overcrowding
-    const baseDistance = 35;
-    const distanceFactor = totalTerpenes <= 3 ? 1 : totalTerpenes <= 5 ? 0.9 : 0.85;
+    // Calculate distance from center - constrained to ensure dots stay inside the egg
+    // Use a smaller base distance and adjust based on total terpenes
+    const baseDistance = 30; // Reduced from 35
+    const distanceFactor = totalTerpenes <= 3 ? 0.95 : totalTerpenes <= 5 ? 0.85 : 0.75;
     const distance = baseDistance * distanceFactor;
     
     // Calculate x and y coordinates
