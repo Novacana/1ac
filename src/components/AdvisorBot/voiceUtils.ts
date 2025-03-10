@@ -1,5 +1,6 @@
 
 import { useToast } from "@/hooks/use-toast";
+import { Toast } from "@/components/ui/toast";
 
 // API key for ElevenLabs
 export const ELEVENLABS_API_KEY = "e9d69bd26aaea5fc0e626febff0e5c6f";
@@ -11,7 +12,7 @@ export const speakResponse = async (
   conversation: any,
   setIsPlaying: (playing: boolean) => void,
   isPlaying: boolean,
-  toast: ReturnType<typeof useToast>["toast"]
+  toast: any
 ) => {
   if (!isVoiceEnabled || !isApiKeySet) return;
   

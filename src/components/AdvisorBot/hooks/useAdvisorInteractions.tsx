@@ -6,6 +6,7 @@ import { useAdvisorVoice } from './useAdvisorVoice';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useConversation } from '@11labs/react';
+import { AdvisorState } from '../types';
 
 export const useAdvisorInteractions = () => {
   const navigate = useNavigate();
@@ -18,10 +19,12 @@ export const useAdvisorInteractions = () => {
   const { processUserQuery } = useAdvisorProcessing(advisorState);
   
   // Add processUserQuery to the tools object
-  advisorState.tools = {
+  const toolsWithProcessQuery: AdvisorState['tools'] = {
     ...advisorState.tools,
     processUserQuery
   };
+  
+  advisorState.tools = toolsWithProcessQuery;
   
   // Get voice interaction utilities
   const { toggleVoice, toggleListening, speakBotResponse } = useAdvisorVoice(advisorState);
