@@ -43,7 +43,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
     <div className="border rounded-md p-3 bg-accent/10 text-xs">
       <div className="flex justify-between items-center mb-2">
         <h4 className="font-medium">N8N Webhook Konfiguration</h4>
-        <Badge variant={useN8nAgent ? "success" : "secondary"} className={useN8nAgent ? "bg-green-500" : ""}>
+        <Badge variant={useN8nAgent ? "default" : "secondary"} className={useN8nAgent ? "bg-green-500" : ""}>
           {useN8nAgent ? 'Aktiv' : 'Inaktiv'}
         </Badge>
       </div>
