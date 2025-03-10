@@ -47,6 +47,7 @@ const PaymentConfig: React.FC = () => {
     { id: "stripe", name: "Stripe", enabled: true, processingFee: 2.9 },
     { id: "paypal", name: "PayPal", enabled: false, processingFee: 3.4 },
     { id: "klarna", name: "Klarna", enabled: false, processingFee: 2.49 },
+    { id: "mollie", name: "Mollie", enabled: false, processingFee: 1.8 },
     { id: "invoice", name: "Rechnung", enabled: true, processingFee: 0 },
   ]);
   
@@ -78,9 +79,11 @@ const PaymentConfig: React.FC = () => {
     }
   ]);
 
-  // Stripe API form state
+  // Payment API keys state
   const [stripeApiKey, setStripeApiKey] = useState("");
   const [stripeWebhookSecret, setStripeWebhookSecret] = useState("");
+  const [mollieApiKey, setMollieApiKey] = useState("");
+  const [mollieProfileId, setMollieProfileId] = useState("");
 
   const togglePaymentMethod = (id: string) => {
     setPaymentMethods(methods => 
@@ -107,6 +110,22 @@ const PaymentConfig: React.FC = () => {
     );
 
     toast.success("Stripe-Konfiguration gespeichert");
+  };
+
+  const saveMollieConfig = () => {
+    if (!mollieApiKey) {
+      toast.error("Bitte geben Sie den Mollie API-Schlüssel ein");
+      return;
+    }
+
+    // Save the API key to the payment method
+    setPaymentMethods(methods =>
+      methods.map(method =>
+        method.id === "mollie" ? { ...method, apiKey: mollieApiKey } : method
+      )
+    );
+
+    toast.success("Mollie-Konfiguration gespeichert");
   };
 
   const markAsPaid = (month: string) => {
@@ -207,6 +226,17 @@ const PaymentConfig: React.FC = () => {
                         Konfigurieren
                       </Button>
                     )}
+                    {method.id === "mollie" && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => 
+                          document.getElementById("mollie-config")?.scrollIntoView({ behavior: "smooth" })
+                        }
+                      >
+                        Konfigurieren
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -272,6 +302,73 @@ const PaymentConfig: React.FC = () => {
         </CardContent>
         <CardFooter>
           <Button onClick={saveStripeConfig}>Konfiguration speichern</Button>
+        </CardFooter>
+      </Card>
+
+      {/* Mollie Configuration Card */}
+      <Card id="mollie-config">
+        <CardHeader>
+          <CardTitle>Mollie Konfiguration</CardTitle>
+          <CardDescription>
+            Verbinden Sie Ihren Mollie-Account mit dem Shop
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="mollie-api-key">Mollie API Key</Label>
+            <div className="relative">
+              <Input 
+                id="mollie-api-key" 
+                type="password"
+                value={mollieApiKey}
+                onChange={(e) => setMollieApiKey(e.target.value)}
+                placeholder="test_..." 
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Den API-Schlüssel finden Sie im Mollie Dashboard unter Entwickler &gt; API-Schlüssel</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="mollie-profile-id">Profil ID (optional)</Label>
+            <div className="relative">
+              <Input 
+                id="mollie-profile-id" 
+                value={mollieProfileId}
+                onChange={(e) => setMollieProfileId(e.target.value)}
+                placeholder="pfl_..." 
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Die Profil-ID können Sie optional angeben, wenn Sie mehrere Profile in Ihrem Mollie-Account haben</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mt-2">
+            <p className="text-sm text-blue-700">
+              <strong>Hinweis zur DSGVO-Konformität:</strong> Mollie verarbeitet Zahlungsdaten gemäß der DSGVO. 
+              Die Verarbeitung erfolgt auf Rechtsgrundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
+              Personenbezogene Daten werden nur für die Dauer der gesetzlichen Aufbewahrungsfristen gespeichert.
+            </p>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button onClick={saveMollieConfig}>Konfiguration speichern</Button>
         </CardFooter>
       </Card>
 

@@ -11,6 +11,7 @@ import PrescriptionSelector from "@/components/checkout/PrescriptionSelector";
 import PaymentForm from "@/components/checkout/PaymentForm";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import OrderConfirmation from "@/components/checkout/OrderConfirmation";
+import { toast } from "sonner";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const Checkout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasPrescription, setHasPrescription] = useState<boolean | null>(null);
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [paymentValid, setPaymentValid] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("credit_card");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +28,7 @@ const Checkout = () => {
     if (step === 1) {
       // Ensure prescription choice is made before proceeding
       if (hasPrescription === null) {
-        alert("Bitte geben Sie an, ob Sie ein Rezept haben oder eines benötigen");
+        toast.error("Bitte geben Sie an, ob Sie ein Rezept haben oder eines benötigen");
         return;
       }
       
@@ -34,12 +37,43 @@ const Checkout = () => {
       return;
     }
     
+    if (!paymentValid) {
+      toast.error("Bitte füllen Sie alle erforderlichen Zahlungsinformationen aus");
+      return;
+    }
+    
     setIsSubmitting(true);
+    
     // Simulate payment processing
     setTimeout(() => {
-      setStep(3);
-      setIsSubmitting(false);
+      // Simulate redirect to Mollie for external payment methods
+      if (selectedPaymentMethod === "mollie") {
+        // In a real implementation, this would redirect to Mollie's payment page
+        window.location.href = "#mollie-payment-simulation";
+        toast.info("In einer echten Implementierung würden Sie jetzt zu Mollie weitergeleitet werden.");
+        
+        // Simulate return from Mollie after payment
+        setTimeout(() => {
+          setStep(3);
+          setIsSubmitting(false);
+          window.location.href = "#payment-completed";
+          toast.success("Zahlung erfolgreich abgeschlossen");
+        }, 2000);
+      } else {
+        // Normal card payment
+        setStep(3);
+        setIsSubmitting(false);
+        toast.success("Zahlung erfolgreich abgeschlossen");
+      }
     }, 2000);
+  };
+
+  const handlePaymentMethodChange = (method: string) => {
+    setSelectedPaymentMethod(method);
+  };
+
+  const handlePaymentValidityChange = (valid: boolean) => {
+    setPaymentValid(valid);
   };
 
   return (
@@ -79,7 +113,7 @@ const Checkout = () => {
 
           {step === 2 && (
             <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
-              <PaymentForm />
+              <PaymentForm onChange={handlePaymentValidityChange} />
               <OrderSummary />
 
               <div className="flex justify-between">
@@ -89,17 +123,17 @@ const Checkout = () => {
                   onClick={() => setStep(1)}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
+                  Zurück
                 </Button>
                 
                 <Button 
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !paymentValid}
                 >
                   {isSubmitting ? (
                     <div className="h-5 w-5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
                   ) : (
-                    "Complete Purchase"
+                    "Kauf abschließen"
                   )}
                 </Button>
               </div>
