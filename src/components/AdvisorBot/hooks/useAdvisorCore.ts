@@ -1,6 +1,8 @@
 
 import { useToast } from "@/hooks/use-toast";
 import { AdvisorState } from "../types";
+import { speakResponse } from "../voiceUtils";
+import { stopListening } from "../speechRecognition";
 
 export const useAdvisorCore = (advisorState: AdvisorState) => {
   const { 
@@ -57,12 +59,8 @@ export const useAdvisorCore = (advisorState: AdvisorState) => {
     }
   };
 
-  // Import these functions to avoid circular dependencies
-  const { 
-    stopListening,
-    speakResponse,
-    processUserQuery
-  } = require('./useAdvisorProcessing');
+  // Import processUserQuery function to avoid circular dependencies
+  const { processUserQuery } = require('./useAdvisorProcessing');
 
   return {
     toggleAdvisor,
