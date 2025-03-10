@@ -24,6 +24,7 @@ export const useAdvisorInteractions = () => {
     processUserQuery
   };
   
+  // Update the tools object with the processUserQuery function
   advisorState.tools = toolsWithProcessQuery;
   
   // Get voice interaction utilities
@@ -32,8 +33,8 @@ export const useAdvisorInteractions = () => {
   // Handle sending messages
   const handleSendMessage = () => {
     if (advisorState.state.userInput.trim()) {
-      if (advisorState.tools.processUserQuery) {
-        advisorState.tools.processUserQuery(advisorState.state.userInput);
+      if (processUserQuery) {
+        processUserQuery(advisorState.state.userInput);
       } else {
         advisorState.tools.toast({
           title: "Fehler",

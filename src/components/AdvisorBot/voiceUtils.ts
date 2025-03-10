@@ -12,7 +12,10 @@ export const speakResponse = async (
   conversation: any,
   setIsPlaying: (playing: boolean) => void,
   isPlaying: boolean,
-  toast: any
+  toast: {
+    (props: { title: string; description?: string; action?: React.ReactNode; variant?: "default" | "destructive" }): void;
+    error: (message: string) => void;
+  }
 ) => {
   if (!isVoiceEnabled || !isApiKeySet) return;
   
