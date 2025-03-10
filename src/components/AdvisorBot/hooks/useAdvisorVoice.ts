@@ -2,6 +2,7 @@
 import { speakResponse } from "../voiceUtils";
 import { AdvisorState, Message } from "../types";
 import { startListening, stopListening } from "../speechRecognition";
+import { toast as toastFunction } from "@/hooks/use-toast";
 
 export const useAdvisorVoice = (advisorState: AdvisorState) => {
   const { 
@@ -48,13 +49,23 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
     if (isListening) {
       stopListening(recognitionRef, setIsListening);
     } else {
-      startListening(
-        setIsListening,
-        setTranscript,
-        advisorState.tools.processUserQuery,
-        recognitionRef,
-        toast
-      );
+      // Use the advisorState.tools.processUserQuery conditionally 
+      if (advisorState.tools.processUserQuery) {
+        startListening(
+          setIsListening,
+          setTranscript,
+          advisorState.tools.processUserQuery,
+          recognitionRef,
+          toastFunction // Use the imported toast function directly
+        );
+      } else {
+        // Handle the case where processUserQuery is not defined
+        toastFunction({
+          title: "Fehler",
+          description: "Sprachverarbeitung ist derzeit nicht verfügbar.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -68,7 +79,7 @@ export const useAdvisorVoice = (advisorState: AdvisorState) => {
       conversation,
       setIsPlaying,
       isPlaying,
-      toast
+      toastFunction // Use the imported toast function directly
     );
   };
 

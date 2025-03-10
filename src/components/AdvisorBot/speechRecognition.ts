@@ -1,106 +1,79 @@
 
-import { useToast } from "@/hooks/use-toast";
-
-declare global {
-  interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
-  }
-}
+import { toast as toastFunction } from "@/hooks/use-toast";
 
 export const startListening = (
-  setIsListening: (listening: boolean) => void,
+  setIsListening: (isListening: boolean) => void,
   setTranscript: (transcript: string) => void,
-  processUserQuery: (query: string) => void,
+  processUserQuery: (transcript: string) => void,
   recognitionRef: React.MutableRefObject<SpeechRecognition | null>,
-  toast: ReturnType<typeof useToast>["toast"]
+  toast = toastFunction
 ) => {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+  // Check if speech recognition is supported
+  if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
     toast({
       title: "Spracherkennung nicht unterstützt",
-      description: "Dein Browser unterstützt keine Spracherkennung. Bitte verwende Chrome, Edge oder Safari.",
-      variant: "destructive",
+      description: "Dein Browser unterstützt keine Spracherkennung.",
+      variant: "destructive"
     });
     return;
   }
 
+  // Initialize speech recognition
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
+  recognitionRef.current = new SpeechRecognition();
+  
+  const recognition = recognitionRef.current;
   
   recognition.lang = 'de-DE';
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.interimResults = true;
   
   recognition.onstart = () => {
     setIsListening(true);
-    setTranscript("");
-    toast({
-      title: "Spracherkennung aktiv",
-      description: "Du kannst jetzt sprechen.",
-    });
+    console.log("Spracherkennung gestartet");
   };
   
   recognition.onresult = (event: SpeechRecognitionEvent) => {
-    let interimTranscript = '';
-    let finalTranscript = '';
+    const transcript = Array.from(event.results)
+      .map(result => result[0])
+      .map(result => result.transcript)
+      .join('');
     
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript;
-        processUserQuery(finalTranscript);
-      } else {
-        interimTranscript += transcript;
-        setTranscript(interimTranscript);
-      }
+    setTranscript(transcript);
+    
+    // If this is a final result, process the query
+    if (event.results[0].isFinal) {
+      recognition.stop();
+      processUserQuery(transcript);
     }
   };
   
   recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-    console.error('Speech recognition error', event.error);
-    stopListening(recognitionRef, setIsListening);
+    console.error("Speech recognition error", event.error);
+    setIsListening(false);
+    
     toast({
       title: "Fehler bei der Spracherkennung",
-      description: `Fehler: ${event.error}`,
-      variant: "destructive",
+      description: `Ein Fehler ist aufgetreten: ${event.error}`,
+      variant: "destructive"
     });
   };
   
   recognition.onend = () => {
-    if (recognitionRef.current === recognition) {
-      // Restart if it ends unexpectedly while still in listening mode
-      recognition.start();
-    } else {
-      setIsListening(false);
-    }
+    setIsListening(false);
+    console.log("Spracherkennung beendet");
   };
   
-  recognitionRef.current = recognition;
-  
-  try {
-    recognition.start();
-  } catch (error) {
-    console.error('Error starting speech recognition:', error);
-    toast({
-      title: "Fehler beim Starten der Spracherkennung",
-      description: "Bitte versuche es später erneut.",
-      variant: "destructive",
-    });
-    setIsListening(false);
-  }
+  // Start listening
+  recognition.start();
 };
 
 export const stopListening = (
   recognitionRef: React.MutableRefObject<SpeechRecognition | null>,
-  setIsListening: (listening: boolean) => void
+  setIsListening: (isListening: boolean) => void
 ) => {
   if (recognitionRef.current) {
-    try {
-      recognitionRef.current.stop();
-    } catch (error) {
-      console.error('Error stopping speech recognition:', error);
-    }
-    recognitionRef.current = null;
+    recognitionRef.current.stop();
     setIsListening(false);
   }
 };

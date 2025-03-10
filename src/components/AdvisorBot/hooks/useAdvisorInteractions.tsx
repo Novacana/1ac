@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAdvisorCore } from './useAdvisorCore';
 import { useAdvisorProcessing } from './useAdvisorProcessing';
 import { useAdvisorVoice } from './useAdvisorVoice';
@@ -17,11 +17,11 @@ export const useAdvisorInteractions = () => {
   // Get processing utilities (for handling user queries)
   const { processUserQuery } = useAdvisorProcessing(advisorState);
   
+  // Add processUserQuery to the tools BEFORE creating voice interactions
+  advisorState.tools.processUserQuery = processUserQuery;
+  
   // Get voice interaction utilities
   const { toggleVoice, toggleListening, speakBotResponse } = useAdvisorVoice(advisorState);
-  
-  // Add processUserQuery to the tools
-  advisorState.tools.processUserQuery = processUserQuery;
   
   // Handle sending messages
   const handleSendMessage = () => {

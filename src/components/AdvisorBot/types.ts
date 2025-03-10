@@ -76,5 +76,6 @@ export type AdvisorState = {
       error: (message: string) => void;
     };
     navigate: NavigateFunction;
+    processUserQuery?: (userQuery: string) => Promise<void>;
   };
 };
