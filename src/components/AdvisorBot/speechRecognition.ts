@@ -57,9 +57,10 @@ export const startListening = (
     } else {
       // For single-utterance mode, process the full transcript when final
       if (event.results[0].isFinal && typeof processUserQuery === 'function') {
+        console.log("Final transcript in single utterance mode:", transcript);
         recognition.stop();
         if (transcript.trim().length > 0) {
-          console.log("Processing in single utterance mode:", transcript);
+          console.log("Sending to n8n agent:", transcript);
           processUserQuery(transcript);
         }
       }
@@ -89,7 +90,17 @@ export const startListening = (
   };
   
   // Start listening
-  recognition.start();
+  try {
+    recognition.start();
+    console.log("Speech recognition started successfully");
+  } catch (error) {
+    console.error("Failed to start speech recognition:", error);
+    toast({
+      title: "Fehler beim Starten der Spracherkennung",
+      description: "Die Spracherkennung konnte nicht gestartet werden.",
+      variant: "destructive"
+    });
+  }
 };
 
 export const stopListening = (

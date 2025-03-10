@@ -64,9 +64,10 @@ export const useAdvisorQueryProcessing = (
       setters.setConversationHistory(prev => [...prev, { role: 'user', content: userQuery }]);
       
       // Check if n8n integration is enabled and configured
-      console.log("N8n configuration status:", {
+      console.log("N8n configuration status for query processing:", {
         useN8nAgent: state.useN8nAgent,
-        webhookUrl: state.webhookUrl
+        webhookUrl: state.webhookUrl,
+        isVoice: state.isSpeechInputActive
       });
       
       if (state.useN8nAgent && state.webhookUrl) {

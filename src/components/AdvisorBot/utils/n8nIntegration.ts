@@ -12,8 +12,11 @@ export const executeN8nActions = (
 ) => {
   if (!actions) return;
   
+  console.log("Executing n8n actions:", actions);
+  
   if (actions.navigate_to) {
     setTimeout(() => {
+      console.log("Navigating to:", actions.navigate_to);
       setIsOpen(false);
       navigate(actions.navigate_to);
     }, 1000);
@@ -24,6 +27,7 @@ export const executeN8nActions = (
     const product = products.find(p => p.id === product_id);
     
     if (product) {
+      console.log("Adding to cart:", product.name, quantity);
       toast({
         title: "Produkt zum Warenkorb hinzugefügt",
         description: `${quantity}x ${product.name} wurde zum Warenkorb hinzugefügt.`,
@@ -32,7 +36,7 @@ export const executeN8nActions = (
   }
   
   if (actions.custom_action) {
-    console.log("Führe benutzerdefinierte Aktion aus:", actions.custom_action);
+    console.log("Executing custom action:", actions.custom_action);
   }
 };
 
@@ -56,7 +60,7 @@ export const sendToN8nWebhook = async (
   
   try {
     setIsLoading(true);
-    console.log("Sending request to n8n webhook:", webhookUrl);
+    console.log(`Sending request to n8n webhook: ${webhookUrl}`);
     
     // Debug what we're sending
     const requestPayload = {
@@ -64,12 +68,17 @@ export const sendToN8nWebhook = async (
       conversation_history: conversationHistory,
       user_info: {
         page: window.location.pathname,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        is_voice_chat: true // Indicate that this is coming from voice chat
       },
       available_products: productKnowledgeBase,
     };
     
-    console.log("Request payload:", JSON.stringify(requestPayload));
+    console.log("Request payload to n8n:", JSON.stringify(requestPayload, null, 2));
+    
+    // Create an AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout
     
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -78,7 +87,10 @@ export const sendToN8nWebhook = async (
         "Accept": "application/json"
       },
       body: JSON.stringify(requestPayload),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
     
     console.log("n8n webhook response status:", response.status);
     
@@ -94,31 +106,37 @@ export const sendToN8nWebhook = async (
       throw new Error(`Webhook responded with status: ${response.status}`);
     }
     
+    // Try to parse response as JSON first
     let data;
+    let responseText = await response.text();
+    console.log("Raw response from n8n webhook:", responseText);
+    
     try {
-      data = await response.json();
-      console.log("Response from n8n webhook:", data);
+      data = JSON.parse(responseText);
+      console.log("Parsed JSON response from n8n webhook:", data);
     } catch (e) {
-      console.error("Failed to parse JSON response:", e);
-      throw new Error("Ungültige Antwort vom Webhook: Konnte JSON nicht parsen");
+      console.log("Response is not valid JSON, using as plain text");
+      data = { message: responseText };
     }
     
     // Ensure we have a message property in the response
-    if (!data.message && typeof data === 'string') {
-      // If data is a string itself, use it as the message
-      return {
-        botResponse: data,
-        products: [],
-        actions: {}
-      };
-    } else if (!data.message && typeof data === 'object') {
-      // Try to extract a message from the object if possible
-      const possibleMessage = data.text || data.response || data.content || JSON.stringify(data);
-      return {
-        botResponse: possibleMessage,
-        products: data.products || [],
-        actions: data.actions || {}
-      };
+    if (!data.message) {
+      if (typeof data === 'string') {
+        // If data is a string itself, use it as the message
+        return {
+          botResponse: data,
+          products: [],
+          actions: {}
+        };
+      } else if (typeof data === 'object') {
+        // Try to extract a message from the object if possible
+        const possibleMessage = data.text || data.response || data.content || JSON.stringify(data);
+        return {
+          botResponse: possibleMessage,
+          products: data.products || [],
+          actions: data.actions || {}
+        };
+      }
     }
     
     return {
@@ -128,11 +146,19 @@ export const sendToN8nWebhook = async (
     };
   } catch (error) {
     console.error("Error communicating with n8n:", error);
-    toast({
-      title: "Fehler bei der n8n-Kommunikation",
-      description: `Es gab ein Problem mit dem n8n Webhook: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
-      variant: "destructive",
-    });
+    if (error.name === 'AbortError') {
+      toast({
+        title: "Zeitüberschreitung beim n8n Webhook",
+        description: "Der n8n-Agent hat nicht rechtzeitig geantwortet. Bitte versuche es später erneut.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Fehler bei der n8n-Kommunikation",
+        description: `Es gab ein Problem mit dem n8n Webhook: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
+        variant: "destructive",
+      });
+    }
     return null;
   } finally {
     setIsLoading(false);

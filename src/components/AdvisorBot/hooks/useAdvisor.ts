@@ -17,7 +17,7 @@ export const useAdvisor = (advisorState: AdvisorState) => {
   const { toggleAdvisor, handleSendMessage, handleKeyPress, handleNavigate } = 
     useAdvisorInteractions(advisorState, handleSpeakResponse);
   
-  // Add processUserQuery to tools
+  // Make sure processUserQuery is available in tools
   advisorState.tools.processUserQuery = processUserQuery;
 
   // Log initial n8n configuration

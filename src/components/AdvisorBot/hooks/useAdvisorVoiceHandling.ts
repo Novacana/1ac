@@ -26,6 +26,23 @@ export const useAdvisorVoiceHandling = (advisorState: AdvisorState) => {
     if (state.isListening) {
       stopListening(refs.recognitionRef, setters.setIsListening);
     } else {
+      // Make sure we have the processUserQuery function
+      if (!tools.processUserQuery) {
+        console.error("processUserQuery is not defined");
+        tools.toast({
+          title: "Fehler",
+          description: "Sprachverarbeitung ist nicht verfügbar.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      console.log("Starting listening with n8n config:", {
+        useN8nAgent: state.useN8nAgent,
+        webhookUrl: state.webhookUrl,
+        isFullConversationMode: state.isFullConversationMode
+      });
+      
       startListening(
         setters.setIsListening,
         setters.setTranscript,
@@ -45,6 +62,8 @@ export const useAdvisorVoiceHandling = (advisorState: AdvisorState) => {
   };
 
   const handleSpeakResponse = (response: string) => {
+    console.log("Handling speak response with voice enabled:", state.isVoiceEnabled);
+    
     if (state.isVoiceEnabled && state.gdprConsent) {
       speakResponse(
         response, 
