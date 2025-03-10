@@ -73,6 +73,10 @@ export const useAdvisorQueryProcessing = (
         console.log("Using n8n agent for processing query");
         
         try {
+          // Force debugging output to help troubleshoot
+          console.log(`Attempting to send request to webhook: ${state.webhookUrl}`);
+          console.log(`useN8nAgent setting: ${state.useN8nAgent}`);
+          
           const n8nResponse = await sendToN8nWebhook(
             userQuery, 
             state.webhookUrl, 
@@ -125,8 +129,14 @@ export const useAdvisorQueryProcessing = (
             handleSpeakResponse(n8nMessage);
             
             console.log("n8n processing complete");
+            return; // Exit early, we've handled the response
           } else {
             console.log("No valid response from n8n, falling back to local processing");
+            tools.toast({
+              title: "Keine Antwort vom n8n-Agenten",
+              description: "Der n8n-Agent konnte keine Antwort liefern. Verwende lokale Verarbeitung.",
+              variant: "destructive",
+            });
             fallbackProcessing(userQuery);
           }
         } catch (n8nError) {

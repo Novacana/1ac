@@ -50,7 +50,7 @@ export const sendToN8nWebhook = async (
   actions: any;
 } | null> => {
   if (!webhookUrl || !useN8nAgent) {
-    console.log("N8n integration is disabled or webhook URL is missing");
+    console.log("N8n integration is disabled or webhook URL is missing", { useN8nAgent, webhookUrl });
     return null;
   }
   
@@ -69,12 +69,13 @@ export const sendToN8nWebhook = async (
       available_products: productKnowledgeBase,
     };
     
-    console.log("Request payload:", requestPayload);
+    console.log("Request payload:", JSON.stringify(requestPayload));
     
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json"
       },
       body: JSON.stringify(requestPayload),
     });
@@ -83,13 +84,24 @@ export const sendToN8nWebhook = async (
     
     if (!response.ok) {
       console.error("Webhook error with status:", response.status);
-      const errorText = await response.text();
+      let errorText = "";
+      try {
+        errorText = await response.text();
+      } catch (e) {
+        errorText = "Konnte keine Fehlerdetails abrufen";
+      }
       console.error("Error details:", errorText);
       throw new Error(`Webhook responded with status: ${response.status}`);
     }
     
-    const data = await response.json();
-    console.log("Response from n8n webhook:", data);
+    let data;
+    try {
+      data = await response.json();
+      console.log("Response from n8n webhook:", data);
+    } catch (e) {
+      console.error("Failed to parse JSON response:", e);
+      throw new Error("Ungültige Antwort vom Webhook: Konnte JSON nicht parsen");
+    }
     
     // Ensure we have a message property in the response
     if (!data.message && typeof data === 'string') {

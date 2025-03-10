@@ -1,9 +1,11 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface ConfigPanelProps {
   webhookUrl: string;
@@ -38,12 +40,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
     setUseN8nAgent(checked);
     localStorage.setItem('useN8nAgent', JSON.stringify(checked));
   };
+
+  const handleTestWebhook = () => {
+    // Open the webhook URL in a new tab to test it
+    window.open(webhookUrl, '_blank');
+  };
   
   return (
     <div className="border rounded-md p-3 bg-accent/10 text-xs">
       <div className="flex justify-between items-center mb-2">
         <h4 className="font-medium">N8N Webhook Konfiguration</h4>
-        <Badge variant={useN8nAgent ? "default" : "secondary"} className={useN8nAgent ? "bg-green-500" : ""}>
+        <Badge variant="default" className={useN8nAgent ? "bg-green-500" : ""}>
           {useN8nAgent ? 'Aktiv' : 'Inaktiv'}
         </Badge>
       </div>
@@ -56,6 +63,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             onChange={handleWebhookChange}
             className="text-xs h-8 mb-1"
           />
+          <div className="flex justify-end mt-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs h-6 px-2" 
+              onClick={handleTestWebhook}
+            >
+              <ExternalLink className="h-3 w-3 mr-1" />
+              Test
+            </Button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Switch 
@@ -68,6 +86,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             N8N Agent {useN8nAgent ? '(aktiv)' : '(inaktiv)'}
           </Label>
         </div>
+        {useN8nAgent && !webhookUrl && (
+          <div className="text-red-500 text-xs mt-1">
+            Bitte geben Sie eine Webhook-URL ein, um den N8N-Agenten zu verwenden.
+          </div>
+        )}
       </div>
     </div>
   );

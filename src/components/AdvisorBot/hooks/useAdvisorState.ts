@@ -20,10 +20,15 @@ export const useAdvisorState = (): AdvisorState => {
   const getSavedValue = (key: string, defaultValue: any) => {
     try {
       const saved = localStorage.getItem(key);
-      if (saved) {
-        const parsedValue = JSON.parse(saved);
-        console.log(`Loaded ${key} from localStorage:`, parsedValue);
-        return parsedValue;
+      if (saved !== null) {
+        try {
+          const parsedValue = JSON.parse(saved);
+          console.log(`Loaded ${key} from localStorage:`, parsedValue);
+          return parsedValue;
+        } catch (e) {
+          console.error(`Error parsing saved value for ${key}:`, e);
+          return defaultValue;
+        }
       }
       console.log(`No saved value for ${key}, using default:`, defaultValue);
       return defaultValue;
@@ -53,8 +58,25 @@ export const useAdvisorState = (): AdvisorState => {
   const [isFullConversationMode, setIsFullConversationMode] = useState(true);
   
   // Load n8n configuration from localStorage with defaults if not found
-  const [webhookUrl, setWebhookUrl] = useState(getSavedValue('n8nWebhookUrl', N8N_WEBHOOK_URL));
-  const [useN8nAgent, setUseN8nAgent] = useState(getSavedValue('useN8nAgent', USE_N8N_AGENT));
+  // Ensure we're using the correct defaults if nothing is in localStorage
+  const savedWebhookUrl = getSavedValue('n8nWebhookUrl', null);
+  const savedUseN8nAgent = getSavedValue('useN8nAgent', null);
+  
+  const [webhookUrl, setWebhookUrl] = useState(savedWebhookUrl !== null ? savedWebhookUrl : N8N_WEBHOOK_URL);
+  const [useN8nAgent, setUseN8nAgent] = useState(savedUseN8nAgent !== null ? savedUseN8nAgent : USE_N8N_AGENT);
+  
+  // Force the n8n agent on startup if nothing is in localStorage
+  useEffect(() => {
+    if (savedWebhookUrl === null) {
+      localStorage.setItem('n8nWebhookUrl', JSON.stringify(N8N_WEBHOOK_URL));
+      console.log("Initializing webhookUrl to default:", N8N_WEBHOOK_URL);
+    }
+    
+    if (savedUseN8nAgent === null) {
+      localStorage.setItem('useN8nAgent', JSON.stringify(USE_N8N_AGENT));
+      console.log("Initializing useN8nAgent to default:", USE_N8N_AGENT);
+    }
+  }, [savedWebhookUrl, savedUseN8nAgent]);
   
   // Ensure the settings are also saved when they change
   useEffect(() => {

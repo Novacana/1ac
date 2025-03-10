@@ -20,6 +20,14 @@ export const useAdvisor = (advisorState: AdvisorState) => {
   // Add processUserQuery to tools
   advisorState.tools.processUserQuery = processUserQuery;
 
+  // Log initial n8n configuration
+  useEffect(() => {
+    console.log("useAdvisor initialized with n8n config:", {
+      webhookUrl: state.webhookUrl,
+      useN8nAgent: state.useN8nAgent
+    });
+  }, [state.webhookUrl, state.useN8nAgent]);
+
   // Auto-scroll effect
   useEffect(() => {
     if (refs.messagesRef.current && refs.bottomRef.current && state.isOpen) {
