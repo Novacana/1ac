@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink, Sparkles, ShoppingCart, Globe } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import IntegrationSystemsGrid from "../IntegrationSystemsGrid";
@@ -38,6 +38,20 @@ const initialEcommerceSystems: IntegrationSystem[] = [
     logo: "/placeholder.svg",
     connected: false,
   },
+  {
+    id: "woocommerce",
+    name: "WooCommerce",
+    description: "Verbinden Sie Ihren WooCommerce-Shop mit unserer Plattform.",
+    logo: "/placeholder.svg",
+    connected: false,
+  },
+  {
+    id: "shopify",
+    name: "Shopify",
+    description: "Verbinden Sie Ihren Shopify-Shop mit unserer Plattform.",
+    logo: "/placeholder.svg",
+    connected: false,
+  }
 ];
 
 const EcommerceTab: React.FC = () => {
@@ -50,11 +64,23 @@ const EcommerceTab: React.FC = () => {
       if (system.id === systemId) {
         const newConnectedState = !system.connected;
         
-        toast[newConnectedState ? "success" : "info"](
-          newConnectedState
+        // Zeigen Sie unterschiedliche Nachrichten basierend auf dem System an
+        let message = "";
+        if (system.id === "woocommerce") {
+          message = newConnectedState 
+            ? "WooCommerce-Verbindung wurde hergestellt. Sie können nun Ihre WooCommerce-Produkte verwalten."
+            : "WooCommerce-Verbindung wurde getrennt. Produkte werden nicht mehr synchronisiert.";
+        } else if (system.id === "shopify") {
+          message = newConnectedState 
+            ? "Shopify-Verbindung wurde hergestellt. Sie können nun Ihre Shopify-Produkte verwalten."
+            : "Shopify-Verbindung wurde getrennt. Produkte werden nicht mehr synchronisiert.";
+        } else {
+          message = newConnectedState
             ? `Verbindung zu ${system.name} wurde hergestellt`
-            : `Verbindung zu ${system.name} wurde getrennt`
-        );
+            : `Verbindung zu ${system.name} wurde getrennt`;
+        }
+        
+        toast[newConnectedState ? "success" : "info"](message);
         
         return { ...system, connected: newConnectedState };
       }
@@ -81,8 +107,8 @@ const EcommerceTab: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Partner-Produkt Systeme
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  Shop-Integrationen
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {connectedEcomCount > 0 
@@ -102,6 +128,17 @@ const EcommerceTab: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+      
+      <div className="mb-6">
+        <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          E-Commerce-Plattformen
+        </h4>
+        <p className="text-sm text-muted-foreground mb-4">
+          Verbinden Sie Ihre externen Online-Shops, um Produkte zu synchronisieren.
+          Hinweis: Jede Apotheke kann nur ihre eigenen Produkte verwalten und einsehen.
+        </p>
       </div>
       
       <IntegrationSystemsGrid 
