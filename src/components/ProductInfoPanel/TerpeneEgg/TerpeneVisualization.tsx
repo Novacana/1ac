@@ -81,31 +81,38 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
     return 16;
   };
 
-  // Effect labels with better spacing to prevent overlapping
+  // Effect labels with accurate positioning as described by the user
   const effectLabels = [
-    { text: "körperlich erdend ausgleichend", position: { top: '-12%', left: '50%' } },
-    { text: "körperlich entspannend", position: { top: '10%', left: '105%' } }, 
-    { text: "körperlich ausgleichend", position: { top: '30%', left: '-10%' } },
-    { text: "ganzheitlich entspannend", position: { top: '50%', left: '112%' } },
-    { text: "ganzheitlich anregend stimulierend", position: { top: '70%', left: '-12%' } },
-    { text: "geistig entspannend", position: { top: '90%', left: '105%' } },
-    { text: "ganzheitlich anregend", position: { top: '112%', left: '30%' } },
-    { text: "geistig ausgleichend öffnend", position: { top: '112%', left: '70%' } },
+    // Top - Bottom opposites
+    { text: "geistig ausgleichend öffnend", position: { top: '5%', left: '50%' } },
+    { text: "erdend körperlich ausgleichend", position: { top: '95%', left: '50%' } },
+    
+    // Left - Right opposites
+    { text: "ganzheitlich anregend", position: { top: '50%', left: '8%' } },
+    { text: "ganzheitlich entspannend", position: { top: '50%', left: '92%' } },
+    
+    // Top left - Bottom right opposites
+    { text: "geistig anregend stimulierend", position: { top: '25%', left: '20%' } },
+    { text: "körperlich entspannend", position: { top: '75%', left: '80%' } },
+    
+    // Bottom left - Top right opposites
+    { text: "körperlich anregend vitalisierend", position: { top: '75%', left: '20%' } },
+    { text: "geistig entspannend beruhigend", position: { top: '25%', left: '80%' } },
   ];
 
   return (
-    <div className="relative w-full h-[420px] flex-shrink-0 mx-auto">
-      {/* Increased height for better spacing of labels */}
+    <div className="relative w-full h-[360px] flex-shrink-0 mx-auto my-2">
+      {/* Container for the egg visualization with proper height to avoid cropping */}
       
       {/* Egg background with gradient */}
       <EggBackground isDark={isDark} />
       
-      {/* Effect labels around the egg - positioned with better spacing */}
+      {/* Effect labels around the egg - positioned closer to the egg */}
       {effectLabels.map((label, index) => (
         <div 
           key={`effect-${index}`}
           className={cn(
-            "absolute transform -translate-x-1/2 text-xs px-2 py-1 rounded-full",
+            "absolute transform -translate-x-1/2 text-xs px-2 py-1 rounded-full whitespace-nowrap",
             isDark 
               ? "bg-gray-800/90 text-white" 
               : "bg-gray-100/90 text-gray-800",
@@ -114,7 +121,7 @@ const TerpeneVisualization: React.FC<TerpeneVisualizationProps> = ({
           style={{
             top: label.position.top,
             left: label.position.left,
-            maxWidth: '160px',
+            maxWidth: '180px',
             textAlign: 'center',
             zIndex: 5
           }}
