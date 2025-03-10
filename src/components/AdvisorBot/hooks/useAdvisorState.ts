@@ -111,8 +111,8 @@ export const useAdvisorState = (): AdvisorState => {
     localStorage.setItem('gdprConsent', JSON.stringify(consent));
   };
   
-  // API Key prüfen
-  const isApiKeySet = !!ELEVENLABS_API_KEY && ELEVENLABS_API_KEY.trim() !== '';
+  // API Key prüfen (safe check)
+  const isApiKeySet = Boolean(ELEVENLABS_API_KEY && ELEVENLABS_API_KEY.trim() !== '');
   console.log("ElevenLabs API key status:", isApiKeySet ? "Set" : "Not set");
   
   // Refs
@@ -120,7 +120,7 @@ export const useAdvisorState = (): AdvisorState => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  // Initialize ElevenLabs conversation
+  // Initialize ElevenLabs conversation with error handling
   const conversation = useConversation({
     onError: (error) => {
       console.error("ElevenLabs error:", error);
@@ -129,16 +129,18 @@ export const useAdvisorState = (): AdvisorState => {
         description: "Es gab ein Problem mit der ElevenLabs Sprachausgabe.",
         variant: "destructive",
       });
+      setIsPlaying(false);
     }
   });
 
   // Tools
   const webTools = createWebTools(navigate, toastFn);
 
-  console.log("AdvisorState initialized with n8n config:", {
+  console.log("AdvisorState initialized with:", {
     webhookUrl,
     useN8nAgent,
-    isApiKeySet
+    isApiKeySet,
+    gdprConsent
   });
 
   return {

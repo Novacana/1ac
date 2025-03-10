@@ -4,6 +4,7 @@ import { detectToolIntent, processQuery } from "../utils";
 import { executeN8nActions, sendToN8nWebhook } from "../utils/n8nIntegration";
 import { products } from "@/data/products";
 
+// Create a simplified product knowledge base for n8n
 const productKnowledgeBase = products.map(p => ({
   id: p.id,
   name: p.name,
@@ -95,18 +96,25 @@ export const useAdvisorQueryProcessing = (
           console.log(`Attempting to send request to webhook: ${state.webhookUrl}`);
           console.log(`useN8nAgent setting: ${state.useN8nAgent}`);
           
-          // Debugging - log the full conversation history we're sending
-          console.log("Sending conversation history:", JSON.stringify(state.conversationHistory.slice(-5)));
-          
-          const n8nResponse = await sendToN8nWebhook(
-            userQuery, 
-            state.webhookUrl, 
-            state.useN8nAgent, 
-            state.conversationHistory, 
-            productKnowledgeBase,
-            setters.setIsLoading,
-            tools.toast
-          );
+          // Send the request with a timeout
+          const n8nResponse = await Promise.race([
+            sendToN8nWebhook(
+              userQuery, 
+              state.webhookUrl, 
+              state.useN8nAgent, 
+              state.conversationHistory, 
+              productKnowledgeBase,
+              setters.setIsLoading,
+              tools.toast
+            ),
+            // Add a timeout protection
+            new Promise<null>((resolve) => {
+              setTimeout(() => {
+                console.log("N8n request timed out after 10 seconds");
+                resolve(null);
+              }, 10000); 
+            })
+          ]);
           
           // If we got a response from n8n, use it
           if (n8nResponse) {
@@ -185,6 +193,7 @@ export const useAdvisorQueryProcessing = (
       const errorMessage = "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten. Bitte versuche es später noch einmal.";
       setters.setBotResponse(errorMessage);
       setters.setConversationHistory(prev => [...prev, { role: 'assistant', content: errorMessage }]);
+      handleSpeakResponse(errorMessage);
     } finally {
       setters.setIsLoading(false);
     }

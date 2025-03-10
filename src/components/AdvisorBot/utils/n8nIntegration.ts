@@ -62,11 +62,18 @@ export const sendToN8nWebhook = async (
     setIsLoading(true);
     console.log("Sending request to n8n webhook:", webhookUrl);
     console.log("Message:", userMessage);
-    console.log("Conversation history:", conversationHistory);
+    
+    // Create a simplified version of conversation history to avoid potential circular references
+    const simplifiedHistory = conversationHistory.slice(-5).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+    
+    console.log("Conversation history:", simplifiedHistory);
     
     const requestPayload = {
       message: userMessage,
-      conversation_history: conversationHistory.slice(-5), // Send last 5 messages for context
+      conversation_history: simplifiedHistory,
       user_info: {
         page: window.location.pathname,
         timestamp: new Date().toISOString(),
@@ -75,7 +82,11 @@ export const sendToN8nWebhook = async (
       available_products: productKnowledgeBase,
     };
     
-    console.log("Full request payload:", JSON.stringify(requestPayload));
+    // Log payload but limit the size to avoid console flooding
+    console.log("Request payload:", JSON.stringify({
+      ...requestPayload,
+      available_products: `[${productKnowledgeBase.length} products]`
+    }));
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -106,7 +117,7 @@ export const sendToN8nWebhook = async (
       }
       
       let responseText = await response.text();
-      console.log("Raw response:", responseText);
+      console.log("Raw response:", responseText.substring(0, 500) + (responseText.length > 500 ? '...' : ''));
       
       let data;
       
@@ -131,26 +142,37 @@ export const sendToN8nWebhook = async (
         actions: data.actions || {}
       };
     } catch (fetchError) {
-      console.error("Fetch error in n8n webhook call:", fetchError);
+      if (fetchError.name === 'AbortError') {
+        console.error("Webhook request timed out");
+        toast({
+          title: "Zeitüberschreitung",
+          description: "Die Anfrage an den N8N-Webhook hat zu lange gedauert.",
+          variant: "destructive",
+        });
+      } else {
+        console.error("Fetch error in n8n webhook call:", fetchError);
+        toast({
+          title: "Verbindungsproblem",
+          description: "Konnte keine Verbindung zum N8N-Webhook herstellen. Prüfe die URL und Netzwerkeinstellungen.",
+          variant: "destructive",
+        });
+      }
       
       // Provide a fallback response for offline cases or server errors
-      const fallbackResponse = {
+      return {
         botResponse: "Entschuldigung, ich konnte keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung oder versuche es später erneut.",
         products: [],
         actions: {}
       };
-      
-      toast({
-        title: "Verbindungsproblem",
-        description: "Konnte keine Verbindung zum N8N-Webhook herstellen. Prüfe die URL und Netzwerkeinstellungen.",
-        variant: "destructive",
-      });
-      
-      return fallbackResponse;
     }
   } catch (error) {
     console.error("Error in n8n webhook call:", error);
-    throw error;
+    setIsLoading(false);
+    return {
+      botResponse: "Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+      products: [],
+      actions: {}
+    };
   } finally {
     setIsLoading(false);
   }
