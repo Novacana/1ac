@@ -1,3 +1,4 @@
+
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -40,6 +41,8 @@ const Header = () => {
   const navItems: NavItem[] = [
     { name: "Showroom", path: "/" },
     { name: "Shop", path: "/products" },
+    { name: "Für Ärzte", path: "/doctor/landing" },
+    { name: "Für Apotheken", path: "/pharmacy/landing" },
     { name: "Dokumentation", path: "/documentation" },
   ];
 

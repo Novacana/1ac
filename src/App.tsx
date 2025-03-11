@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorLanding from "./pages/DoctorLanding";
+import PharmacyLanding from "./pages/PharmacyLanding"; // Add import
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
@@ -74,6 +75,7 @@ function App() {
             <Route path="/documentation" element={<Documentation />} />
             <Route path="/datenschutz" element={<PrivacyPolicy />} />
             <Route path="/doctor/landing" element={<DoctorLanding />} />
+            <Route path="/pharmacy/landing" element={<PharmacyLanding />} />
             <Route 
               path="/settings" 
               element={

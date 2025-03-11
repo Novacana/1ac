@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Euro, Shield, Clock, Calendar, EuroIcon, Users, ArrowRight, Percent } from "lucide-react";
+import { CheckCircle2, Euro, Shield, Clock, Calendar, EuroIcon, Users, ArrowRight, Percent, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,11 +9,11 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Layout from "@/components/Layout";
 
-const DoctorLanding: React.FC = () => {
+const PharmacyLanding: React.FC = () => {
   const navigate = useNavigate();
 
   const handleRegister = () => {
-    navigate("/register", { state: { preselectedRole: 'doctor' } });
+    navigate("/register", { state: { preselectedRole: 'pharmacy' } });
   };
 
   const handleLearnMore = () => {
@@ -21,8 +21,7 @@ const DoctorLanding: React.FC = () => {
   };
 
   const handleScheduleDemo = () => {
-    // This would typically open a calendar or a form to schedule a demo
-    window.open("mailto:aerzte@medcann.de?subject=Demo-Anfrage&body=Ich möchte gerne eine Demo der Plattform vereinbaren.");
+    window.open("mailto:apotheken@medcann.de?subject=Demo-Anfrage&body=Ich möchte gerne eine Demo der Plattform vereinbaren.");
   };
 
   return (
@@ -31,14 +30,14 @@ const DoctorLanding: React.FC = () => {
       <section className="container py-16 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <div className="space-y-6">
-            <Badge variant="success" className="mb-4">Für Ärzte</Badge>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Digitalisieren Sie Ihre Privatrezepte für Medizinalcannabis</h1>
+            <Badge variant="success" className="mb-4">Für Apotheken</Badge>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Integrierte Verwaltung für Cannabis-Rezepte</h1>
             <p className="text-lg text-muted-foreground">
-              Verbessern Sie die Patientenversorgung und steigern Sie Ihr Einkommen durch sichere und einfache digitale Rezeptverwaltung.
+              Optimieren Sie Ihre Apothekenprozesse mit unserer digitalen Plattform zur Verarbeitung von Medizinalcannabis-Rezepten.
             </p>
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="gap-2" onClick={handleRegister}>
-                Jetzt registrieren <ArrowRight className="h-4 w-4" />
+                Als Apotheke registrieren <ArrowRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg" onClick={handleLearnMore}>
                 Mehr erfahren
@@ -47,8 +46,8 @@ const DoctorLanding: React.FC = () => {
           </div>
           <div className="relative rounded-xl overflow-hidden shadow-2xl border border-primary/20">
             <img 
-              src="/lovable-uploads/dc40d978-afef-449a-8fd1-ebd973d2ec3f.png" 
-              alt="Arzt nutzt digitale Plattform" 
+              src="/lovable-uploads/fab1f4ee-55a7-44cc-9795-18d358bf0391.png" 
+              alt="Apotheke mit digitaler Plattform" 
               className="w-full h-auto"
             />
             <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5"></div>
@@ -60,10 +59,9 @@ const DoctorLanding: React.FC = () => {
       <section className="container mb-16">
         <Alert variant="warning" className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
           <Percent className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-          <AlertTitle className="text-amber-800 dark:text-amber-400">Plattformgebühr Information</AlertTitle>
+          <AlertTitle className="text-amber-800 dark:text-amber-400">Gebührenstruktur</AlertTitle>
           <AlertDescription className="text-amber-700 dark:text-amber-300">
-            Für jedes über unsere Plattform verarbeitete Rezept erheben wir eine kleine Plattformgebühr von 4,20%. 
-            Diese wird automatisch von Ihrer Vergütung (14,20€ pro Rezept) abgezogen. 
+            Für jedes über unsere Plattform verarbeitete Rezept wird eine transparente Plattformgebühr erhoben.
             Die Gebühr deckt alle technischen Kosten, Support und kontinuierliche Verbesserungen der Plattform.
           </AlertDescription>
         </Alert>
@@ -73,9 +71,9 @@ const DoctorLanding: React.FC = () => {
       <section id="benefits" className="bg-muted/50 py-16">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold mb-4">Warum Ärzte unsere Plattform wählen</h2>
+            <h2 className="text-3xl font-bold mb-4">Vorteile für Ihre Apotheke</h2>
             <p className="text-muted-foreground">
-              Unsere Plattform bietet zahlreiche Vorteile für Ärzte, die Privatrezepte für Medizinalcannabis ausstellen.
+              Unsere Plattform bietet zahlreiche Vorteile für Apotheken, die Medizinalcannabis-Rezepte verarbeiten.
             </p>
           </div>
 
@@ -83,11 +81,11 @@ const DoctorLanding: React.FC = () => {
             <Card className="border-primary/20">
               <CardContent className="p-6 space-y-4">
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Euro className="h-6 w-6 text-primary" />
+                  <Building className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold">Zusätzliches Einkommen</h3>
+                <h3 className="text-xl font-semibold">Digitalisierte Prozesse</h3>
                 <p className="text-muted-foreground">
-                  Verdienen Sie 14,20€ pro ausgestelltem Privatrezept – einfach und vollständig konform mit allen rechtlichen Anforderungen.
+                  Optimieren Sie Ihren Arbeitsablauf mit digitalen Rezepten und vereinfachen Sie die Bestandsverwaltung für Medizinalcannabis.
                 </p>
               </CardContent>
             </Card>
@@ -124,7 +122,7 @@ const DoctorLanding: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl font-bold mb-4">So funktioniert's</h2>
           <p className="text-muted-foreground">
-            In wenigen einfachen Schritten können Sie unsere Plattform nutzen und Ihre Privatrezepte digital verwalten.
+            In wenigen einfachen Schritten können Sie unsere Plattform nutzen und Ihre digitalen Rezepte verwalten.
           </p>
         </div>
 
@@ -138,7 +136,7 @@ const DoctorLanding: React.FC = () => {
                 <div>
                   <h3 className="text-xl font-semibold mb-2">Einfache Registrierung</h3>
                   <p className="text-muted-foreground">
-                    Registrieren Sie sich als Arzt und verifizieren Sie Ihre Approbation. Der Prozess dauert nur wenige Minuten.
+                    Registrieren Sie sich als Apotheke und verifizieren Sie Ihre Betriebserlaubnis. Der Prozess dauert nur wenige Minuten.
                   </p>
                 </div>
               </div>
@@ -148,9 +146,9 @@ const DoctorLanding: React.FC = () => {
                   <span className="font-bold">2</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Rezepte digital ausstellen</h3>
+                  <h3 className="text-xl font-semibold mb-2">Integration in Ihre Systeme</h3>
                   <p className="text-muted-foreground">
-                    Stellen Sie Privatrezepte für Medizinalcannabis digital aus – mit automatischer Validierung und FHIR-Standard-Anbindung.
+                    Verbinden Sie unsere Plattform mit Ihrem Warenwirtschaftssystem für nahtlose Prozesse – mit FHIR-Standard-Anbindung.
                   </p>
                 </div>
               </div>
@@ -160,9 +158,9 @@ const DoctorLanding: React.FC = () => {
                   <span className="font-bold">3</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Verdienen Sie mit</h3>
+                  <h3 className="text-xl font-semibold mb-2">Rezeptverwaltung</h3>
                   <p className="text-muted-foreground">
-                    Für jedes ausgestellte Privatrezept erhalten Sie 14,20€. Die Abrechnung erfolgt monatlich und transparent.
+                    Nehmen Sie digitale Rezepte entgegen, verwalten Sie Ihren Bestand und bieten Sie Ihren Patienten einen verbesserten Service.
                   </p>
                 </div>
               </div>
@@ -172,121 +170,61 @@ const DoctorLanding: React.FC = () => {
           <div className="order-1 md:order-2">
             <img 
               src="/lovable-uploads/e309be49-454e-4b04-b656-75ae60cb7145.png" 
-              alt="Arzt stellt digitales Rezept aus" 
+              alt="Digitale Rezeptverwaltung für Apotheken" 
               className="rounded-xl shadow-lg border border-primary/20"
             />
           </div>
         </div>
       </section>
 
-      {/* Earnings Calculation */}
+      {/* GDPR & Compliance */}
       <section className="bg-muted/50 py-16">
         <div className="container">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold mb-4">Ihr Verdienstpotenzial</h2>
-            <p className="text-muted-foreground">
-              Berechnen Sie, wie viel Sie zusätzlich verdienen können.
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto">
-            <Card className="border-primary/20">
-              <CardContent className="p-8">
-                <div className="space-y-8">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">5 Rezepte pro Woche</span>
-                      <span className="font-bold">71€</span>
-                    </div>
-                    <Progress value={20} />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">10 Rezepte pro Woche</span>
-                      <span className="font-bold">142€</span>
-                    </div>
-                    <Progress value={40} />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">20 Rezepte pro Woche</span>
-                      <span className="font-bold">284€</span>
-                    </div>
-                    <Progress value={60} />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">50 Rezepte pro Woche</span>
-                      <span className="font-bold">710€</span>
-                    </div>
-                    <Progress value={80} />
-                  </div>
-
-                  <div className="pt-4 text-center">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Bei durchschnittlich 50 Rezepten pro Woche erreichen Sie ein zusätzliches monatliches Einkommen von ca. 2.840€. 
-                      Nach Abzug der Plattformgebühr (4,20%) verbleiben Ihnen effektiv 2.721€.
-                    </p>
-                    <Button className="gap-2" onClick={handleRegister}>
-                      Jetzt starten und verdienen <EuroIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* GDPR & Compliance */}
-      <section className="container py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-3xl font-bold mb-6">DSGVO-konform und sicher</h2>
-            <p className="text-muted-foreground mb-8">
-              Unsere Plattform wurde entwickelt, um alle Anforderungen an den Datenschutz zu erfüllen. Sowohl die DSGVO als auch spezielle Anforderungen im Gesundheitswesen werden eingehalten.
-            </p>
-            
-            <ul className="space-y-4">
-              {[
-                "Alle Patientendaten werden verschlüsselt gespeichert",
-                "HIPAA-konform für maximale Sicherheit",
-                "FHIR-Standard für Interoperabilität",
-                "Vollständige Nachvollziehbarkeit aller Vorgänge",
-                "Sichere Übertragungswege durch Ende-zu-Ende-Verschlüsselung"
-              ].map((item, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            
-            <div className="mt-8">
-              <Link to="/datenschutz" className="text-primary hover:underline">
-                Unsere Datenschutzrichtlinie lesen →
-              </Link>
-            </div>
-          </div>
-          
-          <div className="relative rounded-xl overflow-hidden shadow-xl border border-primary/20">
-            <img 
-              src="/lovable-uploads/8db2393e-a67f-435f-9eb7-467e1a367470.png" 
-              alt="Datenschutz und Sicherheit" 
-              className="w-full"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <Badge variant="outline" className="bg-background/80 backdrop-blur-sm mb-2">
-                DSGVO-konform
-              </Badge>
-              <h3 className="text-xl font-bold mb-2">Höchste Datenschutzstandards</h3>
-              <p className="text-sm max-w-md">
-                Wir verstehen die Bedeutung des Schutzes sensibler Patientendaten und haben entsprechende Maßnahmen implementiert.
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">DSGVO-konform und sicher</h2>
+              <p className="text-muted-foreground mb-8">
+                Unsere Plattform wurde entwickelt, um alle Anforderungen an den Datenschutz zu erfüllen. Sowohl die DSGVO als auch spezielle Anforderungen im Gesundheitswesen werden eingehalten.
               </p>
+              
+              <ul className="space-y-4">
+                {[
+                  "Alle Patientendaten werden verschlüsselt gespeichert",
+                  "HIPAA-konform für maximale Sicherheit",
+                  "FHIR-Standard für Interoperabilität",
+                  "Vollständige Nachvollziehbarkeit aller Vorgänge",
+                  "Sichere Übertragungswege durch Ende-zu-Ende-Verschlüsselung"
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="mt-8">
+                <Link to="/datenschutz" className="text-primary hover:underline">
+                  Unsere Datenschutzrichtlinie lesen →
+                </Link>
+              </div>
+            </div>
+            
+            <div className="relative rounded-xl overflow-hidden shadow-xl border border-primary/20">
+              <img 
+                src="/lovable-uploads/8db2393e-a67f-435f-9eb7-467e1a367470.png" 
+                alt="Datenschutz und Sicherheit" 
+                className="w-full"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <Badge variant="outline" className="bg-background/80 backdrop-blur-sm mb-2">
+                  DSGVO-konform
+                </Badge>
+                <h3 className="text-xl font-bold mb-2">Höchste Datenschutzstandards</h3>
+                <p className="text-sm max-w-md">
+                  Wir verstehen die Bedeutung des Schutzes sensibler Patientendaten und haben entsprechende Maßnahmen implementiert.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -295,9 +233,9 @@ const DoctorLanding: React.FC = () => {
       {/* CTA Section */}
       <section className="bg-primary text-primary-foreground py-16">
         <div className="container text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Bereit, Ihre Praxis zu digitalisieren?</h2>
+          <h2 className="text-3xl font-bold mb-4">Bereit, Ihre Apotheke zu digitalisieren?</h2>
           <p className="mb-8">
-            Treten Sie unserem Netzwerk bei und profitieren Sie von digitalen Lösungen für die Verschreibung von Medizinalcannabis.
+            Treten Sie unserem Netzwerk bei und profitieren Sie von digitalen Lösungen für die Verwaltung von Medizinalcannabis.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="secondary" size="lg" className="gap-2" onClick={handleScheduleDemo}>
@@ -308,7 +246,7 @@ const DoctorLanding: React.FC = () => {
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-80">
-            Bei Fragen kontaktieren Sie uns unter <a href="mailto:aerzte@medcann.de" className="underline">aerzte@medcann.de</a>
+            Bei Fragen kontaktieren Sie uns unter <a href="mailto:apotheken@medcann.de" className="underline">apotheken@medcann.de</a>
           </p>
         </div>
       </section>
@@ -329,7 +267,7 @@ const DoctorLanding: React.FC = () => {
                 Dokumentation
               </Link>
               <span className="text-muted-foreground">•</span>
-              <a href="mailto:aerzte@medcann.de" className="text-sm text-muted-foreground hover:text-foreground">
+              <a href="mailto:apotheken@medcann.de" className="text-sm text-muted-foreground hover:text-foreground">
                 Kontakt
               </a>
             </div>
@@ -340,4 +278,4 @@ const DoctorLanding: React.FC = () => {
   );
 };
 
-export default DoctorLanding;
+export default PharmacyLanding;

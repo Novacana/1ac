@@ -1,28 +1,43 @@
 
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { UserPlus, Mail, Lock, User, AlertCircle, Stethoscope, Building, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
+interface LocationState {
+  preselectedRole?: 'user' | 'doctor' | 'pharmacy';
+}
+
 const Register = () => {
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'user' | 'doctor' | 'pharmacy'>('user');
+  const [role, setRole] = useState<'user' | 'doctor' | 'pharmacy'>(
+    locationState?.preselectedRole || 'user'
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Effect to update role if preselectedRole changes
+  useEffect(() => {
+    if (locationState?.preselectedRole) {
+      setRole(locationState.preselectedRole);
+    }
+  }, [locationState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
