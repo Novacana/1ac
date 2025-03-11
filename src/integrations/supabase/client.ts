@@ -9,6 +9,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     storageKey: 'cannabis_marketplace_auth',
-    flowType: 'pkce', // Add PKCE flow for better security
+    flowType: 'pkce', // PKCE flow for better security
   }
 });

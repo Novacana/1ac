@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
 import MobileNavDots from "./MobileNavDots";
-import ProductAdvisor from "./AdvisorBot";
+import SimpleChat from "./SimpleChat";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +55,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </main>
-        {!noAdvisor && !isDocumentation && <ProductAdvisor />}
+        {!noAdvisor && !isDocumentation && <SimpleChat />}
       </div>
     </ThemeProvider>
   );
