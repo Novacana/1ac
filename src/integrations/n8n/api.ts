@@ -1,11 +1,17 @@
+
 import { toast } from "@/hooks/use-toast";
 
 // N8N API configuration
 const N8N_API_BASE_URL = "https://n8n-tejkg.ondigitalocean.app/api/v1";
-const N8N_WORKFLOW_ID = "50aea9a1-9064-49c7-aea6-3a8714b26157";
+const N8N_WORKFLOW_ID = "KNneHOQvwbxuJyFF"; // Updated workflow ID
 
-// Default API key (can be overridden by user input)
-let n8nApiKey = localStorage.getItem("n8n_api_key") || "";
+// Default API key (using the provided JWT token)
+let n8nApiKey = localStorage.getItem("n8n_api_key") || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZGU0Yjk5MS1hNTZmLTQ5NjItOTBlNC0yYWQ2YzU1NmEyODAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQxNzE3OTU4fQ.vEivNWhopr5_S0NwWXjTZuVv09ftwY52XekXEW5hIxQ";
+
+// Set the provided token in localStorage if it's not already there
+if (!localStorage.getItem("n8n_api_key")) {
+  localStorage.setItem("n8n_api_key", n8nApiKey);
+}
 
 // Function to set a new API key
 export function setN8nApiKey(apiKey: string): void {

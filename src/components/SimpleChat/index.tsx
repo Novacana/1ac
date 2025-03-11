@@ -21,6 +21,7 @@ const SimpleChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: "Hallo! Wie kann ich dir helfen?" }
   ]);
+  // Get API key from localStorage or use the default one
   const [apiKey, setApiKey] = useState(() => getN8nApiKey());
   
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -33,6 +34,11 @@ const SimpleChat = () => {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  // When component mounts, ensure the API key is set in the local state
+  useEffect(() => {
+    setApiKey(getN8nApiKey());
+  }, []);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
