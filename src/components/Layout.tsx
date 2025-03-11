@@ -28,10 +28,7 @@ const Layout: React.FC<LayoutProps> = ({
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Determine if we're on the documentation page
-  const isDocumentation = location.pathname === "/documentation";
-
-  // Get stored theme preference or use default, ensuring it's a valid Theme type
+  // Get stored theme preference or use default
   const savedTheme = (localStorage.getItem("cannabis-shop-theme") as "light" | "dark" | "system") || "light";
 
   return (
@@ -48,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({
         <MobileNavDots />
         <main
           className={cn(
-            "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in w-full",
+            "flex-1 md:pt-24 pt-16 pb-16 animate-fade-in w-full max-w-none px-0",
             className
           )}
         >
