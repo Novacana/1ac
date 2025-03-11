@@ -5,6 +5,7 @@ import Header from "./Header";
 import MobileNavDots from "./MobileNavDots";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
+import ChatBot from "./ChatBot";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -54,6 +55,9 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </main>
+        
+        {/* Add ChatBot component */}
+        <ChatBot />
       </div>
     </ThemeProvider>
   );
