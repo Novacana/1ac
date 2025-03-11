@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Bot, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,19 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157";
+import { sendMessageToN8N, ChatMessage } from "@/integrations/n8n/api";
 
 const SimpleChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: "Hallo! Wie kann ich dir helfen?" }
   ]);
   
@@ -48,74 +41,21 @@ const SimpleChat = () => {
     setIsLoading(true);
     
     try {
-      // Create the payload for n8n
-      const payload = {
-        message: userMessage,
-        conversation_history: messages.slice(-5),
-        user_info: {
-          page: window.location.pathname,
-          timestamp: new Date().toISOString()
-        }
-      };
-      
-      console.log("Sending to n8n webhook:", N8N_WEBHOOK_URL);
-      console.log("Payload:", payload);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const responseText = await response.text();
-      let botMessage: string;
-      
-      try {
-        const responseData = JSON.parse(responseText);
-        console.log("Response data:", responseData);
-        botMessage = responseData.message || responseData.response || responseData.content;
-      } catch (e) {
-        console.log("Response is not JSON, using as plain text:", responseText);
-        botMessage = responseText;
-      }
-      
-      if (!botMessage) {
-        throw new Error("Invalid response format");
-      }
+      // Send the message to n8n using our new API integration
+      const botResponse = await sendMessageToN8N(userMessage, messages);
       
       // Add bot message to conversation
-      setMessages(prev => [...prev, { role: 'assistant', content: botMessage }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: botResponse }]);
       
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error in chat interaction:", error);
       
+      // Error already handled and toasted in the API function
+      // Just add error message to the conversation
       let errorMessage = "Es ist ein Fehler bei der Kommunikation aufgetreten.";
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = "Die Verbindung hat zu lange gedauert. Bitte versuche es erneut.";
-        } else if (error.message.includes('Failed to fetch')) {
-          errorMessage = "Konnte keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung.";
-        }
+        errorMessage = error.message;
       }
-      
-      toast({
-        title: "Fehler",
-        description: errorMessage,
-        variant: "destructive"
-      });
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
