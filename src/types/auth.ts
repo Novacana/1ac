@@ -7,6 +7,7 @@ export interface Address {
   state: string;
   country: string;
   isDefault: boolean;
+  additionalInfo?: string;
 }
 
 export interface PaymentMethod {
@@ -20,6 +21,8 @@ export interface PaymentMethod {
   routingNumber?: string;
   paypalEmail?: string;
   isDefault: boolean;
+  cardHolder?: string;
+  expiryDate?: string;
 }
 
 export interface Document {
@@ -28,6 +31,7 @@ export interface Document {
   name: string;
   status: 'pending' | 'verified' | 'rejected';
   uploadedAt: Date;
+  uploadDate?: string; // Adding this for backward compatibility
 }
 
 export interface User {
@@ -37,10 +41,12 @@ export interface User {
   role: 'user' | 'doctor' | 'pharmacy' | 'admin';
   addresses: Address[];
   paymentMethods: PaymentMethod[];
-  identificationStatus: 'not_verified' | 'pending' | 'verified';
-  verificationStatus?: 'not_verified' | 'pending' | 'verified';
+  identificationStatus: 'not_verified' | 'pending' | 'verified' | 'pending_review' | 'failed';
+  verificationStatus?: 'not_verified' | 'pending' | 'verified' | 'pending_review';
   verificationDocuments: Document[];
   pharmacyLicenseNumber?: string;
+  phone?: string;
+  medicalLicenseNumber?: string;
 }
 
 export interface AuthContextType {

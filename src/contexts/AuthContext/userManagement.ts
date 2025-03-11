@@ -126,13 +126,15 @@ export const updateUserDocuments = (
   const newDocument = {
     id: Math.random().toString(36).substring(2, 9),
     type: documentType,
+    name: `${documentType}_document.pdf`, // Add a name to satisfy the Document type
     status: 'pending' as const,
-    uploadDate: new Date().toISOString().split('T')[0]
+    uploadedAt: new Date(),  // Use uploadedAt instead of uploadDate
+    uploadDate: new Date().toISOString().split('T')[0] // Keep for backward compatibility
   };
   
   return { 
     ...user,
     verificationDocuments: [...(user.verificationDocuments || []), newDocument],
-    verificationStatus: 'pending_review' as const
+    verificationStatus: 'pending' as const // Changed from pending_review to pending
   };
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,7 @@ const UserIdentification = () => {
     setTimeout(() => {
       // In einer echten Anwendung würde hier die tatsächliche Identifikation stattfinden
       updateUserProfile({ 
-        identificationStatus: "pending_review" 
+        identificationStatus: "pending" // Changed from "pending_review" to "pending"
       });
       
       setIsProcessing(false);
@@ -59,6 +58,7 @@ const UserIdentification = () => {
             </AlertDescription>
           </Alert>
         );
+      case "pending":
       case "pending_review":
         return (
           <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-900">

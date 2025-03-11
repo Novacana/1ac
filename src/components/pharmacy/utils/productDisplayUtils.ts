@@ -1,5 +1,6 @@
 
 import { Product } from "@/types/product";
+import { isGDPRCompliant, isHIPAACompliant } from "@/utils/fhirCompliance";
 
 // Show source label based on product source
 export const getSourceLabel = (product: Product): string => {
@@ -11,8 +12,20 @@ export const getSourceLabel = (product: Product): string => {
 };
 
 // GDPR compliance check for data processing
-export const isGDPRCompliant = (product: Product): boolean => {
+export const isProductGDPRCompliant = (product: Product): boolean => {
   // For pharmacy products, ensure they comply with GDPR
-  // This is a placeholder for actual GDPR compliance checking logic
-  return true;
+  return isGDPRCompliant(product);
+};
+
+// HIPAA compliance check for medical products
+export const isProductHIPAACompliant = (product: Product): boolean => {
+  // For medical products, ensure they comply with HIPAA
+  return isHIPAACompliant(product);
+};
+
+// Check if product data meets FHIR standards
+export const isFHIRCompliant = (product: Product): boolean => {
+  // Check if product data structure can be mapped to FHIR resources
+  // This would involve validating against FHIR medication resource specifications
+  return true; // Simplified implementation
 };
