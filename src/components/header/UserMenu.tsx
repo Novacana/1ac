@@ -11,9 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User as UserType } from "@/types/auth";
 
 interface UserMenuProps {
-  user: { name: string; role?: string } | null;
+  user: UserType | null;
   isAuthenticated: boolean;
   isDoctor: boolean;
   isPharmacy: boolean;

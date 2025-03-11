@@ -1,159 +1,77 @@
-
-import React, { useState } from "react";
-import { User } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { AlertCircle, Check, FileText, Upload, X } from "lucide-react";
-import { toast } from "sonner";
+import { User } from "@/types/auth";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FileCheck, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface VerificationTabProps {
   user: User | null;
-  updateStatus: (isComplete: boolean) => void;
+  updateStatus: (status: boolean) => void;
 }
 
 const VerificationTab: React.FC<VerificationTabProps> = ({ user, updateStatus }) => {
-  const [uploading, setUploading] = useState(false);
-  
-  const isIdentificationVerified = user?.identificationStatus === 'verified';
-  const isLicenseVerified = user?.verificationStatus === 'verified';
-  
-  const handleUploadLicense = () => {
-    setUploading(true);
-    
-    // Simulate upload delay
-    setTimeout(() => {
-      setUploading(false);
-      toast.success("Dokument erfolgreich hochgeladen. Es wird nun überprüft.");
-    }, 1500);
+  const handleUploadDocument = () => {
+    // Placeholder for document upload logic
+    // After successful upload and verification, call updateStatus(true)
+    alert("Dokument wird hochgeladen...");
+    updateStatus(true); // Simulate successful verification
   };
-  
-  const renderStatus = (status?: string) => {
-    switch (status) {
-      case 'verified':
-        return (
-          <div className="flex items-center gap-1 text-green-600">
-            <Check className="h-4 w-4" />
-            <span>Verifiziert</span>
-          </div>
-        );
-      case 'pending_review':
-        return (
-          <div className="flex items-center gap-1 text-amber-600">
-            <AlertCircle className="h-4 w-4" />
-            <span>In Überprüfung</span>
-          </div>
-        );
-      case 'failed':
-        return (
-          <div className="flex items-center gap-1 text-red-600">
-            <X className="h-4 w-4" />
-            <span>Verifizierung fehlgeschlagen</span>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <AlertCircle className="h-4 w-4" />
-            <span>Nicht verifiziert</span>
-          </div>
-        );
-    }
-  };
-  
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-medium">Apotheken-Verifizierung</h3>
-          <p className="text-sm text-muted-foreground">
-            Um alle Funktionen nutzen zu können, benötigen wir einige Dokumente zur Verifizierung Ihrer Apotheke
-          </p>
-        </div>
-        
-        {/* Identification Verification */}
-        <Card className={isIdentificationVerified ? "border-green-200" : ""}>
-          <CardContent className="p-4 flex justify-between items-center">
-            <div className="flex gap-3 items-center">
-              <div className="p-2 rounded-full bg-primary/10">
-                <FileText className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-medium">Identifikation</h4>
+      <h2 className="text-2xl font-bold">Verifizierungsstatus</h2>
+
+      <Card>
+        <CardContent className="space-y-4">
+          {user?.verificationStatus === 'verified' ? (
+            <Alert variant="success">
+              <Shield className="h-4 w-4" />
+              <AlertTitle>Verifiziert</AlertTitle>
+              <AlertDescription>
+                Ihre Apotheke ist vollständig verifiziert und alle Funktionen sind freigeschaltet.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert variant="destructive">
+              <Shield className="h-4 w-4" />
+              <AlertTitle>Nicht verifiziert</AlertTitle>
+              <AlertDescription>
+                Ihre Apotheke ist noch nicht verifiziert. Bitte laden Sie die erforderlichen Dokumente hoch.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Card>
+            <CardContent className="space-y-4">
+              <h3 className="text-xl font-semibold">
+                Betriebserlaubnis
+              </h3>
+              <p className="text-muted-foreground">
+                Laden Sie hier Ihre Betriebserlaubnis hoch, um Ihre Apotheke zu verifizieren.
+              </p>
+
+              <div className="border-2 border-dashed border-muted-foreground/50 rounded-md p-4 text-center">
+                <FileCheck className="mx-auto h-10 w-10 text-muted-foreground/50" />
                 <p className="text-sm text-muted-foreground">
-                  Persönliche Identifikation des Apothekeninhabers
+                  Ziehen Sie Ihre Datei hierher oder klicken Sie, um sie auszuwählen
                 </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              {renderStatus(user?.identificationStatus)}
-              
-              {!isIdentificationVerified && (
-                <Button 
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  disabled={user?.identificationStatus === 'pending_review'}
-                  onClick={() => toast.info("Identifikations-Prozess wird vorbereitet...")}
-                >
-                  <Upload className="h-4 w-4" />
-                  Identifizieren
+                <Button onClick={handleUploadDocument} className="mt-4">
+                  Datei hochladen
                 </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* License Verification */}
-        <Card className={isLicenseVerified ? "border-green-200" : ""}>
-          <CardContent className="p-4 flex justify-between items-center">
-            <div className="flex gap-3 items-center">
-              <div className="p-2 rounded-full bg-primary/10">
-                <FileText className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h4 className="font-medium">Apothekenlizenz</h4>
-                <p className="text-sm text-muted-foreground">
-                  Offizielle Lizenz für den Betrieb Ihrer Apotheke
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              {renderStatus(user?.verificationStatus)}
-              
-              {!isLicenseVerified && (
-                <Button 
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  disabled={user?.verificationStatus === 'pending_review' || uploading}
-                  onClick={handleUploadLicense}
-                >
-                  {uploading ? (
-                    <>
-                      <div className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin mr-2" />
-                      Hochladen...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4" />
-                      Lizenz hochladen
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="pt-4 space-y-2">
-        <h4 className="font-medium">Hinweise zur Verifizierung</h4>
-        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-          <li>Die Verifizierung kann bis zu 2 Werktage dauern</li>
-          <li>Alle Dokumente müssen klar lesbar sein</li>
-          <li>Wir akzeptieren PDF, JPG und PNG Dateien (max. 10MB)</li>
-          <li>Alle Daten werden gemäß DSGVO und HIPAA geschützt</li>
-        </ul>
-      </div>
+
+              <Alert>
+                <Shield className="h-4 w-4" />
+                <AlertTitle>Datenschutzhinweis</AlertTitle>
+                <AlertDescription>
+                  Ihre Dokumente werden sicher gespeichert und nur zur Verifizierung Ihrer Apotheke verwendet.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
     </div>
   );
 };

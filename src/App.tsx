@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
@@ -21,8 +20,7 @@ import PharmacyProfile from "./pages/PharmacyProfile";
 import Documentation from "./pages/Documentation";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { CartProvider } from "./contexts/CartContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import { useAuth } from "./contexts/AuthContext";
+import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import GDPRCookieConsent from "./components/GDPRCookieConsent";
 
 // Protected Route Component for Doctor

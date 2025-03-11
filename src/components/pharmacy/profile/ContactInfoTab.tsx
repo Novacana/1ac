@@ -1,9 +1,7 @@
-
-import React, { useState } from "react";
-import { User } from "@/contexts/AuthContext";
+import React from "react";
 import { Input } from "@/components/ui/input";
+import { User } from "@/types/auth";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 
 interface ContactInfoTabProps {
   user: User | null;
@@ -11,119 +9,53 @@ interface ContactInfoTabProps {
 }
 
 const ContactInfoTab: React.FC<ContactInfoTabProps> = ({ user, onChange }) => {
-  const [phone, setPhone] = useState(user?.phone || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [website, setWebsite] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [contactPosition, setContactPosition] = useState("");
-  const [showContactInfo, setShowContactInfo] = useState(true);
-  
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Öffentliche Kontaktdaten</h3>
-        <p className="text-sm text-muted-foreground">
-          Diese Informationen werden öffentlich in Ihrem Apothekenprofil angezeigt
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefonnummer*</Label>
-            <Input 
-              id="phone" 
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                onChange();
-              }}
-              placeholder="+49 123 456789"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">E-Mail*</Label>
-            <Input 
-              id="email" 
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                onChange();
-              }}
-              placeholder="apotheke@beispiel.de"
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="website">Website</Label>
-          <Input 
-            id="website" 
-            type="url"
-            value={website}
-            onChange={(e) => {
-              setWebsite(e.target.value);
-              onChange();
-            }}
-            placeholder="https://www.ihre-apotheke.de"
-          />
-        </div>
+    <div className="space-y-4">
+      {/* Contact Person */}
+      <div>
+        <Label htmlFor="contactPerson">Ansprechpartner</Label>
+        <Input
+          type="text"
+          id="contactPerson"
+          defaultValue={user?.name || ""}
+          onChange={onChange}
+          placeholder="Name des Ansprechpartners"
+        />
       </div>
-      
-      <div className="border-t pt-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium">Ansprechpartner</h3>
-            <p className="text-sm text-muted-foreground">
-              Kontaktperson für Ihre Apotheke
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="showContact" 
-              checked={showContactInfo}
-              onCheckedChange={(checked) => {
-                setShowContactInfo(checked);
-                onChange();
-              }}
-            />
-            <Label htmlFor="showContact" className="cursor-pointer">
-              Öffentlich anzeigen
-            </Label>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="contactName">Name</Label>
-            <Input 
-              id="contactName" 
-              value={contactName}
-              onChange={(e) => {
-                setContactName(e.target.value);
-                onChange();
-              }}
-              placeholder="Max Mustermann"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="contactPosition">Position</Label>
-            <Input 
-              id="contactPosition" 
-              value={contactPosition}
-              onChange={(e) => {
-                setContactPosition(e.target.value);
-                onChange();
-              }}
-              placeholder="Apothekenleiter"
-            />
-          </div>
-        </div>
+
+      {/* Phone Number */}
+      <div>
+        <Label htmlFor="phoneNumber">Telefonnummer</Label>
+        <Input
+          type="tel"
+          id="phoneNumber"
+          defaultValue={user?.phone || ""}
+          onChange={onChange}
+          placeholder="Telefonnummer der Apotheke"
+        />
       </div>
-      
-      <div className="pt-4 text-sm text-muted-foreground">
-        * Pflichtfelder
+
+      {/* Email Address */}
+      <div>
+        <Label htmlFor="emailAddress">E-Mail-Adresse</Label>
+        <Input
+          type="email"
+          id="emailAddress"
+          defaultValue={user?.email || ""}
+          onChange={onChange}
+          placeholder="E-Mail-Adresse der Apotheke"
+        />
+      </div>
+
+      {/* Website URL */}
+      <div>
+        <Label htmlFor="websiteURL">Webseiten-URL</Label>
+        <Input
+          type="url"
+          id="websiteURL"
+          onChange={onChange}
+          placeholder="URL der Apotheken-Webseite"
+        />
       </div>
     </div>
   );
