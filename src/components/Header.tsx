@@ -1,4 +1,4 @@
-import { Menu, X, School, ShoppingCart, Stethoscope, Building, BookOpen } from "lucide-react";
+import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -37,18 +37,32 @@ const Header = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const navItems: NavItem[] = [
-    { name: "School", path: "/", icon: <School className="h-4 w-4" /> },
-    { name: "Shop", path: "/products", icon: <ShoppingCart className="h-4 w-4" /> },
-    { name: "Für Ärzte", path: "/doctor/landing", icon: <Stethoscope className="h-4 w-4" /> },
-    { name: "Für Apotheken", path: "/pharmacy/landing", icon: <Building className="h-4 w-4" /> },
-    { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
-  ];
+  const getNavItems = (): NavItem[] => {
+    const baseItems: NavItem[] = [
+      { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
+    ];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+    if (isDoctor) {
+      return [
+        { name: "Patientenverwaltung", path: "/doctor/dashboard", icon: <Users className="h-4 w-4" /> },
+        { name: "Rezeptanfragen", path: "/doctor/dashboard", icon: <FileText className="h-4 w-4" /> },
+        ...baseItems
+      ];
+    } else if (isPharmacy) {
+      return [
+        { name: "Produkte", path: "/pharmacy/management", icon: <Package className="h-4 w-4" /> },
+        { name: "Bestellungen", path: "/pharmacy/management", icon: <ShoppingBag className="h-4 w-4" /> },
+        ...baseItems
+      ];
+    }
+
+    return [
+      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
+      ...baseItems
+    ];
   };
+
+  const navItems = getNavItems();
 
   return (
     <header
