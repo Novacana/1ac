@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { User } from "@/types/auth";
@@ -25,7 +26,7 @@ const VerificationTab: React.FC<VerificationTabProps> = ({ user, updateStatus })
       <Card>
         <CardContent className="space-y-4">
           {user?.verificationStatus === 'verified' ? (
-            <Alert variant="success">
+            <Alert className="border-green-500 bg-green-50 text-green-700">
               <Shield className="h-4 w-4" />
               <AlertTitle>Verifiziert</AlertTitle>
               <AlertDescription>
