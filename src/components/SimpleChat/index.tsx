@@ -61,47 +61,65 @@ const SimpleChat = () => {
       console.log("Sending to n8n webhook:", N8N_WEBHOOK_URL);
       console.log("Payload:", payload);
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      let responseData;
       const responseText = await response.text();
+      let botMessage: string;
       
       try {
-        responseData = JSON.parse(responseText);
+        const responseData = JSON.parse(responseText);
         console.log("Response data:", responseData);
+        botMessage = responseData.message || responseData.response || responseData.content;
       } catch (e) {
-        console.log("Response is not JSON, using as plain text");
-        responseData = { message: responseText };
+        console.log("Response is not JSON, using as plain text:", responseText);
+        botMessage = responseText;
       }
       
-      // Extract the bot response
-      const botMessage = responseData.message || responseData.response || responseData.content || "Entschuldigung, ich konnte deine Anfrage nicht verarbeiten.";
+      if (!botMessage) {
+        throw new Error("Invalid response format");
+      }
       
       // Add bot message to conversation
       setMessages(prev => [...prev, { role: 'assistant', content: botMessage }]);
       
     } catch (error) {
       console.error("Error sending message:", error);
+      
+      let errorMessage = "Es ist ein Fehler bei der Kommunikation aufgetreten.";
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = "Die Verbindung hat zu lange gedauert. Bitte versuche es erneut.";
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = "Konnte keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung.";
+        }
+      }
+      
       toast({
         title: "Fehler",
-        description: "Es ist ein Fehler bei der Kommunikation aufgetreten.",
+        description: errorMessage,
         variant: "destructive"
       });
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: "Entschuldigung, es gab ein Problem mit der Verbindung. Bitte versuche es später noch einmal." 
+        content: errorMessage
       }]);
     } finally {
       setIsLoading(false);
@@ -191,6 +209,7 @@ const SimpleChat = () => {
                 onKeyDown={handleKeyPress}
                 placeholder="Schreibe eine Nachricht..."
                 className="flex-1"
+                disabled={isLoading}
               />
               
               <Button
