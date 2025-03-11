@@ -1,9 +1,23 @@
-
 import { toast } from "@/hooks/use-toast";
 
 // N8N API configuration
 const N8N_API_BASE_URL = "https://n8n-tejkg.ondigitalocean.app/api/v1";
 const N8N_WORKFLOW_ID = "50aea9a1-9064-49c7-aea6-3a8714b26157";
+
+// Default API key (can be overridden by user input)
+let n8nApiKey = localStorage.getItem("n8n_api_key") || "";
+
+// Function to set a new API key
+export function setN8nApiKey(apiKey: string): void {
+  n8nApiKey = apiKey;
+  localStorage.setItem("n8n_api_key", apiKey);
+  console.log("N8N API key updated");
+}
+
+// Function to get the current API key
+export function getN8nApiKey(): string {
+  return n8nApiKey;
+}
 
 // Interface for the chat message
 export interface ChatMessage {
@@ -37,15 +51,21 @@ export async function sendMessageToN8N(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
     
+    // Prepare headers with API key if available
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+    
+    // Add API key to headers if available
+    if (n8nApiKey) {
+      headers["X-N8N-API-KEY"] = n8nApiKey;
+    }
+    
     // Use direct API call instead of webhook
     const response = await fetch(`${N8N_API_BASE_URL}/workflows/${N8N_WORKFLOW_ID}/execute`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        // Add API key here if required by n8n
-        // "X-N8N-API-KEY": "your-api-key"
-      },
+      headers,
       body: JSON.stringify(payload),
       signal: controller.signal
     });
@@ -55,6 +75,12 @@ export async function sendMessageToN8N(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`HTTP error ${response.status}:`, errorText);
+      
+      // Special handling for auth errors
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Ungültiger API-Schlüssel. Bitte überprüfe deine API-Einstellungen.");
+      }
+      
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
@@ -109,6 +135,9 @@ export async function sendMessageToN8N(
         errorMessage = "Die Verbindung hat zu lange gedauert. Bitte versuche es erneut.";
       } else if (error.message.includes('Failed to fetch')) {
         errorMessage = "Konnte keine Verbindung zum Server herstellen. Bitte überprüfe deine Internetverbindung.";
+      } else {
+        // Use the actual error message if available
+        errorMessage = error.message;
       }
     }
     

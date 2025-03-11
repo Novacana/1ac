@@ -1,11 +1,18 @@
+
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, X, Send } from "lucide-react";
+import { Bot, X, Send, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { sendMessageToN8N, ChatMessage } from "@/integrations/n8n/api";
+import { 
+  sendMessageToN8N, 
+  ChatMessage, 
+  setN8nApiKey, 
+  getN8nApiKey 
+} from "@/integrations/n8n/api";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const SimpleChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +21,7 @@ const SimpleChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: "Hallo! Wie kann ich dir helfen?" }
   ]);
+  const [apiKey, setApiKey] = useState(() => getN8nApiKey());
   
   const messagesRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -73,6 +81,15 @@ const SimpleChat = () => {
     }
   };
 
+  // Handle API key update
+  const handleSaveApiKey = () => {
+    setN8nApiKey(apiKey);
+    toast({
+      title: "API-Schlüssel gespeichert",
+      description: "Der n8n API-Schlüssel wurde aktualisiert.",
+    });
+  };
+
   return (
     <>
       <Button
@@ -98,14 +115,50 @@ const SimpleChat = () => {
               <Bot className="h-5 w-5" />
               <span className="font-medium">Chat</span>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={toggleChat} 
-              className="h-8 w-8 text-primary-foreground"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-primary-foreground"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <h4 className="font-medium">API-Einstellungen</h4>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="n8n-api-key">
+                        n8n API-Schlüssel
+                      </label>
+                      <Input
+                        id="n8n-api-key"
+                        type="password"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="Gib deinen API-Schlüssel ein"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Der API-Schlüssel wird für die Kommunikation mit n8n benötigt.
+                      </p>
+                      <Button onClick={handleSaveApiKey} className="mt-2 w-full">
+                        Speichern
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleChat} 
+                className="h-8 w-8 text-primary-foreground"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesRef}>
