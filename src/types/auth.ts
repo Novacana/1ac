@@ -1,41 +1,45 @@
 
 export interface Address {
   id: string;
-  street?: string;
-  additionalInfo?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
-  country?: string;
+  street: string;
+  city: string;
+  zip: string;
+  state: string;
+  country: string;
   isDefault: boolean;
 }
 
 export interface PaymentMethod {
   id: string;
-  type: 'credit_card';
-  cardNumber: string; // Last 4 digits only
-  expiryDate: string;
-  cardHolder: string;
+  type: 'credit_card' | 'debit_card' | 'bank_transfer' | 'paypal';
+  cardNumber?: string;
+  cardExpiry?: string;
+  cardCVC?: string;
+  bankName?: string;
+  accountNumber?: string;
+  routingNumber?: string;
+  paypalEmail?: string;
   isDefault: boolean;
+}
+
+export interface Document {
+  id: string;
+  type: 'approbation' | 'pharmacy_license' | 'id_document';
+  name: string;
+  status: 'pending' | 'verified' | 'rejected';
+  uploadedAt: Date;
 }
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'doctor' | 'pharmacy' | 'admin' | 'user';
+  role: 'user' | 'doctor' | 'pharmacy' | 'admin';
   addresses: Address[];
   paymentMethods: PaymentMethod[];
-  phone?: string;
-  identificationStatus?: 'not_verified' | 'pending_review' | 'verified' | 'failed';
-  verificationStatus?: 'not_verified' | 'pending_review' | 'verified' | 'failed';
-  verificationDocuments?: {
-    id: string;
-    type: 'approbation' | 'pharmacy_license' | 'id_document';
-    status: 'pending' | 'approved' | 'rejected';
-    uploadDate: string;
-  }[];
-  medicalLicenseNumber?: string;
+  identificationStatus: 'not_verified' | 'pending' | 'verified';
+  verificationStatus?: 'not_verified' | 'pending' | 'verified';
+  verificationDocuments: Document[];
   pharmacyLicenseNumber?: string;
 }
 
@@ -46,6 +50,7 @@ export interface AuthContextType {
   isAdmin: boolean;
   isPharmacy: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string, role?: 'user' | 'doctor' | 'pharmacy') => Promise<void>;
   updateUserProfile: (userData: Partial<User>) => void;
