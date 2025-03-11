@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Lock, User, AlertCircle, Stethoscope, Building, LogIn, Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,38 @@ const Login = () => {
   const [userType, setUserType] = useState('user');
   const { login, loginWithGoogle, isDoctor, isPharmacy } = useAuth();
   const navigate = useNavigate();
+
+  // Check for auth related URL parameters on component mount
+  useEffect(() => {
+    const handleAuthRedirect = async () => {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        try {
+          setIsLoading(true);
+          const { data, error } = await supabase.auth.getSession();
+          if (error) throw error;
+          
+          if (data.session) {
+            toast.success('Erfolgreich angemeldet');
+            if (isDoctor) {
+              navigate('/doctor/dashboard');
+            } else if (isPharmacy) {
+              navigate('/pharmacy/management');
+            } else {
+              navigate('/dashboard');
+            }
+          }
+        } catch (err) {
+          console.error('Auth redirect error:', err);
+          toast.error('Ein Fehler ist bei der Authentifizierung aufgetreten');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    handleAuthRedirect();
+  }, [navigate, isDoctor, isPharmacy]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,8 +84,9 @@ const Login = () => {
     setIsGoogleLoading(true);
     setError('');
     try {
+      toast.info('Sie werden zu Google weitergeleitet...');
       await loginWithGoogle();
-      // Redirect is handled by Supabase OAuth
+      // Redirect will be handled by the OAuth flow
     } catch (err: any) {
       setError(`Google-Anmeldung fehlgeschlagen: ${err.message}`);
       toast.error(`Google-Anmeldung fehlgeschlagen: ${err.message}`);

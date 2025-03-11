@@ -22,8 +22,11 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
             // Load user data from our database
             const loadedUser = await loadUserData(userData.user.id);
             if (loadedUser) {
+              console.log("User data loaded successfully");
               setUser(loadedUser);
               localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
+            } else {
+              console.log("No user data found in database");
             }
           }
         } else {
@@ -32,10 +35,13 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
           if (storedUser) {
             try {
               const parsedUser = JSON.parse(storedUser);
+              console.log("User found in local storage:", parsedUser.id);
               setUser(migrateUserData(parsedUser));
             } catch (error) {
               console.error('Error parsing stored user:', error);
             }
+          } else {
+            console.log("No user found in local storage");
           }
         }
       } catch (error) {
@@ -54,6 +60,7 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
           console.log("User signed in:", session.user.id);
           const loadedUser = await loadUserData(session.user.id);
           if (loadedUser) {
+            console.log("User data loaded on sign in");
             setUser(loadedUser);
             localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
           }
@@ -65,9 +72,12 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
           console.log("User updated:", session.user.id);
           const loadedUser = await loadUserData(session.user.id);
           if (loadedUser) {
+            console.log("User data updated after profile change");
             setUser(loadedUser);
             localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
           }
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          console.log("Token refreshed for user:", session.user.id);
         }
       }
     );

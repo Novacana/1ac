@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { User } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -158,14 +157,20 @@ export const useAuthActions = (user: User | null, setUser: React.Dispatch<React.
   const loginWithGoogle = async () => {
     try {
       console.log("Starting Google login process...");
+      
+      // Using the current URL's origin to ensure proper redirect
+      const currentOrigin = window.location.origin;
+      console.log("Current origin for redirect:", currentOrigin);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${currentOrigin}/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          }
+          },
+          skipBrowserRedirect: false, // Ensure browser redirects automatically
         }
       });
       
@@ -174,7 +179,13 @@ export const useAuthActions = (user: User | null, setUser: React.Dispatch<React.
         throw error;
       }
       
-      console.log("Google login initiated successfully");
+      console.log("Google login initiated successfully, redirect URL:", data?.url);
+      
+      // The browser should automatically redirect to Google's auth page
+      // If not, we can manually redirect
+      if (data?.url) {
+        window.location.href = data.url;
+      }
     } catch (error: any) {
       console.error('Google login error:', error);
       toast.error('Google Anmeldung fehlgeschlagen: ' + error.message);
@@ -192,7 +203,7 @@ export const useAuthActions = (user: User | null, setUser: React.Dispatch<React.
             name,
             role
           },
-          emailRedirectTo: window.location.origin + '/dashboard'
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
       
