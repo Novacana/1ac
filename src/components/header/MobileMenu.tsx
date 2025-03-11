@@ -34,13 +34,14 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             key={item.name}
             to={item.path}
             className={cn(
-              "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md",
+              "text-foreground/80 hover:text-foreground text-lg font-medium transition-all px-2 py-3 rounded-md flex items-center gap-3",
               location.pathname === item.path
                 ? "text-primary font-semibold bg-primary/10"
                 : "hover:bg-background/10"
             )}
             onClick={() => setIsMenuOpen(false)}
           >
+            {item.icon}
             {item.name}
           </Link>
         ))}

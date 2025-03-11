@@ -1,5 +1,4 @@
-
-import { Menu, X } from "lucide-react";
+import { Menu, X, School, ShoppingCart, Stethoscope, Building, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -39,11 +38,11 @@ const Header = () => {
   }, [location.pathname]);
 
   const navItems: NavItem[] = [
-    { name: "Showroom", path: "/" },
-    { name: "Shop", path: "/products" },
-    { name: "Für Ärzte", path: "/doctor/landing" },
-    { name: "Für Apotheken", path: "/pharmacy/landing" },
-    { name: "Dokumentation", path: "/documentation" },
+    { name: "School", path: "/", icon: <School className="h-4 w-4" /> },
+    { name: "Shop", path: "/products", icon: <ShoppingCart className="h-4 w-4" /> },
+    { name: "Für Ärzte", path: "/doctor/landing", icon: <Stethoscope className="h-4 w-4" /> },
+    { name: "Für Apotheken", path: "/pharmacy/landing", icon: <Building className="h-4 w-4" /> },
+    { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
   ];
 
   const handleLogout = () => {
