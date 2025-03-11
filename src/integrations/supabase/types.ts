@@ -9,7 +9,156 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      addresses: {
+        Row: {
+          additional_info: string | null
+          city: string
+          country: string
+          id: string
+          is_default: boolean | null
+          state: string
+          street: string
+          user_id: string
+          zip: string
+        }
+        Insert: {
+          additional_info?: string | null
+          city: string
+          country: string
+          id?: string
+          is_default?: boolean | null
+          state: string
+          street: string
+          user_id: string
+          zip: string
+        }
+        Update: {
+          additional_info?: string | null
+          city?: string
+          country?: string
+          id?: string
+          is_default?: boolean | null
+          state?: string
+          street?: string
+          user_id?: string
+          zip?: string
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          id: string
+          name: string
+          status: string
+          type: string
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          status: string
+          type: string
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          status?: string
+          type?: string
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_number: string | null
+          bank_name: string | null
+          card_cvc: string | null
+          card_expiry: string | null
+          card_holder: string | null
+          card_number: string | null
+          expiry_date: string | null
+          id: string
+          is_default: boolean | null
+          paypal_email: string | null
+          routing_number: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          bank_name?: string | null
+          card_cvc?: string | null
+          card_expiry?: string | null
+          card_holder?: string | null
+          card_number?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_default?: boolean | null
+          paypal_email?: string | null
+          routing_number?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          bank_name?: string | null
+          card_cvc?: string | null
+          card_expiry?: string | null
+          card_holder?: string | null
+          card_number?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_default?: boolean | null
+          paypal_email?: string | null
+          routing_number?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          identification_status: string | null
+          name: string | null
+          pharmacy_license_number: string | null
+          phone: string | null
+          role: string | null
+          updated_at: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          identification_status?: string | null
+          name?: string | null
+          pharmacy_license_number?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          identification_status?: string | null
+          name?: string | null
+          pharmacy_license_number?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

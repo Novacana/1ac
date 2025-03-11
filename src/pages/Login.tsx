@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Lock, User, AlertCircle, Stethoscope, Building, LogIn } from 'lucide-react';
+import { Lock, User, AlertCircle, Stethoscope, Building, LogIn, Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const Login = () => {
@@ -49,11 +49,13 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
+    setError('');
     try {
       await loginWithGoogle();
       // Redirect is handled by Supabase OAuth
-    } catch (err) {
-      // Error is handled in the loginWithGoogle function
+    } catch (err: any) {
+      setError(`Google-Anmeldung fehlgeschlagen: ${err.message}`);
+      toast.error(`Google-Anmeldung fehlgeschlagen: ${err.message}`);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -259,6 +261,11 @@ const Login = () => {
                   </div>
                 )}
               </Button>
+              
+              <div className="text-xs text-center text-muted-foreground mt-4 flex items-center justify-center gap-1">
+                <Info className="h-3 w-3" />
+                <span>Google-Login kann für alle Kontotypen verwendet werden</span>
+              </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
