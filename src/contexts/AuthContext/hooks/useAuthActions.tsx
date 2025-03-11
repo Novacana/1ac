@@ -157,10 +157,11 @@ export const useAuthActions = (user: User | null, setUser: React.Dispatch<React.
 
   const loginWithGoogle = async () => {
     try {
+      console.log("Starting Google login process...");
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/dashboard',
+          redirectTo: `${window.location.origin}/dashboard`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -169,8 +170,11 @@ export const useAuthActions = (user: User | null, setUser: React.Dispatch<React.
       });
       
       if (error) {
+        console.error("Google OAuth error:", error);
         throw error;
       }
+      
+      console.log("Google login initiated successfully");
     } catch (error: any) {
       console.error('Google login error:', error);
       toast.error('Google Anmeldung fehlgeschlagen: ' + error.message);

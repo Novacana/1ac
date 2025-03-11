@@ -11,15 +11,23 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
   useEffect(() => {
     const checkSession = async () => {
       try {
+        console.log("Checking session...");
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
+          console.log("Session found:", session.user.id);
           const { data: userData } = await supabase.auth.getUser();
           if (userData.user) {
+            console.log("Loading user data for:", userData.user.id);
             // Load user data from our database
-            await loadUserData(userData.user.id);
+            const loadedUser = await loadUserData(userData.user.id);
+            if (loadedUser) {
+              setUser(loadedUser);
+              localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
+            }
           }
         } else {
+          console.log("No session found, checking local storage");
           const storedUser = localStorage.getItem('doctor_user');
           if (storedUser) {
             try {
@@ -41,11 +49,25 @@ export const useSessionState = (loadUserData: (userId: string) => Promise<User |
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event);
         if (event === 'SIGNED_IN' && session) {
-          await loadUserData(session.user.id);
+          console.log("User signed in:", session.user.id);
+          const loadedUser = await loadUserData(session.user.id);
+          if (loadedUser) {
+            setUser(loadedUser);
+            localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
+          }
         } else if (event === 'SIGNED_OUT') {
+          console.log("User signed out");
           setUser(null);
           localStorage.removeItem('doctor_user');
+        } else if (event === 'USER_UPDATED' && session) {
+          console.log("User updated:", session.user.id);
+          const loadedUser = await loadUserData(session.user.id);
+          if (loadedUser) {
+            setUser(loadedUser);
+            localStorage.setItem('doctor_user', JSON.stringify(loadedUser));
+          }
         }
       }
     );
