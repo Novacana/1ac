@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot } from "lucide-react";
+import { Send, Bot, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,12 +20,14 @@ const ChatBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionFailed, setConnectionFailed] = useState(false);
   const [gdprConsent, setGdprConsent] = useState<boolean>(
     localStorage.getItem("chatbot-gdpr-consent") === "true"
   );
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157";
+  const retryTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -47,6 +49,15 @@ const ChatBot: React.FC = () => {
     }
   }, [isOpen, messages.length]);
 
+  // Cleanup any pending retries when component unmounts
+  useEffect(() => {
+    return () => {
+      if (retryTimeout.current) {
+        clearTimeout(retryTimeout.current);
+      }
+    };
+  }, []);
+
   const handleGdprConsent = (consent: boolean) => {
     setGdprConsent(consent);
     localStorage.setItem("chatbot-gdpr-consent", consent.toString());
@@ -65,9 +76,13 @@ const ChatBot: React.FC = () => {
     setMessages((prev) => [...prev, newUserMessage]);
     setInputValue("");
     setIsLoading(true);
+    setConnectionFailed(false);
 
     try {
       console.log("Sending to webhook:", webhookUrl);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       const response = await fetch(webhookUrl, {
         method: "POST",
@@ -79,13 +94,19 @@ const ChatBot: React.FC = () => {
           timestamp: new Date().toISOString(),
           sessionId: localStorage.getItem("chat-session-id") || Date.now().toString(),
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error("Failed to get response from webhook");
+        throw new Error(`Server responded with status: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      // Reset connection failed state if we successfully connected
+      if (connectionFailed) setConnectionFailed(false);
       
       // Add bot response
       setMessages((prev) => [
@@ -99,8 +120,11 @@ const ChatBot: React.FC = () => {
       ]);
     } catch (error) {
       console.error("Error sending message to webhook:", error);
-      toast.error("Es gab ein Problem beim Senden Ihrer Nachricht.");
       
+      // Set connection failed state
+      setConnectionFailed(true);
+      
+      // Add error message from bot
       setMessages((prev) => [
         ...prev,
         {
@@ -110,6 +134,29 @@ const ChatBot: React.FC = () => {
           timestamp: new Date(),
         },
       ]);
+      
+      // Clear any existing retry timeout
+      if (retryTimeout.current) {
+        clearTimeout(retryTimeout.current);
+      }
+      
+      // Set up automatic reconnection attempt after 30 seconds
+      retryTimeout.current = setTimeout(() => {
+        if (connectionFailed) {
+          // Try to ping the webhook
+          fetch(webhookUrl, { 
+            method: "HEAD",
+            cache: "no-cache"
+          })
+            .then(() => {
+              setConnectionFailed(false);
+              toast.success("Die Verbindung wurde wiederhergestellt!");
+            })
+            .catch(() => {
+              // Still no connection
+            });
+        }
+      }, 30000);
     } finally {
       setIsLoading(false);
     }
@@ -119,6 +166,23 @@ const ChatBot: React.FC = () => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
+  };
+
+  const handleRetryConnection = () => {
+    toast.info("Verbindung wird erneut hergestellt...");
+    // Try to ping the webhook
+    fetch(webhookUrl, { 
+      method: "HEAD",
+      cache: "no-cache"
+    })
+      .then(() => {
+        setConnectionFailed(false);
+        toast.success("Die Verbindung wurde wiederhergestellt!");
+      })
+      .catch((error) => {
+        console.error("Still cannot connect:", error);
+        toast.error("Verbindung konnte nicht hergestellt werden. Bitte versuchen Sie es später erneut.");
+      });
   };
 
   if (!isOpen) {
@@ -165,6 +229,23 @@ const ChatBot: React.FC = () => {
               </AlertDescription>
             </Alert>
             
+            {connectionFailed && (
+              <Alert variant="destructive" className="mb-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="text-xs flex flex-col gap-2">
+                  <span>Es besteht ein Problem mit der Verbindung zum Chat-Server.</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleRetryConnection}
+                    className="self-start"
+                  >
+                    Verbindung neu herstellen
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -205,7 +286,7 @@ const ChatBot: React.FC = () => {
               <Button 
                 onClick={handleSendMessage} 
                 size="icon"
-                disabled={isLoading || !inputValue.trim()}
+                disabled={isLoading || !inputValue.trim() || connectionFailed}
               >
                 <Send className="h-4 w-4" />
               </Button>
