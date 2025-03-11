@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -27,6 +26,7 @@ const ChatBot: React.FC = () => {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157";
+  const apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZGU0Yjk5MS1hNTZmLTQ5NjItOTBlNC0yYWQ2YzU1NmEyODAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQxNzE4ODA1LCJleHAiOjE3NDQyNTc2MDB9.vYTrVME7t9zzBlnMsK2p59gIlOIiEoHCabyIAMnzWJA";
   const retryTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -36,7 +36,6 @@ const ChatBot: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    // Add welcome message when chat is opened for the first time
     if (isOpen && messages.length === 0) {
       setMessages([
         {
@@ -49,7 +48,6 @@ const ChatBot: React.FC = () => {
     }
   }, [isOpen, messages.length]);
 
-  // Cleanup any pending retries when component unmounts
   useEffect(() => {
     return () => {
       if (retryTimeout.current) {
@@ -88,6 +86,7 @@ const ChatBot: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           message: inputValue,
@@ -105,10 +104,8 @@ const ChatBot: React.FC = () => {
 
       const data = await response.json();
       
-      // Reset connection failed state if we successfully connected
       if (connectionFailed) setConnectionFailed(false);
       
-      // Add bot response
       setMessages((prev) => [
         ...prev,
         {
@@ -121,10 +118,8 @@ const ChatBot: React.FC = () => {
     } catch (error) {
       console.error("Error sending message to webhook:", error);
       
-      // Set connection failed state
       setConnectionFailed(true);
       
-      // Add error message from bot
       setMessages((prev) => [
         ...prev,
         {
@@ -135,17 +130,17 @@ const ChatBot: React.FC = () => {
         },
       ]);
       
-      // Clear any existing retry timeout
       if (retryTimeout.current) {
         clearTimeout(retryTimeout.current);
       }
       
-      // Set up automatic reconnection attempt after 30 seconds
       retryTimeout.current = setTimeout(() => {
         if (connectionFailed) {
-          // Try to ping the webhook
           fetch(webhookUrl, { 
             method: "HEAD",
+            headers: {
+              "Authorization": `Bearer ${apiKey}`,
+            },
             cache: "no-cache"
           })
             .then(() => {
@@ -153,7 +148,6 @@ const ChatBot: React.FC = () => {
               toast.success("Die Verbindung wurde wiederhergestellt!");
             })
             .catch(() => {
-              // Still no connection
             });
         }
       }, 30000);
@@ -170,9 +164,11 @@ const ChatBot: React.FC = () => {
 
   const handleRetryConnection = () => {
     toast.info("Verbindung wird erneut hergestellt...");
-    // Try to ping the webhook
     fetch(webhookUrl, { 
       method: "HEAD",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+      },
       cache: "no-cache"
     })
       .then(() => {
