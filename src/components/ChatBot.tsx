@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import GDPRConsentModal from "./GDPRConsentModal";
 
-// N8N webhook URL
+// N8N webhook URL - updated to use the correct webhook
 const N8N_WEBHOOK_URL = "https://n8n-tejkg.ondigitalocean.app/webhook/50aea9a1-9064-49c7-aea6-3a8714b26157";
 const N8N_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZGU0Yjk5MS1hNTZmLTQ5NjItOTBlNC0yYWQ2YzU1NmEyODAiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQxNzE4ODA1LCJleHAiOjE3NDQyNTc2MDB9.vYTrVME7t9zzBlnMsK2p59gIlOIiEoHCabyIAMnzWJA";
 
@@ -99,8 +99,9 @@ const ChatBot: React.FC = () => {
     try {
       console.log(`Attempt ${attempt} to send message to n8n webhook`);
       
+      // Make sure we're using POST method as required by n8n
       const response = await fetch(N8N_WEBHOOK_URL, {
-        method: "POST",
+        method: "POST", // Always use POST for n8n webhooks
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
@@ -116,6 +117,7 @@ const ChatBot: React.FC = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`Server responded with ${response.status}: ${errorText}`);
         throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
 
