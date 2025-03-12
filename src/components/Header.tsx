@@ -1,5 +1,4 @@
-
-import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag } from "lucide-react";
+import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -65,7 +64,6 @@ const Header = () => {
 
   const navItems = getNavItems();
   
-  // Add the handleLogout function
   const handleLogout = () => {
     logout();
     navigate('/');
