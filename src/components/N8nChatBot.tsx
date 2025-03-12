@@ -48,12 +48,7 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         },
         metadata: {
           skipInitialHistoryLoad: true,
-          preventAutoRequests: true // Add custom flag to prevent automatic requests
-        },
-        // Override the default session loading behavior
-        session: {
-          id: `session-${Date.now()}`, // Generate a unique session ID each time
-          loadPrevious: false, // Disable automatic loading of previous session
+          preventAutoRequests: true
         }
       });
 
