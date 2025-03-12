@@ -30,6 +30,9 @@ const EPrescriptionItem: React.FC = () => {
           <li>
             Bestätigen Sie die Signatur mit Ihrem Arztausweis oder der TelematikID
           </li>
+          <li>
+            Sie können im <Link to="/doctor-dashboard" className="text-primary underline">Kalender</Link> unter dem Termintyp "Rezeptverwaltung" Erinnerungen für ausstehende Rezeptprüfungen hinzufügen
+          </li>
         </ol>
         
         <h3 className="font-medium mt-2">Für Patienten:</h3>

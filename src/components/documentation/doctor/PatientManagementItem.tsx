@@ -28,6 +28,16 @@ const PatientManagementItem: React.FC = () => {
           Alle Änderungen werden automatisch protokolliert, um die Nachvollziehbarkeit gemäß DSGVO-Richtlinien 
           zu gewährleisten.
         </p>
+        <h3 className="font-medium mt-4">Termine mit Patienten planen</h3>
+        <p>
+          Im <Link to="/doctor-dashboard" className="text-primary underline">Kalender</Link> können Sie Termine mit Patienten planen.
+          Klicken Sie auf <span className="font-medium">Neuer Termin</span>, wählen Sie den Termintyp (z.B. Videosprechstunde oder regulärer Termin),
+          geben Sie die Details ein und speichern Sie den Termin. Die Termine werden im Kalender angezeigt und können mit externen
+          Kalendern wie Google Calendar, Apple iCalendar oder Microsoft Outlook synchronisiert werden.
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Hinweis: Gemäß DSGVO werden bei der Synchronisierung mit externen Kalendern patientenbezogene Daten pseudonymisiert übertragen.
+        </p>
       </AccordionContent>
     </AccordionItem>
   );

@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, LogOut, Stethoscope, FileText, Users, InboxIcon, Video } from 'lucide-react';
+import { User, LogOut, Stethoscope, FileText, Users, InboxIcon, Video, Calendar } from 'lucide-react';
 
 interface DoctorSidebarProps {
   user: {
@@ -11,8 +12,8 @@ interface DoctorSidebarProps {
     email: string;
     role: string;
   } | null;
-  onNavChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video') => void;
-  activeSection: 'prescriptions' | 'patients' | 'open_requests' | 'video';
+  onNavChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
+  activeSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
 }
 
 const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ user, onNavChange, activeSection }) => {
@@ -88,6 +89,15 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ user, onNavChange, active
           >
             <Users className="h-4 w-4" />
             Patientenverwaltung
+          </Button>
+
+          <Button 
+            variant={activeSection === 'calendar' ? "default" : "outline"} 
+            className="w-full flex items-center gap-2 justify-start"
+            onClick={() => onNavChange('calendar')}
+          >
+            <Calendar className="h-4 w-4" />
+            Kalender
           </Button>
 
           <Button 

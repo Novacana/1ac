@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +10,7 @@ import PrescriptionRequestDetail from '@/components/doctor/PrescriptionRequestDe
 import PatientManagement from '@/components/doctor/PatientManagement';
 import OpenRequestsPanel from '@/components/doctor/OpenRequestsPanel';
 import VideoConsultation from '@/components/doctor/VideoConsultation';
+import DoctorCalendar from '@/components/doctor/DoctorCalendar';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
@@ -20,7 +22,7 @@ const DoctorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
-  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video'>('prescriptions');
+  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar'>('prescriptions');
 
   useEffect(() => {
     if (!isDoctor) {
@@ -145,6 +147,8 @@ const DoctorDashboard = () => {
               <PatientManagement />
             ) : mainSection === 'video' ? (
               <VideoConsultation />
+            ) : mainSection === 'calendar' ? (
+              <DoctorCalendar />
             ) : (
               <OpenRequestsPanel 
                 requests={filteredRequests}
