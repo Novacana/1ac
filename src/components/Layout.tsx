@@ -1,10 +1,10 @@
-
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
 import MobileNavDots from "./MobileNavDots";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
+import N8nChatBot from "./N8nChatBot";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,18 +23,15 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   const location = useLocation();
   
-  // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Get stored theme preference or use default
   const savedTheme = (localStorage.getItem("cannabis-shop-theme") as "light" | "dark" | "system") || "light";
 
   return (
     <ThemeProvider defaultTheme={savedTheme} storageKey="cannabis-shop-theme">
       <div className="min-h-screen flex flex-col bg-background text-foreground relative">
-        {/* Dark mode decoration elements */}
         <div className="dark:block hidden pointer-events-none">
           <div className="fixed top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl opacity-20 -z-10 animate-pulse"></div>
           <div className="fixed bottom-1/4 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl opacity-20 -z-10"></div>
@@ -51,6 +48,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           {children}
         </main>
+        {!noAdvisor && <N8nChatBot />}
       </div>
     </ThemeProvider>
   );
