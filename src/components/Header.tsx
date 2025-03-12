@@ -42,8 +42,12 @@ const Header = () => {
     const baseItems: NavItem[] = [
       { name: "School", path: "/", icon: <Home className="h-4 w-4" /> },
       { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
-      { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
     ];
+
+    // Only add Documentation link for doctors and pharmacies
+    if (isDoctor || isPharmacy) {
+      baseItems.push({ name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> });
+    }
 
     if (isDoctor) {
       return [

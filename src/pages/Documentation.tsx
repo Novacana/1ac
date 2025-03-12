@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Info, AlertTriangle, FileText, Settings, User, Building, BookOpen } from "lucide-react";
+import { Info, AlertTriangle, FileText, Settings, Building, BookOpen, User } from "lucide-react";
 
 const Documentation: React.FC = () => {
   const [activeTab, setActiveTab] = useState("doctors");
