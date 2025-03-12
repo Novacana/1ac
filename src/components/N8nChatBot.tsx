@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import '@n8n/chat/style.css';
@@ -187,7 +186,8 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         }
         
         /* IMPORTANT: Remove the 'Powered by n8n' footer */
-        .n8n-chat-footer {
+        .n8n-chat-footer,
+        .n8n-chat-branding {
           display: none !important;
         }
       `;
@@ -204,16 +204,13 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
           en: {
             title: 'Cannabis Berater',
             subtitle: "Haben Sie Fragen zu medizinischem Cannabis? Ich bin hier, um Ihnen zu helfen.",
-            footer: 'Ihre Daten werden gemäß DSGVO und HIPAA verarbeitet.',
+            footer: '',
             getStarted: 'Neue Beratung starten',
             inputPlaceholder: 'Schreiben Sie Ihre Frage...',
             closeButtonTooltip: 'Chat schließen',
           },
         },
-        initialMessages: [
-          'Willkommen beim Cannabis Berater. Wie kann ich Ihnen heute helfen?',
-          'Bitte beachten Sie, dass ich medizinische Informationen gemäß DSGVO und HIPAA verarbeite und FHIR-Kommunikationsstandards anwende.'
-        ],
+        initialMessages: [],
         webhookConfig: {
           method: 'POST',
           headers: {
@@ -222,9 +219,9 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
           }
         },
         metadata: {
-          skipInitialHistoryLoad: !isAuthenticated, // Only skip history load if user is not authenticated
-          preventAutoRequests: true, // Still prevent auto requests regardless of authentication
-          userId: isAuthenticated ? user?.id : undefined // Include user ID if authenticated
+          skipInitialHistoryLoad: !isAuthenticated,
+          preventAutoRequests: true,
+          userId: isAuthenticated ? user?.id : undefined
         }
       });
 
