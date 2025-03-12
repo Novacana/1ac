@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import '@n8n/chat/style.css';
 import { createChat } from '@n8n/chat';
@@ -12,8 +12,11 @@ interface N8nChatBotProps {
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   const { toast } = useToast();
   const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136/chat";
+  const chatInitialized = useRef(false);
   
   useEffect(() => {
+    if (chatInitialized.current) return;
+    
     try {
       const chatInstance = createChat({
         webhookUrl: webhookUrl,
@@ -43,14 +46,20 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
             'Accept': 'application/json'
           }
         },
+        // Disable automatic chat history loading
+        metadata: {
+          skipInitialHistoryLoad: true
+        }
       });
 
       console.log('Chat widget initialized successfully');
+      chatInitialized.current = true;
       
       // Clean up function
       return () => {
         // If the chat library provides a cleanup method, we would call it here
         console.log('Chat widget unmounted');
+        chatInitialized.current = false;
       };
     } catch (error) {
       console.error('Error initializing chat widget:', error);
@@ -70,4 +79,3 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
 };
 
 export default N8nChatBot;
-
