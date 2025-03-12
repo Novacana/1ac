@@ -22,49 +22,73 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
     try {
       console.log('Initializing chat, user authenticated:', isAuthenticated);
       
-      // Add custom CSS for styling the chat widget to match the website
+      // Inject CSS to enhance the chat interface and remove branding
       const styleElement = document.createElement('style');
       styleElement.textContent = `
+        /* Modern chat window styling */
         .n8n-chat-window {
-          border-radius: 1rem !important;
+          border-radius: 1.25rem !important;
           border: 1px solid rgba(var(--primary), 0.2) !important;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
           background-color: hsl(var(--background)) !important;
+          overflow: hidden !important;
+          transition: all 0.3s ease !important;
+          max-height: 600px !important;
         }
         
         .n8n-chat-window-header {
-          background-color: hsl(var(--primary)) !important;
-          color: hsl(var(--primary-foreground)) !important;
-          padding: 0.75rem 1rem !important;
-          border-top-left-radius: 1rem !important;
-          border-top-right-radius: 1rem !important;
+          background-color: hsl(222, 47%, 11%) !important;
+          color: white !important;
+          padding: 1rem !important;
+          border-top-left-radius: 1.25rem !important;
+          border-top-right-radius: 1.25rem !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          font-weight: 600 !important;
+          letter-spacing: 0.02em !important;
         }
         
         .n8n-chat-messages-container {
           background-color: hsl(var(--background)) !important;
           color: hsl(var(--foreground)) !important;
-          padding: 1rem !important;
+          padding: 1.25rem !important;
+          background-image: radial-gradient(
+            rgba(var(--primary), 0.03) 1px, 
+            transparent 1px
+          ) !important;
+          background-size: 20px 20px !important;
         }
         
         .n8n-chat-message-bubble {
-          border-radius: 0.75rem !important;
-          padding: 0.75rem 1rem !important;
+          border-radius: 1rem !important;
+          padding: 0.875rem 1.25rem !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+          margin-bottom: 0.875rem !important;
           max-width: 85% !important;
+          line-height: 1.5 !important;
+          transition: transform 0.2s ease !important;
+        }
+        
+        .n8n-chat-message-bubble:hover {
+          transform: translateY(-1px) !important;
         }
         
         .n8n-chat-message-bubble.from-user {
           background-color: hsl(var(--primary)) !important;
           color: hsl(var(--primary-foreground)) !important;
+          border-bottom-right-radius: 0.25rem !important;
         }
         
         .n8n-chat-message-bubble.from-bot {
           background-color: hsl(var(--secondary)) !important;
           color: hsl(var(--secondary-foreground)) !important;
+          border-bottom-left-radius: 0.25rem !important;
         }
         
         .n8n-chat-input-container {
           border-top: 1px solid rgba(var(--primary), 0.1) !important;
-          padding: 0.75rem !important;
+          padding: 1rem !important;
           background-color: hsl(var(--background)) !important;
         }
         
@@ -73,38 +97,98 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
           border: 1px solid hsl(var(--border)) !important;
           background-color: hsl(var(--background)) !important;
           color: hsl(var(--foreground)) !important;
-          padding: 0.5rem 1rem !important;
+          padding: 0.75rem 1.25rem !important;
+          font-size: 0.95rem !important;
+          transition: all 0.2s ease !important;
         }
         
         .n8n-chat-input:focus {
           border-color: hsl(var(--primary)) !important;
           box-shadow: 0 0 0 2px rgba(var(--primary), 0.2) !important;
+          outline: none !important;
         }
         
         .n8n-chat-send-button {
           background-color: hsl(var(--primary)) !important;
           color: hsl(var(--primary-foreground)) !important;
           border-radius: 50% !important;
-          width: 2.5rem !important;
-          height: 2.5rem !important;
+          width: 2.75rem !important;
+          height: 2.75rem !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          margin-left: 0.5rem !important;
+          margin-left: 0.75rem !important;
+          box-shadow: 0 2px 10px rgba(var(--primary), 0.2) !important;
+          transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        
+        .n8n-chat-send-button:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 4px 12px rgba(var(--primary), 0.3) !important;
         }
         
         .n8n-chat-welcome-screen {
           background-color: hsl(var(--background)) !important;
           color: hsl(var(--foreground)) !important;
+          padding: 2rem !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 100% !important;
         }
         
+        .n8n-chat-welcome-screen h1 {
+          font-size: 1.75rem !important;
+          font-weight: 700 !important;
+          margin-bottom: 1rem !important;
+          color: hsl(222, 47%, 11%) !important;
+        }
+        
+        .n8n-chat-welcome-screen p {
+          font-size: 1rem !important;
+          text-align: center !important;
+          margin-bottom: 2rem !important;
+          max-width: 80% !important;
+          line-height: 1.6 !important;
+        }
+        
+        .n8n-chat-welcome-screen button {
+          background-color: hsl(var(--primary)) !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 2rem !important;
+          padding: 0.875rem 1.75rem !important;
+          font-size: 1rem !important;
+          font-weight: 600 !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          box-shadow: 0 4px 12px rgba(var(--primary), 0.25) !important;
+        }
+        
+        .n8n-chat-welcome-screen button:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 6px 16px rgba(var(--primary), 0.35) !important;
+        }
+        
+        /* Dark mode adjustments */
         .dark .n8n-chat-window {
           border-color: rgba(255, 255, 255, 0.1) !important;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .dark .n8n-chat-welcome-screen h1 {
+          color: white !important;
         }
         
         .dark .n8n-chat-message-bubble.from-bot {
           background-color: rgba(255, 255, 255, 0.1) !important;
+          color: white !important;
+        }
+        
+        /* IMPORTANT: Remove the 'Powered by n8n' footer */
+        .n8n-chat-footer {
+          display: none !important;
         }
       `;
       document.head.appendChild(styleElement);
