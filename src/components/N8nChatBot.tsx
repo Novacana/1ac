@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import '@n8n/chat/style.css';
 import { useChat } from './n8n-chat/useChat';
 import { useDraggable } from './n8n-chat/useDraggable';
 import { Grip, MinusCircle, PlusCircle } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 interface N8nChatBotProps {
   className?: string;
@@ -15,13 +16,36 @@ interface N8nChatBotProps {
  * A chat widget that allows users to interact with a chatbot for medical cannabis consultations
  */
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
-  const [minimized, setMinimized] = useState(false);
+  // Get stored minimized state and position from localStorage to persist across page navigation
+  const [minimized, setMinimized] = useState(() => {
+    const storedMinimized = localStorage.getItem('chatMinimized');
+    return storedMinimized ? JSON.parse(storedMinimized) : false;
+  });
   
+  const initialPosition = {
+    x: parseInt(localStorage.getItem('chatPositionX') || '0'),
+    y: parseInt(localStorage.getItem('chatPositionY') || '0')
+  };
+
   // Use the chat hook to initialize and manage the chat widget
   useChat();
   
   // Make the chat window draggable
-  const { position, elRef, handleMouseDown, isDragging } = useDraggable({ x: 0, y: 0 });
+  const { position, elRef, handleMouseDown, isDragging } = useDraggable(initialPosition);
+  
+  // Track location changes to maintain state across navigation
+  const location = useLocation();
+  
+  // Save minimized state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('chatMinimized', JSON.stringify(minimized));
+  }, [minimized]);
+  
+  // Save position to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('chatPositionX', position.x.toString());
+    localStorage.setItem('chatPositionY', position.y.toString());
+  }, [position]);
   
   return (
     <div 
