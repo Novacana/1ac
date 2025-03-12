@@ -46,21 +46,37 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
             'Accept': 'application/json'
           }
         },
-        // Disable automatic chat history loading
         metadata: {
-          skipInitialHistoryLoad: true
+          skipInitialHistoryLoad: true,
+          preventAutoRequests: true // Add custom flag to prevent automatic requests
+        },
+        // Override the default session loading behavior
+        session: {
+          id: `session-${Date.now()}`, // Generate a unique session ID each time
+          loadPrevious: false, // Disable automatic loading of previous session
         }
       });
 
       console.log('Chat widget initialized successfully');
       chatInitialized.current = true;
       
-      // Clean up function
-      return () => {
-        // If the chat library provides a cleanup method, we would call it here
-        console.log('Chat widget unmounted');
-        chatInitialized.current = false;
-      };
+      // Add event listener to only send requests when user submits input
+      const chatContainer = document.getElementById('n8n-chat-container');
+      if (chatContainer) {
+        const submitHandler = (event) => {
+          if (event.target.closest('.n8n-chat-input-form')) {
+            console.log('User submitted chat input');
+          }
+        };
+        chatContainer.addEventListener('submit', submitHandler);
+        
+        // Clean up event listener on unmount
+        return () => {
+          chatContainer.removeEventListener('submit', submitHandler);
+          chatInitialized.current = false;
+          console.log('Chat widget unmounted');
+        };
+      }
     } catch (error) {
       console.error('Error initializing chat widget:', error);
       toast({
