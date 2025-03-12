@@ -176,8 +176,8 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   }, [toast, webhookUrl, isAuthenticated, user]);
 
   return (
-    <div className={cn('relative z-10', className)}>
-      <div id="n8n-chat-container" className="h-full w-full"></div>
+    <div className={cn('fixed bottom-6 right-6 z-50', className)}>
+      <div id="n8n-chat-container" className="h-[500px] w-[350px]"></div>
     </div>
   );
 };
