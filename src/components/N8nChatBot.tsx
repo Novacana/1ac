@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface N8nChatBotProps {
   className?: string;
@@ -10,10 +11,10 @@ interface N8nChatBotProps {
 
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    // Ensure the iframe loads securely
     if (iframeRef.current) {
       iframeRef.current.onload = () => {
         console.log('N8n Chat iframe loaded successfully');
@@ -23,6 +24,21 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
 
   const toggleChat = () => {
     setIsOpen(prev => !prev);
+  };
+
+  const handleSend = () => {
+    if (message.trim()) {
+      // Here you would typically send the message to the chat
+      console.log('Sending message:', message);
+      setMessage('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
@@ -43,9 +59,27 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
           <iframe
             ref={iframeRef}
             src="https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136/chat"
-            className="w-[350px] h-[500px] border-0"
-            title="Cannabis Berater Chat"
+            className="w-[350px] h-[450px] border-0"
           />
+          <div className="p-3 border-t border-border bg-background">
+            <div className="flex gap-2">
+              <Input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Schreiben Sie eine Nachricht..."
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSend}
+                size="icon"
+                variant="default"
+                className="shrink-0"
+              >
+                <Send size={18} />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       
