@@ -14,6 +14,8 @@ import DoctorCalendar from '@/components/doctor/DoctorCalendar';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { InboxIcon, FileText, Users, Calendar, Video } from 'lucide-react';
 
 const DoctorDashboard = () => {
   const { user, isDoctor } = useAuth();
@@ -93,71 +95,121 @@ const DoctorDashboard = () => {
   return (
     <Layout>
       <div className="container px-4 mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6">Arzt Dashboard</h1>
-        
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="md:w-1/4">
-            <DoctorSidebar 
-              user={user} 
-              onNavChange={(section) => setMainSection(section)}
-              activeSection={mainSection}
-            />
+        <div className="flex flex-col space-y-6">
+          {/* Header with horizontal navigation */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex items-center justify-between w-full">
+              <h1 className="text-2xl font-bold">Arzt Dashboard</h1>
+              <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                <Button 
+                  variant={mainSection === 'open_requests' ? "default" : "outline"} 
+                  className="flex items-center gap-2"
+                  onClick={() => setMainSection('open_requests')}
+                >
+                  <InboxIcon className="h-4 w-4" />
+                  Offene Anfragen
+                </Button>
+                <Button 
+                  variant={mainSection === 'prescriptions' ? "default" : "outline"} 
+                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
+                  onClick={() => setMainSection('prescriptions')}
+                >
+                  <FileText className="h-4 w-4" />
+                  Rezeptverwaltung
+                </Button>
+                <Button 
+                  variant={mainSection === 'patients' ? "default" : "outline"} 
+                  className="flex items-center gap-2"
+                  onClick={() => setMainSection('patients')}
+                >
+                  <Users className="h-4 w-4" />
+                  Patientenverwaltung
+                </Button>
+                <Button 
+                  variant={mainSection === 'calendar' ? "default" : "outline"} 
+                  className="flex items-center gap-2"
+                  onClick={() => setMainSection('calendar')}
+                >
+                  <Calendar className="h-4 w-4" />
+                  Kalender
+                </Button>
+                <Button 
+                  variant={mainSection === 'video' ? "default" : "outline"} 
+                  className="flex items-center gap-2"
+                  onClick={() => setMainSection('video')}
+                >
+                  <Video className="h-4 w-4" />
+                  Videosprechstunde
+                </Button>
+              </div>
+            </div>
           </div>
           
-          <div className="md:w-3/4">
-            {mainSection === 'prescriptions' ? (
-              <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-5 mb-6">
-                  <TabsTrigger value="all">Alle</TabsTrigger>
-                  <TabsTrigger value="pending">Ausstehend</TabsTrigger>
-                  <TabsTrigger value="approved">Genehmigt</TabsTrigger>
-                  <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>
-                  <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value={activeTab} className="mt-0">
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="lg:w-1/2">
-                      <PrescriptionRequestsList 
-                        requests={filteredRequests}
-                        loading={loading}
-                        selectedRequestId={selectedRequestId}
-                        onSelectRequest={setSelectedRequestId}
-                      />
-                    </div>
-                    
-                    <div className="lg:w-1/2">
-                      {selectedRequest ? (
-                        <PrescriptionRequestDetail 
-                          request={selectedRequest} 
-                          onUpdate={handleRequestUpdate}
-                        />
-                      ) : (
-                        <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
-                          <p className="text-muted-foreground">
-                            Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            ) : mainSection === 'patients' ? (
-              <PatientManagement />
-            ) : mainSection === 'video' ? (
-              <VideoConsultation />
-            ) : mainSection === 'calendar' ? (
-              <DoctorCalendar />
-            ) : (
-              <OpenRequestsPanel 
-                requests={filteredRequests}
-                loading={loading}
-                onAssignDoctor={handleAssignDoctor}
-                selectedRequestId={selectedRequestId}
-                onSelectRequest={setSelectedRequestId}
+          {/* Content */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-1/4 hidden md:block">
+              <DoctorSidebar 
+                user={user} 
+                onNavChange={(section) => setMainSection(section)}
+                activeSection={mainSection}
               />
-            )}
+            </div>
+            
+            <div className="lg:w-3/4 flex-1">
+              {mainSection === 'prescriptions' ? (
+                <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid grid-cols-5 mb-6">
+                    <TabsTrigger value="all">Alle</TabsTrigger>
+                    <TabsTrigger value="pending">Ausstehend</TabsTrigger>
+                    <TabsTrigger value="approved">Genehmigt</TabsTrigger>
+                    <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>
+                    <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value={activeTab} className="mt-0">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      <div className="lg:w-1/2">
+                        <PrescriptionRequestsList 
+                          requests={filteredRequests}
+                          loading={loading}
+                          selectedRequestId={selectedRequestId}
+                          onSelectRequest={setSelectedRequestId}
+                        />
+                      </div>
+                      
+                      <div className="lg:w-1/2">
+                        {selectedRequest ? (
+                          <PrescriptionRequestDetail 
+                            request={selectedRequest} 
+                            onUpdate={handleRequestUpdate}
+                          />
+                        ) : (
+                          <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
+                            <p className="text-muted-foreground">
+                              Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              ) : mainSection === 'patients' ? (
+                <PatientManagement />
+              ) : mainSection === 'video' ? (
+                <VideoConsultation />
+              ) : mainSection === 'calendar' ? (
+                <DoctorCalendar />
+              ) : (
+                <OpenRequestsPanel 
+                  requests={filteredRequests}
+                  loading={loading}
+                  onAssignDoctor={handleAssignDoctor}
+                  selectedRequestId={selectedRequestId}
+                  onSelectRequest={setSelectedRequestId}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
