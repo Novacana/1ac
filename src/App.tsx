@@ -10,7 +10,7 @@ import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorLanding from "./pages/DoctorLanding";
-import PharmacyLanding from "./pages/PharmacyLanding"; // Add import
+import PharmacyLanding from "./pages/PharmacyLanding";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
@@ -19,11 +19,12 @@ import PharmacyManagement from "./pages/PharmacyManagement";
 import PharmacyProfile from "./pages/PharmacyProfile";
 import Documentation from "./pages/Documentation";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import School from "./pages/School";
 import { CartProvider } from "./contexts/CartContext";
 import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import GDPRCookieConsent from "./components/GDPRCookieConsent";
+import N8nChatBot from "./components/N8nChatBot";
 
-// Protected Route Component for Doctor
 const DoctorRoute = ({ children }) => {
   const { isAuthenticated, isDoctor } = useAuth();
   
@@ -34,7 +35,6 @@ const DoctorRoute = ({ children }) => {
   return children;
 };
 
-// Protected Route Component for Authenticated Users
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
@@ -45,7 +45,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Protected Route Component for Pharmacy Users
 const PharmacyRoute = ({ children }) => {
   const { isAuthenticated, isPharmacy } = useAuth();
   
@@ -67,6 +66,7 @@ function App() {
             <Route path="/product/:id" element={<Product />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/school" element={<School />} />
             <Route path="/admin/config" element={<AdminConfig />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -119,6 +119,7 @@ function App() {
           <Toaster />
           <SonnerToaster position="top-center" />
           <GDPRCookieConsent />
+          <N8nChatBot />
         </Router>
       </CartProvider>
     </AuthProvider>

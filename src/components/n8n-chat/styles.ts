@@ -6,7 +6,10 @@
  */
 export const chatStyles = `
   /* Remove the n8n branding */
-  .n8n-chat-branding {
+  .n8n-chat-branding,
+  .n8n-chat-footer,
+  .n8n-chat-welcome-screen div:last-child,
+  .n8n-chat-welcome-screen a {
     display: none !important;
   }
   
@@ -14,9 +17,11 @@ export const chatStyles = `
   .n8n-chat-window {
     border-radius: 0 0 0.75rem 0.75rem !important;
     border: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
     background-color: #f8f9fc !important;
     overflow: hidden !important;
+    max-height: 500px !important;
+    height: 100% !important;
   }
   
   /* Header styling - hide it since we have our own header */
@@ -81,7 +86,7 @@ export const chatStyles = `
   
   /* Send button styling */
   .n8n-chat-send-button {
-    background-color: #E94A65 !important; /* Pink button matching the image */
+    background-color: #E94A65 !important;
     color: white !important;
     border-radius: 50% !important;
     width: 2.5rem !important;
@@ -94,7 +99,7 @@ export const chatStyles = `
   }
   
   .n8n-chat-send-button:hover {
-    background-color: #D43A55 !important; /* Darker pink on hover */
+    background-color: #D43A55 !important;
     transform: scale(1.05) !important;
   }
   
@@ -113,7 +118,7 @@ export const chatStyles = `
   
   /* Start chat button styling */
   .n8n-chat-start-button {
-    background-color: #E94A65 !important; /* Pink button matching the image */
+    background-color: #E94A65 !important;
     color: white !important;
     border-radius: 2rem !important;
     padding: 0.75rem 1.5rem !important;
@@ -125,39 +130,8 @@ export const chatStyles = `
   }
   
   .n8n-chat-start-button:hover {
-    background-color: #D43A55 !important; /* Darker pink on hover */
+    background-color: #D43A55 !important;
     transform: scale(1.02) !important;
-  }
-  
-  /* Bot name styling */
-  .n8n-chat-bot-name {
-    font-size: 1.75rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 1rem !important;
-    color: #1A1F2C !important;
-  }
-  
-  /* Bot subtitle styling */
-  .n8n-chat-bot-subtitle {
-    font-size: 1.1rem !important;
-    text-align: center !important;
-    margin-bottom: 1.5rem !important;
-    color: #4B5563 !important;
-    max-width: 80% !important;
-  }
-  
-  /* Footer styling */
-  .n8n-chat-footer {
-    font-size: 0.8rem !important;
-    color: #6B7280 !important;
-    text-align: center !important;
-    padding: 0.75rem !important;
-    background-color: transparent !important;
-    border-top: none !important;
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
   }
   
   /* Dark mode adjustments */
@@ -190,23 +164,5 @@ export const chatStyles = `
   .dark .n8n-chat-welcome-screen {
     background-color: #121827 !important;
     color: white !important;
-  }
-  
-  .dark .n8n-chat-bot-name {
-    color: white !important;
-  }
-  
-  .dark .n8n-chat-bot-subtitle {
-    color: #9CA3AF !important;
-  }
-  
-  .dark .n8n-chat-footer {
-    color: #9CA3AF !important;
-  }
-  
-  /* Remove the n8n branding at the bottom */
-  .n8n-chat-welcome-screen div:last-child, 
-  .n8n-chat-welcome-screen a {
-    display: none !important;
   }
 `;
