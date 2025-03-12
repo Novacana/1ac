@@ -8,6 +8,7 @@ import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
 import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
 import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DoctorDashboard = () => {
   const { user, isDoctor } = useAuth();
@@ -17,6 +18,7 @@ const DoctorDashboard = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
   const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar'>('prescriptions');
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isDoctor) {
@@ -86,7 +88,7 @@ const DoctorDashboard = () => {
 
   return (
     <Layout>
-      <div className="container px-4 mx-auto py-8">
+      <div className={`container px-4 mx-auto ${isMobile ? 'py-4' : 'py-8'}`}>
         <div className="flex flex-col space-y-6">
           <DashboardHeader 
             mainSection={mainSection}

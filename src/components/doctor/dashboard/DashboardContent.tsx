@@ -10,6 +10,7 @@ import DoctorCalendar from '@/components/doctor/DoctorCalendar';
 import { User } from '@/types/auth';
 import { PrescriptionRequest } from '@/types/prescription';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardContentProps {
   user: User | null;
@@ -40,6 +41,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   onRequestUpdate,
   onAssignDoctor
 }) => {
+  const isMobile = useIsMobile();
+
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       <div className="lg:w-1/4 hidden md:block">
@@ -53,17 +56,19 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       <div className="lg:w-3/4 flex-1">
         {mainSection === 'prescriptions' ? (
           <Tabs defaultValue="pending" value={activeTab} onValueChange={onTabChange} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-6">
-              <TabsTrigger value="all">Alle</TabsTrigger>
+            <TabsList className={`grid ${isMobile ? 'grid-cols-3 overflow-x-auto' : 'grid-cols-5'} mb-6`}>
+              {!isMobile && <TabsTrigger value="all">Alle</TabsTrigger>}
               <TabsTrigger value="pending">Ausstehend</TabsTrigger>
               <TabsTrigger value="approved">Genehmigt</TabsTrigger>
-              <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>
-              <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
+              {!isMobile && <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>}
+              {isMobile && <TabsTrigger value="needs_info">Info</TabsTrigger>}
+              {!isMobile && <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>}
+              {isMobile && <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>}
             </TabsList>
             
             <TabsContent value={activeTab} className="mt-0">
               <div className="flex flex-col lg:flex-row gap-6">
-                <div className="lg:w-1/2">
+                <div className={`${isMobile ? 'w-full' : 'lg:w-1/2'}`}>
                   <PrescriptionRequestsList 
                     requests={filteredRequests}
                     loading={loading}
@@ -72,20 +77,22 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                   />
                 </div>
                 
-                <div className="lg:w-1/2">
-                  {selectedRequest ? (
-                    <PrescriptionRequestDetail 
-                      request={selectedRequest} 
-                      onUpdate={onRequestUpdate}
-                    />
-                  ) : (
-                    <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
-                      <p className="text-muted-foreground">
-                        Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {(selectedRequest || !isMobile) && (
+                  <div className={`${isMobile ? 'w-full mt-4' : 'lg:w-1/2'}`}>
+                    {selectedRequest ? (
+                      <PrescriptionRequestDetail 
+                        request={selectedRequest} 
+                        onUpdate={onRequestUpdate}
+                      />
+                    ) : (
+                      <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
+                        <p className="text-muted-foreground">
+                          Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
