@@ -51,7 +51,7 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
       
       <Button
         onClick={toggleChat}
-        variant="primary"
+        variant="default"
         size="icon"
         className={cn(
           "h-14 w-14 rounded-full shadow-lg transition-all duration-300 hover:scale-105",
