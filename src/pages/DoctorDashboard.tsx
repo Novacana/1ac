@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +14,7 @@ import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { InboxIcon, FileText, Users, Calendar, Video } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 const DoctorDashboard = () => {
   const { user, isDoctor } = useAuth();
@@ -96,56 +95,20 @@ const DoctorDashboard = () => {
     <Layout>
       <div className="container px-4 mx-auto py-8">
         <div className="flex flex-col space-y-6">
-          {/* Header with horizontal navigation */}
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex items-center justify-between w-full">
-              <h1 className="text-2xl font-bold">Arzt Dashboard</h1>
-              <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
-                <Button 
-                  variant={mainSection === 'open_requests' ? "default" : "outline"} 
-                  className="flex items-center gap-2"
-                  onClick={() => setMainSection('open_requests')}
-                >
-                  <InboxIcon className="h-4 w-4" />
-                  Offene Anfragen
-                </Button>
-                <Button 
-                  variant={mainSection === 'prescriptions' ? "default" : "outline"} 
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
-                  onClick={() => setMainSection('prescriptions')}
-                >
-                  <FileText className="h-4 w-4" />
-                  Rezeptverwaltung
-                </Button>
-                <Button 
-                  variant={mainSection === 'patients' ? "default" : "outline"} 
-                  className="flex items-center gap-2"
-                  onClick={() => setMainSection('patients')}
-                >
-                  <Users className="h-4 w-4" />
-                  Patientenverwaltung
-                </Button>
-                <Button 
-                  variant={mainSection === 'calendar' ? "default" : "outline"} 
-                  className="flex items-center gap-2"
-                  onClick={() => setMainSection('calendar')}
-                >
-                  <Calendar className="h-4 w-4" />
-                  Kalender
-                </Button>
-                <Button 
-                  variant={mainSection === 'video' ? "default" : "outline"} 
-                  className="flex items-center gap-2"
-                  onClick={() => setMainSection('video')}
-                >
-                  <Video className="h-4 w-4" />
-                  Videosprechstunde
-                </Button>
-              </div>
+            <div className="flex items-center w-full">
+              <h1 className="text-2xl font-bold mr-4">Arzt Dashboard</h1>
+              <Button 
+                variant={mainSection === 'prescriptions' ? "default" : "outline"} 
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
+                onClick={() => setMainSection('prescriptions')}
+              >
+                <FileText className="h-4 w-4" />
+                Rezeptverwaltung
+              </Button>
             </div>
           </div>
           
-          {/* Content */}
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="lg:w-1/4 hidden md:block">
               <DoctorSidebar 
