@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import '@n8n/chat/style.css';
 import { createChat } from '@n8n/chat';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface N8nChatBotProps {
   className?: string;
@@ -11,6 +12,7 @@ interface N8nChatBotProps {
 
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
   const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136/chat";
   const chatInitialized = useRef(false);
   
@@ -18,6 +20,8 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
     if (chatInitialized.current) return;
     
     try {
+      console.log('Initializing chat, user authenticated:', isAuthenticated);
+      
       const chatInstance = createChat({
         webhookUrl: webhookUrl,
         chatInputKey: 'chatInput',
@@ -47,12 +51,13 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
           }
         },
         metadata: {
-          skipInitialHistoryLoad: true,
-          preventAutoRequests: true
+          skipInitialHistoryLoad: !isAuthenticated, // Only skip history load if user is not authenticated
+          preventAutoRequests: true, // Still prevent auto requests regardless of authentication
+          userId: isAuthenticated ? user?.id : undefined // Include user ID if authenticated
         }
       });
 
-      console.log('Chat widget initialized successfully');
+      console.log('Chat widget initialized successfully', isAuthenticated ? 'with user ID: ' + user?.id : 'without user ID');
       chatInitialized.current = true;
       
       // Add event listener to only send requests when user submits input
@@ -80,7 +85,7 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         variant: "destructive"
       });
     }
-  }, [toast, webhookUrl]);
+  }, [toast, webhookUrl, isAuthenticated, user]);
 
   return (
     <div className={cn('', className)}>
