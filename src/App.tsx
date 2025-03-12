@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
@@ -10,7 +11,7 @@ import NotFound from "./pages/NotFound";
 import AdminConfig from "./pages/AdminConfig";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorLanding from "./pages/DoctorLanding";
-import PharmacyLanding from "./pages/PharmacyLanding"; // Add import
+import PharmacyLanding from "./pages/PharmacyLanding"; 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
