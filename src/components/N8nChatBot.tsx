@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from "sonner";
 
 interface N8nChatBotProps {
   className?: string;
@@ -12,7 +13,9 @@ interface N8nChatBotProps {
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136";
 
   useEffect(() => {
     if (iframeRef.current) {
@@ -26,11 +29,32 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
     setIsOpen(prev => !prev);
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (message.trim()) {
-      // Here you would typically send the message to the chat
-      console.log('Sending message:', message);
-      setMessage('');
+      setIsLoading(true);
+      try {
+        // Send the message to the n8n webhook with the expected 'chatInput' parameter
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ chatInput: message }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        console.log('Message sent successfully:', message);
+        // Reset the input field after sending
+        setMessage('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        toast.error("Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -56,11 +80,12 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
               <X size={18} />
             </Button>
           </div>
-          <iframe
-            ref={iframeRef}
-            src="https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136/chat"
-            className="w-[350px] h-[450px] border-0"
-          />
+          <div className="w-[350px] h-[450px] overflow-auto bg-background p-4" id="chat-messages">
+            {/* Chat messages will be displayed here */}
+            <div className="text-center text-muted-foreground text-sm mb-4">
+              Willkommen beim Cannabis Berater. Wie kann ich Ihnen heute helfen?
+            </div>
+          </div>
           <div className="p-3 border-t border-border bg-background">
             <div className="flex gap-2">
               <Input
@@ -69,14 +94,16 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
                 onKeyPress={handleKeyPress}
                 placeholder="Schreiben Sie eine Nachricht..."
                 className="flex-1"
+                disabled={isLoading}
               />
               <Button 
                 onClick={handleSend}
                 size="icon"
                 variant="default"
                 className="shrink-0"
+                disabled={isLoading}
               >
-                <Send size={18} />
+                <Send size={18} className={isLoading ? "animate-pulse" : ""} />
               </Button>
             </div>
           </div>
