@@ -12,8 +12,9 @@ export const chatStyles = `
   
   /* Chat window styling */
   .n8n-chat-window {
-    border-radius: 1rem !important;
+    border-radius: 0 0 1rem 1rem !important;
     border: 1px solid rgba(var(--primary), 0.2) !important;
+    border-top: none !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
     background-color: hsl(var(--background)) !important;
     overflow: hidden !important;
@@ -24,8 +25,6 @@ export const chatStyles = `
     background-color: #1A1F2C !important; /* Dark header background matching the image */
     color: white !important;
     padding: 1rem !important;
-    border-top-left-radius: 1rem !important;
-    border-top-right-radius: 1rem !important;
     font-weight: 600 !important;
   }
   
