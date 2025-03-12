@@ -22,6 +22,93 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
     try {
       console.log('Initializing chat, user authenticated:', isAuthenticated);
       
+      // Add custom CSS for styling the chat widget to match the website
+      const styleElement = document.createElement('style');
+      styleElement.textContent = `
+        .n8n-chat-window {
+          border-radius: 1rem !important;
+          border: 1px solid rgba(var(--primary), 0.2) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+          background-color: hsl(var(--background)) !important;
+        }
+        
+        .n8n-chat-window-header {
+          background-color: hsl(var(--primary)) !important;
+          color: hsl(var(--primary-foreground)) !important;
+          padding: 0.75rem 1rem !important;
+          border-top-left-radius: 1rem !important;
+          border-top-right-radius: 1rem !important;
+        }
+        
+        .n8n-chat-messages-container {
+          background-color: hsl(var(--background)) !important;
+          color: hsl(var(--foreground)) !important;
+          padding: 1rem !important;
+        }
+        
+        .n8n-chat-message-bubble {
+          border-radius: 0.75rem !important;
+          padding: 0.75rem 1rem !important;
+          max-width: 85% !important;
+        }
+        
+        .n8n-chat-message-bubble.from-user {
+          background-color: hsl(var(--primary)) !important;
+          color: hsl(var(--primary-foreground)) !important;
+        }
+        
+        .n8n-chat-message-bubble.from-bot {
+          background-color: hsl(var(--secondary)) !important;
+          color: hsl(var(--secondary-foreground)) !important;
+        }
+        
+        .n8n-chat-input-container {
+          border-top: 1px solid rgba(var(--primary), 0.1) !important;
+          padding: 0.75rem !important;
+          background-color: hsl(var(--background)) !important;
+        }
+        
+        .n8n-chat-input {
+          border-radius: 1.5rem !important;
+          border: 1px solid hsl(var(--border)) !important;
+          background-color: hsl(var(--background)) !important;
+          color: hsl(var(--foreground)) !important;
+          padding: 0.5rem 1rem !important;
+        }
+        
+        .n8n-chat-input:focus {
+          border-color: hsl(var(--primary)) !important;
+          box-shadow: 0 0 0 2px rgba(var(--primary), 0.2) !important;
+        }
+        
+        .n8n-chat-send-button {
+          background-color: hsl(var(--primary)) !important;
+          color: hsl(var(--primary-foreground)) !important;
+          border-radius: 50% !important;
+          width: 2.5rem !important;
+          height: 2.5rem !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin-left: 0.5rem !important;
+        }
+        
+        .n8n-chat-welcome-screen {
+          background-color: hsl(var(--background)) !important;
+          color: hsl(var(--foreground)) !important;
+        }
+        
+        .dark .n8n-chat-window {
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .dark .n8n-chat-message-bubble.from-bot {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+      `;
+      document.head.appendChild(styleElement);
+      
       const chatInstance = createChat({
         webhookUrl: webhookUrl,
         chatInputKey: 'chatInput',
@@ -74,6 +161,7 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         return () => {
           chatContainer.removeEventListener('submit', submitHandler);
           chatInitialized.current = false;
+          document.head.removeChild(styleElement);
           console.log('Chat widget unmounted');
         };
       }
@@ -88,7 +176,7 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   }, [toast, webhookUrl, isAuthenticated, user]);
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn('relative z-10', className)}>
       <div id="n8n-chat-container" className="h-full w-full"></div>
     </div>
   );
