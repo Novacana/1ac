@@ -88,8 +88,8 @@ const DoctorDashboard = () => {
 
   return (
     <Layout>
-      <div className={`container px-4 mx-auto ${isMobile ? 'py-4' : 'py-8'}`}>
-        <div className="flex flex-col space-y-6">
+      <div className={`container px-4 mx-auto ${isMobile ? 'py-3' : 'py-6'}`}>
+        <div className="flex flex-col space-y-4">
           <DashboardHeader 
             mainSection={mainSection}
             onSectionChange={setMainSection}

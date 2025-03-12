@@ -45,15 +45,17 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
-      <div className="lg:w-1/4 hidden md:block">
-        <DoctorSidebar 
-          user={user} 
-          onNavChange={onSectionChange}
-          activeSection={mainSection}
-        />
-      </div>
+      {!isMobile && (
+        <div className="lg:w-1/4 hidden md:block">
+          <DoctorSidebar 
+            user={user} 
+            onNavChange={onSectionChange}
+            activeSection={mainSection}
+          />
+        </div>
+      )}
       
-      <div className="lg:w-3/4 flex-1">
+      <div className={`${isMobile ? "w-full" : "lg:w-3/4"} flex-1`}>
         {mainSection === 'prescriptions' ? (
           <Tabs defaultValue="pending" value={activeTab} onValueChange={onTabChange} className="w-full">
             <TabsList className={`grid ${isMobile ? 'grid-cols-3 overflow-x-auto' : 'grid-cols-5'} mb-6`}>
@@ -62,8 +64,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
               <TabsTrigger value="approved">Genehmigt</TabsTrigger>
               {!isMobile && <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>}
               {isMobile && <TabsTrigger value="needs_info">Info</TabsTrigger>}
-              {!isMobile && <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>}
-              {isMobile && <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>}
+              <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
             </TabsList>
             
             <TabsContent value={activeTab} className="mt-0">
