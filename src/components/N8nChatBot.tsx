@@ -11,7 +11,7 @@ interface N8nChatBotProps {
 
 const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   const { toast } = useToast();
-  const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136";
+  const webhookUrl = "https://n8n-tejkg.ondigitalocean.app/webhook/066ad635-ecfa-470c-8761-5d200b645136/chat";
   
   useEffect(() => {
     try {
@@ -39,7 +39,8 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         webhookConfig: {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
         },
       });
