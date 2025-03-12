@@ -1,3 +1,4 @@
+
 import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -39,7 +40,7 @@ const Header = () => {
 
   const getNavItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
-      { name: "Startseite", path: "/", icon: <Home className="h-4 w-4" /> },
+      { name: "School", path: "/", icon: <Home className="h-4 w-4" /> },
       { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
       { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
     ];
