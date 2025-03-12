@@ -14,14 +14,14 @@ export const useChatInitialization = ({ webhookUrl }: UseChatInitializationProps
   const { user, isAuthenticated } = useAuth();
   const chatInitialized = useRef(false);
   const [chatInstance, setChatInstance] = useState<any>(null);
+  const styleElementRef = useRef<HTMLStyleElement | null>(null);
   
   useEffect(() => {
     if (chatInitialized.current) return;
     
-    let styleElement: HTMLStyleElement | null = null;
-    
     try {
-      styleElement = injectN8nChatStyles();
+      // Apply our custom styles before initialization
+      styleElementRef.current = injectN8nChatStyles();
       
       const instance = createChat({
         webhookUrl: webhookUrl,
@@ -56,11 +56,46 @@ export const useChatInitialization = ({ webhookUrl }: UseChatInitializationProps
       setChatInstance(instance);
       chatInitialized.current = true;
       
-      // Re-apply styles after a delay to ensure they override n8n's styles
-      setTimeout(() => {
-        styleElement = reapplyStyles();
-      }, 1000);
+      // Re-apply styles multiple times to ensure they override n8n's styles
+      // which might be loaded asynchronously
+      const applyStylesRepeatedly = () => {
+        // Clean up old style element if it exists
+        if (styleElementRef.current) {
+          document.head.removeChild(styleElementRef.current);
+        }
+        
+        // Apply new styles
+        styleElementRef.current = reapplyStyles();
+      };
       
+      // Apply immediately and then after a delay
+      applyStylesRepeatedly();
+      
+      // Apply styles again after short delays to ensure they override n8n's styles
+      const timeouts = [100, 500, 1000, 2000].map(delay => 
+        setTimeout(applyStylesRepeatedly, delay)
+      );
+      
+      return () => {
+        // Clean up all timeouts
+        timeouts.forEach(clearTimeout);
+        
+        if (chatInstance) {
+          try {
+            if (typeof chatInstance.unmount === 'function') {
+              chatInstance.unmount();
+            }
+          } catch (error) {
+            console.error('Error unmounting chat:', error);
+          }
+        }
+        
+        if (styleElementRef.current) {
+          document.head.removeChild(styleElementRef.current);
+        }
+        
+        chatInitialized.current = false;
+      };
     } catch (error) {
       console.error('Error initializing chat:', error);
       toast({
@@ -69,22 +104,6 @@ export const useChatInitialization = ({ webhookUrl }: UseChatInitializationProps
         variant: "destructive"
       });
     }
-    
-    return () => {
-      if (chatInstance) {
-        try {
-          if (typeof chatInstance.unmount === 'function') {
-            chatInstance.unmount();
-          }
-        } catch (error) {
-          console.error('Error unmounting chat:', error);
-        }
-      }
-      if (styleElement) {
-        document.head.removeChild(styleElement);
-      }
-      chatInitialized.current = false;
-    };
   }, [toast, webhookUrl, isAuthenticated, user]);
 
   return { chatInstance };
