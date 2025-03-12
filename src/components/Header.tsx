@@ -39,6 +39,8 @@ const Header = () => {
 
   const getNavItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
+      { name: "Startseite", path: "/", icon: <Home className="h-4 w-4" /> },
+      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
       { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
     ];
 
@@ -56,10 +58,7 @@ const Header = () => {
       ];
     }
 
-    return [
-      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
-      ...baseItems
-    ];
+    return baseItems;
   };
 
   const navItems = getNavItems();

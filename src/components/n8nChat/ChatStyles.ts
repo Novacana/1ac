@@ -1,3 +1,4 @@
+
 /**
  * Creates and injects custom styles for the N8n chat component
  * @returns The created style element for later cleanup
@@ -6,43 +7,49 @@ export const injectN8nChatStyles = (): HTMLStyleElement => {
   const style = document.createElement('style');
   style.innerHTML = `
     .n8n-chat-window {
-      border-radius: 1.25rem !important;
-      border: 1px solid rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+      border-radius: 0.75rem !important;
+      border: 1px solid hsl(var(--border)) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
       background: hsl(var(--background)) !important;
       font-family: 'Inter var', sans-serif !important;
     }
     
     .n8n-chat-window-header {
       background: hsl(222, 47%, 11%) !important;
-      color: white !important;
-      padding: 1rem !important;
-      border-radius: 1.25rem 1.25rem 0 0 !important;
-      font-family: 'SF Pro Display', 'Inter var', sans-serif !important;
-      font-size: 1.5rem !important;
+      color: hsl(var(--primary-foreground)) !important;
+      padding: 1.25rem !important;
+      border-radius: 0.75rem 0.75rem 0 0 !important;
+      font-family: 'Inter var', sans-serif !important;
+      font-size: 1.75rem !important;
       font-weight: 600 !important;
     }
     
     .n8n-chat-messages-container {
       background: hsl(var(--background)) !important;
       color: hsl(var(--foreground)) !important;
-      font-size: 0.95rem !important;
+      font-family: 'Inter var', sans-serif !important;
+      font-size: 1rem !important;
+      padding: 1rem !important;
     }
     
     .n8n-chat-message-bubble.from-user {
-      background: hsl(var(--primary)) !important;
+      background: hsl(142, 54%, 42%) !important;
       color: hsl(var(--primary-foreground)) !important;
-      font-size: 0.95rem !important;
-      padding: 0.75rem 1rem !important;
-      border-radius: 1rem !important;
+      font-family: 'Inter var', sans-serif !important;
+      font-size: 1rem !important;
+      padding: 0.875rem 1.25rem !important;
+      border-radius: 0.75rem !important;
+      margin: 0.5rem 0 !important;
     }
     
     .n8n-chat-message-bubble.from-bot {
       background: hsl(var(--secondary)) !important;
       color: hsl(var(--secondary-foreground)) !important;
-      font-size: 0.95rem !important;
-      padding: 0.75rem 1rem !important;
-      border-radius: 1rem !important;
+      font-family: 'Inter var', sans-serif !important;
+      font-size: 1rem !important;
+      padding: 0.875rem 1.25rem !important;
+      border-radius: 0.75rem !important;
+      margin: 0.5rem 0 !important;
     }
     
     .n8n-chat-input {
@@ -50,22 +57,24 @@ export const injectN8nChatStyles = (): HTMLStyleElement => {
       color: hsl(var(--foreground)) !important;
       border: 1px solid hsl(var(--border)) !important;
       font-family: 'Inter var', sans-serif !important;
-      font-size: 0.95rem !important;
-      padding: 0.75rem 1rem !important;
+      font-size: 1rem !important;
+      padding: 0.875rem 1.25rem !important;
       border-radius: 0.75rem !important;
+      margin: 0.5rem !important;
     }
     
     .n8n-chat-input::placeholder {
       color: hsl(var(--muted-foreground)) !important;
-      font-size: 0.95rem !important;
+      font-family: 'Inter var', sans-serif !important;
+      font-size: 1rem !important;
     }
     
     .n8n-chat-send-button {
-      background: hsl(var(--primary)) !important;
+      background: hsl(142, 54%, 42%) !important;
       color: hsl(var(--primary-foreground)) !important;
       border-radius: 0.75rem !important;
-      padding: 0.5rem !important;
-      margin-left: 0.5rem !important;
+      padding: 0.75rem !important;
+      margin: 0.5rem !important;
     }
     
     /* Completely hide n8n branding and footer */
