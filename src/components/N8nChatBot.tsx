@@ -3,7 +3,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import '@n8n/chat/style.css';
 import { useChat } from './n8n-chat/useChat';
-import ChatContainer from './chat/ChatContainer';
 
 interface N8nChatBotProps {
   className?: string;
@@ -18,9 +17,9 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
   useChat();
 
   return (
-    <ChatContainer className={className}>
-      <div id="n8n-chat-container" className="h-[500px] w-[350px] rounded-lg shadow-lg"></div>
-    </ChatContainer>
+    <div className={cn('fixed bottom-6 right-6 z-50', className)}>
+      <div id="n8n-chat-container" className="h-[500px] w-[350px]"></div>
+    </div>
   );
 };
 
