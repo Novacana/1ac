@@ -1,4 +1,5 @@
-import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, School } from "lucide-react";
+
+import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -39,9 +40,7 @@ const Header = () => {
 
   const getNavItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
-      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
       { name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> },
-      { name: "School", path: "/school", icon: <School className="h-4 w-4" /> },
     ];
 
     if (isDoctor) {
@@ -58,11 +57,15 @@ const Header = () => {
       ];
     }
 
-    return baseItems;
+    return [
+      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
+      ...baseItems
+    ];
   };
 
   const navItems = getNavItems();
   
+  // Add the handleLogout function
   const handleLogout = () => {
     logout();
     navigate('/');
