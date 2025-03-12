@@ -1,5 +1,5 @@
 
-import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, Home } from "lucide-react";
+import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, Home, CreditCard, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -40,7 +40,7 @@ const Header = () => {
 
   const getNavItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
-      { name: "School", path: "/", icon: <Home className="h-4 w-4" /> },
+      { name: "Home", path: "/", icon: <Home className="h-4 w-4" /> },
       { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
     ];
 
@@ -51,6 +51,7 @@ const Header = () => {
 
     if (isDoctor) {
       return [
+        { name: "Arztprofil", path: "/doctor/profile", icon: <Stethoscope className="h-4 w-4" /> },
         { name: "Patientenverwaltung", path: "/doctor/dashboard", icon: <Users className="h-4 w-4" /> },
         { name: "Rezeptanfragen", path: "/doctor/dashboard", icon: <FileText className="h-4 w-4" /> },
         ...baseItems
@@ -80,8 +81,7 @@ const Header = () => {
         isScrolled
           ? "py-3 bg-background/70 shadow-sm"
           : "py-5 bg-transparent",
-        "animate-fade-in",
-        isMobile ? "hidden" : "block"
+        "animate-fade-in"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">

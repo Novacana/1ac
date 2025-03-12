@@ -1,6 +1,5 @@
 
 import React from 'react';
-import DoctorSidebar from '@/components/doctor/DoctorSidebar';
 import PrescriptionRequestsList from '@/components/doctor/PrescriptionRequestsList';
 import PrescriptionRequestDetail from '@/components/doctor/PrescriptionRequestDetail';
 import PatientManagement from '@/components/doctor/PatientManagement';
@@ -44,18 +43,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      {!isMobile && (
-        <div className="lg:w-1/4 hidden md:block">
-          <DoctorSidebar 
-            user={user} 
-            onNavChange={onSectionChange}
-            activeSection={mainSection}
-          />
-        </div>
-      )}
-      
-      <div className={`${isMobile ? "w-full" : "lg:w-3/4"} flex-1`}>
+    <div className="flex flex-col gap-6">
+      <div className="w-full">
         {mainSection === 'prescriptions' ? (
           <Tabs defaultValue="pending" value={activeTab} onValueChange={onTabChange} className="w-full">
             <TabsList className={`grid ${isMobile ? 'grid-cols-3 overflow-x-auto' : 'grid-cols-5'} mb-6`}>

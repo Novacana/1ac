@@ -1,128 +1,67 @@
 
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { Toaster } from "./components/ui/toaster";
-import { Toaster as SonnerToaster } from "sonner";
-import Index from "./pages/Index";
-import Products from "./pages/Products";
-import Product from "./pages/Product";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import NotFound from "./pages/NotFound";
-import AdminConfig from "./pages/AdminConfig";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import DoctorLanding from "./pages/DoctorLanding";
-import PharmacyLanding from "./pages/PharmacyLanding"; 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Settings from "./pages/Settings";
-import UserDashboard from "./pages/UserDashboard";
-import PharmacyManagement from "./pages/PharmacyManagement";
-import PharmacyProfile from "./pages/PharmacyProfile";
-import Documentation from "./pages/Documentation";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import { CartProvider } from "./contexts/CartContext";
-import AuthProvider, { useAuth } from "./contexts/AuthContext";
-import GDPRCookieConsent from "./components/GDPRCookieConsent";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { ThemeProvider } from './components/ThemeProvider';
+import './index.css';
 
-// Protected Route Component for Doctor
-const DoctorRoute = ({ children }) => {
-  const { isAuthenticated, isDoctor } = useAuth();
-  
-  if (!isAuthenticated || !isDoctor) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
-};
+// Pages
+import Index from './pages/Index';
+import DoctorLanding from './pages/DoctorLanding';
+import PharmacyLanding from './pages/PharmacyLanding';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Products from './pages/Products';
+import Product from './pages/Product';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import NotFound from './pages/NotFound';
+import DoctorDashboard from './pages/DoctorDashboard';
+import DoctorProfile from './pages/DoctorProfile';
+import PharmacyProfile from './pages/PharmacyProfile';
+import PharmacyManagement from './pages/PharmacyManagement';
+import Documentation from './pages/Documentation';
+import UserDashboard from './pages/UserDashboard';
+import Settings from './pages/Settings';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import AdminConfig from './pages/AdminConfig';
 
-// Protected Route Component for Authenticated Users
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
-};
-
-// Protected Route Component for Pharmacy Users
-const PharmacyRoute = ({ children }) => {
-  const { isAuthenticated, isPharmacy } = useAuth();
-  
-  if (!isAuthenticated || !isPharmacy) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
-};
+// Providers
+import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/product/:id" element={<Product />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/admin/config" element={<AdminConfig />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/documentation" element={<Documentation />} />
-            <Route path="/datenschutz" element={<PrivacyPolicy />} />
-            <Route path="/doctor/landing" element={<DoctorLanding />} />
-            <Route path="/pharmacy/landing" element={<PharmacyLanding />} />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/doctor/dashboard" 
-              element={
-                <DoctorRoute>
-                  <DoctorDashboard />
-                </DoctorRoute>
-              } 
-            />
-            <Route 
-              path="/pharmacy/management" 
-              element={
-                <PharmacyRoute>
-                  <PharmacyManagement />
-                </PharmacyRoute>
-              } 
-            />
-            <Route 
-              path="/pharmacy/profile" 
-              element={
-                <PharmacyRoute>
-                  <PharmacyProfile />
-                </PharmacyRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard/*" 
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-          <SonnerToaster position="top-center" />
-          <GDPRCookieConsent />
-        </Router>
-      </CartProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <AuthProvider>
+          <CartProvider>
+            <Toaster position="top-center" />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/doctor" element={<DoctorLanding />} />
+              <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+              <Route path="/doctor/profile" element={<DoctorProfile />} />
+              <Route path="/pharmacy" element={<PharmacyLanding />} />
+              <Route path="/pharmacy/management" element={<PharmacyManagement />} />
+              <Route path="/pharmacy/profile" element={<PharmacyProfile />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/product/:id" element={<Product />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
+              <Route path="/dashboard/:section" element={<UserDashboard />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/documentation" element={<Documentation />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/admin/config" element={<AdminConfig />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 
