@@ -1,15 +1,39 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Info, AlertTriangle, FileText, Settings, User, Building, BookOpen } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 const Documentation: React.FC = () => {
   const [activeTab, setActiveTab] = useState("doctors");
+  const { isAuthenticated, isDoctor, isPharmacy } = useAuth();
+  const navigate = useNavigate();
+
+  // Check if user has access to documentation
+  const hasAccess = isAuthenticated && (isDoctor || isPharmacy);
+
+  if (!hasAccess) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto text-center">
+            <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h1 className="text-2xl font-bold mb-4">Geschützter Bereich</h1>
+            <p className="text-muted-foreground mb-6">
+              Diese Dokumentation ist nur für registrierte Ärzte und Apotheken zugänglich.
+            </p>
+            <Button onClick={() => navigate("/login")} className="w-full">
+              Anmelden
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
