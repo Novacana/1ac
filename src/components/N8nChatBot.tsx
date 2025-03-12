@@ -21,14 +21,15 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
         target: '#n8n-chat-container',
         mode: 'window',
         showWelcomeScreen: true,
-        defaultLanguage: 'de',
+        defaultLanguage: 'en',
         i18n: {
-          de: {
+          en: {
             title: 'Cannabis Berater',
             subtitle: "Haben Sie Fragen zu medizinischem Cannabis? Ich bin hier, um Ihnen zu helfen.",
             footer: 'Ihre Daten werden gemäß DSGVO und HIPAA verarbeitet.',
             getStarted: 'Neue Beratung starten',
             inputPlaceholder: 'Schreiben Sie Ihre Frage...',
+            closeButtonTooltip: 'Chat schließen',
           },
         },
         initialMessages: [
@@ -68,3 +69,4 @@ const N8nChatBot: React.FC<N8nChatBotProps> = ({ className }) => {
 };
 
 export default N8nChatBot;
+
