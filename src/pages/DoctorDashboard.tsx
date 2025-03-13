@@ -28,8 +28,11 @@ const DoctorDashboard = () => {
       return;
     }
 
-    // Check if user is a doctor, but don't call isDoctor as a function if it's a boolean
-    if (typeof isDoctor === 'function' ? !isDoctor(user) : !isDoctor) {
+    // Fix: Check if user is a doctor without calling isDoctor
+    // isDoctor could be a boolean or a function, so we need to handle both cases
+    const isDoctorUser = typeof isDoctor === 'boolean' ? isDoctor : (user && user.role === 'doctor');
+    
+    if (!isDoctorUser) {
       toast.error('Sie haben keinen Zugriff auf diese Seite.');
       navigate('/');
       return;
