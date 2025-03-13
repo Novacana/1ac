@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +27,6 @@ import {
   SaveIcon,
   Shield
 } from "lucide-react";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -58,13 +56,11 @@ const DoctorProfile: React.FC = () => {
     specialty: ""
   });
 
-  // Redirect non-doctor users
   if (isAuthenticated && !isDoctor) {
     navigate("/dashboard");
     return null;
   }
 
-  // Redirect non-authenticated users
   if (!isAuthenticated) {
     navigate("/login");
     return null;
@@ -81,7 +77,6 @@ const DoctorProfile: React.FC = () => {
     
     setLoading(true);
     try {
-      // Fetch doctor statistics
       const { data: statsData, error: statsError } = await supabase
         .from('doctor_statistics')
         .select('*')
@@ -99,7 +94,6 @@ const DoctorProfile: React.FC = () => {
         });
       }
       
-      // Fetch license information
       const { data: licenseData, error: licenseError } = await supabase
         .from('medical_licenses')
         .select('*')
@@ -118,7 +112,6 @@ const DoctorProfile: React.FC = () => {
         });
       }
       
-      // Update personal info with actual user data
       setPersonalInfo({
         name: user.name || "",
         specialty: licenseData?.specialty || "Allgemeinmedizin",
@@ -137,21 +130,18 @@ const DoctorProfile: React.FC = () => {
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      // Update user profile
       await updateUserProfile({
         name: personalInfo.name,
         email: personalInfo.email,
         phone: personalInfo.phone
       });
       
-      // Log GDPR-compliant action
       await supabase.from('gdpr_logs').insert({
         user_id: user?.id,
         action_type: 'profile_update',
         description: 'User updated their profile information'
       });
       
-      // Update license info if it exists
       if (licenseInfo.licenseNumber) {
         const { data, error } = await supabase
           .from('medical_licenses')
@@ -194,7 +184,6 @@ const DoctorProfile: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Arztprofil</h1>
             <p className="text-muted-foreground">
@@ -202,7 +191,6 @@ const DoctorProfile: React.FC = () => {
             </p>
           </div>
 
-          {/* GDPR Compliance Notice */}
           <Alert className="mb-6">
             <Shield className="h-4 w-4" />
             <AlertTitle>GDPR & HIPAA Konformität</AlertTitle>
@@ -212,9 +200,7 @@ const DoctorProfile: React.FC = () => {
             </AlertDescription>
           </Alert>
 
-          {/* Profile Section */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar */}
             <div className="lg:col-span-1">
               <Card>
                 <CardHeader>
@@ -281,7 +267,6 @@ const DoctorProfile: React.FC = () => {
               </Card>
             </div>
 
-            {/* Content Area */}
             <div className="lg:col-span-3">
               <Card>
                 <CardHeader>
