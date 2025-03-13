@@ -57,9 +57,7 @@ const getStatusBadge = (status) => {
 const OrdersList = () => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Meine Bestellungen</h2>
-      </div>
+      {/* Removed "Meine Bestellungen" heading from here */}
       
       {mockOrders.length > 0 ? (
         <div className="space-y-4">

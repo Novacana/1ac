@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -21,7 +20,6 @@ const UserDashboard = () => {
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<UserSection>('orders');
   
-  // Update activeSection based on current location
   useEffect(() => {
     if (location.pathname.includes('/dashboard/consultations')) {
       setActiveSection('consultations');
@@ -34,12 +32,11 @@ const UserDashboard = () => {
     }
   }, [location.pathname]);
 
-  // Helper function to get the current page title
   const getPageTitle = () => {
     if (location.pathname.includes('/dashboard/consultations')) return 'Beratungen';
     if (location.pathname.includes('/dashboard/wishlist')) return 'Wunschliste';
     if (location.pathname.includes('/dashboard/settings')) return isMobile ? '' : 'Einstellungen';
-    return 'Bestellungen';
+    return '';
   };
 
   const handleSectionChange = (section: UserSection) => {
@@ -47,7 +44,6 @@ const UserDashboard = () => {
     navigate(`/dashboard${section === 'orders' ? '' : `/${section}`}`);
   };
 
-  // Render the appropriate component based on the active section
   const renderContent = () => {
     switch (activeSection) {
       case 'consultations':
@@ -68,7 +64,6 @@ const UserDashboard = () => {
         <div className={`mx-auto ${isMobile ? 'px-0 py-0 pb-24' : 'container px-4 py-6'}`}>
           {!isMobile && (
             <>
-              {/* Breadcrumb for desktop */}
               <div className="flex items-center text-sm text-muted-foreground mb-6">
                 <Link to="/" className="hover:underline flex items-center">
                   <Home className="h-3.5 w-3.5 mr-1" />
@@ -87,12 +82,10 @@ const UserDashboard = () => {
               </div>
               
               <div className="flex flex-col md:flex-row gap-8">
-                {/* Sidebar */}
                 <div className="md:w-1/4">
                   <UserSidebar user={user} />
                 </div>
                 
-                {/* Main content */}
                 <div className="md:w-3/4">
                   {renderContent()}
                 </div>
@@ -154,7 +147,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeSection, onSe
       <div className="grid grid-cols-4 gap-1 p-2">
         <MobileNavigationItem
           icon={<ShoppingBag className="h-5 w-5" />}
-          label="Bestellungen"
+          label=""
           active={activeSection === 'orders'}
           onClick={() => onSectionChange('orders')}
         />
@@ -172,7 +165,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeSection, onSe
         />
         <MobileNavigationItem
           icon={<Settings className="h-5 w-5" />}
-          label="Einstellungen"
+          label=""
           active={activeSection === 'settings'}
           onClick={() => onSectionChange('settings')}
         />
