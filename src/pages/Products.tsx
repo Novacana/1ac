@@ -10,6 +10,7 @@ import LoadingState from "@/components/product/LoadingState";
 import { parseThcPercentage } from "@/utils/product-value-utils";
 import ProductDataLoader from "@/components/home/ProductDataLoader";
 import { useLocation } from "react-router-dom";
+import CategoryButtons from "@/components/product/CategoryButtons";
 
 // Constants for filter limits
 const MAX_THC = 30;
@@ -167,6 +168,13 @@ const Products = () => {
           <LoadingState />
         ) : (
           <>
+            {/* Add the CategoryButtons component before the Filters */}
+            <CategoryButtons
+              categories={["All", ...categories]}
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+            
             <Filters 
               filters={filters}
               onFilterChange={setFilters}
