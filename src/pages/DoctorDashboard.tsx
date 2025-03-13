@@ -9,27 +9,8 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { logGdprActivity } from '@/utils/fhir/activityLogging';
 import DoctorSidebar from '@/components/doctor/DoctorSidebar';
-
-// Let's create new interfaces for our components
-interface DashboardHeaderProps {
-  mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
-  onSectionChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
-}
-
-interface DashboardContentProps {
-  user: any;
-  mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
-  activeTab: string;
-  selectedRequest: PrescriptionRequest | undefined;
-  filteredRequests: PrescriptionRequest[];
-  loading: boolean;
-  selectedRequestId: string | null;
-  onSectionChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
-  onTabChange: (value: string) => void;
-  onSelectRequest: (id: string) => void;
-  onRequestUpdate: (updatedRequest: PrescriptionRequest) => void;
-  onAssignDoctor: (requestId: string) => void;
-}
+import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
+import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
 
 const DoctorDashboard = () => {
   const { user, isDoctor } = useAuth();
@@ -47,7 +28,8 @@ const DoctorDashboard = () => {
       return;
     }
 
-    if (!isDoctor(user)) {
+    // Check if user is a doctor, but don't call isDoctor as a function if it's a boolean
+    if (typeof isDoctor === 'function' ? !isDoctor(user) : !isDoctor) {
       toast.error('Sie haben keinen Zugriff auf diese Seite.');
       navigate('/');
       return;
@@ -188,33 +170,25 @@ const DoctorDashboard = () => {
           
           <div className="lg:w-3/4">
             <div className="flex flex-col h-full">
-              {/* Import DashboardHeader from components/doctor/dashboard/DashboardHeader.tsx */}
-              {React.createElement(
-                require('@/components/doctor/dashboard/DashboardHeader').default,
-                {
-                  mainSection,
-                  onSectionChange: handleSectionChange
-                }
-              )}
+              <DashboardHeader
+                mainSection={mainSection}
+                onSectionChange={handleSectionChange}
+              />
               
-              {/* Import DashboardContent from components/doctor/dashboard/DashboardContent.tsx */}
-              {React.createElement(
-                require('@/components/doctor/dashboard/DashboardContent').default,
-                {
-                  user,
-                  mainSection,
-                  activeTab,
-                  selectedRequest,
-                  filteredRequests,
-                  loading,
-                  selectedRequestId,
-                  onSectionChange: handleSectionChange,
-                  onTabChange: handleTabChange,
-                  onSelectRequest: handleRequestSelect,
-                  onRequestUpdate: handleRequestUpdate,
-                  onAssignDoctor: handleAssignDoctor
-                }
-              )}
+              <DashboardContent
+                user={user}
+                mainSection={mainSection}
+                activeTab={activeTab}
+                selectedRequest={selectedRequest}
+                filteredRequests={filteredRequests}
+                loading={loading}
+                selectedRequestId={selectedRequestId}
+                onSectionChange={handleSectionChange}
+                onTabChange={handleTabChange}
+                onSelectRequest={handleRequestSelect}
+                onRequestUpdate={handleRequestUpdate}
+                onAssignDoctor={handleAssignDoctor}
+              />
             </div>
           </div>
         </div>
