@@ -8,6 +8,8 @@
  * - FHIR (Fast Healthcare Interoperability Resources)
  */
 
+import { supabase } from '@/integrations/supabase/client';
+
 // Check if data processing is GDPR compliant
 export const isGDPRCompliant = (data: any): boolean => {
   // Simplified implementation - in a real app, this would check:
@@ -62,4 +64,84 @@ export const logDataAccess = (
   // - Log to secure audit system
   // - Record timestamp, user, action, data accessed
   console.log(`[AUDIT] User ${userId} performed ${action} on ${resourceType}/${resourceId}`);
+};
+
+// Log GDPR activity for compliance
+export const logGdprActivity = async (
+  userId: string,
+  actionType: string,
+  description: string,
+  metadata?: Record<string, any>
+): Promise<void> => {
+  try {
+    const payload: Record<string, any> = {
+      user_id: userId,
+      action_type: actionType,
+      description: description
+    };
+    
+    // Add metadata if provided
+    if (metadata) {
+      payload.metadata = metadata;
+    }
+    
+    await supabase.from('gdpr_logs').insert(payload);
+  } catch (error) {
+    console.error('Error logging GDPR activity:', error);
+  }
+};
+
+// Convert doctor data to FHIR Practitioner format
+export const convertDoctorToFHIRPractitioner = async (user: any): Promise<any> => {
+  if (!user) return null;
+  
+  // Create FHIR Practitioner resource
+  return {
+    resourceType: 'Practitioner',
+    id: `practitioner-${user.id}`,
+    identifier: [
+      {
+        system: 'urn:oid:2.16.840.1.113883.4.6',
+        value: user.id
+      }
+    ],
+    active: true,
+    name: [
+      {
+        use: 'official',
+        family: user.lastName || user.name?.split(' ')[1] || '',
+        given: [user.firstName || user.name?.split(' ')[0] || '']
+      }
+    ],
+    telecom: [
+      {
+        system: 'email',
+        value: user.email,
+        use: 'work'
+      }
+    ],
+    qualification: [
+      {
+        code: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/v2-0360',
+              code: 'MD',
+              display: 'Doctor of Medicine'
+            }
+          ],
+          text: user.specialty || 'Allgemeinarzt'
+        }
+      }
+    ],
+    meta: {
+      security: [
+        {
+          system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+          code: 'R',
+          display: 'Restricted'
+        }
+      ]
+    }
+  };
 };
