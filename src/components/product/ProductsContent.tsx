@@ -4,7 +4,7 @@ import { Product } from "@/types/product";
 import ProductList from "@/components/product/ProductList";
 import EmptyProductState from "@/components/EmptyProductState";
 import CategoryButtons from "@/components/product/CategoryButtons";
-import Filters from "@/components/home/Filters";
+import Filters, { FilterOptions } from "@/components/home/Filters";
 import LoadingState from "@/components/product/LoadingState";
 
 interface ProductsContentProps {
@@ -13,8 +13,8 @@ interface ProductsContentProps {
   categories: string[];
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
-  filters: any;
-  onFilterChange: (filters: any) => void;
+  filters: FilterOptions;
+  onFilterChange: (filters: FilterOptions) => void;
   onResetFilters: () => void;
   maxPrice: number;
   searchQuery: string;
