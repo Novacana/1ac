@@ -20,7 +20,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
         <h1 className={`text-2xl font-bold ${isMobile ? 'mb-2' : 'mr-4'}`}>
           {mainSection === 'prescriptions' ? 'Rezeptverwaltung' : 
            mainSection === 'patients' ? 'Patientenverwaltung' : 
-           mainSection === 'open_requests' ? 'Offene Anfragen' : 
+           mainSection === 'open_requests' ? 'Rezeptanfragen' : 
            mainSection === 'calendar' ? 'Kalender' : 'Videosprechstunde'}
         </h1>
         <div className="flex flex-wrap gap-2">
@@ -48,7 +48,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
             onClick={() => onSectionChange('open_requests')}
           >
             <InboxIcon className="h-4 w-4" />
-            Offene Anfragen
+            Rezeptanfragen
           </Button>
           
           <Button 

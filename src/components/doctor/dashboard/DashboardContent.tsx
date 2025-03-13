@@ -9,6 +9,7 @@ import DoctorCalendar from '@/components/doctor/DoctorCalendar';
 import { PrescriptionRequest } from '@/types/prescription';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { InboxIcon } from 'lucide-react';
 
 interface DashboardContentProps {
   user: any;
@@ -131,13 +132,19 @@ const DashboardContent: React.FC<DashboardContentProps> = memo(({
         ) : mainSection === 'calendar' ? (
           <DoctorCalendar />
         ) : (
-          <OpenRequestsPanel 
-            requests={filteredRequests}
-            loading={loading}
-            onAssignDoctor={onAssignDoctor}
-            selectedRequestId={selectedRequestId}
-            onSelectRequest={onSelectRequest}
-          />
+          <>
+            <div className="mb-4 flex items-center gap-2">
+              <InboxIcon className="h-5 w-5" />
+              <h2 className="text-xl font-semibold">Rezeptanfragen</h2>
+            </div>
+            <OpenRequestsPanel 
+              requests={filteredRequests}
+              loading={loading}
+              onAssignDoctor={onAssignDoctor}
+              selectedRequestId={selectedRequestId}
+              onSelectRequest={onSelectRequest}
+            />
+          </>
         )}
       </div>
     </div>

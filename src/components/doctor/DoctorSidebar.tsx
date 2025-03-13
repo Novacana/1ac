@@ -70,7 +70,7 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ user, onNavChange, active
             onClick={() => onNavChange('open_requests')}
           >
             <InboxIcon className="h-4 w-4" />
-            Offene Anfragen
+            Rezeptanfragen
           </Button>
 
           <Button 
