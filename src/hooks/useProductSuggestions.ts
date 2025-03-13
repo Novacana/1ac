@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useProductLoader } from './useProductLoader';
 import { Product } from '@/types/product';
+import { ProductDetailProps } from '@/components/ProductDetail';
 
 export const useProductSuggestions = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -38,9 +39,11 @@ export const useProductSuggestions = () => {
           });
         }
         
-        // Add benefits (symptoms)
-        if (product.benefits && Array.isArray(product.benefits)) {
-          product.benefits.forEach(benefit => {
+        // Add benefits (symptoms) - safely access as it might not exist in the Product type
+        // Use type assertion to handle the potential extended product properties
+        const extendedProduct = product as (Product & Partial<ProductDetailProps>);
+        if (extendedProduct.benefits && Array.isArray(extendedProduct.benefits)) {
+          extendedProduct.benefits.forEach(benefit => {
             if (benefit) suggestionsSet.add(benefit);
           });
         }
