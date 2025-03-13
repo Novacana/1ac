@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CalendarHeaderProps {
   onPrevious: () => void;
@@ -24,11 +25,12 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   showNavigation = true,
   showMainTitle = true
 }) => {
+  const isMobile = useIsMobile();
+
   return (
     <>
-      {showMainTitle && (
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Arzt-Kalender</h2>
+      {showMainTitle && !isMobile && (
+        <div className="flex items-center justify-between mb-4">
           <div className="flex gap-2">
             <Button 
               variant="outline" 
@@ -60,6 +62,11 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </Button>
           </div>
           <h3 className="text-lg font-medium">{dateHeader}</h3>
+          {isMobile && (
+            <Button size="sm" className="ml-2" onClick={onNewEvent}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       )}
     </>

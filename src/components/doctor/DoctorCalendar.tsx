@@ -1,8 +1,8 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Import components
 import CalendarSidebar from './calendar/CalendarSidebar';
@@ -37,6 +37,7 @@ const DoctorCalendar: React.FC = () => {
     notes: '',
     patientName: ''
   });
+  const isMobile = useIsMobile();
 
   // Get patient records for current event
   const patientRecords = useMemo(() => {
@@ -131,6 +132,111 @@ const DoctorCalendar: React.FC = () => {
 
   const dateHeader = getDateHeader(view, date, weekDays);
 
+  // Mobile-optimized layout
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center mb-2">
+          <CalendarHeader 
+            onPrevious={navigatePrevious}
+            onNext={navigateNext}
+            onToday={navigateToday}
+            onNewEvent={() => handleNewEvent()}
+            onSyncClick={() => setIsSyncDialogOpen(true)}
+            dateHeader={dateHeader}
+            showMainTitle={false}
+          />
+        </div>
+        
+        <div className="mb-2">
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex rounded-md shadow-sm">
+              <Button 
+                variant={view === 'day' ? 'default' : 'outline'} 
+                className="rounded-l-md rounded-r-none px-3 py-1 h-9"
+                onClick={() => setView('day')}
+              >
+                Tag
+              </Button>
+              <Button 
+                variant={view === 'week' ? 'default' : 'outline'} 
+                className="rounded-none px-3 py-1 h-9 border-x-0"
+                onClick={() => setView('week')}
+              >
+                Woche
+              </Button>
+              <Button 
+                variant={view === 'month' ? 'default' : 'outline'} 
+                className="rounded-r-md rounded-l-none px-3 py-1 h-9"
+                onClick={() => setView('month')}
+              >
+                Monat
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {view === 'day' && (
+          <DayView 
+            filteredEvents={filteredEvents}
+            date={date}
+            onNewEvent={handleNewEvent}
+            onViewEvent={handleViewEvent}
+          />
+        )}
+
+        {view === 'week' && (
+          <WeekView 
+            weekDays={weekDays}
+            date={date}
+            events={events}
+            onNewEvent={handleNewEvent}
+            onViewEvent={handleViewEvent}
+          />
+        )}
+        
+        {view === 'month' && (
+          <MonthView 
+            date={date}
+            events={events}
+            onDateSelect={(day) => {
+              setDate(day);
+              handleNewEvent(day);
+            }}
+            onViewEvent={handleViewEvent}
+          />
+        )}
+
+        {/* Dialogs */}
+        <NewEventDialog 
+          isOpen={isNewEventOpen}
+          onOpenChange={setIsNewEventOpen}
+          newEventData={newEventData}
+          onDataChange={setNewEventData}
+          onCreateEvent={handleCreateEvent}
+        />
+
+        <ViewEventDialog 
+          isOpen={isViewEventOpen}
+          onOpenChange={setIsViewEventOpen}
+          currentEvent={currentEvent}
+          patientRecords={patientRecords}
+          showPatientBriefing={showPatientBriefing}
+          onTogglePatientBriefing={togglePatientBriefing}
+          onDeleteEvent={handleDeleteEvent}
+        />
+
+        <SyncCalendarDialog 
+          isOpen={isSyncDialogOpen}
+          onOpenChange={setIsSyncDialogOpen}
+          onSyncCalendars={handleSyncCalendars}
+          syncOptions={calendarSyncOptions}
+        />
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="space-y-6">
       <CalendarHeader 
