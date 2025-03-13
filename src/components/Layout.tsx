@@ -25,12 +25,12 @@ const Layout = ({
   
   return (
     <div className={`flex flex-col min-h-screen ${className || ''}`}>
-      {!noHeader && <Header />}
+      {!noHeader && !isMobile && <Header />}
       
       {/* Mobile navigation dots */}
       {isMobile && <MobileNavDots />}
       
-      <main className={`flex-1 ${!fullWidth ? "container mx-auto" : ""} pt-[calc(var(--header-height)+1rem)]`}>
+      <main className={`flex-1 ${!fullWidth ? "container mx-auto" : ""} ${isMobile ? "pt-5" : "pt-[calc(var(--header-height)+1rem)]"}`}>
         {children}
       </main>
       
