@@ -1,10 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileClock, Eye, MessageCircle } from 'lucide-react';
+import { FileClock, Eye, MessageCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { isGDPRCompliant, isHIPAACompliant } from '@/utils/fhirCompliance';
 
 // Mock consultation data
 const mockConsultations = [
@@ -14,7 +23,10 @@ const mockConsultations = [
     doctor: 'Dr. Schmidt',
     status: 'completed',
     type: 'Erstberatung',
-    notes: 'Erstrezept für CBD Öl 5% ausgestellt.'
+    notes: 'Erstrezept für CBD Öl 5% ausgestellt.',
+    doctorSpecialty: 'Allgemeinmedizin',
+    duration: '25 Minuten',
+    summary: 'Ausführliche Erstberatung zu cannabisbasierten Therapiemöglichkeiten. Patient berichtet über chronische Schmerzen. Empfehlung für CBD Öl 5% mit anfänglich niedriger Dosierung.'
   },
   {
     id: 'CONS-1785',
@@ -22,7 +34,10 @@ const mockConsultations = [
     doctor: 'Dr. Schmidt',
     status: 'scheduled',
     type: 'Nachsorge',
-    appointmentDate: '12. August 2023, 14:30 Uhr'
+    appointmentDate: '12. August 2023, 14:30 Uhr',
+    doctorSpecialty: 'Allgemeinmedizin',
+    duration: '15 Minuten',
+    summary: 'Folgetermin zur Überprüfung des Therapieverlaufs und ggf. Anpassung der Dosierung.'
   },
   {
     id: 'CONS-3025',
@@ -30,7 +45,10 @@ const mockConsultations = [
     doctor: 'Dr. Schmidt',
     status: 'pending',
     type: 'Rezepterneuerung',
-    notes: 'Anfrage für Rezepterneuerung gestellt.'
+    notes: 'Anfrage für Rezepterneuerung gestellt.',
+    doctorSpecialty: 'Allgemeinmedizin',
+    duration: 'N/A',
+    summary: 'Anfrage zur Erneuerung des bestehenden Rezepts für CBD Öl 5%. Patient berichtet über gute Verträglichkeit und Wirksamkeit.'
   }
 ];
 
@@ -51,6 +69,19 @@ const getStatusBadge = (status) => {
 };
 
 const ConsultationsList = () => {
+  const [selectedConsultation, setSelectedConsultation] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  
+  const handleViewDetails = (consultation) => {
+    // Check GDPR and HIPAA compliance before showing medical data
+    if (isGDPRCompliant(consultation) && isHIPAACompliant(consultation)) {
+      setSelectedConsultation(consultation);
+      setDetailsOpen(true);
+    } else {
+      console.error("Compliance check failed for medical data");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -97,7 +128,12 @@ const ConsultationsList = () => {
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex items-center gap-2"
+                      onClick={() => handleViewDetails(consultation)}
+                    >
                       <Eye className="h-4 w-4" />
                       Details
                     </Button>
@@ -127,6 +163,82 @@ const ConsultationsList = () => {
           </div>
         </Card>
       )}
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedConsultation?.id} - {selectedConsultation?.type}</DialogTitle>
+            <DialogDescription>
+              Erstellt am {selectedConsultation?.date}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedConsultation && (
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Status:</span>
+                {getStatusBadge(selectedConsultation.status)}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4">
+                <div>
+                  <h4 className="text-sm text-muted-foreground">Arzt</h4>
+                  <p className="font-medium">{selectedConsultation.doctor}</p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm text-muted-foreground">Fachgebiet</h4>
+                  <p>{selectedConsultation.doctorSpecialty}</p>
+                </div>
+                
+                {selectedConsultation.appointmentDate && (
+                  <div>
+                    <h4 className="text-sm text-muted-foreground">Termin</h4>
+                    <p>{selectedConsultation.appointmentDate}</p>
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="text-sm text-muted-foreground">Dauer</h4>
+                  <p>{selectedConsultation.duration}</p>
+                </div>
+              </div>
+              
+              {selectedConsultation.summary && (
+                <div>
+                  <h4 className="text-sm text-muted-foreground mb-1">Zusammenfassung</h4>
+                  <p className="text-sm">{selectedConsultation.summary}</p>
+                </div>
+              )}
+              
+              {selectedConsultation.notes && (
+                <div>
+                  <h4 className="text-sm text-muted-foreground mb-1">Notizen</h4>
+                  <p className="text-sm">{selectedConsultation.notes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setDetailsOpen(false)}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Schließen
+            </Button>
+            
+            {selectedConsultation?.status === 'scheduled' && (
+              <Button className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Zum Videochat
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
