@@ -11,6 +11,7 @@ import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
 import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
 import { usePrescriptionRequests } from '@/hooks/usePrescriptionRequests';
 import { useDashboardNavigation } from '@/hooks/useDashboardNavigation';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const DoctorDashboard = () => {
   const { user } = useAuth();
@@ -60,43 +61,45 @@ const DoctorDashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {!isMobile && (
-            <div className="lg:w-1/4">
-              <DoctorSidebar 
-                user={user} 
-                onNavChange={handleSectionChange}
-                activeSection={mainSection}
-              />
-            </div>
-          )}
-          
-          <div className="lg:w-3/4">
-            <div className="flex flex-col h-full">
-              <DashboardHeader
-                mainSection={mainSection}
-                onSectionChange={handleSectionChange}
-              />
-              
-              <DashboardContent
-                user={user}
-                mainSection={mainSection}
-                activeTab={activeTab}
-                selectedRequest={selectedRequest}
-                filteredRequests={filteredRequests}
-                loading={loading}
-                selectedRequestId={selectedRequestId}
-                onSectionChange={handleSectionChange}
-                onTabChange={handleTabChange}
-                onSelectRequest={handleRequestSelect}
-                onRequestUpdate={handleRequestUpdate}
-                onAssignDoctor={handleAssignDoctor}
-              />
+      <TooltipProvider>
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {!isMobile && (
+              <div className="lg:w-1/4">
+                <DoctorSidebar 
+                  user={user} 
+                  onNavChange={handleSectionChange}
+                  activeSection={mainSection}
+                />
+              </div>
+            )}
+            
+            <div className="lg:w-3/4">
+              <div className="flex flex-col h-full">
+                <DashboardHeader
+                  mainSection={mainSection}
+                  onSectionChange={handleSectionChange}
+                />
+                
+                <DashboardContent
+                  user={user}
+                  mainSection={mainSection}
+                  activeTab={activeTab}
+                  selectedRequest={selectedRequest}
+                  filteredRequests={filteredRequests}
+                  loading={loading}
+                  selectedRequestId={selectedRequestId}
+                  onSectionChange={handleSectionChange}
+                  onTabChange={handleTabChange}
+                  onSelectRequest={handleRequestSelect}
+                  onRequestUpdate={handleRequestUpdate}
+                  onAssignDoctor={handleAssignDoctor}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </TooltipProvider>
     </Layout>
   );
 };
