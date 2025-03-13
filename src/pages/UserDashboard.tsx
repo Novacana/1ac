@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -5,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import UserSidebar from '@/components/user/UserSidebar';
 import OrdersList from '@/components/user/OrdersList';
-import ConsultationsList from '@/components/user/ConsultationsList';
+import ConsultationsList from '@/components/user/consultations';
 import WishlistItems from '@/components/user/WishlistItems';
 import UserSettings from '@/components/user/UserSettings';
 import { ChevronRight, Home, ShoppingBag, VideoIcon, Heart, Settings } from 'lucide-react';
