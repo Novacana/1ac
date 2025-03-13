@@ -1,153 +1,190 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
-import AddressManager from './AddressManager';
-import PaymentMethodManager from './PaymentMethodManager';
-import { UserCircle, Lock, Phone } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserCircle, Mail, Lock, Bell, Languages } from 'lucide-react';
 
 const UserSettings = () => {
-  const { user, updateUserProfile } = useAuth();
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateUserProfile({ name, email, phone });
-    toast.success('Profil aktualisiert');
-  };
-  
-  const handlePasswordUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwörter stimmen nicht überein');
-      return;
-    }
-    
-    // Implement password update logic here
-    toast.success('Passwort aktualisiert');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  };
-  
+  const { user } = useAuth();
+  const isMobile = useIsMobile();
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Kontoeinstellungen</h2>
+      {!isMobile && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Kontoeinstellungen</h2>
+        </div>
+      )}
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCircle className="h-5 w-5" />
-            Persönliche Informationen
-          </CardTitle>
-          <CardDescription>
-            Aktualisieren Sie Ihre persönlichen Daten
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleProfileUpdate} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input 
-                id="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">E-Mail-Adresse</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefonnummer</Label>
-              <Input 
-                id="phone" 
-                type="tel" 
-                value={phone || ''} 
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+49 123 456789"
-              />
-            </div>
-            
-            <Button type="submit">Speichern</Button>
-          </form>
-        </CardContent>
-      </Card>
-      
-      <AddressManager />
-      
-      <PaymentMethodManager />
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Passwort ändern
-          </CardTitle>
-          <CardDescription>
-            Aktualisieren Sie Ihr Passwort regelmäßig für mehr Sicherheit
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordUpdate} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Aktuelles Passwort</Label>
-              <Input 
-                id="currentPassword" 
-                type="password" 
-                value={currentPassword} 
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">Neues Passwort</Label>
-              <Input 
-                id="newPassword" 
-                type="password" 
-                value={newPassword} 
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
-              <Input 
-                id="confirmPassword" 
-                type="password" 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-            </div>
-            
-            <Button type="submit">Passwort ändern</Button>
-          </form>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="profile" className="flex items-center gap-2">
+            <UserCircle className="h-4 w-4" />
+            <span>Profil</span>
+          </TabsTrigger>
+          <TabsTrigger value="email" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            <span>E-Mail</span>
+          </TabsTrigger>
+          <TabsTrigger value="password" className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            <span>Passwort</span>
+          </TabsTrigger>
+          <TabsTrigger value="preferences" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span>Einstellungen</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil</CardTitle>
+              <CardDescription>
+                Verwalten Sie Ihre Profilinformationen.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstname">Vorname</Label>
+                  <Input id="firstname" defaultValue={user?.firstName || ''} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastname">Nachname</Label>
+                  <Input id="lastname" defaultValue={user?.lastName || ''} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="phone">Telefonnummer</Label>
+                  <Input id="phone" defaultValue={user?.phone || ''} />
+                </div>
+              </div>
+              <Button className="mt-4">Speichern</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="email">
+          <Card>
+            <CardHeader>
+              <CardTitle>E-Mail-Adresse</CardTitle>
+              <CardDescription>
+                Ändern Sie Ihre E-Mail-Adresse.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-email">Aktuelle E-Mail-Adresse</Label>
+                <Input id="current-email" value={user?.email || ''} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-email">Neue E-Mail-Adresse</Label>
+                <Input id="new-email" type="email" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password-confirm">Passwort</Label>
+                <Input id="password-confirm" type="password" />
+              </div>
+              <Button className="mt-4">E-Mail-Adresse ändern</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="password">
+          <Card>
+            <CardHeader>
+              <CardTitle>Passwort ändern</CardTitle>
+              <CardDescription>
+                Ändern Sie regelmäßig Ihr Passwort, um Ihre Sicherheit zu gewährleisten.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Aktuelles Passwort</Label>
+                <Input id="current-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Neues Passwort</Label>
+                <Input id="new-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Passwort bestätigen</Label>
+                <Input id="confirm-password" type="password" />
+              </div>
+              <Button className="mt-4">Passwort ändern</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="preferences">
+          <Card>
+            <CardHeader>
+              <CardTitle>Einstellungen</CardTitle>
+              <CardDescription>
+                Passen Sie Ihre Benachrichtigungs- und Systemeinstellungen an.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Benachrichtigungen</h3>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="email-notifications">E-Mail-Benachrichtigungen</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Erhalten Sie Benachrichtigungen per E-Mail.
+                    </p>
+                  </div>
+                  <Switch id="email-notifications" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="order-updates">Bestellaktualisierungen</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Erhalten Sie Updates zu Ihren Bestellungen.
+                    </p>
+                  </div>
+                  <Switch id="order-updates" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="marketing-emails">Marketing-E-Mails</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Erhalten Sie Angebote und Neuigkeiten.
+                    </p>
+                  </div>
+                  <Switch id="marketing-emails" />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">System</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Sprache</Label>
+                  <Select defaultValue="de">
+                    <SelectTrigger id="language" className="w-full sm:w-[240px]">
+                      <SelectValue placeholder="Sprache auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <Button>Einstellungen speichern</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

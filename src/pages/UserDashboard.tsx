@@ -38,7 +38,7 @@ const UserDashboard = () => {
   const getPageTitle = () => {
     if (location.pathname.includes('/dashboard/consultations')) return 'Beratungen';
     if (location.pathname.includes('/dashboard/wishlist')) return 'Wunschliste';
-    if (location.pathname.includes('/dashboard/settings')) return 'Einstellungen';
+    if (location.pathname.includes('/dashboard/settings')) return isMobile ? '' : 'Einstellungen';
     return 'Bestellungen';
   };
 
@@ -103,7 +103,7 @@ const UserDashboard = () => {
           {isMobile && (
             <div className="flex flex-col min-h-screen">
               <div className="p-4 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-                <h1 className="text-xl font-bold">{getPageTitle()}</h1>
+                {getPageTitle() && <h1 className="text-xl font-bold">{getPageTitle()}</h1>}
               </div>
               
               <div className="flex-1 px-4 pb-20">
