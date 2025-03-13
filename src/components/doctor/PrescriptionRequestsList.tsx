@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { PrescriptionRequest } from '@/types/prescription';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,11 +13,15 @@ interface PrescriptionRequestsListProps {
   onSelectRequest: (id: string) => void;
 }
 
-const PrescriptionRequestsList: React.FC<PrescriptionRequestsListProps> = ({
-  requests,
-  loading,
-  selectedRequestId,
-  onSelectRequest
+// Optimize rendering with React.memo
+const RequestItem = memo(({ 
+  request, 
+  isSelected, 
+  onSelect 
+}: { 
+  request: PrescriptionRequest, 
+  isSelected: boolean, 
+  onSelect: () => void 
 }) => {
   // Statuskennzeichnung formatieren
   const getStatusBadge = (status: string) => {
@@ -46,7 +50,38 @@ const PrescriptionRequestsList: React.FC<PrescriptionRequestsListProps> = ({
   };
 
   return (
-    <Card>
+    <div
+      className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
+        isSelected ? 'bg-muted' : ''
+      }`}
+      onClick={onSelect}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="font-medium">{request.patientName}</div>
+        {getStatusBadge(request.status)}
+      </div>
+      
+      <div className="text-sm text-muted-foreground mb-2 line-clamp-2">
+        {request.symptoms}
+      </div>
+      
+      <div className="text-xs text-muted-foreground">
+        Eingereicht am {formatDate(request.dateSubmitted)}
+      </div>
+    </div>
+  );
+});
+
+RequestItem.displayName = 'RequestItem';
+
+const PrescriptionRequestsList: React.FC<PrescriptionRequestsListProps> = memo(({
+  requests,
+  loading,
+  selectedRequestId,
+  onSelectRequest
+}) => {
+  return (
+    <Card className="h-full">
       <CardHeader className="bg-primary/5">
         <CardTitle className="flex items-center gap-2">
           <Inbox className="h-5 w-5" />
@@ -69,26 +104,12 @@ const PrescriptionRequestsList: React.FC<PrescriptionRequestsListProps> = ({
           <ScrollArea className="h-[500px]">
             <div className="divide-y">
               {requests.map(request => (
-                <div
+                <RequestItem 
                   key={request.id}
-                  className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-                    selectedRequestId === request.id ? 'bg-muted' : ''
-                  }`}
-                  onClick={() => onSelectRequest(request.id)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="font-medium">{request.patientName}</div>
-                    {getStatusBadge(request.status)}
-                  </div>
-                  
-                  <div className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                    {request.symptoms}
-                  </div>
-                  
-                  <div className="text-xs text-muted-foreground">
-                    Eingereicht am {formatDate(request.dateSubmitted)}
-                  </div>
-                </div>
+                  request={request}
+                  isSelected={selectedRequestId === request.id}
+                  onSelect={() => onSelectRequest(request.id)}
+                />
               ))}
             </div>
           </ScrollArea>
@@ -96,6 +117,8 @@ const PrescriptionRequestsList: React.FC<PrescriptionRequestsListProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+PrescriptionRequestsList.displayName = 'PrescriptionRequestsList';
 
 export default PrescriptionRequestsList;

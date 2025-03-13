@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
@@ -21,6 +21,21 @@ const DoctorDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar'>('prescriptions');
   const isMobile = useIsMobile();
+
+  // Use useCallback to stabilize functions that are passed as props
+  const fetchRequests = useCallback(async () => {
+    if (loading) {
+      try {
+        const data = await getPrescriptionRequests();
+        setRequests(data);
+      } catch (error) {
+        console.error('Error fetching prescription requests:', error);
+        toast.error('Fehler beim Laden der Anfragen');
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (!user) {
@@ -48,44 +63,32 @@ const DoctorDashboard = () => {
         'Doctor accessed prescription dashboard'
       );
     }
-  }, [user, navigate, isDoctor]);
+  }, [user, navigate, isDoctor, fetchRequests]);
 
-  const fetchRequests = async () => {
-    setLoading(true);
-    try {
-      const data = await getPrescriptionRequests();
-      setRequests(data);
-    } catch (error) {
-      console.error('Error fetching prescription requests:', error);
-      toast.error('Fehler beim Laden der Anfragen');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRequestSelect = (requestId: string) => {
+  const handleRequestSelect = useCallback((requestId: string) => {
     setSelectedRequestId(requestId);
-  };
+  }, []);
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
-  };
+  }, []);
 
-  const handleSectionChange = (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => {
+  const handleSectionChange = useCallback((section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => {
     setMainSection(section);
-  };
+  }, []);
 
-  const handleApprove = async (requestId: string) => {
+  const handleApprove = useCallback(async (requestId: string) => {
     if (!user?.id) return;
     
     try {
       // Update request status in database would happen here
       // For demo purposes, we'll just update the local state
-      const updatedRequests = requests.map(req => 
-        req.id === requestId ? { ...req, status: 'approved' as const } : req
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === requestId ? { ...req, status: 'approved' as const } : req
+        )
       );
       
-      setRequests(updatedRequests);
       toast.success('Rezept wurde freigegeben');
       
       // Log GDPR activity for prescription approval
@@ -98,19 +101,20 @@ const DoctorDashboard = () => {
       console.error('Error approving request:', error);
       toast.error('Fehler bei der Freigabe des Rezepts');
     }
-  };
+  }, [user]);
 
-  const handleReject = async (requestId: string) => {
+  const handleReject = useCallback(async (requestId: string) => {
     if (!user?.id) return;
     
     try {
       // Update request status in database would happen here
       // For demo purposes, we'll just update the local state
-      const updatedRequests = requests.map(req => 
-        req.id === requestId ? { ...req, status: 'rejected' as const } : req
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === requestId ? { ...req, status: 'rejected' as const } : req
+        )
       );
       
-      setRequests(updatedRequests);
       toast.success('Rezept wurde abgelehnt');
       
       // Log GDPR activity for prescription rejection
@@ -123,39 +127,47 @@ const DoctorDashboard = () => {
       console.error('Error rejecting request:', error);
       toast.error('Fehler bei der Ablehnung des Rezepts');
     }
-  };
+  }, [user]);
   
-  const handleRequestUpdate = (updatedRequest: PrescriptionRequest) => {
-    const updatedRequests = requests.map(req => 
-      req.id === updatedRequest.id ? updatedRequest : req
+  const handleRequestUpdate = useCallback((updatedRequest: PrescriptionRequest) => {
+    setRequests(prevRequests => 
+      prevRequests.map(req => 
+        req.id === updatedRequest.id ? updatedRequest : req
+      )
     );
-    setRequests(updatedRequests);
-  };
+  }, []);
   
-  const handleAssignDoctor = (requestId: string) => {
+  const handleAssignDoctor = useCallback((requestId: string) => {
     if (!user?.id) return;
     
-    const updatedRequests = requests.map(req => 
-      req.id === requestId ? { ...req, assignedDoctorId: user.id } : req
+    setRequests(prevRequests => 
+      prevRequests.map(req => 
+        req.id === requestId ? { ...req, assignedDoctorId: user.id } : req
+      )
     );
-    setRequests(updatedRequests);
     toast.success('Sie wurden dieser Anfrage zugewiesen');
-  };
+  }, [user]);
 
-  const filteredRequests = requests.filter(req => {
-    if (activeTab === 'pending') {
-      return req.status === 'pending';
-    } else if (activeTab === 'approved') {
-      return req.status === 'approved';
-    } else if (activeTab === 'rejected') {
-      return req.status === 'rejected';
-    } else if (activeTab === 'needs_info') {
-      return req.status === 'needs_more_info';
-    }
-    return true; // For 'all' tab
-  });
+  // Memoize filtered requests to prevent unnecessary recalculations
+  const filteredRequests = React.useMemo(() => {
+    return requests.filter(req => {
+      if (activeTab === 'pending') {
+        return req.status === 'pending';
+      } else if (activeTab === 'approved') {
+        return req.status === 'approved';
+      } else if (activeTab === 'rejected') {
+        return req.status === 'rejected';
+      } else if (activeTab === 'needs_info') {
+        return req.status === 'needs_more_info';
+      }
+      return true; // For 'all' tab
+    });
+  }, [requests, activeTab]);
 
-  const selectedRequest = requests.find(req => req.id === selectedRequestId);
+  const selectedRequest = React.useMemo(() => 
+    requests.find(req => req.id === selectedRequestId), 
+    [requests, selectedRequestId]
+  );
 
   return (
     <Layout>

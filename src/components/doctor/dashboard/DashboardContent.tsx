@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import PrescriptionRequestsList from '@/components/doctor/PrescriptionRequestsList';
 import PrescriptionRequestDetail from '@/components/doctor/PrescriptionRequestDetail';
 import PatientManagement from '@/components/doctor/PatientManagement';
@@ -25,7 +25,75 @@ interface DashboardContentProps {
   onAssignDoctor: (requestId: string) => void;
 }
 
-const DashboardContent: React.FC<DashboardContentProps> = ({
+// Optimize PrescriptionSection with memoization
+const PrescriptionSection = memo(({ 
+  activeTab, 
+  filteredRequests, 
+  loading, 
+  selectedRequestId,
+  selectedRequest,
+  onTabChange, 
+  onSelectRequest,
+  onRequestUpdate,
+  isMobile
+}: { 
+  activeTab: string;
+  filteredRequests: PrescriptionRequest[];
+  loading: boolean;
+  selectedRequestId: string | null;
+  selectedRequest: PrescriptionRequest | undefined;
+  onTabChange: (value: string) => void;
+  onSelectRequest: (id: string) => void;
+  onRequestUpdate: (updatedRequest: PrescriptionRequest) => void;
+  isMobile: boolean;
+}) => {
+  return (
+    <Tabs defaultValue="pending" value={activeTab} onValueChange={onTabChange} className="w-full">
+      <TabsList className={`grid ${isMobile ? 'grid-cols-3 overflow-x-auto' : 'grid-cols-5'} mb-6`}>
+        {!isMobile && <TabsTrigger value="all">Alle</TabsTrigger>}
+        <TabsTrigger value="pending">Ausstehend</TabsTrigger>
+        <TabsTrigger value="approved">Genehmigt</TabsTrigger>
+        {!isMobile && <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>}
+        {isMobile && <TabsTrigger value="needs_info">Info</TabsTrigger>}
+        <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value={activeTab} className="mt-0">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className={`${isMobile ? 'w-full' : 'lg:w-1/2'}`}>
+            <PrescriptionRequestsList 
+              requests={filteredRequests}
+              loading={loading}
+              selectedRequestId={selectedRequestId}
+              onSelectRequest={onSelectRequest}
+            />
+          </div>
+          
+          {(selectedRequest || !isMobile) && (
+            <div className={`${isMobile ? 'w-full mt-4' : 'lg:w-1/2'}`}>
+              {selectedRequest ? (
+                <PrescriptionRequestDetail 
+                  request={selectedRequest} 
+                  onUpdate={onRequestUpdate}
+                />
+              ) : (
+                <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
+                  <p className="text-muted-foreground">
+                    Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
+});
+
+PrescriptionSection.displayName = 'PrescriptionSection';
+
+const DashboardContent: React.FC<DashboardContentProps> = memo(({
   user,
   mainSection,
   activeTab,
@@ -45,46 +113,17 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
     <div className="flex flex-col gap-6">
       <div className="w-full">
         {mainSection === 'prescriptions' ? (
-          <Tabs defaultValue="pending" value={activeTab} onValueChange={onTabChange} className="w-full">
-            <TabsList className={`grid ${isMobile ? 'grid-cols-3 overflow-x-auto' : 'grid-cols-5'} mb-6`}>
-              {!isMobile && <TabsTrigger value="all">Alle</TabsTrigger>}
-              <TabsTrigger value="pending">Ausstehend</TabsTrigger>
-              <TabsTrigger value="approved">Genehmigt</TabsTrigger>
-              {!isMobile && <TabsTrigger value="needs_info">Info benötigt</TabsTrigger>}
-              {isMobile && <TabsTrigger value="needs_info">Info</TabsTrigger>}
-              <TabsTrigger value="rejected">Abgelehnt</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value={activeTab} className="mt-0">
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className={`${isMobile ? 'w-full' : 'lg:w-1/2'}`}>
-                  <PrescriptionRequestsList 
-                    requests={filteredRequests}
-                    loading={loading}
-                    selectedRequestId={selectedRequestId}
-                    onSelectRequest={onSelectRequest}
-                  />
-                </div>
-                
-                {(selectedRequest || !isMobile) && (
-                  <div className={`${isMobile ? 'w-full mt-4' : 'lg:w-1/2'}`}>
-                    {selectedRequest ? (
-                      <PrescriptionRequestDetail 
-                        request={selectedRequest} 
-                        onUpdate={onRequestUpdate}
-                      />
-                    ) : (
-                      <div className="bg-muted/30 p-6 rounded-md border text-center h-96 flex items-center justify-center">
-                        <p className="text-muted-foreground">
-                          Wählen Sie eine Anfrage aus der Liste aus, um die Details anzuzeigen
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <PrescriptionSection
+            activeTab={activeTab}
+            filteredRequests={filteredRequests}
+            loading={loading}
+            selectedRequestId={selectedRequestId}
+            selectedRequest={selectedRequest}
+            onTabChange={onTabChange}
+            onSelectRequest={onSelectRequest}
+            onRequestUpdate={onRequestUpdate}
+            isMobile={isMobile}
+          />
         ) : mainSection === 'patients' ? (
           <PatientManagement />
         ) : mainSection === 'video' ? (
@@ -103,6 +142,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       </div>
     </div>
   );
-};
+});
+
+DashboardContent.displayName = 'DashboardContent';
 
 export default DashboardContent;
