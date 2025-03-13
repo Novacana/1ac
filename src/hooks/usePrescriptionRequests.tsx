@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
@@ -112,7 +112,7 @@ export const usePrescriptionRequests = (userId?: string) => {
   }, [userId]);
 
   // Memoize filtered requests
-  const filteredRequests = React.useMemo(() => {
+  const filteredRequests = useMemo(() => {
     return requests.filter(req => {
       if (activeTab === 'pending') {
         return req.status === 'pending';
@@ -128,7 +128,7 @@ export const usePrescriptionRequests = (userId?: string) => {
   }, [requests, activeTab]);
 
   // Memoize selected request
-  const selectedRequest = React.useMemo(() => 
+  const selectedRequest = useMemo(() => 
     requests.find(req => req.id === selectedRequestId), 
     [requests, selectedRequestId]
   );
