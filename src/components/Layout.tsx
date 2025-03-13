@@ -9,13 +9,22 @@ interface LayoutProps {
   fullWidth?: boolean;
   noFooter?: boolean;
   noHeader?: boolean;
+  noAdvisor?: boolean;
+  className?: string;
 }
 
-const Layout = ({ children, fullWidth = false, noFooter = false, noHeader = false }: LayoutProps) => {
+const Layout = ({ 
+  children, 
+  fullWidth = false, 
+  noFooter = false, 
+  noHeader = false,
+  noAdvisor = false,
+  className 
+}: LayoutProps) => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen ${className || ''}`}>
       {!noHeader && <Header />}
       
       {/* Mobile navigation dots */}
