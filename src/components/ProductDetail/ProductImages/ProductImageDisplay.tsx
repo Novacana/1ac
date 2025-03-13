@@ -33,7 +33,6 @@ const ProductImageDisplay: React.FC<ProductImageDisplayProps> = ({
       name: name,
       price: productPrice,
       image: fixedImages[selectedImage],
-      quantity: 1,
     });
     toast.success(`${name} wurde zum Warenkorb hinzugefügt`);
   };

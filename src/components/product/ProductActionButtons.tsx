@@ -46,7 +46,6 @@ const ProductActionButtons: React.FC<ProductActionButtonsProps> = ({
       name: product.name,
       price: product.price || 9.99,
       image: getImagePath(product),
-      quantity: 1
     };
     
     addToCart(productToAdd);

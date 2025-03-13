@@ -52,7 +52,6 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
       name: productName,
       price: productPrice,
       image: productImage,
-      quantity: 1,
     });
     onAddToCart();
     toast.success(`${productName} wurde zum Warenkorb hinzugefügt`);
