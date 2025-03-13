@@ -6,13 +6,12 @@ import PatientManagement from '@/components/doctor/PatientManagement';
 import OpenRequestsPanel from '@/components/doctor/OpenRequestsPanel';
 import VideoConsultation from '@/components/doctor/VideoConsultation';
 import DoctorCalendar from '@/components/doctor/DoctorCalendar';
-import { User } from '@/types/auth';
 import { PrescriptionRequest } from '@/types/prescription';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardContentProps {
-  user: User | null;
+  user: any;
   mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
   activeTab: string;
   selectedRequest: PrescriptionRequest | undefined;

@@ -6,10 +6,30 @@ import Layout from '@/components/Layout';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
-import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
-import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { logGdprActivity } from '@/utils/fhir/activityLogging';
+import DoctorSidebar from '@/components/doctor/DoctorSidebar';
+
+// Let's create new interfaces for our components
+interface DashboardHeaderProps {
+  mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
+  onSectionChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
+}
+
+interface DashboardContentProps {
+  user: any;
+  mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
+  activeTab: string;
+  selectedRequest: PrescriptionRequest | undefined;
+  filteredRequests: PrescriptionRequest[];
+  loading: boolean;
+  selectedRequestId: string | null;
+  onSectionChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
+  onTabChange: (value: string) => void;
+  onSelectRequest: (id: string) => void;
+  onRequestUpdate: (updatedRequest: PrescriptionRequest) => void;
+  onAssignDoctor: (requestId: string) => void;
+}
 
 const DoctorDashboard = () => {
   const { user, isDoctor } = useAuth();
@@ -17,7 +37,8 @@ const DoctorDashboard = () => {
   const [requests, setRequests] = useState<PrescriptionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('open');
+  const [activeTab, setActiveTab] = useState('pending');
+  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar'>('prescriptions');
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -65,6 +86,10 @@ const DoctorDashboard = () => {
     setActiveTab(tab);
   };
 
+  const handleSectionChange = (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => {
+    setMainSection(section);
+  };
+
   const handleApprove = async (requestId: string) => {
     if (!user?.id) return;
     
@@ -72,7 +97,7 @@ const DoctorDashboard = () => {
       // Update request status in database would happen here
       // For demo purposes, we'll just update the local state
       const updatedRequests = requests.map(req => 
-        req.id === requestId ? { ...req, status: 'approved' } : req
+        req.id === requestId ? { ...req, status: 'approved' as const } : req
       );
       
       setRequests(updatedRequests);
@@ -97,7 +122,7 @@ const DoctorDashboard = () => {
       // Update request status in database would happen here
       // For demo purposes, we'll just update the local state
       const updatedRequests = requests.map(req => 
-        req.id === requestId ? { ...req, status: 'rejected' } : req
+        req.id === requestId ? { ...req, status: 'rejected' as const } : req
       );
       
       setRequests(updatedRequests);
@@ -114,38 +139,85 @@ const DoctorDashboard = () => {
       toast.error('Fehler bei der Ablehnung des Rezepts');
     }
   };
+  
+  const handleRequestUpdate = (updatedRequest: PrescriptionRequest) => {
+    const updatedRequests = requests.map(req => 
+      req.id === updatedRequest.id ? updatedRequest : req
+    );
+    setRequests(updatedRequests);
+  };
+  
+  const handleAssignDoctor = (requestId: string) => {
+    if (!user?.id) return;
+    
+    const updatedRequests = requests.map(req => 
+      req.id === requestId ? { ...req, assignedDoctorId: user.id } : req
+    );
+    setRequests(updatedRequests);
+    toast.success('Sie wurden dieser Anfrage zugewiesen');
+  };
 
   const filteredRequests = requests.filter(req => {
-    if (activeTab === 'open') {
+    if (activeTab === 'pending') {
       return req.status === 'pending';
     } else if (activeTab === 'approved') {
       return req.status === 'approved';
     } else if (activeTab === 'rejected') {
       return req.status === 'rejected';
+    } else if (activeTab === 'needs_info') {
+      return req.status === 'needs_more_info';
     }
-    return true;
+    return true; // For 'all' tab
   });
 
   const selectedRequest = requests.find(req => req.id === selectedRequestId);
 
   return (
     <Layout>
-      <div className="flex flex-col h-full">
-        <DashboardHeader 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange} 
-          openRequestsCount={requests.filter(req => req.status === 'pending').length}
-        />
-        
-        <DashboardContent 
-          requests={filteredRequests}
-          selectedRequest={selectedRequest}
-          onSelectRequest={handleRequestSelect}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          loading={loading}
-          isMobile={isMobile}
-        />
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {!isMobile && (
+            <div className="lg:w-1/4">
+              <DoctorSidebar 
+                user={user} 
+                onNavChange={handleSectionChange}
+                activeSection={mainSection}
+              />
+            </div>
+          )}
+          
+          <div className="lg:w-3/4">
+            <div className="flex flex-col h-full">
+              {/* Import DashboardHeader from components/doctor/dashboard/DashboardHeader.tsx */}
+              {React.createElement(
+                require('@/components/doctor/dashboard/DashboardHeader').default,
+                {
+                  mainSection,
+                  onSectionChange: handleSectionChange
+                }
+              )}
+              
+              {/* Import DashboardContent from components/doctor/dashboard/DashboardContent.tsx */}
+              {React.createElement(
+                require('@/components/doctor/dashboard/DashboardContent').default,
+                {
+                  user,
+                  mainSection,
+                  activeTab,
+                  selectedRequest,
+                  filteredRequests,
+                  loading,
+                  selectedRequestId,
+                  onSectionChange: handleSectionChange,
+                  onTabChange: handleTabChange,
+                  onSelectRequest: handleRequestSelect,
+                  onRequestUpdate: handleRequestUpdate,
+                  onAssignDoctor: handleAssignDoctor
+                }
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </Layout>
   );

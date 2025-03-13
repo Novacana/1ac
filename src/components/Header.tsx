@@ -51,7 +51,7 @@ const Header = () => {
 
     if (isDoctor) {
       return [
-        { name: "Arztprofil", path: "/doctor/profile", icon: <Stethoscope className="h-4 w-4" /> },
+        { name: "Arztprofil", path: "/doctor/profile", icon: <Stethoscope className="h-4 w-4 text-green-500" /> },
         { name: "Patientenverwaltung", path: "/doctor/dashboard", icon: <Users className="h-4 w-4" /> },
         { name: "Rezeptanfragen", path: "/doctor/dashboard", icon: <FileText className="h-4 w-4" /> },
         ...baseItems

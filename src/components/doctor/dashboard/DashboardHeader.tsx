@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, Calendar, Video, InboxIcon, User } from 'lucide-react';
+import { FileText, Users, Calendar, Video, InboxIcon, Stethoscope } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,13 +15,18 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
   const navigate = useNavigate();
   
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'} w-full gap-3 mb-4`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'} w-full gap-3 mb-6`}>
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center'} gap-3`}>
-        <h1 className={`text-2xl font-bold ${isMobile ? 'mb-2' : 'mr-4'}`}>Ärzte Dashboard</h1>
+        <h1 className={`text-2xl font-bold ${isMobile ? 'mb-2' : 'mr-4'}`}>
+          {mainSection === 'prescriptions' ? 'Rezeptverwaltung' : 
+           mainSection === 'patients' ? 'Patientenverwaltung' : 
+           mainSection === 'open_requests' ? 'Offene Anfragen' : 
+           mainSection === 'calendar' ? 'Kalender' : 'Videosprechstunde'}
+        </h1>
         <div className="flex flex-wrap gap-2">
           <Button 
             variant={mainSection === 'prescriptions' ? "default" : "outline"} 
-            className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
+            className="flex items-center gap-2"
             onClick={() => onSectionChange('prescriptions')}
           >
             <FileText className="h-4 w-4" />
@@ -71,7 +76,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
         className="flex items-center gap-2"
         onClick={() => navigate('/doctor/profile')}
       >
-        <User className="h-4 w-4" />
+        <Stethoscope className="h-4 w-4" />
         Arztprofil
       </Button>
     </div>
