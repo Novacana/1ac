@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,17 +21,45 @@ const UserDashboard = () => {
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<UserSection>('orders');
   
+  // Update activeSection based on current location
+  useEffect(() => {
+    if (location.pathname.includes('/dashboard/consultations')) {
+      setActiveSection('consultations');
+    } else if (location.pathname.includes('/dashboard/wishlist')) {
+      setActiveSection('wishlist');
+    } else if (location.pathname.includes('/dashboard/settings')) {
+      setActiveSection('settings');
+    } else {
+      setActiveSection('orders');
+    }
+  }, [location.pathname]);
+
   // Helper function to get the current page title
   const getPageTitle = () => {
-    if (location.pathname.includes('/consultations')) return 'Beratungen';
-    if (location.pathname.includes('/wishlist')) return 'Wunschliste';
-    if (location.pathname.includes('/settings')) return 'Einstellungen';
+    if (location.pathname.includes('/dashboard/consultations')) return 'Beratungen';
+    if (location.pathname.includes('/dashboard/wishlist')) return 'Wunschliste';
+    if (location.pathname.includes('/dashboard/settings')) return 'Einstellungen';
     return 'Bestellungen';
   };
 
   const handleSectionChange = (section: UserSection) => {
     setActiveSection(section);
-    navigate(`/dashboard/${section === 'orders' ? '' : section}`);
+    navigate(`/dashboard${section === 'orders' ? '' : `/${section}`}`);
+  };
+
+  // Render the appropriate component based on the active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'consultations':
+        return <ConsultationsList />;
+      case 'wishlist':
+        return <WishlistItems />;
+      case 'settings':
+        return <UserSettings />;
+      case 'orders':
+      default:
+        return <OrdersList />;
+    }
   };
 
   return (
@@ -66,13 +94,7 @@ const UserDashboard = () => {
                 
                 {/* Main content */}
                 <div className="md:w-3/4">
-                  <Routes>
-                    <Route path="/" element={<OrdersList />} />
-                    <Route path="/orders" element={<OrdersList />} />
-                    <Route path="/consultations" element={<ConsultationsList />} />
-                    <Route path="/wishlist" element={<WishlistItems />} />
-                    <Route path="/settings" element={<UserSettings />} />
-                  </Routes>
+                  {renderContent()}
                 </div>
               </div>
             </>
@@ -85,13 +107,7 @@ const UserDashboard = () => {
               </div>
               
               <div className="flex-1 px-4 pb-20">
-                <Routes>
-                  <Route path="/" element={<OrdersList />} />
-                  <Route path="/orders" element={<OrdersList />} />
-                  <Route path="/consultations" element={<ConsultationsList />} />
-                  <Route path="/wishlist" element={<WishlistItems />} />
-                  <Route path="/settings" element={<UserSettings />} />
-                </Routes>
+                {renderContent()}
               </div>
               
               <MobileNavigation 
