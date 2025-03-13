@@ -27,7 +27,7 @@ import AdminConfig from './pages/AdminConfig';
 
 // Providers
 import { CartProvider } from './contexts/CartContext';
-import { AuthProvider } from './contexts/AuthContext';
+import AuthProvider from './contexts/AuthContext';
 
 function App() {
   return (
