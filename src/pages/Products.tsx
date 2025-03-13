@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import EmptyProductState from "@/components/EmptyProductState";
@@ -168,9 +167,8 @@ const Products = () => {
           <LoadingState />
         ) : (
           <>
-            {/* Add the CategoryButtons component before the Filters */}
             <CategoryButtons
-              categories={["All", ...categories]}
+              categories={categories}
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
             />
@@ -201,7 +199,6 @@ const Products = () => {
           </>
         )}
         
-        {/* Hidden component to load products */}
         <ProductDataLoader 
           selectedCategory={selectedCategory}
           onProductsLoaded={handleProductsLoaded}

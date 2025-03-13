@@ -18,23 +18,24 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({
   const sortedCategories = ["All", ...categories.filter(c => c !== "All")];
 
   return (
-    <div className="w-full mb-4 border-b border-border/20 pb-3">
-      <div className="flex items-center justify-start gap-2 overflow-x-auto pb-2 scrollbar-none px-1">
-        {sortedCategories.map((category, index) => (
-          <CategoryPill
-            key={category || `category-${index}`}
-            label={category || "Other"}
-            active={selectedCategory === category}
-            onClick={() => onCategoryChange(category)}
-            className={cn(
-              "animate-scale-in",
-              selectedCategory === category ? "shadow-md" : ""
-            )}
-            style={{ animationDelay: `${index * 50}ms` }}
-          />
-        ))}
+    <section className="py-0 border-b border-border/20 w-full">
+      <div className="w-full max-w-screen-2xl mx-auto">
+        <div className="overflow-x-auto scrollbar-none py-2">
+          <div className="flex items-center gap-3 justify-center min-w-max px-6">
+            {sortedCategories.map((category, index) => (
+              <CategoryPill
+                key={category || `category-${index}`}
+                label={category || "Other"}
+                active={selectedCategory === category}
+                onClick={() => onCategoryChange(category)}
+                className="animate-scale-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
