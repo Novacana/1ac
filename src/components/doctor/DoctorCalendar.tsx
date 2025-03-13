@@ -17,11 +17,21 @@ import {
   Plus,
   ExternalLink,
   ChevronLeft,
-  ChevronRight 
+  ChevronRight,
+  ChevronDown,
+  ClipboardList,
+  FileDigit
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { format, addDays, subDays, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, getDay, isToday, setHours, setMinutes, getHours, getMinutes, addMonths, subMonths, startOfMonth, endOfMonth, isSameMonth, isSameDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -39,6 +49,76 @@ type CalendarEvent = {
   type: EventType;
   notes?: string;
   patientName?: string;
+};
+
+// Mock patient record data
+type PatientRecordType = 'diagnosis' | 'prescription' | 'notes' | 'lab' | 'imaging';
+type PatientRecord = {
+  id: string;
+  type: PatientRecordType;
+  title: string;
+  date: Date;
+  content: string;
+};
+
+// Mock patient records
+const getMockPatientRecords = (patientName: string): PatientRecord[] => {
+  if (!patientName) return [];
+  
+  return [
+    {
+      id: '1',
+      type: 'diagnosis',
+      title: 'Erstdiagnose',
+      date: new Date(2025, 2, 1), // March 1, 2025
+      content: 'Chronische Migräne mit Aura. Patient berichtet über regelmäßige Anfälle 2-3 mal pro Monat.'
+    },
+    {
+      id: '2',
+      type: 'prescription',
+      title: 'Rezept Sumatriptan',
+      date: new Date(2025, 2, 5), // March 5, 2025
+      content: 'Sumatriptan 50mg, bei Bedarf, maximal 2 Tabletten in 24 Stunden.'
+    },
+    {
+      id: '3',
+      type: 'notes',
+      title: 'Verlaufsgespräch',
+      date: new Date(2025, 2, 10), // March 10, 2025
+      content: 'Patient berichtet über leichte Verbesserung unter Sumatriptan, aber weiterhin Probleme mit Schlafqualität.'
+    },
+    {
+      id: '4',
+      type: 'lab',
+      title: 'Blutbild',
+      date: new Date(2025, 2, 12), // March 12, 2025
+      content: 'Blutwerte im Normbereich. Vitamin D-Wert leicht erniedrigt (28 ng/ml).'
+    },
+    {
+      id: '5',
+      type: 'imaging',
+      title: 'MRT Kopf',
+      date: new Date(2025, 2, 15), // March 15, 2025
+      content: 'Keine strukturellen Auffälligkeiten festgestellt, die auf sekundäre Kopfschmerzursachen hindeuten.'
+    }
+  ];
+};
+
+const getRecordTypeIcon = (type: PatientRecordType) => {
+  switch (type) {
+    case 'diagnosis':
+      return <ClipboardList className="h-4 w-4" />;
+    case 'prescription':
+      return <FileText className="h-4 w-4" />;
+    case 'notes':
+      return <FileText className="h-4 w-4" />;
+    case 'lab':
+      return <FileDigit className="h-4 w-4" />;
+    case 'imaging':
+      return <FileDigit className="h-4 w-4" />;
+    default:
+      return <FileText className="h-4 w-4" />;
+  }
 };
 
 const calendarSyncOptions = [
@@ -121,6 +201,8 @@ const DoctorCalendar: React.FC = () => {
   const [isViewEventOpen, setIsViewEventOpen] = useState(false);
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<CalendarEvent | null>(null);
+  const [selectedPatientRecord, setSelectedPatientRecord] = useState<PatientRecord | null>(null);
+  const [isPatientRecordVisible, setIsPatientRecordVisible] = useState(false);
   const [newEventData, setNewEventData] = useState({
     title: '',
     date: new Date(),
@@ -130,6 +212,11 @@ const DoctorCalendar: React.FC = () => {
     notes: '',
     patientName: ''
   });
+
+  // Get patient records for current event
+  const patientRecords = useMemo(() => {
+    return currentEvent?.patientName ? getMockPatientRecords(currentEvent.patientName) : [];
+  }, [currentEvent?.patientName]);
 
   // Generate days for week view
   const weekDays = useMemo(() => {
@@ -239,6 +326,13 @@ const DoctorCalendar: React.FC = () => {
   const handleViewEvent = (event: CalendarEvent) => {
     setCurrentEvent(event);
     setIsViewEventOpen(true);
+    setIsPatientRecordVisible(false); // Reset patient record view
+    setSelectedPatientRecord(null);
+  };
+
+  const handlePatientRecordSelect = (record: PatientRecord) => {
+    setSelectedPatientRecord(record);
+    setIsPatientRecordVisible(true);
   };
 
   const handleDeleteEvent = (eventId: string) => {
@@ -795,8 +889,56 @@ const DoctorCalendar: React.FC = () => {
               
               {currentEvent.patientName && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Patient</p>
-                  <p>{currentEvent.patientName}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Patient</p>
+                      <p className="font-medium">{currentEvent.patientName}</p>
+                    </div>
+                    
+                    {/* Patient Record Dropdown */}
+                    {patientRecords.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="flex items-center gap-1">
+                            <ClipboardList className="h-4 w-4" />
+                            Patientenakte
+                            <ChevronDown className="h-4 w-4 ml-1" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          {patientRecords.map((record) => (
+                            <DropdownMenuItem 
+                              key={record.id}
+                              onClick={() => handlePatientRecordSelect(record)}
+                              className="flex items-center cursor-pointer"
+                            >
+                              {getRecordTypeIcon(record.type)}
+                              <span className="ml-2">{record.title}</span>
+                              <span className="ml-auto text-xs text-muted-foreground">
+                                {format(record.date, "dd.MM.yyyy")}
+                              </span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                  
+                  {/* Display Patient Record */}
+                  {isPatientRecordVisible && selectedPatientRecord && (
+                    <div className="mt-4 p-3 border rounded-md bg-muted/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {getRecordTypeIcon(selectedPatientRecord.type)}
+                          <h4 className="font-medium">{selectedPatientRecord.title}</h4>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {format(selectedPatientRecord.date, "dd.MM.yyyy")}
+                        </span>
+                      </div>
+                      <p className="text-sm">{selectedPatientRecord.content}</p>
+                    </div>
+                  )}
                 </div>
               )}
               
