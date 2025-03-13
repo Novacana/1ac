@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -848,3 +849,164 @@ const DoctorCalendar: React.FC = () => {
 
       {/* View Event Dialog with Patient Briefing */}
       <Dialog open={isViewEventOpen} onOpenChange={setIsViewEventOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{currentEvent?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {currentEvent && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-sm font-medium">Datum</h3>
+                    <p>{format(currentEvent.date, "PPP", { locale: de })}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium">Zeit</h3>
+                    <p>{currentEvent.startTime} - {currentEvent.endTime}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">Typ</h3>
+                  <div className="flex items-center mt-1">
+                    <Badge className={cn(
+                      "flex items-center",
+                      currentEvent.type === 'videoconsultation' && "bg-green-500",
+                      currentEvent.type === 'appointment' && "bg-blue-500",
+                      currentEvent.type === 'prescription' && "bg-yellow-500",
+                      currentEvent.type === 'patient' && "bg-purple-500"
+                    )}>
+                      {getEventTypeIcon(currentEvent.type)}
+                      <span className="ml-1">
+                        {currentEvent.type === 'videoconsultation' && "Videosprechstunde"}
+                        {currentEvent.type === 'appointment' && "Regulärer Termin"}
+                        {currentEvent.type === 'prescription' && "Rezeptverwaltung"}
+                        {currentEvent.type === 'patient' && "Patiententermin"}
+                      </span>
+                    </Badge>
+                  </div>
+                </div>
+                
+                {currentEvent.patientName && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium">Patient</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center gap-1 text-xs"
+                        onClick={togglePatientBriefing}
+                      >
+                        {showPatientBriefing ? 'Patientenbriefing ausblenden' : 'Patientenbriefing anzeigen'}
+                        <ChevronDown className={cn(
+                          "h-4 w-4 transition-transform",
+                          showPatientBriefing && "rotate-180"
+                        )} />
+                      </Button>
+                    </div>
+                    <p className="mt-1">{currentEvent.patientName}</p>
+                    
+                    {/* Patient Briefing Section */}
+                    {showPatientBriefing && (
+                      <div className="mt-4 border rounded-md p-4 bg-slate-50">
+                        <h4 className="font-medium mb-2">Patientenbriefing</h4>
+                        
+                        {patientRecords.length > 0 ? (
+                          <div className="space-y-3">
+                            {patientRecords.map(record => (
+                              <div key={record.id} className="border-l-2 border-primary pl-3 py-1">
+                                <div className="flex items-center gap-2">
+                                  {getRecordTypeIcon(record.type)}
+                                  <span className="font-medium text-sm">{record.title}</span>
+                                  <span className="text-xs text-muted-foreground ml-auto">
+                                    {format(record.date, "dd.MM.yyyy")}
+                                  </span>
+                                </div>
+                                <p className="text-sm mt-1">{record.content}</p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Keine Patientendaten vorhanden.</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {currentEvent.notes && (
+                  <div>
+                    <h3 className="text-sm font-medium">Notizen</h3>
+                    <p className="mt-1">{currentEvent.notes}</p>
+                  </div>
+                )}
+
+                {currentEvent.type === 'videoconsultation' && (
+                  <div className="flex justify-center mt-4">
+                    <Button className="flex items-center gap-2">
+                      <Video className="h-4 w-4" />
+                      Videosprechstunde starten
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <DialogFooter className="flex justify-between">
+            <Button 
+              variant="destructive" 
+              onClick={() => currentEvent && handleDeleteEvent(currentEvent.id)}
+            >
+              Termin löschen
+            </Button>
+            <Button variant="outline" onClick={() => setIsViewEventOpen(false)}>
+              Schließen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Calendar Sync Dialog */}
+      <Dialog open={isSyncDialogOpen} onOpenChange={setIsSyncDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Kalender synchronisieren</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm">Wählen Sie einen Kalenderdienst zur Synchronisation aus:</p>
+            <div className="space-y-2">
+              {calendarSyncOptions.map((option) => (
+                <div 
+                  key={option.id}
+                  className="flex items-center justify-between p-3 border rounded hover:bg-slate-50 cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    {option.id === 'google' && <div className="w-5 h-5 bg-red-500 rounded-full" />}
+                    {option.id === 'outlook' && <div className="w-5 h-5 bg-blue-500 rounded-full" />}
+                    {option.id === 'apple' && <div className="w-5 h-5 bg-gray-800 rounded-full" />}
+                    {option.id === 'caldav' && <div className="w-5 h-5 bg-purple-500 rounded-full" />}
+                    <span>{option.name}</span>
+                  </div>
+                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+            
+            <Alert>
+              <AlertDescription className="text-xs">
+                Bei der Synchronisation werden keine sensiblen Patientendaten übertragen. 
+                Patientennamen werden pseudonymisiert und Notizen werden nicht synchronisiert.
+              </AlertDescription>
+            </Alert>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSyncDialogOpen(false)}>Abbrechen</Button>
+            <Button onClick={handleSyncCalendars}>Synchronisieren</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default DoctorCalendar;
