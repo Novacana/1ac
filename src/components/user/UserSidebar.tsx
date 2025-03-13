@@ -7,11 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { 
   User, 
   LogOut, 
-  ShoppingBag, 
   Package, 
   FileClock, 
-  Settings, 
-  Heart 
+  Settings 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,11 +34,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ user }) => {
       icon: FileClock, 
       label: 'Beratungen', 
       path: '/dashboard/consultations' 
-    },
-    { 
-      icon: Heart, 
-      label: 'Wunschliste', 
-      path: '/dashboard/wishlist' 
     },
     { 
       icon: Settings, 

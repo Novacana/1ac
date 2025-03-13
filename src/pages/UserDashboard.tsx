@@ -7,12 +7,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import UserSidebar from '@/components/user/UserSidebar';
 import OrdersList from '@/components/user/OrdersList';
 import ConsultationsList from '@/components/user/consultations';
-import WishlistItems from '@/components/user/WishlistItems';
 import UserSettings from '@/components/user/UserSettings';
-import { ChevronRight, Home, ShoppingBag, VideoIcon, Heart, Settings } from 'lucide-react';
+import { ChevronRight, Home, ShoppingBag, VideoIcon, Settings } from 'lucide-react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-type UserSection = 'orders' | 'consultations' | 'wishlist' | 'settings';
+type UserSection = 'orders' | 'consultations' | 'settings';
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -24,8 +23,6 @@ const UserDashboard = () => {
   useEffect(() => {
     if (location.pathname.includes('/dashboard/consultations')) {
       setActiveSection('consultations');
-    } else if (location.pathname.includes('/dashboard/wishlist')) {
-      setActiveSection('wishlist');
     } else if (location.pathname.includes('/dashboard/settings')) {
       setActiveSection('settings');
     } else {
@@ -35,7 +32,6 @@ const UserDashboard = () => {
 
   const getPageTitle = () => {
     if (location.pathname.includes('/dashboard/consultations')) return 'Beratungen';
-    if (location.pathname.includes('/dashboard/wishlist')) return 'Wunschliste';
     if (location.pathname.includes('/dashboard/settings')) return isMobile ? '' : 'Einstellungen';
     return '';
   };
@@ -49,8 +45,6 @@ const UserDashboard = () => {
     switch (activeSection) {
       case 'consultations':
         return <ConsultationsList />;
-      case 'wishlist':
-        return <WishlistItems />;
       case 'settings':
         return <UserSettings />;
       case 'orders':
@@ -134,21 +128,20 @@ const MobileNavigationItem = ({
 }) => (
   <button
     onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-1 w-full p-2 rounded-md
-      ${active ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-background/80"}`}
+    className={`flex items-center justify-center w-full p-2 rounded-md ${active ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-background/80"}`}
+    aria-label={label}
   >
     {icon}
-    <span className="text-xs font-medium">{label}</span>
   </button>
 );
 
 const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeSection, onSectionChange }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-sm border-t border-border md:hidden">
-      <div className="grid grid-cols-4 gap-1 p-2">
+      <div className="grid grid-cols-3 gap-1 p-2">
         <MobileNavigationItem
           icon={<ShoppingBag className="h-5 w-5" />}
-          label=""
+          label="Bestellungen"
           active={activeSection === 'orders'}
           onClick={() => onSectionChange('orders')}
         />
@@ -159,14 +152,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeSection, onSe
           onClick={() => onSectionChange('consultations')}
         />
         <MobileNavigationItem
-          icon={<Heart className="h-5 w-5" />}
-          label="Wunschliste"
-          active={activeSection === 'wishlist'}
-          onClick={() => onSectionChange('wishlist')}
-        />
-        <MobileNavigationItem
           icon={<Settings className="h-5 w-5" />}
-          label=""
+          label="Einstellungen"
           active={activeSection === 'settings'}
           onClick={() => onSectionChange('settings')}
         />

@@ -16,6 +16,9 @@ const EmptyConsultationsState: React.FC = () => {
           Sie haben noch keine Beratungen angefordert.
         </p>
         <Button>Beratung anfordern</Button>
+        <p className="text-xs text-muted-foreground mt-4">
+          Alle Beratungsdaten werden gemäß GDPR/DSGVO und HIPAA-Richtlinien sicher verarbeitet.
+        </p>
       </div>
     </Card>
   );
