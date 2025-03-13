@@ -30,7 +30,7 @@ const Layout = ({
       {/* Mobile navigation dots */}
       {isMobile && <MobileNavDots />}
       
-      <main className={`flex-1 ${!fullWidth ? "container mx-auto" : ""} ${isMobile ? "pt-5" : "pt-[calc(var(--header-height)+1rem)]"}`}>
+      <main className={`flex-1 ${!fullWidth ? "container mx-auto" : ""} ${isMobile ? "pt-16" : "pt-[calc(var(--header-height)+1rem)]"}`}>
         {children}
       </main>
       

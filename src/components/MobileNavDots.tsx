@@ -34,9 +34,9 @@ const MobileNavDots = () => {
   };
 
   return (
-    <div className="fixed z-50 top-3 w-full px-2 flex justify-between md:hidden animate-fade-in">
+    <div className="fixed z-50 top-3 w-full px-4 flex justify-between md:hidden animate-fade-in">
       {/* View toggle dot and Theme toggle dot */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <MobileViewToggle />
         <MobileThemeToggle />
       </div>
@@ -51,7 +51,7 @@ const MobileNavDots = () => {
         />
       )}
       
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         {/* Search button */}
         <MobileSearch 
           showSearch={false} 

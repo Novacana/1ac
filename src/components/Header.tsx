@@ -1,3 +1,4 @@
+
 import { Menu, X, ShoppingBag, Home, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -23,6 +24,9 @@ const Header = () => {
   const { user, isAuthenticated, isDoctor, isPharmacy, logout } = useAuth();
   const cartCount = getCartCount();
   const isMobile = useIsMobile();
+
+  // If mobile, don't render the header at all
+  if (isMobile) return null;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,7 +72,7 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md",
+        "fixed top-0 left-0 right-0 z-40 transition-all duration-300 backdrop-blur-md",
         isScrolled
           ? "py-3 bg-background/70 shadow-sm"
           : "py-5 bg-transparent",
