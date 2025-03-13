@@ -58,15 +58,14 @@ const UserMenu: React.FC<UserMenuProps> = ({
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {isDoctor ? (
+        <DropdownMenuItem onClick={() => navigate(isDoctor ? '/doctor/profile' : '/dashboard')}>
+          <User className="h-4 w-4 mr-2" />
+          Mein Konto
+        </DropdownMenuItem>
+        {isDoctor && (
           <DropdownMenuItem onClick={() => navigate('/doctor/dashboard')}>
             <Stethoscope className="h-4 w-4 mr-2" />
             Arzt Dashboard
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-            <User className="h-4 w-4 mr-2" />
-            Dashboard
           </DropdownMenuItem>
         )}
         {isPharmacy && (

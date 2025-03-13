@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, Users, Calendar, Video, InboxIcon } from 'lucide-react';
+import { FileText, Users, Calendar, Video, InboxIcon, User } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardHeaderProps {
   mainSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
@@ -11,6 +12,7 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectionChange }) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   
   return (
     <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'} w-full gap-3 mb-4`}>
@@ -63,6 +65,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
           </Button>
         </div>
       </div>
+      
+      <Button 
+        variant="outline" 
+        className="flex items-center gap-2"
+        onClick={() => navigate('/doctor/profile')}
+      >
+        <User className="h-4 w-4" />
+        Arztprofil
+      </Button>
     </div>
   );
 };
