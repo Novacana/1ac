@@ -9,6 +9,7 @@ import { logGdprActivity } from '@/utils/fhir/activityLogging';
 import DoctorSidebar from '@/components/doctor/DoctorSidebar';
 import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
 import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
+import MobileNavigation from '@/components/doctor/MobileNavigation';
 import { usePrescriptionRequests } from '@/hooks/usePrescriptionRequests';
 import { useDashboardNavigation } from '@/hooks/useDashboardNavigation';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -60,9 +61,9 @@ const DoctorDashboard = () => {
   }, [user, navigate]);
 
   return (
-    <Layout>
+    <Layout noHeader={isMobile}>
       <TooltipProvider>
-        <div className="container mx-auto px-4 py-6">
+        <div className={`container mx-auto px-4 ${isMobile ? 'py-2 pb-24' : 'py-6'}`}>
           <div className="flex flex-col lg:flex-row gap-6">
             {!isMobile && (
               <div className="lg:w-1/4">
@@ -80,6 +81,16 @@ const DoctorDashboard = () => {
                   mainSection={mainSection}
                   onSectionChange={handleSectionChange}
                 />
+                
+                {isMobile && (
+                  <h1 className="text-xl font-bold mb-4">
+                    {mainSection === 'prescriptions' && 'Rezeptverwaltung'}
+                    {mainSection === 'patients' && 'Patientenverwaltung'}
+                    {mainSection === 'open_requests' && 'Rezeptanfragen'}
+                    {mainSection === 'calendar' && 'Kalender'}
+                    {mainSection === 'video' && 'Videosprechstunde'}
+                  </h1>
+                )}
                 
                 <DashboardContent
                   user={user}
@@ -99,6 +110,13 @@ const DoctorDashboard = () => {
             </div>
           </div>
         </div>
+        
+        {isMobile && (
+          <MobileNavigation 
+            activeSection={mainSection}
+            onSectionChange={handleSectionChange}
+          />
+        )}
       </TooltipProvider>
     </Layout>
   );

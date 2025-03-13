@@ -14,9 +14,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   
+  if (isMobile) {
+    return null; // Hide header on mobile as requested
+  }
+  
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'} w-full gap-3 mb-6`}>
-      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center'} gap-3`}>
+    <div className="flex flex-row items-center justify-between w-full gap-3 mb-6">
+      <div className="flex flex-row items-center gap-3">
         <div className="flex flex-wrap gap-2">
           <Button 
             variant={mainSection === 'prescriptions' ? "default" : "outline"} 
