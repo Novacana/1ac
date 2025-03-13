@@ -4,7 +4,8 @@ import { PrescriptionRequest } from '@/types/prescription';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Inbox, AlertCircle } from 'lucide-react';
+import { Inbox, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PrescriptionRequestsListProps {
   requests: PrescriptionRequest[];
@@ -23,7 +24,7 @@ const RequestItem = memo(({
   isSelected: boolean, 
   onSelect: () => void 
 }) => {
-  // Statuskennzeichnung formatieren
+  // Status badge formatter
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -39,7 +40,7 @@ const RequestItem = memo(({
     }
   };
 
-  // Datum formatieren
+  // Date formatter
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('de-DE', {
@@ -49,15 +50,36 @@ const RequestItem = memo(({
     }).format(date);
   };
 
+  // Truncate and anonymize patient data for display
+  const getAnonymizedName = (name: string) => {
+    // Only show first two letters of first name and last name initial for GDPR compliance
+    const nameParts = name.split(' ');
+    if (nameParts.length > 1) {
+      return `${nameParts[0].substring(0, 2)}... ${nameParts[nameParts.length - 1].charAt(0)}.`;
+    }
+    return `${name.substring(0, 2)}...`;
+  };
+
   return (
     <div
       className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
         isSelected ? 'bg-muted' : ''
       }`}
       onClick={onSelect}
+      data-testid="prescription-request-item"
     >
       <div className="flex justify-between items-start mb-2">
-        <div className="font-medium">{request.patientName}</div>
+        <div className="font-medium flex items-center">
+          {request.patientName}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ShieldAlert className="h-4 w-4 ml-2 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">DSGVO/HIPAA-geschützte Daten</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         {getStatusBadge(request.status)}
       </div>
       
