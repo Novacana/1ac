@@ -17,12 +17,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
   return (
     <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'} w-full gap-3 mb-6`}>
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row items-center'} gap-3`}>
-        <h1 className={`text-2xl font-bold ${isMobile ? 'mb-2' : 'mr-4'}`}>
-          {mainSection === 'prescriptions' ? 'Rezeptverwaltung' : 
-           mainSection === 'patients' ? 'Patientenverwaltung' : 
-           mainSection === 'open_requests' ? 'Rezeptanfragen' : 
-           mainSection === 'calendar' ? 'Kalender' : 'Videosprechstunde'}
-        </h1>
         <div className="flex flex-wrap gap-2">
           <Button 
             variant={mainSection === 'prescriptions' ? "default" : "outline"} 

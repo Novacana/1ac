@@ -133,10 +133,6 @@ const DashboardContent: React.FC<DashboardContentProps> = memo(({
           <DoctorCalendar />
         ) : (
           <>
-            <div className="mb-4 flex items-center gap-2">
-              <InboxIcon className="h-5 w-5" />
-              <h2 className="text-xl font-semibold">Rezeptanfragen</h2>
-            </div>
             <OpenRequestsPanel 
               requests={filteredRequests}
               loading={loading}
