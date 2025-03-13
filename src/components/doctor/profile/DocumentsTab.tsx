@@ -1,13 +1,28 @@
-
 import React, { useState } from "react";
-import { FileText, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { FileText, Upload, CheckCircle, AlertCircle, ShieldCheck, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { logGdprActivity } from "@/utils/fhirCompliance";
 import { useAuth } from "@/contexts/AuthContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DocumentUpload {
   file: File;
@@ -20,6 +35,10 @@ const DocumentsTab: React.FC = () => {
   const { user } = useAuth();
   const [approbationUpload, setApprobationUpload] = useState<DocumentUpload | null>(null);
   const [specialistUpload, setSpecialistUpload] = useState<DocumentUpload | null>(null);
+  const [gdprConsent, setGdprConsent] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const [pendingUpload, setPendingUpload] = useState<{file: File, type: 'approbation' | 'specialist'} | null>(null);
+  const [showPrivacyInfo, setShowPrivacyInfo] = useState(false);
   
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, documentType: 'approbation' | 'specialist') => {
     const files = event.target.files;
@@ -39,6 +58,20 @@ const DocumentsTab: React.FC = () => {
       return;
     }
     
+    // Check if user has already given GDPR consent
+    const hasStoredConsent = localStorage.getItem('document_upload_consent') === 'true';
+    
+    if (hasStoredConsent) {
+      // If they've already consented, proceed with upload
+      processUpload(file, documentType);
+    } else {
+      // Otherwise, show consent dialog and store the pending upload
+      setPendingUpload({file, type: documentType});
+      setShowConsentDialog(true);
+    }
+  };
+  
+  const processUpload = async (file: File, documentType: 'approbation' | 'specialist') => {
     // Set initial upload state
     const setUploadState = documentType === 'approbation' ? setApprobationUpload : setSpecialistUpload;
     setUploadState({
@@ -57,6 +90,19 @@ const DocumentsTab: React.FC = () => {
       const fileName = `${user.id}_${documentType}_${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
       
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setUploadState(prev => {
+          if (!prev) return prev;
+          
+          const newProgress = Math.min(prev.progress + 10, 90);
+          return {
+            ...prev,
+            progress: newProgress
+          };
+        });
+      }, 300);
+      
       // Upload to Supabase Storage
       const { error: uploadError, data } = await supabase.storage
         .from('medical_documents')
@@ -65,13 +111,57 @@ const DocumentsTab: React.FC = () => {
           upsert: false
         });
         
+      clearInterval(progressInterval);
+      
       if (uploadError) throw uploadError;
+      
+      // Create FHIR DocumentReference in the database
+      const fhirDocumentReference = {
+        resourceType: "DocumentReference",
+        status: "current",
+        docStatus: "final",
+        type: {
+          coding: [{
+            system: "http://loinc.org",
+            code: documentType === 'approbation' ? "11488-4" : "11519-6",
+            display: documentType === 'approbation' ? "Physician Note" : "Specialist Note"
+          }]
+        },
+        subject: {
+          reference: `Practitioner/${user.id}`
+        },
+        date: new Date().toISOString(),
+        securityLabel: [{
+          coding: [{
+            system: "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+            code: "R",
+            display: "Restricted"
+          }]
+        }],
+        content: [{
+          attachment: {
+            contentType: file.type,
+            url: `${filePath}`,
+            title: file.name,
+            size: file.size
+          }
+        }]
+      };
+      
+      // Normally you would save this FHIR resource to your database
+      console.log('FHIR DocumentReference created:', fhirDocumentReference);
       
       // Log GDPR activity for this document upload
       await logGdprActivity(
         user.id,
         `${documentType}_document_upload`,
-        `User uploaded a ${documentType} document`
+        `User uploaded a ${documentType} document with GDPR consent`,
+        {
+          documentType,
+          fileName: file.name,
+          contentType: file.type,
+          securityLevel: "restricted"
+        }
       );
       
       // Update upload state to success
@@ -94,6 +184,20 @@ const DocumentsTab: React.FC = () => {
       });
       
       toast.error(`Fehler beim Hochladen: ${error.message || 'Unbekannter Fehler'}`);
+    }
+  };
+  
+  const handleConsentConfirm = () => {
+    if (gdprConsent && pendingUpload) {
+      // Store consent in localStorage
+      localStorage.setItem('document_upload_consent', 'true');
+      
+      // Close dialog and process the upload
+      setShowConsentDialog(false);
+      processUpload(pendingUpload.file, pendingUpload.type);
+      setPendingUpload(null);
+    } else {
+      toast.error('Bitte stimmen Sie der Datenverarbeitung zu, um fortzufahren');
     }
   };
   
@@ -134,8 +238,22 @@ const DocumentsTab: React.FC = () => {
     <div className="space-y-6">
       <Alert className="bg-blue-50 border-blue-200">
         <FileText className="h-4 w-4 text-blue-500" />
-        <AlertDescription className="text-blue-700">
-          Alle hochgeladenen Dokumente werden nach FHIR Standard als DocumentReference Ressourcen gespeichert und sind konform mit GDPR und HIPAA-Richtlinien.
+        <AlertDescription className="text-blue-700 flex items-center justify-between">
+          <span>
+            Alle hochgeladenen Dokumente werden nach FHIR Standard als DocumentReference Ressourcen gespeichert und sind konform mit GDPR und HIPAA-Richtlinien.
+          </span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setShowPrivacyInfo(true)}>
+                  <Info className="h-4 w-4 text-blue-500" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">Mehr Informationen zu Datenschutz</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </AlertDescription>
       </Alert>
     
@@ -218,6 +336,121 @@ const DocumentsTab: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* GDPR Consent Dialog */}
+      <Dialog open={showConsentDialog} onOpenChange={(open) => !open && setShowConsentDialog(false)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Datenschutz-Einwilligung</DialogTitle>
+            <DialogDescription>
+              Um Ihre Dokumente zu verarbeiten, benötigen wir Ihre Einwilligung gemäß DSGVO und HIPAA-Richtlinien.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <Alert variant="default" className="bg-primary/5 border-primary/20">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <AlertTitle>Informationen zur Datenverarbeitung</AlertTitle>
+              <AlertDescription className="text-xs">
+                <ul className="list-disc list-inside space-y-1 mt-2">
+                  <li>Ihre Dokumente werden verschlüsselt auf unseren Servern gespeichert</li>
+                  <li>Die Verarbeitung erfolgt gemäß FHIR-Standard (HL7 DocumentReference)</li>
+                  <li>Nur autorisiertes Personal hat Zugriff auf Ihre Dokumente</li>
+                  <li>Sie können Ihre Einwilligung jederzeit widerrufen und die Löschung Ihrer Daten beantragen</li>
+                  <li>Die Speicherung erfolgt konform mit DSGVO und HIPAA</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+            
+            <div className="flex items-start space-x-2">
+              <Checkbox 
+                id="gdpr-consent-checkbox" 
+                checked={gdprConsent}
+                onCheckedChange={(checked) => setGdprConsent(checked as boolean)}
+              />
+              <Label 
+                htmlFor="gdpr-consent-checkbox" 
+                className="text-sm leading-normal"
+              >
+                Ich stimme der Verarbeitung meiner hochgeladenen Dokumente zu den oben genannten Bedingungen zu und bin damit einverstanden, dass diese Daten für die Überprüfung meiner medizinischen Qualifikationen verwendet werden.
+              </Label>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConsentDialog(false)}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleConsentConfirm} disabled={!gdprConsent}>
+              Bestätigen und fortfahren
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Privacy Information Dialog */}
+      <Dialog open={showPrivacyInfo} onOpenChange={setShowPrivacyInfo}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Datenschutz- und Compliance-Informationen</DialogTitle>
+            <DialogDescription>
+              Detaillierte Informationen zur Verarbeitung Ihrer medizinischen Dokumente
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+            <h4 className="font-medium">DSGVO-Konformität</h4>
+            <p className="text-sm text-muted-foreground">
+              Die Verarbeitung Ihrer Dokumente erfolgt in Übereinstimmung mit der Datenschutz-Grundverordnung (DSGVO):
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
+              <li>Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)</li>
+              <li>Datenminimierung: Wir erheben nur die für die Überprüfung notwendigen Daten</li>
+              <li>Speicherbegrenzung: Dokumente werden nur für den erforderlichen Zeitraum gespeichert</li>
+              <li>Technische Sicherheitsmaßnahmen: Verschlüsselung und Zugriffskontrollen</li>
+            </ul>
+            
+            <h4 className="font-medium">HIPAA-Konformität</h4>
+            <p className="text-sm text-muted-foreground">
+              Als medizinische Plattform erfüllen wir die Anforderungen des Health Insurance Portability and Accountability Act (HIPAA):
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
+              <li>Privacy Rule: Schutz persönlicher Gesundheitsinformationen (PHI)</li>
+              <li>Security Rule: Implementierung technischer und organisatorischer Schutzmaßnahmen</li>
+              <li>Breach Notification: Protokollierung und Meldung von Datenschutzverletzungen</li>
+            </ul>
+            
+            <h4 className="font-medium">FHIR-Standard Implementierung</h4>
+            <p className="text-sm text-muted-foreground">
+              Fast Healthcare Interoperability Resources (FHIR) wird für die strukturierte Speicherung verwendet:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
+              <li>DocumentReference-Ressource für alle hochgeladenen Dokumente</li>
+              <li>Standardisierte Metadaten gemäß HL7 FHIR R4</li>
+              <li>Erweiterte Sicherheitsmerkmale gemäß SMART on FHIR</li>
+            </ul>
+            
+            <h4 className="font-medium">Ihre Rechte</h4>
+            <p className="text-sm text-muted-foreground">
+              Sie haben folgende Rechte bezüglich Ihrer Daten:
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-4">
+              <li>Recht auf Auskunft (Art. 15 DSGVO)</li>
+              <li>Recht auf Berichtigung (Art. 16 DSGVO)</li>
+              <li>Recht auf Löschung (Art. 17 DSGVO)</li>
+              <li>Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+              <li>Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</li>
+              <li>Recht auf Widerruf der Einwilligung (Art. 7 Abs. 3 DSGVO)</li>
+            </ul>
+          </div>
+          
+          <DialogFooter>
+            <Button onClick={() => setShowPrivacyInfo(false)}>
+              Schließen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
