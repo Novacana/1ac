@@ -1,5 +1,5 @@
 
-import { Menu, X, Stethoscope, Building, BookOpen, Users, FileText, Package, ShoppingBag, Home, CreditCard, BarChart } from "lucide-react";
+import { Menu, X, ShoppingBag, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -39,30 +39,11 @@ const Header = () => {
   }, [location.pathname]);
 
   const getNavItems = (): NavItem[] => {
+    // Base items always shown to all users
     const baseItems: NavItem[] = [
       { name: "Home", path: "/", icon: <Home className="h-4 w-4" /> },
       { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
     ];
-
-    // Only add Documentation link for doctors and pharmacies
-    if (isDoctor || isPharmacy) {
-      baseItems.push({ name: "Dokumentation", path: "/documentation", icon: <BookOpen className="h-4 w-4" /> });
-    }
-
-    if (isDoctor) {
-      return [
-        { name: "Arztprofil", path: "/doctor/profile", icon: <Stethoscope className="h-4 w-4 text-green-500" /> },
-        { name: "Patientenverwaltung", path: "/doctor/dashboard", icon: <Users className="h-4 w-4" /> },
-        { name: "Rezeptanfragen", path: "/doctor/dashboard", icon: <FileText className="h-4 w-4" /> },
-        ...baseItems
-      ];
-    } else if (isPharmacy) {
-      return [
-        { name: "Produkte", path: "/pharmacy/management", icon: <Package className="h-4 w-4" /> },
-        { name: "Bestellungen", path: "/pharmacy/management", icon: <ShoppingBag className="h-4 w-4" /> },
-        ...baseItems
-      ];
-    }
 
     return baseItems;
   };

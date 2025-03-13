@@ -7,9 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Lock, User, AlertCircle, Stethoscope, Building, LogIn, Info } from 'lucide-react';
+import { Lock, User, AlertCircle, LogIn, Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,7 +18,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userType, setUserType] = useState('user');
   const { login, loginWithGoogle, isDoctor, isPharmacy } = useAuth();
   const navigate = useNavigate();
 
@@ -95,103 +93,19 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = (type: string) => {
-    switch(type) {
-      case 'user':
-        setEmail('user@example.com');
-        setPassword('password');
-        break;
-      case 'doctor':
-        setEmail('doctor@example.com');
-        setPassword('password');
-        break;
-      case 'pharmacy':
-        setEmail('pharmacy@example.com');
-        setPassword('password');
-        break;
-    }
-  };
-
-  // Set demo credentials based on initial tab
-  const getDemoContent = () => {
-    switch(userType) {
-      case 'user':
-        return (
-          <div className="mt-1">
-            <p>Email: user@example.com</p>
-            <p>Passwort: password</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-2" 
-              onClick={() => handleDemoLogin('user')}
-            >
-              Als Patient anmelden
-            </Button>
-          </div>
-        );
-      case 'doctor':
-        return (
-          <div className="mt-1">
-            <p>Email: doctor@example.com</p>
-            <p>Passwort: password</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-2" 
-              onClick={() => handleDemoLogin('doctor')}
-            >
-              Als Arzt anmelden
-            </Button>
-          </div>
-        );
-      case 'pharmacy':
-        return (
-          <div className="mt-1">
-            <p>Email: pharmacy@example.com</p>
-            <p>Passwort: password</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mt-2" 
-              onClick={() => handleDemoLogin('pharmacy')}
-            >
-              Als Apotheke anmelden
-            </Button>
-          </div>
-        );
-      default:
-        return null;
-    }
+  const handleDemoLogin = () => {
+    setEmail('user@example.com');
+    setPassword('password');
   };
 
   return (
     <Layout>
       <div className="container px-4 pt-8 pb-16 max-w-md mx-auto">
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <Tabs value={userType} onValueChange={setUserType} className="w-full">
-              <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="user" className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Patient</span>
-                </TabsTrigger>
-                <TabsTrigger value="doctor" className="flex items-center gap-1">
-                  <Stethoscope className="h-4 w-4" />
-                  <span className="hidden sm:inline">Arzt</span>
-                </TabsTrigger>
-                <TabsTrigger value="pharmacy" className="flex items-center gap-1">
-                  <Building className="h-4 w-4" />
-                  <span className="hidden sm:inline">Apotheke</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            
+          <CardHeader className="space-y-1">            
             <CardTitle className="text-2xl font-bold text-center">Anmelden</CardTitle>
             <CardDescription className="text-center">
-              {userType === 'user' && 'Als Patient anmelden, um Ihre Bestellungen zu verfolgen'}
-              {userType === 'doctor' && 'Als Arzt anmelden, um Rezepte zu verwalten'}
-              {userType === 'pharmacy' && 'Als Apotheke anmelden, um Bestellungen zu verwalten'}
+              Als Patient anmelden, um Ihre Bestellungen zu verfolgen
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -305,7 +219,18 @@ const Login = () => {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm text-muted-foreground">
               <p>Demo Zugangsdaten:</p>
-              {getDemoContent()}
+              <div className="mt-1">
+                <p>Email: user@example.com</p>
+                <p>Passwort: password</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2" 
+                  onClick={handleDemoLogin}
+                >
+                  Als Patient anmelden
+                </Button>
+              </div>
             </div>
             <div className="w-full text-center">
               <p className="text-sm text-muted-foreground">

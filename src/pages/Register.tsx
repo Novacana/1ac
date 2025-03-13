@@ -1,45 +1,26 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { UserPlus, Mail, Lock, User, AlertCircle, Stethoscope, Building, Info } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { UserPlus, Mail, Lock, User, AlertCircle, Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-interface LocationState {
-  preselectedRole?: 'user' | 'doctor' | 'pharmacy';
-}
-
 const Register = () => {
-  const location = useLocation();
-  const locationState = location.state as LocationState;
-  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'user' | 'doctor' | 'pharmacy'>(
-    locationState?.preselectedRole || 'user'
-  );
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
-
-  // Effect to update role if preselectedRole changes
-  useEffect(() => {
-    if (locationState?.preselectedRole) {
-      setRole(locationState.preselectedRole);
-    }
-  }, [locationState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,18 +35,10 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      await register(name, email, password, role);
+      // Always register as user
+      await register(name, email, password, 'user');
       toast.success('Registrierung erfolgreich');
-      
-      if (role === 'doctor') {
-        navigate('/settings');
-        toast.info('Bitte vervollständigen Sie Ihre Arzt-Verifizierung in den Einstellungen');
-      } else if (role === 'pharmacy') {
-        navigate('/settings');
-        toast.info('Bitte vervollständigen Sie Ihre Apotheken-Verifizierung in den Einstellungen');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
     } catch (err) {
       setError('Registrierung fehlgeschlagen');
       toast.error('Registrierungsfehler');
@@ -78,7 +51,6 @@ const Register = () => {
     setIsGoogleLoading(true);
     try {
       // For Google signup, we use the same loginWithGoogle function
-      // The user will need to set their role afterward in the profile settings
       await loginWithGoogle();
       // The redirect is handled by Supabase OAuth
     } catch (err: any) {
@@ -109,50 +81,7 @@ const Register = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="accountType">Kontotyp</Label>
-                <RadioGroup 
-                  value={role} 
-                  onValueChange={(value) => setRole(value as 'user' | 'doctor' | 'pharmacy')} 
-                  className="flex flex-col space-y-1"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="user" id="user" />
-                    <Label htmlFor="user" className="flex items-center gap-2 cursor-pointer">
-                      <User className="h-4 w-4" />
-                      Patient
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="doctor" id="doctor" />
-                    <Label htmlFor="doctor" className="flex items-center gap-2 cursor-pointer">
-                      <Stethoscope className="h-4 w-4" />
-                      Arzt
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="pharmacy" id="pharmacy" />
-                    <Label htmlFor="pharmacy" className="flex items-center gap-2 cursor-pointer">
-                      <Building className="h-4 w-4" />
-                      Apotheke
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              {(role === 'doctor' || role === 'pharmacy') && (
-                <Alert variant="warning">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Verifizierung erforderlich</AlertTitle>
-                  <AlertDescription>
-                    {role === 'doctor' 
-                      ? 'Sie müssen Ihre Approbationsurkunde hochladen, um als Arzt verifiziert zu werden.'
-                      : 'Sie müssen Ihre Betriebserlaubnis hochladen, um als Apotheke verifiziert zu werden.'}
-                  </AlertDescription>
-                </Alert>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="name">Name{role === 'pharmacy' ? ' der Apotheke' : ''}</Label>
+                <Label htmlFor="name">Name</Label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
                     <User className="h-4 w-4" />
@@ -160,7 +89,7 @@ const Register = () => {
                   <Input 
                     id="name" 
                     type="text" 
-                    placeholder={role === 'pharmacy' ? "Muster Apotheke" : "Max Mustermann"} 
+                    placeholder="Max Mustermann" 
                     className="pl-10"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -281,11 +210,6 @@ const Register = () => {
                   </div>
                 )}
               </Button>
-              
-              <div className="text-xs text-center text-muted-foreground mt-2 flex items-center justify-center gap-1">
-                <Info className="h-3 w-3" />
-                <span>Bei der Google-Anmeldung können Sie Ihre Rolle später in den Einstellungen festlegen</span>
-              </div>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
