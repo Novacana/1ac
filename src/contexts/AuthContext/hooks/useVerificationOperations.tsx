@@ -1,8 +1,9 @@
 
-import { User } from '@/types/auth';
+import { User, Document } from '@/types/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { updateUserDocuments } from '../userManagement';
+import { logGdprActivity } from '@/utils/fhirCompliance';
 
 export const useVerificationOperations = (user: User | null, setUser: React.Dispatch<React.SetStateAction<User | null>>) => {
   const uploadVerificationDocument = async (documentType: 'approbation' | 'pharmacy_license' | 'id_document', file: File) => {
@@ -11,9 +12,19 @@ export const useVerificationOperations = (user: User | null, setUser: React.Disp
     try {
       console.log(`Uploading ${documentType} document: ${file.name}`);
       
-      // First, upload the file to Supabase Storage
-      // Note: You need to create a storage bucket in Supabase first
+      // Create a storage bucket path
       const fileName = `${user.id}/${documentType}/${Date.now()}_${file.name}`;
+      const filePath = `documents/${fileName}`;
+      
+      // Upload the file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (uploadError) throw uploadError;
       
       // Insert document record in the database
       const { data, error } = await supabase
@@ -37,6 +48,13 @@ export const useVerificationOperations = (user: User | null, setUser: React.Disp
         })
         .eq('id', user.id);
       
+      // Log GDPR activity
+      await logGdprActivity(
+        user.id, 
+        'document_upload', 
+        `User uploaded verification document: ${documentType}`
+      );
+      
       // Update local state
       const updatedUser = updateUserDocuments(user, documentType);
       setUser(updatedUser);
@@ -51,7 +69,28 @@ export const useVerificationOperations = (user: User | null, setUser: React.Disp
     }
   };
 
+  const getDocumentUploadUrl = async (documentType: 'approbation' | 'pharmacy_license' | 'id_document', fileName: string) => {
+    if (!user) return null;
+    
+    try {
+      const filePath = `documents/${user.id}/${documentType}/${Date.now()}_${fileName}`;
+      
+      // Generate a presigned URL for upload
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUploadUrl(filePath);
+        
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error generating upload URL:', error);
+      return null;
+    }
+  };
+
   return {
-    uploadVerificationDocument
+    uploadVerificationDocument,
+    getDocumentUploadUrl
   };
 };

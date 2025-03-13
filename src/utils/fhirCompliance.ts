@@ -4,6 +4,9 @@
  * This file contains functions to help with FHIR standard compliance
  */
 
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@/types/auth";
+
 type FHIRResourceType = 'Patient' | 'Practitioner' | 'Organization' | 'MedicationRequest';
 
 /**
@@ -60,8 +63,15 @@ export const convertUserToFHIRPatient = (userData: any) => {
  * @param doctorData Doctor data to convert
  * @returns FHIR Practitioner resource
  */
-export const convertDoctorToFHIRPractitioner = (doctorData: any) => {
+export const convertDoctorToFHIRPractitioner = async (doctorData: any) => {
   if (!doctorData) return null;
+  
+  // Get medical license info if available
+  const { data: licenseData } = await supabase
+    .from('medical_licenses')
+    .select('*')
+    .eq('user_id', doctorData.id)
+    .maybeSingle();
   
   return {
     resourceType: 'Practitioner',
@@ -69,7 +79,7 @@ export const convertDoctorToFHIRPractitioner = (doctorData: any) => {
     identifier: [
       {
         system: 'urn:oid:2.16.840.1.113883.4.3.276.medicalLicense',
-        value: doctorData.medicalLicenseNumber || ''
+        value: licenseData?.license_number || doctorData.medicalLicenseNumber || ''
       }
     ],
     name: [
@@ -102,14 +112,18 @@ export const convertDoctorToFHIRPractitioner = (doctorData: any) => {
               display: 'Doctor of Medicine'
             }
           ],
-          text: 'Medical Doctor'
+          text: licenseData?.specialty || 'Medical Doctor'
         },
         identifier: [
           {
             system: 'urn:oid:2.16.840.1.113883.4.3.276',
-            value: doctorData.medicalLicenseNumber || ''
+            value: licenseData?.license_number || doctorData.medicalLicenseNumber || ''
           }
-        ]
+        ],
+        period: licenseData ? {
+          start: licenseData.issue_date,
+          end: licenseData.expiry_date
+        } : undefined
       }
     ]
   };
@@ -120,7 +134,14 @@ export const convertDoctorToFHIRPractitioner = (doctorData: any) => {
  * @param userId User ID
  * @returns FHIR Consent resource
  */
-export const generateFHIRConsent = (userId: string) => {
+export const generateFHIRConsent = async (userId: string) => {
+  // Log the consent creation for GDPR compliance
+  await supabase.from('gdpr_logs').insert({
+    user_id: userId,
+    action_type: 'consent_generated',
+    description: 'FHIR consent document generated for user'
+  });
+  
   return {
     resourceType: 'Consent',
     id: `consent-${userId}-${Date.now()}`,
@@ -174,6 +195,44 @@ export const generateFHIRConsent = (userId: string) => {
 };
 
 /**
+ * Logs user activity for GDPR compliance
+ * @param userId User ID 
+ * @param actionType Type of action
+ * @param description Description of action
+ */
+export const logGdprActivity = async (userId: string, actionType: string, description: string) => {
+  try {
+    await supabase.from('gdpr_logs').insert({
+      user_id: userId,
+      action_type: actionType,
+      description: description
+    });
+  } catch (error) {
+    console.error('Error logging GDPR activity:', error);
+  }
+};
+
+/**
+ * Gets GDPR activity logs for a user
+ * @param userId User ID
+ * @returns Array of GDPR activity logs
+ */
+export const getGdprActivityLogs = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('gdpr_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+    
+  if (error) {
+    console.error('Error fetching GDPR logs:', error);
+    return [];
+  }
+  
+  return data || [];
+};
+
+/**
  * Validates if data is compliant with GDPR requirements
  * @param data Data to validate
  * @returns Whether the data is compliant
@@ -199,4 +258,72 @@ export const isHIPAACompliant = (data: any): boolean => {
   // - Audit logging
   // - Transmission security
   return true; // Simplified for demonstration
+};
+
+/**
+ * Creates a MedicationRequest in FHIR format
+ * @param prescription Prescription data
+ * @param patientId Patient ID
+ * @param practitionerId Practitioner ID
+ * @returns FHIR MedicationRequest resource
+ */
+export const createFHIRMedicationRequest = (prescription: any, patientId: string, practitionerId: string) => {
+  return {
+    resourceType: 'MedicationRequest',
+    id: prescription.id || `rx-${Date.now()}`,
+    status: prescription.status || 'active',
+    intent: 'order',
+    medicationCodeableConcept: {
+      coding: [
+        {
+          system: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+          code: prescription.medicationCode || '1234',
+          display: prescription.medicationName || 'Medication'
+        }
+      ],
+      text: prescription.medicationName || 'Medication'
+    },
+    subject: {
+      reference: `Patient/${patientId}`
+    },
+    requester: {
+      reference: `Practitioner/${practitionerId}`
+    },
+    dosageInstruction: [
+      {
+        text: prescription.dosage || 'Take as directed',
+        timing: {
+          repeat: {
+            frequency: prescription.frequency || 1,
+            period: prescription.period || 1,
+            periodUnit: prescription.periodUnit || 'd'
+          }
+        },
+        route: {
+          coding: [
+            {
+              system: 'http://snomed.info/sct',
+              code: '26643006',
+              display: 'Oral route'
+            }
+          ]
+        }
+      }
+    ],
+    dispenseRequest: {
+      numberOfRepeatsAllowed: prescription.refills || 0,
+      quantity: {
+        value: prescription.quantity || 1,
+        unit: prescription.unit || 'tablets',
+        system: 'http://unitsofmeasure.org',
+        code: prescription.quantityCode || 'TAB'
+      },
+      expectedSupplyDuration: {
+        value: prescription.duration || 30,
+        unit: 'days',
+        system: 'http://unitsofmeasure.org',
+        code: 'd'
+      }
+    }
+  };
 };
