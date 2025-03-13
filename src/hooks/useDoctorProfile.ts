@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { logGdprActivity } from '@/utils/fhirCompliance';
+import { logGdprActivity } from '@/utils/fhir/activityLogging';
 
 export interface DoctorLicense {
   licenseNumber: string;
@@ -56,7 +55,6 @@ export const useDoctorProfile = () => {
     
     setLoading(true);
     try {
-      // Fetch doctor license
       const { data: licenseData, error: licenseError } = await supabase
         .from('medical_licenses')
         .select('*')
@@ -75,7 +73,6 @@ export const useDoctorProfile = () => {
         });
       }
       
-      // Fetch doctor statistics
       const { data: statsData, error: statsError } = await supabase
         .from('doctor_statistics')
         .select('*')
@@ -93,7 +90,6 @@ export const useDoctorProfile = () => {
         });
       }
       
-      // Fetch doctor schedule
       const { data: scheduleData, error: scheduleError } = await supabase
         .from('doctor_availability')
         .select('*')
@@ -111,7 +107,6 @@ export const useDoctorProfile = () => {
         })));
       }
       
-      // Log GDPR activity
       await logGdprActivity(
         user.id,
         'profile_view',
@@ -149,7 +144,6 @@ export const useDoctorProfile = () => {
       
       setLicenseInfo(license);
       
-      // Log GDPR activity
       await logGdprActivity(
         user.id,
         'license_update',
@@ -170,13 +164,11 @@ export const useDoctorProfile = () => {
     
     setLoading(true);
     try {
-      // First delete existing schedule
       await supabase
         .from('doctor_availability')
         .delete()
         .eq('doctor_id', user.id);
       
-      // Then insert new schedule
       const scheduleToInsert = scheduleData.map(item => ({
         doctor_id: user.id,
         day_of_week: item.dayOfWeek,
@@ -193,7 +185,6 @@ export const useDoctorProfile = () => {
       
       setSchedule(scheduleData);
       
-      // Log GDPR activity
       await logGdprActivity(
         user.id,
         'schedule_update',

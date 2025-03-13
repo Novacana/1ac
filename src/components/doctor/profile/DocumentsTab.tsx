@@ -5,7 +5,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { logGdprActivity } from "@/utils/fhirCompliance";
+import { logGdprActivity } from "@/utils/fhir/activityLogging";
+import { createFHIRDocumentReference } from "@/utils/fhir/resources/documentReference";
 import { useAuth } from "@/contexts/AuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -106,37 +107,16 @@ const DocumentsTab: React.FC = () => {
       
       if (uploadError) throw uploadError;
       
-      const fhirDocumentReference = {
-        resourceType: "DocumentReference",
-        status: "current",
-        docStatus: "final",
-        type: {
-          coding: [{
-            system: "http://loinc.org",
-            code: documentType === 'approbation' ? "11488-4" : "11519-6",
-            display: documentType === 'approbation' ? "Physician Note" : "Specialist Note"
-          }]
+      const fhirDocumentReference = createFHIRDocumentReference(
+        user.id,
+        documentType,
+        {
+          name: file.name,
+          type: file.type,
+          size: file.size
         },
-        subject: {
-          reference: `Practitioner/${user.id}`
-        },
-        date: new Date().toISOString(),
-        securityLabel: [{
-          coding: [{
-            system: "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
-            code: "R",
-            display: "Restricted"
-          }]
-        }],
-        content: [{
-          attachment: {
-            contentType: file.type,
-            url: `${filePath}`,
-            title: file.name,
-            size: file.size
-          }
-        }]
-      };
+        filePath
+      );
       
       console.log('FHIR DocumentReference created:', fhirDocumentReference);
       
