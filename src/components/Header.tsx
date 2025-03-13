@@ -1,4 +1,3 @@
-
 import { Menu, X, ShoppingBag, Home, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -37,6 +36,17 @@ const Header = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--header-height", 
+      isMobile ? "60px" : "80px"
+    );
+    
+    return () => {
+      document.documentElement.style.removeProperty("--header-height");
+    };
+  }, [isMobile]);
 
   const getNavItems = (): NavItem[] => {
     // Base items always shown to all users
