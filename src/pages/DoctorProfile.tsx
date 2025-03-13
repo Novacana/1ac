@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -126,20 +127,20 @@ const DoctorProfile: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center mb-8">
+          <div className="flex flex-col mb-8">
             <Button 
               variant="ghost" 
-              className="mr-4" 
+              className="self-start mb-4" 
               onClick={goBack}
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              Zurück zum Dashboard
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Arztprofil</h1>
-              <p className="text-muted-foreground">
-                Verwalten Sie Ihre persönlichen Informationen, Zahlungen und Statistiken
-              </p>
-            </div>
+            
+            <h1 className="text-3xl font-bold">Arztprofil</h1>
+            <p className="text-muted-foreground">
+              Verwalten Sie Ihre persönlichen Informationen, Zahlungen und Statistiken
+            </p>
           </div>
 
           <Alert className="mb-6">

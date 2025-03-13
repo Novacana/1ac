@@ -46,9 +46,6 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="border-t border-b px-4 py-3 bg-muted/40">
-          <p className="text-sm font-medium">Profil-Navigation</p>
-        </div>
         <div className="p-4 flex flex-col gap-1">
           <Button 
             variant={activeTab === "personal" ? "secondary" : "ghost"} 

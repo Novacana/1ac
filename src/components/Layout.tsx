@@ -5,6 +5,7 @@ import Header from "./Header";
 import MobileNavDots from "./MobileNavDots";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   const location = useLocation();
   const isProfilePage = location.pathname.includes('/doctor/profile');
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,12 +40,12 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="fixed top-1/3 right-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-2xl opacity-10 -z-10"></div>
         </div>
         
-        {!noHeader && !isProfilePage && <Header />}
-        {!noHeader && !isProfilePage && <MobileNavDots />}
+        {!noHeader && !isProfilePage && !isMobile && <Header />}
+        {!noHeader && !isProfilePage && !isMobile && <MobileNavDots />}
         <main
           className={cn(
             "flex-1 animate-fade-in w-full max-w-none",
-            !noHeader && !isProfilePage ? "md:pt-24 pt-16 pb-16" : "",
+            !noHeader && !isProfilePage && !isMobile ? "md:pt-24 pt-16 pb-16" : "",
             className
           )}
         >
