@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarEvent, PatientRecord } from './types';
-import { getEventTypeIcon, getRecordTypeIcon } from './utils';
+import { getRecordTypeIcon } from './utils';
 import { cn } from '@/lib/utils';
 import { Video } from 'lucide-react';
 
@@ -76,8 +76,8 @@ const ViewEventDialog: React.FC<ViewEventDialogProps> = ({
                 "flex items-center",
                 getEventTypeClass(currentEvent.type)
               )}>
-                {getEventTypeIcon(currentEvent.type)}
-                <span className="ml-1">
+                {React.createElement(getRecordTypeIcon(currentEvent.type as any), { className: "h-4 w-4 mr-1" })}
+                <span>
                   {getEventTypeName(currentEvent.type)}
                 </span>
               </Badge>
@@ -113,7 +113,7 @@ const ViewEventDialog: React.FC<ViewEventDialogProps> = ({
                       {patientRecords.map(record => (
                         <div key={record.id} className="border-l-2 border-primary pl-3 py-1">
                           <div className="flex items-center gap-2">
-                            {getRecordTypeIcon(record.type)}
+                            {React.createElement(getRecordTypeIcon(record.type), { className: "h-4 w-4" })}
                             <span className="font-medium text-sm">{record.title}</span>
                             <span className="text-xs text-muted-foreground ml-auto">
                               {format(record.date, "dd.MM.yyyy")}

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { CalendarEvent } from './types';
 import { getEventTypeIcon, getEventTypeColor } from './utils';
 
@@ -35,7 +35,7 @@ const DayView: React.FC<DayViewProps> = ({ filteredEvents, date, onNewEvent, onV
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {getEventTypeIcon(event.type)}
+                      {React.createElement(getEventTypeIcon(event.type), { className: "h-4 w-4" })}
                       <span className="font-medium">{event.title}</span>
                     </div>
                     <span className="text-xs">{event.startTime} - {event.endTime}</span>
@@ -69,7 +69,7 @@ const DayView: React.FC<DayViewProps> = ({ filteredEvents, date, onNewEvent, onV
 
   return (
     <div className="text-center p-8 text-muted-foreground">
-      <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+      <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
       <p>Keine Termine für diesen Tag</p>
       <Button variant="outline" className="mt-4" onClick={() => onNewEvent()}>
         Termin hinzufügen

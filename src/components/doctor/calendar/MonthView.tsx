@@ -82,7 +82,7 @@ const MonthView: React.FC<MonthViewProps> = ({ date, events, onDateSelect, onVie
                       className={`text-xs truncate p-1 rounded cursor-pointer ${getEventTypeColor(event.type)}`}
                     >
                       <div className="flex items-center gap-1">
-                        {getEventTypeIcon(event.type)}
+                        {React.createElement(getEventTypeIcon(event.type), { className: "h-4 w-4" })}
                         <span className="truncate">{event.startTime} {event.title}</span>
                       </div>
                     </div>

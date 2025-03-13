@@ -74,7 +74,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekDays, date, events, onNewEvent,
                           className={`text-xs p-1 rounded truncate cursor-pointer ${getEventTypeColor(event.type)} hover:opacity-90 transition-opacity`}
                         >
                           <div className="flex items-center gap-1">
-                            {getEventTypeIcon(event.type)}
+                            {React.createElement(getEventTypeIcon(event.type), { className: "h-4 w-4" })}
                             <span className="truncate">{event.title}</span>
                           </div>
                         </div>

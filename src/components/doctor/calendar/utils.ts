@@ -3,7 +3,8 @@ import { EventType, PatientRecordType, CalendarEvent } from './types';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, isSameMonth } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { ClipboardList, FileText, ScrollText, FileDigit, FileClock, Video, Clock, Users, Calendar } from 'lucide-react';
+import { LucideIcon, ClipboardList, FileText, ScrollText, FileDigit, FileClock, Video, Clock, Users, Calendar } from 'lucide-react';
+import { ReactNode } from 'react';
 
 // Helper function to convert time string to hours/minutes
 export const timeStringToDate = (timeStr: string, baseDate: Date): Date => {
@@ -14,22 +15,22 @@ export const timeStringToDate = (timeStr: string, baseDate: Date): Date => {
   return date;
 };
 
-export const getEventTypeIcon = (type: EventType) => {
+export const getEventTypeIcon = (type: EventType): LucideIcon => {
   switch (type) {
     case 'videoconsultation':
-      return <Video className="h-4 w-4" />;
+      return Video;
     case 'appointment':
-      return <Clock className="h-4 w-4" />;
+      return Clock;
     case 'prescription':
-      return <FileText className="h-4 w-4" />;
+      return FileText;
     case 'patient':
-      return <Users className="h-4 w-4" />;
+      return Users;
     default:
-      return <Calendar className="h-4 w-4" />;
+      return Calendar;
   }
 };
 
-export const getEventTypeColor = (type: EventType) => {
+export const getEventTypeColor = (type: EventType): string => {
   switch (type) {
     case 'videoconsultation':
       return "bg-green-100 text-green-700 border-green-200";
@@ -44,20 +45,20 @@ export const getEventTypeColor = (type: EventType) => {
   }
 };
 
-export const getRecordTypeIcon = (type: PatientRecordType) => {
+export const getRecordTypeIcon = (type: PatientRecordType): LucideIcon => {
   switch (type) {
     case 'diagnosis':
-      return <ClipboardList className="h-4 w-4" />;
+      return ClipboardList;
     case 'prescription':
-      return <FileText className="h-4 w-4" />;
+      return FileText;
     case 'notes':
-      return <ScrollText className="h-4 w-4" />;
+      return ScrollText;
     case 'lab':
-      return <FileDigit className="h-4 w-4" />;
+      return FileDigit;
     case 'imaging':
-      return <FileClock className="h-4 w-4" />;
+      return FileClock;
     default:
-      return <FileText className="h-4 w-4" />;
+      return FileText;
   }
 };
 
