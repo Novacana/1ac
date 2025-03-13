@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,18 +19,13 @@ import {
   ChevronRight,
   ChevronDown,
   ClipboardList,
-  FileDigit
+  FileDigit,
+  ScrollText,
+  FileClock
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 import { format, addDays, subDays, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, getDay, isToday, setHours, setMinutes, getHours, getMinutes, addMonths, subMonths, startOfMonth, endOfMonth, isSameMonth, isSameDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -111,11 +105,11 @@ const getRecordTypeIcon = (type: PatientRecordType) => {
     case 'prescription':
       return <FileText className="h-4 w-4" />;
     case 'notes':
-      return <FileText className="h-4 w-4" />;
+      return <ScrollText className="h-4 w-4" />;
     case 'lab':
       return <FileDigit className="h-4 w-4" />;
     case 'imaging':
-      return <FileDigit className="h-4 w-4" />;
+      return <FileClock className="h-4 w-4" />;
     default:
       return <FileText className="h-4 w-4" />;
   }
@@ -201,8 +195,7 @@ const DoctorCalendar: React.FC = () => {
   const [isViewEventOpen, setIsViewEventOpen] = useState(false);
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<CalendarEvent | null>(null);
-  const [selectedPatientRecord, setSelectedPatientRecord] = useState<PatientRecord | null>(null);
-  const [isPatientRecordVisible, setIsPatientRecordVisible] = useState(false);
+  const [showPatientBriefing, setShowPatientBriefing] = useState(false);
   const [newEventData, setNewEventData] = useState({
     title: '',
     date: new Date(),
@@ -326,13 +319,11 @@ const DoctorCalendar: React.FC = () => {
   const handleViewEvent = (event: CalendarEvent) => {
     setCurrentEvent(event);
     setIsViewEventOpen(true);
-    setIsPatientRecordVisible(false); // Reset patient record view
-    setSelectedPatientRecord(null);
+    setShowPatientBriefing(false); // Reset patient briefing view
   };
 
-  const handlePatientRecordSelect = (record: PatientRecord) => {
-    setSelectedPatientRecord(record);
-    setIsPatientRecordVisible(true);
+  const togglePatientBriefing = () => {
+    setShowPatientBriefing(!showPatientBriefing);
   };
 
   const handleDeleteEvent = (eventId: string) => {
@@ -855,166 +846,5 @@ const DoctorCalendar: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* View Event Dialog */}
+      {/* View Event Dialog with Patient Briefing */}
       <Dialog open={isViewEventOpen} onOpenChange={setIsViewEventOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Termindetails</DialogTitle>
-          </DialogHeader>
-          {currentEvent && (
-            <div className="space-y-4 py-4">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-full",
-                  currentEvent.type === 'videoconsultation' && "bg-green-100 text-green-700",
-                  currentEvent.type === 'appointment' && "bg-blue-100 text-blue-700",
-                  currentEvent.type === 'prescription' && "bg-yellow-100 text-yellow-700",
-                  currentEvent.type === 'patient' && "bg-purple-100 text-purple-700",
-                )}>
-                  {getEventTypeIcon(currentEvent.type)}
-                </div>
-                <h3 className="text-lg font-medium">{currentEvent.title}</h3>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Datum</p>
-                  <p>{format(currentEvent.date, "PPP", { locale: de })}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Zeit</p>
-                  <p>{currentEvent.startTime} - {currentEvent.endTime} Uhr</p>
-                </div>
-              </div>
-              
-              {currentEvent.patientName && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Patient</p>
-                      <p className="font-medium">{currentEvent.patientName}</p>
-                    </div>
-                    
-                    {/* Patient Record Dropdown */}
-                    {patientRecords.length > 0 && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="flex items-center gap-1">
-                            <ClipboardList className="h-4 w-4" />
-                            Patientenakte
-                            <ChevronDown className="h-4 w-4 ml-1" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                          {patientRecords.map((record) => (
-                            <DropdownMenuItem 
-                              key={record.id}
-                              onClick={() => handlePatientRecordSelect(record)}
-                              className="flex items-center cursor-pointer"
-                            >
-                              {getRecordTypeIcon(record.type)}
-                              <span className="ml-2">{record.title}</span>
-                              <span className="ml-auto text-xs text-muted-foreground">
-                                {format(record.date, "dd.MM.yyyy")}
-                              </span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
-                  
-                  {/* Display Patient Record */}
-                  {isPatientRecordVisible && selectedPatientRecord && (
-                    <div className="mt-4 p-3 border rounded-md bg-muted/30">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {getRecordTypeIcon(selectedPatientRecord.type)}
-                          <h4 className="font-medium">{selectedPatientRecord.title}</h4>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {format(selectedPatientRecord.date, "dd.MM.yyyy")}
-                        </span>
-                      </div>
-                      <p className="text-sm">{selectedPatientRecord.content}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {currentEvent.notes && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Notizen</p>
-                  <p className="text-sm">{currentEvent.notes}</p>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter className="flex justify-between">
-            <Button 
-              variant="destructive" 
-              onClick={() => currentEvent && handleDeleteEvent(currentEvent.id)}
-            >
-              Termin löschen
-            </Button>
-            <div className="flex gap-2">
-              {currentEvent?.type === 'videoconsultation' && (
-                <Button className="flex items-center gap-2">
-                  <Video className="h-4 w-4" />
-                  Videosprechstunde starten
-                </Button>
-              )}
-              <Button variant="outline" onClick={() => setIsViewEventOpen(false)}>Schließen</Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Calendar Sync Dialog */}
-      <Dialog open={isSyncDialogOpen} onOpenChange={setIsSyncDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Kalender synchronisieren</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="mb-4 text-sm text-muted-foreground">
-              Wählen Sie externe Kalender aus, mit denen Sie synchronisieren möchten. 
-              Aus DSGVO-Gründen werden patientenbezogene Daten pseudonymisiert.
-            </p>
-            
-            <div className="space-y-4">
-              {calendarSyncOptions.map(option => (
-                <div key={option.id} className="flex items-center justify-between p-3 border rounded-md">
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5 text-primary" />
-                    <span>{option.name}</span>
-                  </div>
-                  <Button size="sm" variant="outline" className="flex items-center gap-1">
-                    <ExternalLink className="h-3 w-3" />
-                    Verbinden
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-6">
-              <Alert>
-                <AlertDescription className="text-xs">
-                  Hinweis: Die Kalendersynchronisation erfolgt konform zur DSGVO und HIPAA. 
-                  Persönliche Patientendaten werden pseudonymisiert und es werden nur die notwendigen 
-                  Informationen übertragen. Der FHIR-Standard wird für den sicheren Datenaustausch verwendet.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSyncDialogOpen(false)}>Abbrechen</Button>
-            <Button onClick={handleSyncCalendars}>Synchronisieren</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default DoctorCalendar;
