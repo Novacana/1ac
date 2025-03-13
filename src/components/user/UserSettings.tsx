@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,17 @@ import { UserCircle, Mail, Lock, Bell, Languages } from 'lucide-react';
 const UserSettings = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  // Split the user's full name into first and last name when component mounts
+  React.useEffect(() => {
+    if (user?.name) {
+      const nameParts = user.name.split(' ');
+      setFirstName(nameParts[0] || '');
+      setLastName(nameParts.slice(1).join(' ') || '');
+    }
+  }, [user?.name]);
 
   return (
     <div className="space-y-6">
@@ -55,11 +66,19 @@ const UserSettings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstname">Vorname</Label>
-                  <Input id="firstname" defaultValue={user?.firstName || ''} />
+                  <Input 
+                    id="firstname" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastname">Nachname</Label>
-                  <Input id="lastname" defaultValue={user?.lastName || ''} />
+                  <Input 
+                    id="lastname" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="phone">Telefonnummer</Label>
