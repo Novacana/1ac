@@ -11,7 +11,7 @@ const DesktopNav: React.FC<DesktopNavProps> = ({ navItems }) => {
   const location = useLocation();
 
   return (
-    <nav className="flex items-center space-x-8">
+    <nav className="hidden md:flex items-center space-x-8 justify-center">
       {navItems.map((item) => (
         <Link
           key={item.name}

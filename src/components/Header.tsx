@@ -1,5 +1,5 @@
 
-import { Menu, X, ShoppingBag, Home } from "lucide-react";
+import { Menu, X, ShoppingBag, Home, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -41,8 +41,8 @@ const Header = () => {
   const getNavItems = (): NavItem[] => {
     // Base items always shown to all users
     const baseItems: NavItem[] = [
-      { name: "Home", path: "/", icon: <Home className="h-4 w-4" /> },
-      { name: "Shop", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
+      { name: "School", path: "/", icon: <GraduationCap className="h-4 w-4" /> },
+      { name: "Sorten", path: "/products", icon: <ShoppingBag className="h-4 w-4" /> },
     ];
 
     return baseItems;
@@ -81,7 +81,9 @@ const Header = () => {
           />
         </Link>
 
-        <DesktopNav navItems={navItems} />
+        <div className="flex-1 flex justify-center">
+          <DesktopNav navItems={navItems} />
+        </div>
 
         <div className="flex items-center space-x-4">
           <ThemeToggle />
