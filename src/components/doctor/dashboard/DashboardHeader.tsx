@@ -15,7 +15,25 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ mainSection, onSectio
   const navigate = useNavigate();
   
   if (isMobile) {
-    return null; // Hide header on mobile as requested
+    return (
+      <div className="flex items-center justify-between px-4 py-3 bg-background/90 backdrop-blur-sm border-b border-border">
+        <h1 className="text-lg font-semibold">
+          {mainSection === 'prescriptions' && 'Rezeptverwaltung'}
+          {mainSection === 'patients' && 'Patientenverwaltung'}
+          {mainSection === 'open_requests' && 'Rezeptanfragen'}
+          {mainSection === 'calendar' && 'Kalender'}
+          {mainSection === 'video' && 'Videosprechstunde'}
+        </h1>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => navigate('/doctor/profile')}
+          className="rounded-full"
+        >
+          <Stethoscope className="h-5 w-5" />
+        </Button>
+      </div>
+    );
   }
   
   return (

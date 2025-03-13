@@ -41,8 +41,8 @@ const Layout: React.FC<LayoutProps> = ({
         {!noHeader && <MobileNavDots />}
         <main
           className={cn(
-            "flex-1 animate-fade-in w-full max-w-none px-0",
-            !noHeader ? "md:pt-24 pt-16 pb-16" : "pt-2 pb-2",
+            "flex-1 animate-fade-in w-full max-w-none",
+            !noHeader ? "md:pt-24 pt-16 pb-16" : "",
             className
           )}
         >

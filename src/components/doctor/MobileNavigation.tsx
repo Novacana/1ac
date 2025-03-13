@@ -24,7 +24,7 @@ const MobileNavigationItem = ({
     onClick={onClick}
     className={cn(
       "flex flex-col items-center justify-center gap-1 w-full p-2 rounded-md",
-      active ? "text-primary bg-primary/10" : "text-muted-foreground"
+      active ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-background/80"
     )}
   >
     {icon}
@@ -36,8 +36,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ activeSection, onSe
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border md:hidden">
-      <div className="grid grid-cols-6 gap-1 p-1">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-sm border-t border-border md:hidden">
+      <div className="grid grid-cols-6 gap-1 p-2">
         <MobileNavigationItem
           icon={<FileText className="h-5 w-5" />}
           label="Rezepte"

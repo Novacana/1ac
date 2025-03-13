@@ -61,11 +61,11 @@ const DoctorDashboard = () => {
   }, [user, navigate]);
 
   return (
-    <Layout noHeader={isMobile}>
+    <Layout noHeader={true}>
       <TooltipProvider>
-        <div className={`container mx-auto px-4 ${isMobile ? 'py-2 pb-24' : 'py-6'}`}>
-          <div className="flex flex-col lg:flex-row gap-6">
-            {!isMobile && (
+        <div className={`mx-auto ${isMobile ? 'px-0 py-0 pb-24' : 'container px-4 py-6'}`}>
+          {!isMobile && (
+            <div className="flex flex-col lg:flex-row gap-6">
               <div className="lg:w-1/4">
                 <DoctorSidebar 
                   user={user} 
@@ -73,25 +73,41 @@ const DoctorDashboard = () => {
                   activeSection={mainSection}
                 />
               </div>
-            )}
-            
-            <div className="lg:w-3/4">
-              <div className="flex flex-col h-full">
-                <DashboardHeader
-                  mainSection={mainSection}
-                  onSectionChange={handleSectionChange}
-                />
-                
-                {isMobile && (
-                  <h1 className="text-xl font-bold mb-4">
-                    {mainSection === 'prescriptions' && 'Rezeptverwaltung'}
-                    {mainSection === 'patients' && 'Patientenverwaltung'}
-                    {mainSection === 'open_requests' && 'Rezeptanfragen'}
-                    {mainSection === 'calendar' && 'Kalender'}
-                    {mainSection === 'video' && 'Videosprechstunde'}
-                  </h1>
-                )}
-                
+              
+              <div className="lg:w-3/4">
+                <div className="flex flex-col h-full">
+                  <DashboardHeader
+                    mainSection={mainSection}
+                    onSectionChange={handleSectionChange}
+                  />
+                  
+                  <DashboardContent
+                    user={user}
+                    mainSection={mainSection}
+                    activeTab={activeTab}
+                    selectedRequest={selectedRequest}
+                    filteredRequests={filteredRequests}
+                    loading={loading}
+                    selectedRequestId={selectedRequestId}
+                    onSectionChange={handleSectionChange}
+                    onTabChange={handleTabChange}
+                    onSelectRequest={handleRequestSelect}
+                    onRequestUpdate={handleRequestUpdate}
+                    onAssignDoctor={handleAssignDoctor}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {isMobile && (
+            <div className="flex flex-col min-h-screen">
+              <DashboardHeader
+                mainSection={mainSection}
+                onSectionChange={handleSectionChange}
+              />
+              
+              <div className="flex-1 px-4 pb-20">
                 <DashboardContent
                   user={user}
                   mainSection={mainSection}
@@ -107,16 +123,14 @@ const DoctorDashboard = () => {
                   onAssignDoctor={handleAssignDoctor}
                 />
               </div>
+              
+              <MobileNavigation 
+                activeSection={mainSection}
+                onSectionChange={handleSectionChange}
+              />
             </div>
-          </div>
+          )}
         </div>
-        
-        {isMobile && (
-          <MobileNavigation 
-            activeSection={mainSection}
-            onSectionChange={handleSectionChange}
-          />
-        )}
       </TooltipProvider>
     </Layout>
   );
