@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { CalendarEvent } from './types';
+import { CalendarEvent, CalendarView } from './types';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarHeader from './CalendarHeader';
 import DayView from './DayView';
@@ -9,10 +9,10 @@ import WeekView from './WeekView';
 import MonthView from './MonthView';
 
 interface CalendarDesktopLayoutProps {
-  view: string;
+  view: CalendarView;
   date: Date;
   setDate: (date: Date) => void;
-  setView: (view: any) => void;
+  setView: (view: CalendarView) => void;
   eventDays: Date[];
   dateHeader: string;
   navigatePrevious: () => void;

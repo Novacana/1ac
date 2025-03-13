@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Day, Month, CalendarDays } from "lucide-react";
+import { Calendar, CalendarDays, CalendarRange } from "lucide-react";
 import { CalendarEvent, CalendarView } from './types';
 import DayView from './DayView';
 import WeekView from './WeekView';
@@ -61,7 +61,7 @@ const CalendarMobileLayout: React.FC<CalendarMobileLayoutProps> = ({
               className="rounded-l-md rounded-r-none px-3 py-1 h-9"
               onClick={() => setView('day')}
             >
-              <Day className="h-4 w-4 mr-1" />
+              <Calendar className="h-4 w-4 mr-1" />
               Tag
             </Button>
             <Button 
@@ -77,7 +77,7 @@ const CalendarMobileLayout: React.FC<CalendarMobileLayoutProps> = ({
               className="rounded-r-md rounded-l-none px-3 py-1 h-9"
               onClick={() => setView('month')}
             >
-              <Month className="h-4 w-4 mr-1" />
+              <CalendarRange className="h-4 w-4 mr-1" />
               Monat
             </Button>
           </div>
