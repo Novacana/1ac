@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Trash2, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ export interface CartItemProps {
   image: string;
   quantity: number;
   onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemove: (id: string) => void;
+  onRemove: () => void;
 }
 
 const CartItem: React.FC<CartItemProps> = ({
@@ -30,7 +30,7 @@ const CartItem: React.FC<CartItemProps> = ({
   const handleRemove = () => {
     setIsRemoving(true);
     setTimeout(() => {
-      onRemove(id);
+      onRemove();
     }, 300);
   };
 

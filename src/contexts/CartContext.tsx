@@ -1,11 +1,19 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { CartItemProps } from "@/components/CartItem";
 import { toast } from "sonner";
 
+// Explicitly define the CartItem type
+export type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+};
+
 type CartContextType = {
-  cartItems: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">[];
-  addToCart: (item: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">) => void;
+  cartItems: CartItem[];
+  addToCart: (item: Omit<CartItem, "quantity">) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -16,7 +24,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Initialize cart from localStorage if available
-  const [cartItems, setCartItems] = useState<Omit<CartItemProps, "onUpdateQuantity" | "onRemove">[]>(() => {
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
@@ -27,7 +35,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Cart updated, current items:", cartItems.length);
   }, [cartItems]);
 
-  const addToCart = (item: Omit<CartItemProps, "onUpdateQuantity" | "onRemove">) => {
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
     // Check if item is already in cart
     const existingItemIndex = cartItems.findIndex((cartItem) => cartItem.id === item.id);
 

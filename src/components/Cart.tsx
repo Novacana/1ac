@@ -10,11 +10,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Cart = () => {
-  const { cart, total, removeFromCart, updateQuantity } = useCart();
+  const { cartItems, removeItem, updateQuantity } = useCart();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  const isEmpty = cart.length === 0;
+  // Calculate total from cartItems
+  const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const isEmpty = cartItems.length === 0;
 
   return (
     <div className={`mx-auto ${isMobile ? 'px-4 py-4' : 'container px-4 py-8'}`}>
@@ -47,12 +49,16 @@ const Cart = () => {
         <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-3 gap-6'}`}>
           <div className={`${isMobile ? 'col-span-1' : 'md:col-span-2'}`}>
             <div className="space-y-4">
-              {cart.map((item) => (
+              {cartItems.map((item) => (
                 <CartItem
                   key={item.id}
-                  item={item}
-                  onRemove={() => removeFromCart(item.id)}
-                  onUpdateQuantity={(q) => updateQuantity(item.id, q)}
+                  id={item.id}
+                  name={item.name}
+                  price={item.price}
+                  image={item.image}
+                  quantity={item.quantity}
+                  onUpdateQuantity={(id, quantity) => updateQuantity(id, quantity)}
+                  onRemove={() => removeItem(item.id)}
                 />
               ))}
             </div>
