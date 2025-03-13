@@ -1,13 +1,13 @@
-
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ProfileSidebar from "@/components/doctor/profile/ProfileSidebar";
 import ProfileContent from "@/components/doctor/profile/ProfileContent";
+import { Button } from "@/components/ui/button";
 
 const DoctorProfile: React.FC = () => {
   const { user, isAuthenticated, isDoctor, updateUserProfile } = useAuth();
@@ -118,15 +118,28 @@ const DoctorProfile: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
+  const goBack = () => {
+    navigate('/doctor/dashboard');
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Arztprofil</h1>
-            <p className="text-muted-foreground">
-              Verwalten Sie Ihre persönlichen Informationen, Zahlungen und Statistiken
-            </p>
+          <div className="flex items-center mb-8">
+            <Button 
+              variant="ghost" 
+              className="mr-4" 
+              onClick={goBack}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">Arztprofil</h1>
+              <p className="text-muted-foreground">
+                Verwalten Sie Ihre persönlichen Informationen, Zahlungen und Statistiken
+              </p>
+            </div>
           </div>
 
           <Alert className="mb-6">

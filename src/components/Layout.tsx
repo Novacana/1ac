@@ -21,6 +21,7 @@ const Layout: React.FC<LayoutProps> = ({
   fullWidth = true,
 }) => {
   const location = useLocation();
+  const isProfilePage = location.pathname.includes('/doctor/profile');
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,12 +38,12 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="fixed top-1/3 right-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-2xl opacity-10 -z-10"></div>
         </div>
         
-        {!noHeader && <Header />}
-        {!noHeader && <MobileNavDots />}
+        {!noHeader && !isProfilePage && <Header />}
+        {!noHeader && !isProfilePage && <MobileNavDots />}
         <main
           className={cn(
             "flex-1 animate-fade-in w-full max-w-none",
-            !noHeader ? "md:pt-24 pt-16 pb-16" : "",
+            !noHeader && !isProfilePage ? "md:pt-24 pt-16 pb-16" : "",
             className
           )}
         >
