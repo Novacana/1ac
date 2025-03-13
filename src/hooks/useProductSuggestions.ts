@@ -21,33 +21,40 @@ export const useProductSuggestions = () => {
   // Generate suggestions from products
   useEffect(() => {
     if (allProducts.length > 0) {
-      // Create unique suggestions from product names, strains, and categories
-      const nameSet = new Set<string>();
+      // Create unique suggestions from relevant product attributes
+      const suggestionsSet = new Set<string>();
       
-      // Add product names
       allProducts.forEach(product => {
-        if (product.name) nameSet.add(product.name);
+        // Add product names
+        if (product.name) suggestionsSet.add(product.name);
         
         // Add product strains if available
-        if (product.strain) nameSet.add(product.strain);
+        if (product.strain) suggestionsSet.add(product.strain);
         
-        // Add certain keywords from descriptions
-        if (product.description) {
-          const words = product.description.split(/\s+/);
-          words
-            .filter(word => word.length > 5) // Only add meaningful words
-            .forEach(word => {
-              // Normalize word and check if it's meaningful
-              const normalizedWord = word.replace(/[^\w\säöüß]/gi, '').trim();
-              if (normalizedWord.length > 5) {
-                nameSet.add(normalizedWord);
-              }
-            });
+        // Add effects
+        if (product.effects && Array.isArray(product.effects)) {
+          product.effects.forEach(effect => {
+            if (effect) suggestionsSet.add(effect);
+          });
+        }
+        
+        // Add benefits (symptoms)
+        if (product.benefits && Array.isArray(product.benefits)) {
+          product.benefits.forEach(benefit => {
+            if (benefit) suggestionsSet.add(benefit);
+          });
+        }
+        
+        // Add flavors
+        if (product.flavors && Array.isArray(product.flavors)) {
+          product.flavors.forEach(flavor => {
+            if (flavor) suggestionsSet.add(flavor);
+          });
         }
       });
       
       // Convert to array and sort
-      setSuggestions(Array.from(nameSet).sort());
+      setSuggestions(Array.from(suggestionsSet).sort());
     }
   }, [allProducts]);
 
