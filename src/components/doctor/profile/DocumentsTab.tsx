@@ -45,34 +45,28 @@ const DocumentsTab: React.FC = () => {
     if (!files || files.length === 0) return;
     
     const file = files[0];
-    // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast.error('Datei zu groß (max. 10MB)');
       return;
     }
     
-    // Allow only PDF, JPG or PNG
     const fileType = file.type;
     if (fileType !== 'application/pdf' && fileType !== 'image/jpeg' && fileType !== 'image/png') {
       toast.error('Nur PDF, JPG oder PNG erlaubt');
       return;
     }
     
-    // Check if user has already given GDPR consent
     const hasStoredConsent = localStorage.getItem('document_upload_consent') === 'true';
     
     if (hasStoredConsent) {
-      // If they've already consented, proceed with upload
       processUpload(file, documentType);
     } else {
-      // Otherwise, show consent dialog and store the pending upload
       setPendingUpload({file, type: documentType});
       setShowConsentDialog(true);
     }
   };
   
   const processUpload = async (file: File, documentType: 'approbation' | 'specialist') => {
-    // Set initial upload state
     const setUploadState = documentType === 'approbation' ? setApprobationUpload : setSpecialistUpload;
     setUploadState({
       file,
@@ -85,12 +79,10 @@ const DocumentsTab: React.FC = () => {
         throw new Error('Benutzer nicht angemeldet');
       }
       
-      // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}_${documentType}_${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
       
-      // Simulate progress updates
       const progressInterval = setInterval(() => {
         setUploadState(prev => {
           if (!prev) return prev;
@@ -103,7 +95,6 @@ const DocumentsTab: React.FC = () => {
         });
       }, 300);
       
-      // Upload to Supabase Storage
       const { error: uploadError, data } = await supabase.storage
         .from('medical_documents')
         .upload(filePath, file, {
@@ -115,7 +106,6 @@ const DocumentsTab: React.FC = () => {
       
       if (uploadError) throw uploadError;
       
-      // Create FHIR DocumentReference in the database
       const fhirDocumentReference = {
         resourceType: "DocumentReference",
         status: "current",
@@ -148,23 +138,14 @@ const DocumentsTab: React.FC = () => {
         }]
       };
       
-      // Normally you would save this FHIR resource to your database
       console.log('FHIR DocumentReference created:', fhirDocumentReference);
       
-      // Log GDPR activity for this document upload
       await logGdprActivity(
         user.id,
         `${documentType}_document_upload`,
-        `User uploaded a ${documentType} document with GDPR consent`,
-        {
-          documentType,
-          fileName: file.name,
-          contentType: file.type,
-          securityLevel: "restricted"
-        }
+        `User uploaded a ${documentType} document with GDPR consent`
       );
       
-      // Update upload state to success
       setUploadState({
         file,
         progress: 100,
@@ -189,10 +170,7 @@ const DocumentsTab: React.FC = () => {
   
   const handleConsentConfirm = () => {
     if (gdprConsent && pendingUpload) {
-      // Store consent in localStorage
       localStorage.setItem('document_upload_consent', 'true');
-      
-      // Close dialog and process the upload
       setShowConsentDialog(false);
       processUpload(pendingUpload.file, pendingUpload.type);
       setPendingUpload(null);
@@ -337,7 +315,6 @@ const DocumentsTab: React.FC = () => {
         </div>
       </div>
       
-      {/* GDPR Consent Dialog */}
       <Dialog open={showConsentDialog} onOpenChange={(open) => !open && setShowConsentDialog(false)}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -388,7 +365,6 @@ const DocumentsTab: React.FC = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Privacy Information Dialog */}
       <Dialog open={showPrivacyInfo} onOpenChange={setShowPrivacyInfo}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
