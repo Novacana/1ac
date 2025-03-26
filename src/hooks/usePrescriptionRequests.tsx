@@ -11,6 +11,7 @@ export const usePrescriptionRequests = (userId?: string) => {
   const [loading, setLoading] = useState(true);
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
+  const [mainSection, setMainSection] = useState<'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar'>('open_requests');
 
   // Fetch prescription requests
   const fetchRequests = useCallback(async () => {
@@ -35,6 +36,11 @@ export const usePrescriptionRequests = (userId?: string) => {
   // Handle tab change
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
+  }, []);
+
+  // Handle section change
+  const handleSectionChange = useCallback((section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => {
+    setMainSection(section);
   }, []);
 
   // Handle request approval
@@ -121,6 +127,9 @@ export const usePrescriptionRequests = (userId?: string) => {
       // Switch to prescriptions tab with status "pending"
       setActiveTab('pending');
       
+      // Switch to prescriptions section (this is the new addition)
+      setMainSection('prescriptions');
+      
       // Log GDPR activity
       await logGdprActivity(
         userId,
@@ -184,10 +193,12 @@ export const usePrescriptionRequests = (userId?: string) => {
     loading,
     selectedRequestId,
     activeTab,
+    mainSection,
     selectedRequest,
     filteredRequests,
     handleRequestSelect,
     handleTabChange,
+    handleSectionChange,
     handleApprove,
     handleReject,
     handleRequestUpdate,

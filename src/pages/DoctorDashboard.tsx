@@ -11,7 +11,6 @@ import DashboardHeader from '@/components/doctor/dashboard/DashboardHeader';
 import DashboardContent from '@/components/doctor/dashboard/DashboardContent';
 import MobileNavigation from '@/components/doctor/MobileNavigation';
 import { usePrescriptionRequests } from '@/hooks/usePrescriptionRequests';
-import { useDashboardNavigation } from '@/hooks/useDashboardNavigation';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const DoctorDashboard = () => {
@@ -24,16 +23,16 @@ const DoctorDashboard = () => {
     loading, 
     selectedRequestId, 
     activeTab, 
+    mainSection,
     selectedRequest, 
     filteredRequests,
     handleRequestSelect, 
     handleTabChange, 
+    handleSectionChange,
     handleRequestUpdate, 
     handleAssignDoctor,
     fetchRequests
   } = usePrescriptionRequests(user?.id);
-  
-  const { mainSection, handleSectionChange } = useDashboardNavigation();
 
   useEffect(() => {
     if (!user) {

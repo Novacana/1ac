@@ -35,32 +35,36 @@ const OpenRequestsPanel: React.FC<OpenRequestsPanelProps> = ({
   const handleAssignRequest = async (requestId: string) => {
     try {
       // Übernehme den Patienten und ändere zum Rezept-Tab
-      onAssignDoctor(requestId);
+      const result = await onAssignDoctor(requestId);
       
-      // Erstelle FHIR-konforme Ressource für GDPR-Compliance
-      const request = requests.find(req => req.id === requestId);
-      if (request) {
-        const fhirRequest = convertToFHIRMedicationRequest({
-          id: request.id,
-          patientName: request.patientName,
-          patientId: `patient-${requestId}`,
-          requesterName: request.patientName,
-          requesterId: `requester-${requestId}`,
-          medicationName: request.cartItems?.[0]?.name || "Medikation",
-          status: "pending"
-        });
+      if (result?.success) {
+        // Erstelle FHIR-konforme Ressource für GDPR-Compliance
+        const request = requests.find(req => req.id === requestId);
+        if (request) {
+          const fhirRequest = convertToFHIRMedicationRequest({
+            id: request.id,
+            patientName: request.patientName,
+            patientId: `patient-${requestId}`,
+            requesterName: request.patientName,
+            requesterId: `requester-${requestId}`,
+            medicationName: request.cartItems?.[0]?.name || "Medikation",
+            status: "pending"
+          });
+          
+          console.log("FHIR MedicationRequest erstellt:", fhirRequest);
+          
+          // Protokolliere die Aktion für GDPR/HIPAA-Compliance
+          await recordMedicationRequest('doctor-id', {
+            id: request.id,
+            medicationName: request.cartItems?.[0]?.name || "Medikation",
+            patientId: `patient-${requestId}`
+          });
+        }
         
-        console.log("FHIR MedicationRequest erstellt:", fhirRequest);
-        
-        // Protokolliere die Aktion für GDPR/HIPAA-Compliance
-        await recordMedicationRequest('doctor-id', {
-          id: request.id,
-          medicationName: request.cartItems?.[0]?.name || "Medikation",
-          patientId: `patient-${requestId}`
-        });
+        toast.success('Patient erfolgreich übernommen. Rezept wird vorbereitet.');
+      } else {
+        toast.error('Fehler bei der Übernahme des Patienten');
       }
-      
-      toast.success('Patient erfolgreich übernommen. Rezept wird vorbereitet.');
     } catch (error) {
       console.error("Fehler bei der Patientenübernahme:", error);
       toast.error('Fehler bei der Übernahme des Patienten');

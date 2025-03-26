@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { PrescriptionCartItem } from '@/types/prescription';
-import { sendPrescriptionToPharmacies } from '@/utils/fhir/resources/pharmacy';
+import { sendPrescriptionToPharmacies, getAvailablePharmacies } from '@/utils/fhir/resources/pharmacy';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 
@@ -48,15 +48,33 @@ const PrescriptionTab: React.FC<PrescriptionTabProps> = ({
   const [doctorName, setDoctorName] = useState(prescription.signature?.doctorName || (user?.name || ''));
   const [isSendingToPharmacy, setIsSendingToPharmacy] = useState(false);
   const [pharmacySent, setPharmacySent] = useState(false);
+  const [availablePharmacies, setAvailablePharmacies] = useState<Array<{id: string, name: string, address: string}>>([]);
+  
+  // Lade verfügbare Apotheken
+  useEffect(() => {
+    const loadPharmacies = async () => {
+      const pharmacies = await getAvailablePharmacies();
+      setAvailablePharmacies(pharmacies);
+    };
+    
+    loadPharmacies();
+  }, []);
   
   // Automatically populate product information from cart items
   useEffect(() => {
-    if (status === 'approved' && cartItems && cartItems.length > 0 && !prescription.product) {
+    if (cartItems && cartItems.length > 0 && !prescription.product) {
       // Combine product names if multiple items exist
       const productNames = cartItems.map(item => `${item.name} (${item.quantity}x)`).join(', ');
       onPrescriptionChange('product', productNames);
     }
-  }, [status, cartItems, prescription.product, onPrescriptionChange]);
+  }, [cartItems, prescription.product, onPrescriptionChange]);
+
+  // Beim ersten Laden automatisch auf "Genehmigt" setzen, wenn das Rezept im Pending-Status ist
+  useEffect(() => {
+    if (status === 'pending' && onStatusChange) {
+      onStatusChange();
+    }
+  }, [status, onStatusChange]);
 
   // FHIR-kompatibles Rezept an Apotheke senden
   const handleSendToPharmacy = async () => {
@@ -200,163 +218,160 @@ const PrescriptionTab: React.FC<PrescriptionTabProps> = ({
         <div className="font-medium text-lg">Rezept ausstellen</div>
       </div>
       
-      {status === 'approved' ? (
-        <div className="space-y-4">
-          {cartItems && cartItems.length > 0 && (
-            <div className="bg-secondary/30 p-4 rounded-md mb-4">
-              <h3 className="text-sm font-medium mb-2">Produkte im Warenkorb des Patienten:</h3>
-              <ul className="list-disc list-inside text-sm space-y-1">
-                {cartItems.map(item => (
-                  <li key={item.id}>{item.name} ({item.quantity}x)</li>
-                ))}
-              </ul>
+      <div className="space-y-4">
+        {cartItems && cartItems.length > 0 && (
+          <div className="bg-secondary/30 p-4 rounded-md mb-4">
+            <h3 className="text-sm font-medium mb-2">Produkte im Warenkorb des Patienten:</h3>
+            <ul className="list-disc list-inside text-sm space-y-1">
+              {cartItems.map(item => (
+                <li key={item.id}>{item.name} ({item.quantity}x)</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        <div className="space-y-2">
+          <Label htmlFor="product">Produkt</Label>
+          <Input
+            id="product"
+            value={prescription.product}
+            onChange={(e) => onPrescriptionChange('product', e.target.value)}
+            placeholder="z.B. CBD-Öl 5%"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="dosage">Dosierung</Label>
+          <Input
+            id="dosage"
+            value={prescription.dosage}
+            onChange={(e) => onPrescriptionChange('dosage', e.target.value)}
+            placeholder="z.B. 10mg, 2x täglich"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="duration">Dauer</Label>
+          <Input
+            id="duration"
+            value={prescription.duration}
+            onChange={(e) => onPrescriptionChange('duration', e.target.value)}
+            placeholder="z.B. 3 Monate"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="instructions">Anweisungen</Label>
+          <Textarea
+            id="instructions"
+            value={prescription.instructions}
+            onChange={(e) => onPrescriptionChange('instructions', e.target.value)}
+            placeholder="z.B. 5 Tropfen morgens und abends unter die Zunge"
+            className="min-h-[80px]"
+          />
+        </div>
+
+        {availablePharmacies.length > 0 && (
+          <div className="space-y-2 mt-4">
+            <Label>Verfügbare Apotheken</Label>
+            <div className="grid grid-cols-1 gap-2">
+              {availablePharmacies.map(pharmacy => (
+                <div key={pharmacy.id} className="border rounded-md p-3 bg-secondary/10">
+                  <div className="font-medium">{pharmacy.name}</div>
+                  <div className="text-sm text-muted-foreground">{pharmacy.address}</div>
+                </div>
+              ))}
             </div>
-          )}
-          
-          <div className="space-y-2">
-            <Label htmlFor="product">Produkt</Label>
-            <Input
-              id="product"
-              value={prescription.product}
-              onChange={(e) => onPrescriptionChange('product', e.target.value)}
-              placeholder="z.B. CBD-Öl 5%"
-            />
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="dosage">Dosierung</Label>
-            <Input
-              id="dosage"
-              value={prescription.dosage}
-              onChange={(e) => onPrescriptionChange('dosage', e.target.value)}
-              placeholder="z.B. 10mg, 2x täglich"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="duration">Dauer</Label>
-            <Input
-              id="duration"
-              value={prescription.duration}
-              onChange={(e) => onPrescriptionChange('duration', e.target.value)}
-              placeholder="z.B. 3 Monate"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="instructions">Anweisungen</Label>
-            <Textarea
-              id="instructions"
-              value={prescription.instructions}
-              onChange={(e) => onPrescriptionChange('instructions', e.target.value)}
-              placeholder="z.B. 5 Tropfen morgens und abends unter die Zunge"
-              className="min-h-[80px]"
-            />
+        )}
+
+        <div className="border-t pt-4 mt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <PenLine className="h-5 w-5 text-primary" />
+            <div className="font-medium">Elektronische Signatur</div>
           </div>
 
-          <div className="border-t pt-4 mt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <PenLine className="h-5 w-5 text-primary" />
-              <div className="font-medium">Elektronische Signatur</div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="doctorName">Name des Arztes</Label>
+              <Input
+                id="doctorName"
+                value={doctorName}
+                onChange={handleNameChange}
+                placeholder="Dr. med. Max Mustermann"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="doctorName">Name des Arztes</Label>
-                <Input
-                  id="doctorName"
-                  value={doctorName}
-                  onChange={handleNameChange}
-                  placeholder="Dr. med. Max Mustermann"
+            <div className="space-y-2">
+              <Label className="block mb-2">Signatur</Label>
+              <div className="border rounded-md bg-white relative">
+                <canvas
+                  ref={canvasRef}
+                  width={500}
+                  height={150}
+                  className="w-full h-[150px] border rounded-md touch-none"
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="block mb-2">Signatur</Label>
-                <div className="border rounded-md bg-white relative">
-                  <canvas
-                    ref={canvasRef}
-                    width={500}
-                    height={150}
-                    className="w-full h-[150px] border rounded-md touch-none"
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
-                    onTouchStart={startDrawing}
-                    onTouchMove={draw}
-                    onTouchEnd={stopDrawing}
-                  />
-                  {!signature && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-muted-foreground">
-                      Hier zeichnen, um zu signieren
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-end mt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={clearSignature}
-                    type="button"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Signatur löschen
-                  </Button>
-                </div>
-              </div>
-
-              {/* Apothekensendungs-Button */}
-              <div className="pt-4 border-t">
-                <Button
-                  className="w-full flex items-center justify-center"
-                  onClick={handleSendToPharmacy}
-                  disabled={isSendingToPharmacy || pharmacySent || !signature}
-                >
-                  {isSendingToPharmacy ? (
-                    <div className="h-5 w-5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      {pharmacySent ? 'An Apotheke gesendet' : 'An Apotheke senden'}
-                    </>
-                  )}
-                </Button>
-                
-                {pharmacySent && (
-                  <Alert className="mt-4 bg-green-50 border-green-200">
-                    <AlertDescription className="text-green-700">
-                      Das Rezept wurde erfolgreich an die zuständige Apotheke gesendet.
-                      Der Patient wird benachrichtigt, wenn die Medikamente bereit sind.
-                    </AlertDescription>
-                  </Alert>
+                {!signature && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-muted-foreground">
+                    Hier zeichnen, um zu signieren
+                  </div>
                 )}
               </div>
-
-              {/* DSGVO-Hinweis für die elektronische Signatur */}
-              <div className="text-xs text-muted-foreground bg-secondary/30 p-3 rounded-md mt-2">
-                Mit der elektronischen Signatur bestätigen Sie die Richtigkeit des Rezepts gemäß den ärztlichen Richtlinien.
-                Die Signatur wird gemäß der DSGVO sicher gespeichert und nur zum Zweck der Rezeptverifizierung verwendet.
+              <div className="flex justify-end mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={clearSignature}
+                  type="button"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Signatur löschen
+                </Button>
               </div>
+            </div>
+
+            {/* Apothekensendungs-Button */}
+            <div className="pt-4 border-t">
+              <Button
+                className="w-full flex items-center justify-center"
+                onClick={handleSendToPharmacy}
+                disabled={isSendingToPharmacy || pharmacySent || !signature}
+              >
+                {isSendingToPharmacy ? (
+                  <div className="h-5 w-5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    {pharmacySent ? 'An Apotheke gesendet' : 'An Apotheke senden'}
+                  </>
+                )}
+              </Button>
+              
+              {pharmacySent && (
+                <Alert className="mt-4 bg-green-50 border-green-200">
+                  <AlertDescription className="text-green-700">
+                    Das Rezept wurde erfolgreich an die zuständige Apotheke gesendet.
+                    Der Patient wird benachrichtigt, wenn die Medikamente bereit sind.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+
+            {/* DSGVO-Hinweis für die elektronische Signatur */}
+            <div className="text-xs text-muted-foreground bg-secondary/30 p-3 rounded-md mt-2">
+              Mit der elektronischen Signatur bestätigen Sie die Richtigkeit des Rezepts gemäß den ärztlichen Richtlinien.
+              Die Signatur wird gemäß der DSGVO sicher gespeichert und nur zum Zweck der Rezeptverifizierung verwendet.
             </div>
           </div>
         </div>
-      ) : (
-        <div className="p-6 border rounded-md text-center bg-muted/10">
-          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">
-            Um ein Rezept auszustellen, setzen Sie den Status auf "Genehmigt"
-          </p>
-          <div className="mt-4">
-            <Button 
-              variant="outline"
-              onClick={onStatusChange}
-            >
-              Status auf "Genehmigt" setzen
-            </Button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

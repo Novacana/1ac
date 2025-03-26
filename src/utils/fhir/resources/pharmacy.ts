@@ -105,9 +105,13 @@ export const sendPrescriptionToPharmacies = async (
     //   body: JSON.stringify(medicationDispense)
     // });
     
+    // Erfolgsmeldung anzeigen
+    toast.success(`Rezept erfolgreich an Apotheke "${medicationDispense.performer[0].actor.display}" gesendet`);
+    
     return { success: true, pharmacyIds: [pharmacyId] };
   } catch (error) {
     console.error("Fehler beim Senden des Rezepts an die Apotheke:", error);
+    toast.error("Fehler beim Senden des Rezepts an die Apotheke");
     return { success: false, pharmacyIds: [] };
   }
 };
@@ -117,9 +121,17 @@ export const sendPrescriptionToPharmacies = async (
  * @returns Liste der Apotheken
  */
 export const getAvailablePharmacies = async () => {
-  // In einer echten Implementierung: Datenbankabfrage oder API-Aufruf
-  return [
-    { id: "pharmacy-1", name: "Beispiel-Apotheke", address: "Musterstraße 1, 12345 Berlin" },
-    { id: "pharmacy-2", name: "Cannabis-Apotheke", address: "Hanfweg 42, 10115 Berlin" }
-  ];
+  try {
+    // In einer echten Implementierung: Datenbankabfrage oder API-Aufruf
+    const pharmacies = [
+      { id: "pharmacy-1", name: "Beispiel-Apotheke", address: "Musterstraße 1, 12345 Berlin" },
+      { id: "pharmacy-2", name: "Cannabis-Apotheke", address: "Hanfweg 42, 10115 Berlin" }
+    ];
+    
+    return pharmacies;
+  } catch (error) {
+    console.error("Fehler beim Laden der verfügbaren Apotheken:", error);
+    toast.error("Fehler beim Laden der verfügbaren Apotheken");
+    return [];
+  }
 };
