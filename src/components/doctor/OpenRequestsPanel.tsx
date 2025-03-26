@@ -16,7 +16,7 @@ interface OpenRequestsPanelProps {
   loading: boolean;
   selectedRequestId: string | null;
   onSelectRequest: (id: string) => void;
-  onAssignDoctor: (id: string) => void;
+  onAssignDoctor: (id: string) => Promise<{success: boolean, message?: string} | void>;
 }
 
 const OpenRequestsPanel: React.FC<OpenRequestsPanelProps> = ({
@@ -37,7 +37,8 @@ const OpenRequestsPanel: React.FC<OpenRequestsPanelProps> = ({
       // Übernehme den Patienten und ändere zum Rezept-Tab
       const result = await onAssignDoctor(requestId);
       
-      if (result?.success) {
+      // Check if result exists and has a success property before accessing it
+      if (result && 'success' in result && result.success) {
         // Erstelle FHIR-konforme Ressource für GDPR-Compliance
         const request = requests.find(req => req.id === requestId);
         if (request) {

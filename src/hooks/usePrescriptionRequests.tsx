@@ -107,8 +107,8 @@ export const usePrescriptionRequests = (userId?: string) => {
   }, []);
   
   // Handle doctor assignment - now automatically navigates to prescription tab
-  const handleAssignDoctor = useCallback(async (requestId: string) => {
-    if (!userId) return;
+  const handleAssignDoctor = useCallback(async (requestId: string): Promise<{success: boolean, message: string}> => {
+    if (!userId) return { success: false, message: 'Kein angemeldeter Arzt' };
     
     try {
       // Assign doctor to request
@@ -157,7 +157,7 @@ export const usePrescriptionRequests = (userId?: string) => {
       console.error("Error assigning doctor:", error);
       return { success: false, message: 'Fehler bei der Zuweisung' };
     }
-  }, [userId, requests]);
+  }, [userId, requests, setMainSection, setActiveTab, setSelectedRequestId]);
 
   // Memoize filtered requests
   const filteredRequests = useMemo(() => {
