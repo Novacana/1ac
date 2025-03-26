@@ -23,7 +23,7 @@ interface DashboardContentProps {
   onTabChange: (value: string) => void;
   onSelectRequest: (id: string) => void;
   onRequestUpdate: (updatedRequest: PrescriptionRequest) => void;
-  onAssignDoctor: (requestId: string) => void;
+  onAssignDoctor: (requestId: string) => Promise<{success: boolean, message?: string} | void>;
 }
 
 // Optimize PrescriptionSection with memoization
