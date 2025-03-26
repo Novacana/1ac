@@ -1,6 +1,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { getPrescriptionRequests, updatePrescriptionRequest, assignDoctorToRequest } from '@/data/prescriptionRequests';
+import { 
+  getPrescriptionRequests, 
+  updatePrescriptionRequest, 
+  assignDoctorToRequest 
+} from '@/data/prescriptions';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
 import { logGdprActivity } from '@/utils/fhirCompliance';

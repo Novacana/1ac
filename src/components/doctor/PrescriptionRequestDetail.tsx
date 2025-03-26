@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { PrescriptionRequest } from '@/types/prescription';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { updatePrescriptionRequest } from '@/data/prescriptionRequests';
+import { updatePrescriptionRequest } from '@/data/prescriptions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { FileText, Check, X, HelpCircle, ShoppingCart } from 'lucide-react';
