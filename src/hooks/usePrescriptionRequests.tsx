@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getPrescriptionRequests } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
-import { logGdprActivity } from '@/utils/fhir/activityLogging';
+import { logGdprActivity } from '@/utils/fhirCompliance';
 
 export const usePrescriptionRequests = (userId?: string) => {
   const [requests, setRequests] = useState<PrescriptionRequest[]>([]);
