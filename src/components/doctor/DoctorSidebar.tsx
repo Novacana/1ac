@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, LogOut, Stethoscope, FileText, Users, InboxIcon, Video, Calendar } from 'lucide-react';
+
 interface DoctorSidebarProps {
   user: {
     name: string;
@@ -13,6 +15,7 @@ interface DoctorSidebarProps {
   onNavChange: (section: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar') => void;
   activeSection: 'prescriptions' | 'patients' | 'open_requests' | 'video' | 'calendar';
 }
+
 const DoctorSidebar: React.FC<DoctorSidebarProps> = ({
   user,
   onNavChange,
@@ -26,6 +29,7 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({
     logout();
     navigate('/login');
   };
+  
   return <Card className="sticky top-20">
       <CardHeader className="bg-primary/5">
         <CardTitle className="flex items-center gap-2">
@@ -63,10 +67,61 @@ const DoctorSidebar: React.FC<DoctorSidebarProps> = ({
           </div>
         </div>
 
-        
+        <div className="mt-6 space-y-2">
+          <Button 
+            variant={activeSection === 'open_requests' ? "default" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => onNavChange('open_requests')}
+          >
+            <InboxIcon className="mr-2 h-4 w-4" />
+            Offene Anfragen
+          </Button>
+          
+          <Button 
+            variant={activeSection === 'prescriptions' ? "default" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => onNavChange('prescriptions')}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Rezepte
+          </Button>
+          
+          <Button 
+            variant={activeSection === 'patients' ? "default" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => onNavChange('patients')}
+          >
+            <Users className="mr-2 h-4 w-4" />
+            Patienten
+          </Button>
+          
+          <Button 
+            variant={activeSection === 'video' ? "default" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => onNavChange('video')}
+          >
+            <Video className="mr-2 h-4 w-4" />
+            Videosprechstunde
+          </Button>
+          
+          <Button 
+            variant={activeSection === 'calendar' ? "default" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => onNavChange('calendar')}
+          >
+            <Calendar className="mr-2 h-4 w-4" />
+            Kalender
+          </Button>
+        </div>
       </CardContent>
       
-      
+      <CardFooter className="border-t p-4">
+        <Button variant="outline" className="w-full" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Abmelden
+        </Button>
+      </CardFooter>
     </Card>;
 };
+
 export default DoctorSidebar;

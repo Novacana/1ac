@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { getPrescriptionRequests } from '@/data/prescriptionRequests';
+import { getPrescriptionRequests, updatePrescriptionRequest, assignDoctorToRequest } from '@/data/prescriptionRequests';
 import { PrescriptionRequest } from '@/types/prescription';
 import { toast } from 'sonner';
 import { logGdprActivity } from '@/utils/fhirCompliance';
+import { convertToFHIRMedicationRequest } from '@/utils/fhir/resources/medicationRequest';
 
 export const usePrescriptionRequests = (userId?: string) => {
   const [requests, setRequests] = useState<PrescriptionRequest[]>([]);
@@ -99,17 +100,55 @@ export const usePrescriptionRequests = (userId?: string) => {
     );
   }, []);
   
-  // Handle doctor assignment
-  const handleAssignDoctor = useCallback((requestId: string) => {
+  // Handle doctor assignment - now automatically navigates to prescription tab
+  const handleAssignDoctor = useCallback(async (requestId: string) => {
     if (!userId) return;
     
-    setRequests(prevRequests => 
-      prevRequests.map(req => 
-        req.id === requestId ? { ...req, assignedDoctorId: userId } : req
-      )
-    );
-    toast.success('Sie wurden dieser Anfrage zugewiesen');
-  }, [userId]);
+    try {
+      // Assign doctor to request
+      const updatedRequest = await assignDoctorToRequest(requestId, userId);
+      
+      // Update local state
+      setRequests(prevRequests => 
+        prevRequests.map(req => 
+          req.id === requestId ? { ...req, assignedDoctorId: userId } : req
+        )
+      );
+      
+      // Select the request automatically
+      setSelectedRequestId(requestId);
+      
+      // Switch to prescriptions tab with status "pending"
+      setActiveTab('pending');
+      
+      // Log GDPR activity
+      await logGdprActivity(
+        userId,
+        'patient_assignment',
+        `Doctor assigned to patient request ${requestId}`
+      );
+      
+      // Create FHIR-compliant resource for compliance tracking
+      const request = requests.find(req => req.id === requestId);
+      if (request) {
+        const fhirRequest = convertToFHIRMedicationRequest({
+          id: request.id,
+          patientName: request.patientName,
+          patientId: `patient-${requestId}`,
+          requesterId: userId,
+          requesterName: "Doctor",
+          status: "pending"
+        });
+        
+        console.log("FHIR MedicationRequest created for compliance:", fhirRequest);
+      }
+      
+      return { success: true, message: 'Sie wurden dieser Anfrage zugewiesen' };
+    } catch (error) {
+      console.error("Error assigning doctor:", error);
+      return { success: false, message: 'Fehler bei der Zuweisung' };
+    }
+  }, [userId, requests]);
 
   // Memoize filtered requests
   const filteredRequests = useMemo(() => {

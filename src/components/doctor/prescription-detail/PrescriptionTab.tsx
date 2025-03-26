@@ -1,12 +1,15 @@
 
-import React, { useState, useRef } from 'react';
-import { FilePen, AlertCircle, PenLine, Trash2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { FilePen, AlertCircle, PenLine, Trash2, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { PrescriptionCartItem } from '@/types/prescription';
+import { sendPrescriptionToPharmacies } from '@/utils/fhir/resources/pharmacy';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 
 interface PrescriptionTabProps {
   status: 'pending' | 'approved' | 'rejected' | 'needs_more_info';
@@ -43,15 +46,50 @@ const PrescriptionTab: React.FC<PrescriptionTabProps> = ({
   const [signature, setSignature] = useState<string | undefined>(prescription.signature?.signatureImage);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [doctorName, setDoctorName] = useState(prescription.signature?.doctorName || (user?.name || ''));
-
+  const [isSendingToPharmacy, setIsSendingToPharmacy] = useState(false);
+  const [pharmacySent, setPharmacySent] = useState(false);
+  
   // Automatically populate product information from cart items
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === 'approved' && cartItems && cartItems.length > 0 && !prescription.product) {
       // Combine product names if multiple items exist
       const productNames = cartItems.map(item => `${item.name} (${item.quantity}x)`).join(', ');
       onPrescriptionChange('product', productNames);
     }
   }, [status, cartItems, prescription.product, onPrescriptionChange]);
+
+  // FHIR-kompatibles Rezept an Apotheke senden
+  const handleSendToPharmacy = async () => {
+    if (!prescription.signature) {
+      toast.error("Bitte unterschreiben Sie das Rezept, bevor es an Apotheken gesendet wird");
+      return;
+    }
+    
+    setIsSendingToPharmacy(true);
+    
+    try {
+      const prescriptionData = {
+        ...prescription,
+        patientId: "unknown", // In echtem System würde dies aus der Datenbank kommen
+        patientName: "Patient Name", // Ebenso hier
+        doctorId: user?.id || "unknown"
+      };
+      
+      const { success, pharmacyIds } = await sendPrescriptionToPharmacies(prescriptionData, cartItems);
+      
+      if (success) {
+        setPharmacySent(true);
+        toast.success(`Rezept erfolgreich an ${pharmacyIds.length} Apotheke(n) gesendet`);
+      } else {
+        toast.error("Fehler beim Senden des Rezepts an Apotheken");
+      }
+    } catch (error) {
+      console.error("Fehler beim Senden an Apotheke:", error);
+      toast.error("Ein Fehler ist aufgetreten");
+    } finally {
+      setIsSendingToPharmacy(false);
+    }
+  };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
@@ -266,6 +304,33 @@ const PrescriptionTab: React.FC<PrescriptionTabProps> = ({
                     Signatur löschen
                   </Button>
                 </div>
+              </div>
+
+              {/* Apothekensendungs-Button */}
+              <div className="pt-4 border-t">
+                <Button
+                  className="w-full flex items-center justify-center"
+                  onClick={handleSendToPharmacy}
+                  disabled={isSendingToPharmacy || pharmacySent || !signature}
+                >
+                  {isSendingToPharmacy ? (
+                    <div className="h-5 w-5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      {pharmacySent ? 'An Apotheke gesendet' : 'An Apotheke senden'}
+                    </>
+                  )}
+                </Button>
+                
+                {pharmacySent && (
+                  <Alert className="mt-4 bg-green-50 border-green-200">
+                    <AlertDescription className="text-green-700">
+                      Das Rezept wurde erfolgreich an die zuständige Apotheke gesendet.
+                      Der Patient wird benachrichtigt, wenn die Medikamente bereit sind.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
 
               {/* DSGVO-Hinweis für die elektronische Signatur */}

@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Inbox, AlertCircle, UserPlus, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { convertToFHIRMedicationRequest, recordMedicationRequest } from '@/utils/fhir/resources/medicationRequest';
 
 interface OpenRequestsPanelProps {
   requests: PrescriptionRequest[];
@@ -28,6 +30,41 @@ const OpenRequestsPanel: React.FC<OpenRequestsPanelProps> = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'dd.MM.yyyy HH:mm');
+  };
+
+  const handleAssignRequest = async (requestId: string) => {
+    try {
+      // Übernehme den Patienten und ändere zum Rezept-Tab
+      onAssignDoctor(requestId);
+      
+      // Erstelle FHIR-konforme Ressource für GDPR-Compliance
+      const request = requests.find(req => req.id === requestId);
+      if (request) {
+        const fhirRequest = convertToFHIRMedicationRequest({
+          id: request.id,
+          patientName: request.patientName,
+          patientId: `patient-${requestId}`,
+          requesterName: request.patientName,
+          requesterId: `requester-${requestId}`,
+          medicationName: request.cartItems?.[0]?.name || "Medikation",
+          status: "pending"
+        });
+        
+        console.log("FHIR MedicationRequest erstellt:", fhirRequest);
+        
+        // Protokolliere die Aktion für GDPR/HIPAA-Compliance
+        await recordMedicationRequest('doctor-id', {
+          id: request.id,
+          medicationName: request.cartItems?.[0]?.name || "Medikation",
+          patientId: `patient-${requestId}`
+        });
+      }
+      
+      toast.success('Patient erfolgreich übernommen. Rezept wird vorbereitet.');
+    } catch (error) {
+      console.error("Fehler bei der Patientenübernahme:", error);
+      toast.error('Fehler bei der Übernahme des Patienten');
+    }
   };
 
   return (
@@ -85,7 +122,7 @@ const OpenRequestsPanel: React.FC<OpenRequestsPanelProps> = ({
                       <div className="mt-2 flex justify-end">
                         <Button 
                           size="sm"
-                          onClick={() => onAssignDoctor(request.id)}
+                          onClick={() => handleAssignRequest(request.id)}
                           className="flex items-center gap-1"
                         >
                           <UserPlus className="h-4 w-4" />
