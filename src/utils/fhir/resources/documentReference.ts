@@ -1,51 +1,104 @@
 
 /**
- * FHIR DocumentReference resource utilities
+ * FHIR DocumentReference Resource Utilities
  */
 
+import { supabase } from "@/integrations/supabase/client";
+
 /**
- * Creates a FHIR DocumentReference for a medical document
+ * Creates a FHIR DocumentReference resource
  * @param userId User ID
- * @param documentType Type of document
- * @param file File metadata
- * @param filePath Path to the stored file
+ * @param documentData Document data
  * @returns FHIR DocumentReference resource
  */
 export const createFHIRDocumentReference = (
   userId: string,
-  documentType: string,
-  file: { name: string; type: string; size: number },
-  filePath: string
+  documentData: {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    contentType: string;
+    url: string;
+    size?: number;
+  }
 ) => {
-  return {
+  // Get current date in ISO format
+  const dateTime = new Date().toISOString();
+  
+  // Create FHIR-compliant DocumentReference resource
+  const documentReference = {
     resourceType: "DocumentReference",
-    status: "current",
-    docStatus: "final",
+    id: documentData.id,
+    status: documentData.status === "verified" ? "current" :
+            documentData.status === "rejected" ? "entered-in-error" : "preliminary",
     type: {
-      coding: [{
-        system: "http://loinc.org",
-        code: documentType === 'approbation' ? "11488-4" : "11519-6",
-        display: documentType === 'approbation' ? "Physician Note" : "Specialist Note"
-      }]
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: documentData.type === "approbation" ? "51851-4" : 
+                documentData.type === "pharmacy_license" ? "11369-6" : "67799-9",
+          display: documentData.type
+        }
+      ]
     },
     subject: {
-      reference: `Practitioner/${userId}`
+      reference: `Patient/${userId}`
     },
-    date: new Date().toISOString(),
-    securityLabel: [{
-      coding: [{
-        system: "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
-        code: "R",
-        display: "Restricted"
-      }]
-    }],
-    content: [{
-      attachment: {
-        contentType: file.type,
-        url: `${filePath}`,
-        title: file.name,
-        size: file.size
+    date: dateTime,
+    description: documentData.name,
+    content: [
+      {
+        attachment: {
+          contentType: documentData.contentType,
+          url: documentData.url,
+          size: documentData.size,
+          title: documentData.name
+        }
       }
-    }]
+    ],
+    context: {
+      related: [
+        {
+          reference: `Patient/${userId}`
+        }
+      ]
+    }
   };
+  
+  return documentReference;
+};
+
+/**
+ * Records a document upload and logs it for GDPR compliance
+ * @param userId User ID
+ * @param documentData Document data
+ * @returns success status
+ */
+export const recordDocumentUpload = async (
+  userId: string,
+  documentData: {
+    id: string;
+    name: string;
+    type: string;
+  }
+) => {
+  try {
+    // Log the document upload action
+    await supabase.from('gdpr_logs').insert({
+      user_id: userId,
+      action_type: 'document_upload',
+      description: `User uploaded document: ${documentData.name}`,
+      metadata: {
+        document_id: documentData.id,
+        document_name: documentData.name,
+        document_type: documentData.type
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Error recording document upload:", error);
+    return false;
+  }
 };

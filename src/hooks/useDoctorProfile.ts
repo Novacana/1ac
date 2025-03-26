@@ -65,7 +65,7 @@ export const useDoctorProfile = () => {
       
       // Fetch license information from database
       const { data: licenseData, error: licenseError } = await supabase
-        .from('medical_licenses')
+        .from('doctor_licenses')
         .select('*')
         .eq('user_id', user.id)
         .single();
@@ -88,7 +88,7 @@ export const useDoctorProfile = () => {
       const { data: statsData, error: statsError } = await supabase
         .from('doctor_statistics')
         .select('*')
-        .eq('doctor_id', user.id)
+        .eq('user_id', user.id)
         .single();
         
       if (statsError && statsError.code !== 'PGRST116') {
@@ -106,7 +106,7 @@ export const useDoctorProfile = () => {
       
       // Fetch schedule from database
       const { data: scheduleData, error: scheduleError } = await supabase
-        .from('doctor_schedule')
+        .from('doctor_schedules')
         .select('*')
         .eq('doctor_id', user.id)
         .order('day_of_week', { ascending: true });
@@ -140,7 +140,7 @@ export const useDoctorProfile = () => {
     try {
       // Check if license record exists
       const { data: existingLicense, error: checkError } = await supabase
-        .from('medical_licenses')
+        .from('doctor_licenses')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -170,13 +170,13 @@ export const useDoctorProfile = () => {
       if (existingLicense) {
         // Update existing record
         result = await supabase
-          .from('medical_licenses')
+          .from('doctor_licenses')
           .update(licenseData)
           .eq('user_id', user.id);
       } else {
         // Insert new record
         result = await supabase
-          .from('medical_licenses')
+          .from('doctor_licenses')
           .insert(licenseData);
       }
       
@@ -215,7 +215,7 @@ export const useDoctorProfile = () => {
       
       // Delete existing schedule
       const { error: deleteError } = await supabase
-        .from('doctor_schedule')
+        .from('doctor_schedules')
         .delete()
         .eq('doctor_id', user.id);
         
@@ -233,7 +233,7 @@ export const useDoctorProfile = () => {
       }));
       
       const { error: insertError } = await supabase
-        .from('doctor_schedule')
+        .from('doctor_schedules')
         .insert(scheduleData);
         
       if (insertError) {

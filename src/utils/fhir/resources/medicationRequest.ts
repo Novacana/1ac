@@ -1,72 +1,128 @@
 
 /**
- * FHIR MedicationRequest resource utilities
+ * FHIR MedicationRequest Resource Utilities
  */
 
+import { supabase } from "@/integrations/supabase/client";
+
 /**
- * Creates a MedicationRequest in FHIR format
- * @param prescription Prescription data
- * @param patientId Patient ID
- * @param practitionerId Practitioner ID
+ * Converts a prescription request to a FHIR MedicationRequest resource
+ * @param prescriptionData Prescription data
  * @returns FHIR MedicationRequest resource
  */
-export const createFHIRMedicationRequest = (prescription: any, patientId: string, practitionerId: string) => {
-  return {
-    resourceType: 'MedicationRequest',
-    id: prescription.id || `rx-${Date.now()}`,
-    status: prescription.status || 'active',
-    intent: 'order',
+export const convertToFHIRMedicationRequest = (prescriptionData: any) => {
+  // Create FHIR-compliant MedicationRequest resource
+  const medicationRequest = {
+    resourceType: "MedicationRequest",
+    id: prescriptionData.id,
+    status: prescriptionData.status === "approved" ? "active" : 
+            prescriptionData.status === "rejected" ? "cancelled" : 
+            prescriptionData.status === "pending" ? "draft" : "unknown",
+    intent: "order",
     medicationCodeableConcept: {
       coding: [
         {
-          system: 'http://www.nlm.nih.gov/research/umls/rxnorm',
-          code: prescription.medicationCode || '1234',
-          display: prescription.medicationName || 'Medication'
+          system: "http://www.nlm.nih.gov/research/umls/rxnorm",
+          code: prescriptionData.medicationCode || "unknown",
+          display: prescriptionData.medicationName
         }
       ],
-      text: prescription.medicationName || 'Medication'
+      text: prescriptionData.medicationName
     },
     subject: {
-      reference: `Patient/${patientId}`
+      reference: `Patient/${prescriptionData.patientId}`,
+      display: prescriptionData.patientName
     },
     requester: {
-      reference: `Practitioner/${practitionerId}`
+      reference: `Practitioner/${prescriptionData.requesterId}`,
+      display: prescriptionData.requesterName
     },
+    recorder: prescriptionData.assignedDoctorId ? {
+      reference: `Practitioner/${prescriptionData.assignedDoctorId}`,
+      display: prescriptionData.assignedDoctorName
+    } : undefined,
+    reasonCode: [
+      {
+        text: prescriptionData.reason || "Unknown reason"
+      }
+    ],
     dosageInstruction: [
       {
-        text: prescription.dosage || 'Take as directed',
+        text: prescriptionData.dosage || "As directed",
         timing: {
           repeat: {
-            frequency: prescription.frequency || 1,
-            period: prescription.period || 1,
-            periodUnit: prescription.periodUnit || 'd'
+            frequency: prescriptionData.frequency || 1,
+            period: prescriptionData.periodValue || 1,
+            periodUnit: prescriptionData.periodUnit || "d"
           }
         },
         route: {
           coding: [
             {
-              system: 'http://snomed.info/sct',
-              code: '26643006',
-              display: 'Oral route'
+              system: "http://snomed.info/sct",
+              code: "26643006",
+              display: prescriptionData.route || "Oral route"
             }
           ]
-        }
+        },
+        doseAndRate: [
+          {
+            doseQuantity: {
+              value: prescriptionData.doseValue || 1,
+              unit: prescriptionData.doseUnit || "tablet",
+              system: "http://unitsofmeasure.org",
+              code: prescriptionData.doseUnitCode || "TAB"
+            }
+          }
+        ]
       }
     ],
     dispenseRequest: {
-      numberOfRepeatsAllowed: prescription.refills || 0,
+      numberOfRepeatsAllowed: prescriptionData.repeats || 0,
       quantity: {
-        value: prescription.quantity || 1,
-        unit: prescription.unit || 'tablets',
-        system: 'http://unitsofmeasure.org',
-        code: prescription.quantityCode || 'TAB'
+        value: prescriptionData.quantity || 1,
+        unit: prescriptionData.quantityUnit || "tablet",
+        system: "http://unitsofmeasure.org",
+        code: prescriptionData.quantityUnitCode || "TAB"
       },
       expectedSupplyDuration: {
-        value: prescription.duration || 30,
-        unit: 'days',
-        system: 'http://unitsofmeasure.org',
-        code: 'd'
+        value: prescriptionData.supplyDuration || 30,
+        unit: "days",
+        system: "http://unitsofmeasure.org",
+        code: "d"
       }
     }
   };
+
+  return medicationRequest;
+};
+
+/**
+ * Records a medication request and logs it for GDPR compliance
+ * @param userId User ID of the requester
+ * @param prescriptionData Prescription data
+ * @returns success status
+ */
+export const recordMedicationRequest = async (
+  userId: string,
+  prescriptionData: any
+) => {
+  try {
+    // Log the medication request action
+    await supabase.from('gdpr_logs').insert({
+      user_id: userId,
+      action_type: 'medication_request',
+      description: `User submitted prescription request for ${prescriptionData.medicationName}`,
+      metadata: {
+        prescription_id: prescriptionData.id,
+        medication_name: prescriptionData.medicationName,
+        patient_id: prescriptionData.patientId
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Error recording medication request:", error);
+    return false;
+  }
 };

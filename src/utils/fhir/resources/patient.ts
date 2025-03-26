@@ -1,55 +1,97 @@
 
 /**
- * FHIR Patient resource utilities
+ * FHIR Patient Resource Utilities
  */
 
 import { User } from "@/types/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Converts user data to FHIR Patient resource format
- * @param userData User data to convert
- * @returns FHIR Patient resource
+ * Converts user data to FHIR Patient resource
+ * @param user User data
+ * @returns FHIR compliant Patient resource
  */
-export const convertUserToFHIRPatient = (userData: any) => {
-  if (!userData) return null;
-  
-  return {
-    resourceType: 'Patient',
-    id: userData.id,
-    identifier: [
-      {
-        system: 'urn:oid:2.16.840.1.113883.4.3.276',
-        value: userData.id
-      }
-    ],
+export const convertToFHIRPatient = async (user: User) => {
+  if (!user) {
+    throw new Error('Invalid user');
+  }
+
+  // Fetch addresses if available
+  let addresses = [];
+  try {
+    const { data, error } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', user.id);
+      
+    if (!error && data) {
+      addresses = data;
+    }
+  } catch (error) {
+    console.error("Error fetching user addresses:", error);
+  }
+
+  // Create FHIR-compliant Patient resource
+  const patient = {
+    resourceType: "Patient",
+    id: user.id,
+    meta: {
+      profile: ["http://hl7.org/fhir/profiles/Patient"]
+    },
+    active: true,
     name: [
       {
-        use: 'official',
-        family: userData.name.split(' ').slice(1).join(' '),
-        given: [userData.name.split(' ')[0]]
+        text: user.name,
+        family: user.name?.split(' ').slice(-1)[0] || "",
+        given: [user.name?.split(' ')[0] || ""]
       }
     ],
     telecom: [
       {
-        system: 'phone',
-        value: userData.phone || '',
-        use: 'home'
+        system: "email",
+        value: user.email,
+        use: "home"
       },
       {
-        system: 'email',
-        value: userData.email || '',
-        use: 'work'
+        system: "phone",
+        value: user.phone || "",
+        use: "mobile"
       }
     ],
-    gender: 'unknown', // Would need to be specified in user data
-    address: userData.addresses.map((addr: any) => ({
-      use: 'home',
-      type: 'physical',
-      line: [addr.street, addr.additionalInfo].filter(Boolean),
+    address: addresses.map(addr => ({
+      use: addr.is_default ? "home" : "temp",
+      type: "physical",
+      text: `${addr.street}, ${addr.zip} ${addr.city}, ${addr.country}`,
+      line: [addr.street],
       city: addr.city,
-      state: addr.state,
       postalCode: addr.zip,
       country: addr.country
     }))
   };
+
+  return patient;
+};
+
+/**
+ * Retrieves a specific patient by ID
+ * @param userId User ID
+ * @returns FHIR Patient resource
+ */
+export const getPatient = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+      
+    if (error) {
+      throw error;
+    }
+    
+    return await convertToFHIRPatient(data as User);
+  } catch (error) {
+    console.error("Error fetching patient:", error);
+    return null;
+  }
 };

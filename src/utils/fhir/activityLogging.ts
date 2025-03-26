@@ -19,7 +19,7 @@ export const logGdprActivity = async (
   metadata?: Record<string, any>
 ) => {
   try {
-    const payload: Record<string, any> = {
+    const payload = { 
       user_id: userId,
       action_type: actionType,
       description: description
