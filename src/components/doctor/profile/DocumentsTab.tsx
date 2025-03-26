@@ -109,13 +109,15 @@ const DocumentsTab: React.FC = () => {
       
       const fhirDocumentReference = createFHIRDocumentReference(
         user.id,
-        documentType,
         {
+          id: crypto.randomUUID(),
           name: file.name,
-          type: file.type,
+          type: documentType,
+          status: 'pending',
+          contentType: file.type,
+          url: filePath,
           size: file.size
-        },
-        filePath
+        }
       );
       
       console.log('FHIR DocumentReference created:', fhirDocumentReference);
@@ -123,7 +125,8 @@ const DocumentsTab: React.FC = () => {
       await logGdprActivity(
         user.id,
         `${documentType}_document_upload`,
-        `User uploaded a ${documentType} document with GDPR consent`
+        `User uploaded a ${documentType} document with GDPR consent`,
+        { documentName: file.name, documentType: documentType }
       );
       
       setUploadState({

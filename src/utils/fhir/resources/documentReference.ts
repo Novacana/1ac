@@ -5,23 +5,25 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+interface DocumentData {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  contentType: string;
+  url: string;
+  size?: number;
+}
+
 /**
  * Creates a FHIR DocumentReference resource
- * @param userId User ID
+ * @param patientId Patient ID
  * @param documentData Document data
  * @returns FHIR DocumentReference resource
  */
 export const createFHIRDocumentReference = (
-  userId: string,
-  documentData: {
-    id: string;
-    name: string;
-    type: string;
-    status: string;
-    contentType: string;
-    url: string;
-    size?: number;
-  }
+  patientId: string,
+  documentData: DocumentData
 ) => {
   // Get current date in ISO format
   const dateTime = new Date().toISOString();
@@ -43,7 +45,7 @@ export const createFHIRDocumentReference = (
       ]
     },
     subject: {
-      reference: `Patient/${userId}`
+      reference: `Patient/${patientId}`
     },
     date: dateTime,
     description: documentData.name,
@@ -60,7 +62,7 @@ export const createFHIRDocumentReference = (
     context: {
       related: [
         {
-          reference: `Patient/${userId}`
+          reference: `Patient/${patientId}`
         }
       ]
     }

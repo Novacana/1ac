@@ -252,7 +252,13 @@ export const logGdprActivity = async (
   metadata?: Record<string, any>
 ) => {
   try {
-    const payload = { 
+    // Create the base payload
+    const payload: {
+      user_id: string;
+      action_type: string;
+      description: string;
+      metadata?: Record<string, any>;
+    } = { 
       user_id: userId,
       action_type: actionType,
       description: description
